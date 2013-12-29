@@ -51,8 +51,9 @@ set showcmd
 " Show current mode
 set showmode
 
-" Shortcut to save current file if modified
+" Shortcuts to save current file if modified
 noremap <silent> <Leader>s :update<CR>
+noremap <silent> <Leader>w :update<CR>
 
 " <Ctrl-l> redraws the screen and removes any search highlighting.
 nnoremap <silent> <C-l> :nohl<CR><C-l>
@@ -128,6 +129,14 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 
 " Make B an alias for Bclose
 command! -nargs=* -bang B Bclose<bang><args>
+
+" Shortcut to toggle taglist
+if exists(":TlistToggle")
+    nnoremap <silent> <Leader>t :TlistToggle<CR>
+endif
+
+" Let SuperTab choose the best completion type
+let g:SuperTabDefaultCompletionType = "context"
 
 if hasmac
     " Enable use of option key as meta key
