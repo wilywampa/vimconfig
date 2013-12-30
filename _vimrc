@@ -222,6 +222,9 @@ if has('gui_running')
         if match(&guifont, "Powerline") < 0
             set guifont=Inconsolata:h18
         endif
+
+        " Start in fullscreen mode
+        autocmd VimEnter * set fullscreen
     endif
 endif
 
