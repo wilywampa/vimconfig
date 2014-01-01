@@ -58,6 +58,9 @@ noremap <silent> <Leader>w :update<CR>
 " <Ctrl-l> redraws the screen and removes any search highlighting.
 nnoremap <silent> <C-l> :nohl<CR><C-l>
 
+" Execute q macro with Q
+nnoremap Q @q
+
 " Turn on hybrid line numbers (or relative line numbers before Vim 7.4)
 set number
 set relativenumber
