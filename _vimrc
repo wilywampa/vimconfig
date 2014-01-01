@@ -89,6 +89,7 @@ nmap <silent> ,sv :so $MYVIMRC<CR>
 " Highlight current line in active window
 augroup BgHighlight
     autocmd!
+    autocmd BufRead,BufNewFile * set cul
     autocmd WinEnter * set cul
     autocmd WinLeave * set nocul
 augroup END
