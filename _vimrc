@@ -203,10 +203,10 @@ endif
 " Make Ctrl-c function the same as Esc in insert mode
 imap <C-c> <Esc>
 
-if has('gui_running')
-    " Set color scheme
-    colorscheme desert
+" Set color scheme
+colorscheme desert
 
+if has('gui_running')
     " Copy mouse modeless selection to clipboard
     set guioptions+=A
 
@@ -246,7 +246,7 @@ nmap <silent> <F11>     :tabprevious<CR>
 set laststatus=2
 
 " Enable powerline characters if a compatible font is installed
-if match(&guifont, "Powerline") >= 0
+if (match(&guifont, "Powerline") >= 0) || hasmac
     let g:airline_powerline_fonts = 1
 endif
 
