@@ -200,7 +200,7 @@ else
 
     if hasmac
     	" Shortcut to reveal current file in Finder
-    	nnoremap <silent> <F5> :silent !reveal %:p > /dev/null<CR>
+    	nnoremap <silent> <F5> :silent !reveal %:p > /dev/null<CR>:redraw!<CR>
     endif
 endif
 
