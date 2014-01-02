@@ -154,6 +154,7 @@ autocmd BufRead,BufNewFile */arduino/*.h set filetype=arduino
 autocmd FileType arduino setlocal cindent
 autocmd FileType arduino map <F7> :wa<CR>:silent !open $ARDUINO_DIR/build.app<CR>
             \:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
+autocmd FileType arduino map <S-F7> :wa<CR>:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
 
 " Set comment delimiters for Arduino
 let g:NERDCustomDelimiters={
