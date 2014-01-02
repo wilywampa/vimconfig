@@ -137,8 +137,10 @@ command! -nargs=* -bang B Bclose<bang><args>
 " Shortcut to toggle taglist
 autocmd VimEnter * if exists(":TlistToggle") | exe "nnoremap <silent> <Leader>t :TlistToggle<CR>" | endif
 
-" Let SuperTab choose the best completion type
-let g:SuperTabDefaultCompletionType = "context"
+" OmniCppComplete options
+let OmniCpp_ShowPrototypeInAbbr = 1
+let OmniCpp_MayCompleteScope = 1
+au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
 if hasmac
     " Enable use of option key as meta key
