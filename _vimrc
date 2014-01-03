@@ -119,6 +119,9 @@ set undoreload=10000
 " Make vim remember more commands
 set history=1000
 
+" Shorter timeout length for multi-key mappings
+set timeoutlen=500
+
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
 
