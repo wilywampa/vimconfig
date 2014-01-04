@@ -272,9 +272,13 @@ endif
 nnoremap <silent> <M-n> <Esc>:%s///gn<CR>
 nnoremap <silent> <Leader>n <Esc>:%s///gn<CR>
 
-" Delete/change without yank by default, and ,d for delete/change with yank
-nnoremap d "_d| nnoremap ,d d| vnoremap d "_d| vnoremap ,d d
-nnoremap c "_c| nnoremap ,c c| vnoremap c "_c| vnoremap ,c c
+" Delete without yank by default, and <M-d> for delete with yank
+nnoremap c "_c|nnoremap <M-c> c|vnoremap c "_c|vnoremap <M-c> c
+nnoremap C "_C|nnoremap <M-C> C|vnoremap C "_C|vnoremap <M-C> C
+nnoremap d "_d|nnoremap <M-d> d|vnoremap d "_d|vnoremap <M-d> d
+nnoremap D "_D|nnoremap <M-D> D|vnoremap D "_D|vnoremap <M-D> D
+nnoremap x "_x|nnoremap <M-x> x|vnoremap x "_x|vnoremap <M-x> x
+nnoremap X "_X|nnoremap <M-X> X|vnoremap X "_X|vnoremap <M-X> X
 
 " Copy full file path to clipboard on Ctrl-g
 nnoremap <C-g> :let @+=expand('%:p')<CR><C-g>
