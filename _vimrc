@@ -287,17 +287,17 @@ nnoremap <C-g> :let @+=expand('%:p')<CR><C-g>
 
 " Remove last newline after copying visual selection to clipboard
 function! RemoveClipboardNewline()
-    if &updatetime==0
+    if &updatetime==1
         let @*=substitute(@*,'\n$','','g')
         set updatetime=4000
     endif
 endfunction
-function! InsertVisualMode()
-    set updatetime=0
+function! VisualEnter()
+    set updatetime=1
 endfunction
-vnoremap <expr> <SID>InsertVisualMode InsertVisualMode()
-nnoremap <script> V V<SID>InsertVisualMode
-nnoremap <script> gv gv<SID>InsertVisualMode
+vnoremap <expr> <SID>VisualEnter VisualEnter()
+nnoremap <script> V V<SID>VisualEnter
+nnoremap <script> gv gv<SID>VisualEnter
 autocmd CursorHold * call RemoveClipboardNewline()
 
 " Override plugin mappings after startup
