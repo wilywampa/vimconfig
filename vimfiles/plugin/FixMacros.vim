@@ -18,11 +18,11 @@ function! FixMacros()
     let regnum = filter( regnum, 'getreg(nr2char(v:val)) !~ "^\W\+$"' )
 
     for reg in regnum
-        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'ã',',c',''))
-        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'Ã',',C',''))
-        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'ä',',d',''))
-        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'Ä',',D',''))
-        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'ø',',x',''))
-        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'Ø',',X',''))
+        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'ã','c',''))
+        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'Ã','C',''))
+        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'ä','d',''))
+        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'Ä','D',''))
+        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'ø','x',''))
+        call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'Ø','X',''))
     endfor
 endfunction
