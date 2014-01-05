@@ -255,10 +255,8 @@ nmap <silent> <F11>     :tabprevious<CR>
 " Always show statusline
 set laststatus=2
 
-" Enable powerline characters if a compatible font is installed
-if (match(&guifont, "Powerline") >= 0) || hasmac
-    let g:airline_powerline_fonts = 1
-endif
+" Assume powerline characters are available
+let g:airline_powerline_fonts = 1
 
 " Disable graphical plugins in Mac SSH session
 if (hasmac && !empty($SSH_CLIENT))
@@ -266,12 +264,22 @@ if (hasmac && !empty($SSH_CLIENT))
     let g:airline_powerline_fonts = 0
 endif
 
+" Settings for running in a terminal under Windows
 if !haswin && !hasmac
     " Shortcuts for moving cursor in command in PuTTY
-    map <ESC>[C <C-Right>
-    map <ESC>[D <C-Left>
-    map! <ESC>[C <C-Right>
-    map! <ESC>[D <C-Left>
+    cmap <ESC>[C <C-Right>
+    cmap <ESC>[D <C-Left>
+
+    " Shortcuts to change tab in MinTTY
+    nnoremap [1;5I gt
+    nnoremap [1;6I gT
+
+    " Map escape sequences to act as meta keys in normal mode
+    let ns  = range(33,90) + range(92,123) + range(125,126)
+    for n in ns
+        exec "nmap ".nr2char(n)." <M-".nr2char(n).">"
+    endfor
+    unlet ns n
 endif
 
 " Shortcut to print number of occurences of last search
