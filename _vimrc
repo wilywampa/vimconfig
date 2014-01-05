@@ -302,12 +302,13 @@ function! RemoveClipboardNewline()
         set updatetime=4000
     endif
 endfunction
-function! VisualEnter()
+function! s:VisualEnter(arg)
     set updatetime=1
+    return a:arg
 endfunction
 vnoremap <expr> <SID>VisualEnter VisualEnter()
-nnoremap <script> V V<SID>VisualEnter
-nnoremap <script> gv gv<SID>VisualEnter
+nnoremap <expr> v <SID>VisualEnter('v')
+nnoremap <expr> V <SID>VisualEnter('V')
 autocmd CursorHold * call RemoveClipboardNewline()
 
 " Override plugin mappings after startup
