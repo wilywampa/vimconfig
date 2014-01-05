@@ -222,19 +222,16 @@ if has('gui_running')
 
     if haswin
         " Set font for gVim
-        silent! set guifont=Inconsolata\ for\ Powerline:h14
-        if match(&guifont, "Powerline") < 0
-            set guifont=Inconsolata:h14
-        endif
+        set guifont=Inconsolata\ for\ Powerline:h14
     elseif hasmac
         " Set font for MacVim
-        silent! set guifont=Inconsolata\ for\ Powerline:h18
-        if match(&guifont, "Powerline") < 0
-            set guifont=Inconsolata:h18
-        endif
+        set guifont=Inconsolata\ for\ Powerline:h18
 
         " Start in fullscreen mode
         autocmd VimEnter * set fullscreen
+    else
+        " Set font for gVim
+        set guifont=Inconsolata\ for\ Powerline\ Medium\ 15
     endif
 endif
 
