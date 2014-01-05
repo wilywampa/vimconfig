@@ -260,6 +260,12 @@ if (match(&guifont, "Powerline") >= 0) || hasmac
     let g:airline_powerline_fonts = 1
 endif
 
+" Disable graphical plugins in Mac SSH session
+if (hasmac && !empty($SSH_CLIENT))
+    let g:CSApprox_verbose_level = 0
+    let g:airline_powerline_fonts = 0
+endif
+
 if !haswin && !hasmac
     " Shortcuts for moving cursor in command in PuTTY
     map <ESC>[C <C-Right>
