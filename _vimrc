@@ -285,6 +285,10 @@ nnoremap X "_X|nnoremap <M-X> X|nnoremap ,X X|vnoremap X "_X|vnoremap <M-X> X|vn
 " Copy full file path to clipboard on Ctrl-g
 nnoremap <C-g> :let @+=expand('%:p')<CR><C-g>
 
+" Move current tab to last position
+nnoremap <silent> <C-w><C-e> :tabm +99<CR>
+nnoremap <silent> <C-w>e     :tabm +99<CR>
+
 " Remove last newline after copying visual selection to clipboard
 function! RemoveClipboardNewline()
     if &updatetime==1
