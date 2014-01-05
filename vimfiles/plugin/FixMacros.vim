@@ -1,6 +1,6 @@
-nnoremap <silent> @ :call FixMacros()<CR>@
+nnoremap <expr> @ <SID>FixMacros()
 
-function! FixMacros()
+function! s:FixMacros()
     " Create the list of register 'indexes' where the the elements are in char2nr form
     let regnum =  range(char2nr('a'), char2nr('z'))
     let regnum += range(char2nr('0'), char2nr('9'))
@@ -27,4 +27,6 @@ function! FixMacros()
         call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'ø',',x',''))
         call setreg(nr2char(reg), substitute(getreg(nr2char(reg)),'Ø',',X',''))
     endfor
+
+    return '@'
 endfunction
