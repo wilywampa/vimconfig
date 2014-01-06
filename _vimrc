@@ -1,6 +1,4 @@
-" This option stops vim from behaving in a strongly vi -compatible way. It
-" should be at the start of any vimrc file as it can affect lots of other
-" options which you may want to override.
+" Allow settings that are not vi-compatible
 set nocompatible
 
 " Number of spaces to indent
