@@ -253,10 +253,14 @@ set laststatus=2
 " Assume powerline characters are available
 let g:airline_powerline_fonts = 1
 
-" Disable graphical plugins in Mac SSH session
+" Settings for Mac SSH session
 if (hasmac && !empty($SSH_CLIENT))
+    " Disable graphical plugins
     let g:CSApprox_verbose_level = 0
     let g:airline_powerline_fonts = 0
+
+    " Increase time allowed for multi-key mappings
+    set timeoutlen=1000
 endif
 
 " Settings for running in a terminal under Windows
