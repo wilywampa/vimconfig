@@ -182,7 +182,10 @@ if haswin
     " Source Windows-specific settings
     source $VIMRUNTIME/mswin.vim
     unmap <C-y>
-    map <C-A> <Esc>ggVG
+
+    " Map increment/decrement function to Alt instead of Ctrl
+    nnoremap <M-a> <C-a>
+    nnoremap <M-x> <C-x>
 
     " Make Ctrl-c exit visual/select mode after copying
     vnoremap <C-c> "+y<Esc>
