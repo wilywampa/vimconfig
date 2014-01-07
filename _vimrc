@@ -233,7 +233,7 @@ if has('gui_running')
             " Big font for big TV
             set guifont=Inconsolata:h14
         else
-            set guifont=Inconsolata:h14
+            set guifont=Inconsolata:h12
         endif
 
         " Disable airline special characters in Windows
