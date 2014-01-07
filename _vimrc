@@ -217,13 +217,33 @@ imap <C-c> <Esc>
 " Set color scheme
 colorscheme desert
 
+" Make background darker in CSApprox
+let g:CSApprox_hook_post = 'highlight Normal ctermbg=234'
+
+" Assume powerline characters are available
+let g:airline_powerline_fonts = 1
+
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
     set guioptions+=A
 
     if haswin
         " Set font for gVim
-        set guifont=Inconsolata\ for\ Powerline:h14
+        if hostname() ==? 'Jake-Desktop'
+            " Big font for big TV
+            set guifont=Inconsolata:h14
+        else
+            set guifont=Inconsolata:h14
+        endif
+
+        " Disable airline special characters in Windows
+        let g:airline_powerline_fonts = 0
+        let g:airline_left_sep=''
+        let g:airline_right_sep=''
+
+        " Hide menu/toolbars
+        set guioptions-=m
+        set guioptions-=T
     elseif hasmac
         " Set font for MacVim
         set guifont=Inconsolata\ for\ Powerline:h18
@@ -253,9 +273,6 @@ nmap <silent> <F11>     :tabprevious<CR>
 " Always show statusline
 set laststatus=2
 
-" Assume powerline characters are available
-let g:airline_powerline_fonts = 1
-
 " Settings for Mac SSH session
 if (hasmac && !empty($SSH_CLIENT))
     " Disable graphical plugins
@@ -277,7 +294,7 @@ if !haswin && !hasmac
     nnoremap [1;6I gT
 
     " Map escape sequences to act as meta keys in normal mode
-    let ns  = range(33,90) + range(92,123) + range(125,126)
+    let ns  = range(33,78) + range(80,90) + range(92,123) + range(125,126)
     for n in ns
         exec "nmap ".nr2char(n)." <M-".nr2char(n).">"
     endfor
