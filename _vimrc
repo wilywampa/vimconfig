@@ -71,6 +71,11 @@ let hasmac=has("mac")
 let haswin=has("win16") || has("win32") || has("win64")
 let hasunix=has("unix")
 
+" Session settings
+set sessionoptions=buffers,curdir,folds,tabpages,winsize
+autocmd VimLeavePre * mksession! ~/session.vis
+autocmd BufRead,BufEnter * mksession! ~/periodic_session.vis
+
 " Allow switching buffer without saving changes first
 set hidden
 
@@ -223,6 +228,9 @@ let g:CSApprox_hook_post = 'highlight Normal ctermbg=234'
 " Assume powerline characters are available
 let g:airline_powerline_fonts = 1
 
+" Force airline to update when switching to a buffer
+autocmd BufEnter * call airline#update_statusline()
+
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
     set guioptions+=A
@@ -233,7 +241,7 @@ if has('gui_running')
             " Big font for big TV
             set guifont=Inconsolata:h14
         else
-            set guifont=Inconsolata:h12
+            set guifont=Inconsolata:h13
         endif
 
         " Disable airline special characters in Windows
