@@ -143,6 +143,9 @@ command! -nargs=* -bang B Bclose<bang><args>
 " Shortcut to toggle taglist
 autocmd VimEnter * if exists(":TlistToggle") | exe "nnoremap <silent> <Leader>t :TlistToggle<CR>" | endif
 
+" Move taglist to right side
+let Tlist_Use_Right_Window = 1
+
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr = 1
 let OmniCpp_MayCompleteScope = 1
@@ -173,7 +176,7 @@ let tlist_arduino_settings = 'c++;n:namespace;v:variable;d:macro;t:typedef;' .
 
 " Override some default settings for Processing files
 autocmd FileType processing setl softtabstop=2|setl formatoptions-=o
-autocmd FileType processing map <F7> :w<bar>call RunProcessing()<CR>|unmap <F5>
+autocmd FileType processing map <F7> :update<bar>call RunProcessing()<CR>|unmap <F5>
 
 if haswin
     " Change where backups are saved
@@ -229,7 +232,7 @@ let g:CSApprox_hook_post = 'highlight Normal ctermbg=234'
 let g:airline_powerline_fonts = 1
 
 " Force airline to update when switching to a buffer
-autocmd BufEnter * call airline#update_statusline()
+autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
@@ -314,14 +317,14 @@ nnoremap <silent> <M-n> <Esc>:%s///gn<CR>
 nnoremap <silent> <Leader>n <Esc>:%s///gn<CR>
 
 " Delete without yank by default, and <M-d> for delete with yank
-nnoremap c "_c|nnoremap <M-c> c|nnoremap ,c c|vnoremap c "_c|vnoremap <M-c> c|vnoremap ,c c
-nnoremap C "_C|nnoremap <M-C> C|nnoremap ,C C|vnoremap C "_C|vnoremap <M-C> C|vnoremap ,C C
-nnoremap d "_d|nnoremap <M-d> d|nnoremap ,d d|vnoremap d "_d|vnoremap <M-d> d|vnoremap ,d d
-nnoremap D "_D|nnoremap <M-D> D|nnoremap ,D D|vnoremap D "_D|vnoremap <M-D> D|vnoremap ,D D
-nnoremap s "_s|nnoremap <M-s> s|nnoremap ,s s|vnoremap s "_s|vnoremap <M-s> s|vnoremap ,s s
-nnoremap S "_S|nnoremap <M-S> S|nnoremap ,S S|vnoremap S "_S|vnoremap <M-S> S|vnoremap ,S S
-nnoremap x "_x|nnoremap <M-x> x|nnoremap ,x x|vnoremap x "_x|vnoremap <M-x> x|vnoremap ,x x
-nnoremap X "_X|nnoremap <M-X> X|nnoremap ,X X|vnoremap X "_X|vnoremap <M-X> X|vnoremap ,X X
+nnoremap c "_c|nnoremap <M-c> c|vnoremap c "_c|vnoremap <M-c> c
+nnoremap C "_C|nnoremap <M-C> C|vnoremap C "_C|vnoremap <M-C> C
+nnoremap d "_d|nnoremap <M-d> d|vnoremap d "_d|vnoremap <M-d> d
+nnoremap D "_D|nnoremap <M-D> D|vnoremap D "_D|vnoremap <M-D> D
+nnoremap s "_s|nnoremap <M-s> s|vnoremap s "_s|vnoremap <M-s> s
+nnoremap S "_S|nnoremap <M-S> S|vnoremap S "_S|vnoremap <M-S> S
+nnoremap x "_x|nnoremap <M-x> x|vnoremap x "_x|vnoremap <M-x> x
+nnoremap X "_X|nnoremap <M-X> X|vnoremap X "_X|vnoremap <M-X> X
 
 " Copy full file path to clipboard on Ctrl-g
 nnoremap <C-g> :let @+=expand('%:p')<CR><C-g>
