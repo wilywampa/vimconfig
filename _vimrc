@@ -49,6 +49,9 @@ set showcmd
 " Show current mode
 set showmode
 
+" Don't treat numbers as octal when incrementing/decrementing
+set nrformats-=octal
+
 " Shortcuts to save current file if modified
 noremap <silent> <Leader>s :update<CR>
 noremap <silent> <Leader>w :update<CR>
@@ -124,9 +127,6 @@ set history=1000
 
 " Shorter timeout length for multi-key mappings
 set timeoutlen=500
-
-" Import scripts (e.g. NERDTree)
-execute pathogen#infect()
 
 " Automatically close NERDTree after opening a buffer
 let NERDTreeQuitOnOpen=1
@@ -225,9 +225,6 @@ imap <C-c> <Esc>
 " Set color scheme
 colorscheme desert
 
-" Make background darker in CSApprox
-let g:CSApprox_hook_post = 'highlight Normal ctermbg=234'
-
 " Assume powerline characters are available
 let g:airline_powerline_fonts = 1
 
@@ -265,6 +262,28 @@ if has('gui_running')
         " Set font for gVim
         set guifont=Inconsolata\ for\ Powerline\ Medium\ 15
     endif
+else
+    " Shortcuts for moving cursor in command in PuTTY
+    cmap <ESC>[C <C-Right>
+    cmap <ESC>[D <C-Left>
+
+    " Shortcuts to change tab in MinTTY
+    nnoremap [1;5I gt
+    nnoremap [1;6I gT
+
+    " Map escape sequences to act as meta keys in normal/visual mode
+    let ns  = range(33,78) + range(80,90) + range(92,123) + range(125,126)
+    for n in ns
+        exec "nmap ".nr2char(n)." <M-".nr2char(n).">"
+        exec "vmap ".nr2char(n)." <M-".nr2char(n).">"
+    endfor
+    unlet ns n
+
+    " Disable CSApprox if color palette is too small
+    if &t_Co < 88
+        let g:pathogen_disabled = []
+        call add(g:pathogen_disabled, 'CSApprox')
+    endif
 endif
 
 if hasunix
@@ -286,30 +305,11 @@ set laststatus=2
 
 " Settings for Mac SSH session
 if (hasmac && !empty($SSH_CLIENT))
-    " Disable graphical plugins
-    let g:CSApprox_verbose_level = 0
+    " Disable powerline fonts
     let g:airline_powerline_fonts = 0
 
     " Increase time allowed for multi-key mappings
     set timeoutlen=1000
-endif
-
-" Settings for running in a terminal under Windows
-if !haswin && !hasmac
-    " Shortcuts for moving cursor in command in PuTTY
-    cmap <ESC>[C <C-Right>
-    cmap <ESC>[D <C-Left>
-
-    " Shortcuts to change tab in MinTTY
-    nnoremap [1;5I gt
-    nnoremap [1;6I gT
-
-    " Map escape sequences to act as meta keys in normal mode
-    let ns  = range(33,78) + range(80,90) + range(92,123) + range(125,126)
-    for n in ns
-        exec "nmap ".nr2char(n)." <M-".nr2char(n).">"
-    endfor
-    unlet ns n
 endif
 
 " Shortcut to print number of occurences of last search
@@ -354,6 +354,12 @@ autocmd VimEnter * silent! unmap <Tab>
 autocmd VimEnter * silent! unmap <Space>
 
 " Don't auto comment new line made with 'o' or 'O'
-autocmd BufNewFile,BufRead * setlocal formatoptions-=o
+autocmd BufNewFile,BufRead * set formatoptions-=o
 
+" EasyMotion settings
 let g:EasyMotion_leader_key = '<Space>'
+nmap <S-Space> <Space>
+vmap <S-Space> <Space>
+
+" Import scripts (e.g. NERDTree)
+execute pathogen#infect()
