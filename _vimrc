@@ -317,14 +317,14 @@ nnoremap <silent> <M-n> <Esc>:%s///gn<CR>
 nnoremap <silent> <Leader>n <Esc>:%s///gn<CR>
 
 " Delete without yank by default, and <M-d> for delete with yank
-nnoremap c "_c|nnoremap <M-c> c|vnoremap c "_c|vnoremap <M-c> c
-nnoremap C "_C|nnoremap <M-C> C|vnoremap C "_C|vnoremap <M-C> C
-nnoremap d "_d|nnoremap <M-d> d|vnoremap d "_d|vnoremap <M-d> d
-nnoremap D "_D|nnoremap <M-D> D|vnoremap D "_D|vnoremap <M-D> D
-nnoremap s "_s|nnoremap <M-s> s|vnoremap s "_s|vnoremap <M-s> s
-nnoremap S "_S|nnoremap <M-S> S|vnoremap S "_S|vnoremap <M-S> S
-nnoremap x "_x|nnoremap <M-x> x|vnoremap x "_x|vnoremap <M-x> x
-nnoremap X "_X|nnoremap <M-X> X|vnoremap X "_X|vnoremap <M-X> X
+nnoremap c "_c|nnoremap <M-c> c|nnoremap \\c c|vnoremap c "_c|vnoremap <M-c> c|vnoremap \\c c
+nnoremap C "_C|nnoremap <M-C> C|nnoremap \\C C|vnoremap C "_C|vnoremap <M-C> C|vnoremap \\C C
+nnoremap d "_d|nnoremap <M-d> d|nnoremap \\d d|vnoremap d "_d|vnoremap <M-d> d|vnoremap \\d d
+nnoremap D "_D|nnoremap <M-D> D|nnoremap \\D D|vnoremap D "_D|vnoremap <M-D> D|vnoremap \\D D
+nnoremap s "_s|nnoremap <M-s> s|nnoremap \\s s|vnoremap s "_s|vnoremap <M-s> s|vnoremap \\s s
+nnoremap S "_S|nnoremap <M-S> S|nnoremap \\S S|vnoremap S "_S|vnoremap <M-S> S|vnoremap \\S S
+nnoremap x "_x|nnoremap <M-x> x|nnoremap \\x x|vnoremap x "_x|vnoremap <M-x> x|vnoremap \\x x
+nnoremap X "_X|nnoremap <M-X> X|nnoremap \\X X|vnoremap X "_X|vnoremap <M-X> X|vnoremap \\X X
 
 " Copy full file path to clipboard on Ctrl-g
 nnoremap <C-g> :let @+=expand('%:p')<CR><C-g>
@@ -351,6 +351,9 @@ autocmd CursorHold * call RemoveClipboardNewline()
 
 " Override plugin mappings after startup
 autocmd VimEnter * silent! unmap <Tab>
+autocmd VimEnter * silent! unmap <Space>
 
 " Don't auto comment new line made with 'o' or 'O'
 autocmd BufNewFile,BufRead * setlocal formatoptions-=o
+
+let g:EasyMotion_leader_key = '<Space>'
