@@ -231,11 +231,6 @@ let g:airline_powerline_fonts = 1
 " Force airline to update when switching to a buffer
 if has("AirlineRefresh") | exe "autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh" | endif
 
-" CtrlP configuration
-let g:ctrlp_clear_cache_on_exit=0
-let g:ctrlp_use_caching=1
-let g:ctrlp_map='<M-p>'
-
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
     set guioptions+=A
@@ -257,9 +252,6 @@ if has('gui_running')
         " Hide menu/toolbars
         set guioptions-=m
         set guioptions-=T
-
-        " Don't use bold text for EasyMotion
-        highlight EasyMotionTarget gui=NONE guifg=#ff0000
     elseif hasmac
         " Set font for MacVim
         set guifont=Inconsolata\ for\ Powerline:h18
@@ -359,7 +351,7 @@ autocmd VimEnter * silent! unmap <Tab>
 autocmd VimEnter * silent! unmap <Space>
 
 " Don't auto comment new line made with 'o' or 'O'
-autocmd BufNewFile,BufRead * set formatoptions-=o
+autocmd FileType * set formatoptions-=o
 
 " EasyMotion settings
 let g:EasyMotion_leader_key = '<Space>'
