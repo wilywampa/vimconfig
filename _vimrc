@@ -141,7 +141,7 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 command! -nargs=* -bang B Bclose<bang><args>
 
 " Shortcut to toggle taglist
-autocmd VimEnter * if exists(":TlistToggle") | exe "nnoremap <silent> <Leader>t :TlistToggle<CR>" | endif
+if has("TlistToggle") | exe "nnoremap <silent> <Leader>t :TlistToggle<CR>" | endif
 
 " Move taglist to right side
 let Tlist_Use_Right_Window = 1
@@ -229,7 +229,7 @@ colorscheme desert
 let g:airline_powerline_fonts = 1
 
 " Force airline to update when switching to a buffer
-autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh
+if has("AirlineRefresh") | exe "autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh" | endif
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
@@ -289,9 +289,6 @@ endif
 if hasunix
     " Enable mouse
     set mouse=a
-
-    " Run commands in interactive shell
-    set shellcmdflag=-ic
 endif
 
 " Shortcuts for switching tab
