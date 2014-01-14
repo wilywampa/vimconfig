@@ -231,6 +231,9 @@ let g:airline_powerline_fonts = 1
 " Force airline to update when switching to a buffer
 if has("AirlineRefresh") | exe "autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh" | endif
 
+" Put current path in status bar
+let g:airline_section_b = airline#section#create(['%{getcwd()}'])
+
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
     set guioptions+=A
