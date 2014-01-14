@@ -231,8 +231,10 @@ let g:airline_powerline_fonts = 1
 " Force airline to update when switching to a buffer
 if has("AirlineRefresh") | exe "autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh" | endif
 
-" Put current path in status bar
-let g:airline_section_b = airline#section#create(['%{getcwd()}'])
+" CtrlP configuration
+let g:ctrlp_clear_cache_on_exit=0
+let g:ctrlp_use_caching=1
+let g:ctrlp_map='<M-p>'
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
@@ -255,6 +257,9 @@ if has('gui_running')
         " Hide menu/toolbars
         set guioptions-=m
         set guioptions-=T
+
+        " Don't use bold text for EasyMotion
+        highlight EasyMotionTarget gui=NONE guifg=#ff0000
     elseif hasmac
         " Set font for MacVim
         set guifont=Inconsolata\ for\ Powerline:h18
@@ -363,3 +368,6 @@ vmap <S-Space> <Space>
 
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
+
+" Add current directory to status line
+let g:airline_section_b = airline#section#create(['%{getcwd()}'])
