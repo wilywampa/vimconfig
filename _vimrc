@@ -75,7 +75,7 @@ let haswin=has("win16") || has("win32") || has("win64")
 let hasunix=has("unix")
 
 " Session settings
-set sessionoptions=buffers,curdir,folds,tabpages,winsize
+set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
 autocmd VimLeavePre * mksession! ~/session.vis
 autocmd BufRead,BufEnter * mksession! ~/periodic_session.vis
 
@@ -144,11 +144,11 @@ command! -nargs=* -bang B Bclose<bang><args>
 if has("TlistToggle") | exe "nnoremap <silent> <Leader>t :TlistToggle<CR>" | endif
 
 " Move taglist to right side
-let Tlist_Use_Right_Window = 1
+let Tlist_Use_Right_Window=1
 
 " OmniCppComplete options
-let OmniCpp_ShowPrototypeInAbbr = 1
-let OmniCpp_MayCompleteScope = 1
+let OmniCpp_ShowPrototypeInAbbr=1
+let OmniCpp_MayCompleteScope=1
 au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
 if hasmac
@@ -171,7 +171,7 @@ let g:NERDCustomDelimiters={
             \ }
 
 " Add Arduino support to taglist.vim plugin
-let tlist_arduino_settings = 'c++;n:namespace;v:variable;d:macro;t:typedef;' .
+let tlist_arduino_settings='c++;n:namespace;v:variable;d:macro;t:typedef;' .
             \ 'c:class;g:enum;s:struct;u:union;f:function'
 
 " Override some default settings for Processing files
@@ -203,7 +203,7 @@ if haswin
     smap <Bslash> <C-g><Bslash>
 
     " Shortcut to explore to current file
-    nnoremap <silent> <F5> :silent execute "!start explorer /select,\"" . expand("%:p") . "\""<CR>
+    nnoremap <silent> <F4> :silent execute "!start explorer /select,\"" . expand("%:p") . "\""<CR>
 else
     " Change swap file location for unix
     if !isdirectory(expand("~/.tmp"))
@@ -215,7 +215,7 @@ else
 
     if hasmac
     	" Shortcut to reveal current file in Finder
-    	nnoremap <silent> <F5> :silent !reveal %:p > /dev/null<CR>:redraw!<CR>
+    	nnoremap <silent> <F4> :silent !reveal %:p > /dev/null<CR>:redraw!<CR>
     endif
 endif
 
@@ -226,10 +226,19 @@ imap <C-c> <Esc>
 colorscheme desert
 
 " Assume powerline characters are available
-let g:airline_powerline_fonts = 1
+let g:airline_powerline_fonts=1
 
 " Force airline to update when switching to a buffer
 if has("AirlineRefresh") | exe "autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh" | endif
+
+" CtrlP configuration
+let g:ctrlp_cmd='CtrlPMRU'
+let g:ctrlp_map='<M-p>'
+let g:ctrlp_clear_cache_on_exit=0
+let g:ctrlp_tabpage_position='al'
+let g:ctrlp_show_hidden=1
+let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+let g:ctrlp_follow_symlinks=1
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
@@ -245,13 +254,16 @@ if has('gui_running')
         endif
 
         " Disable airline special characters in Windows
-        let g:airline_powerline_fonts = 0
+        let g:airline_powerline_fonts=0
         let g:airline_left_sep=''
         let g:airline_right_sep=''
 
         " Hide menu/toolbars
         set guioptions-=m
         set guioptions-=T
+
+        " Don't use bold text for EasyMotion
+        highlight EasyMotionTarget gui=NONE guifg=#ff0000
     elseif hasmac
         " Set font for MacVim
         set guifont=Inconsolata\ for\ Powerline:h18
@@ -272,7 +284,7 @@ else
     nnoremap [1;6I gT
 
     " Map escape sequences to act as meta keys in normal/visual mode
-    let ns  = range(33,78) + range(80,90) + range(92,123) + range(125,126)
+    let ns=range(33,78) + range(80,90) + range(92,123) + range(125,126)
     for n in ns
         exec "nmap ".nr2char(n)." <M-".nr2char(n).">"
         exec "vmap ".nr2char(n)." <M-".nr2char(n).">"
@@ -281,7 +293,7 @@ else
 
     " Disable CSApprox if color palette is too small
     if &t_Co < 88
-        let g:pathogen_disabled = []
+        let g:pathogen_disabled=[]
         call add(g:pathogen_disabled, 'CSApprox')
     endif
 endif
@@ -303,7 +315,7 @@ set laststatus=2
 " Settings for Mac SSH session
 if (hasmac && !empty($SSH_CLIENT))
     " Disable powerline fonts
-    let g:airline_powerline_fonts = 0
+    let g:airline_powerline_fonts=0
 
     " Increase time allowed for multi-key mappings
     set timeoutlen=1000
@@ -354,7 +366,7 @@ autocmd VimEnter * silent! unmap <Space>
 autocmd FileType * set formatoptions-=o
 
 " EasyMotion settings
-let g:EasyMotion_leader_key = '<Space>'
+let g:EasyMotion_leader_key='<Space>'
 nmap <S-Space> <Space>
 vmap <S-Space> <Space>
 
@@ -362,4 +374,4 @@ vmap <S-Space> <Space>
 execute pathogen#infect()
 
 " Add current directory to status line
-let g:airline_section_b = airline#section#create(['%{getcwd()}'])
+let g:airline_section_b=airline#section#create(['%{getcwd()}'])
