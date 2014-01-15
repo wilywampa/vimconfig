@@ -309,6 +309,9 @@ nmap <silent> <F12>     :tabnext<CR>
 nmap <silent> <C-S-tab> :tabprevious<CR>
 nmap <silent> <F11>     :tabprevious<CR>
 
+" Shortcut to open new tab
+nnoremap <silent> <M-t> :tabnew<CR>
+
 " Always show statusline
 set laststatus=2
 
