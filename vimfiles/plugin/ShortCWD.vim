@@ -23,6 +23,7 @@ endif
 function! ShortCWD()
     let s:cwd=fnamemodify(getcwd(),':~')
 
+    let g:cwdMaxLen=winwidth(0)-strlen(expand('%:.:~'))-strlen(&filetype)-50
     if strlen(s:cwd) > g:cwdMaxLen
         let s:cwdPrev=''
         while (strlen(s:cwd) >= g:cwdMaxLen) && !(s:cwd ==# s:cwdPrev)

@@ -81,6 +81,7 @@ let hasunix=has("unix")
 set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
 autocmd VimLeavePre * mksession! ~/session.vis
 autocmd BufRead,BufEnter * mksession! ~/periodic_session.vis
+nnoremap <silent> ,l :source ~/session.vis<CR>
 
 " Allow switching buffer without saving changes first
 set hidden
