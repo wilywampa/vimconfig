@@ -23,7 +23,7 @@ endif
 function! ShortCWD()
     let s:cwd=fnamemodify(getcwd(),':~')
 
-    if strlen(s:cwd > g:cwdMaxLen)
+    if strlen(s:cwd) > g:cwdMaxLen
         let s:cwdPrev=''
         while (strlen(s:cwd) >= g:cwdMaxLen) && !(s:cwd ==# s:cwdPrev)
             let s:cwdPrev=s:cwd
