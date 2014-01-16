@@ -52,6 +52,9 @@ set showmode
 " Don't treat numbers as octal when incrementing/decrementing
 set nrformats-=octal
 
+" Truncate filenames in messages when necessary
+set shortmess+=t
+
 " Shortcuts to save current file if modified
 noremap <silent> <Leader>s :update<CR>
 noremap <silent> <Leader>w :update<CR>
@@ -141,7 +144,7 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 command! -nargs=* -bang B Bclose<bang><args>
 
 " Shortcut to toggle taglist
-if has("TlistToggle") | exe "nnoremap <silent> <Leader>t :TlistToggle<CR>" | endif
+autocmd VimEnter * if exists(":TlistToggle") | exe "nnoremap <silent> <Leader>t :TlistToggle<CR>" | endif
 
 " Move taglist to right side
 let Tlist_Use_Right_Window=1
@@ -315,8 +318,13 @@ nnoremap <silent> <M-t> :tabnew<CR>
 " Always show statusline
 set laststatus=2
 
-" Settings for Mac SSH session
-if (hasmac && !empty($SSH_CLIENT))
+" Settings for SSH session
+if !empty($SSH_CLIENT)
+    " Disable airline special characters
+    let g:airline_powerline_fonts=0
+    let g:airline_left_sep=''
+    let g:airline_right_sep=''
+
     " Disable powerline fonts
     let g:airline_powerline_fonts=0
 
@@ -364,6 +372,8 @@ autocmd CursorHold * call RemoveClipboardNewline()
 " Override plugin mappings after startup
 autocmd VimEnter * silent! unmap <Tab>
 autocmd VimEnter * silent! unmap <Space>
+autocmd VimEnter * silent! unmap <ScrollWheelUp>
+autocmd VimEnter * silent! unmap <ScrollWheelDown>
 
 " Don't auto comment new line made with 'o' or 'O'
 autocmd FileType * set formatoptions-=o
@@ -377,4 +387,4 @@ vmap <S-Space> <Space>
 execute pathogen#infect()
 
 " Add current directory to status line
-let g:airline_section_b=airline#section#create(['%{getcwd()}'])
+let g:airline_section_b=airline#section#create(['%{ShortCWD()}'])
