@@ -69,6 +69,12 @@ nnoremap Q @q
 set number
 set relativenumber
 
+" Remember more command history
+set history=1000
+
+" Allow more tabs
+set tabpagemax=20
+
 " Make F2 toggle line numbers
 nnoremap <silent> <F2> :set nu! <bar> if &nu <bar> set rnu <bar> else <bar>
             \set nornu <bar> endif<CR>
