@@ -138,6 +138,10 @@ set history=1000
 " Shorter timeout length for multi-key mappings
 set timeoutlen=500
 
+" Even shorter delay for keycode mappings
+set ttimeout
+set ttimeoutlen=50
+
 " Automatically close NERDTree after opening a buffer
 let NERDTreeQuitOnOpen=1
 
@@ -252,6 +256,19 @@ let g:ctrlp_follow_symlinks=1
 nnoremap <silent> <M-f> :CtrlPBuffer<CR>
 nnoremap <silent> <Leader>be :CtrlPBuffer<CR>
 
+" Map <C-q> to delete buffer in CtrlP
+let g:ctrlp_buffer_func = { 'enter': 'MyCtrlPMappings' }
+func! MyCtrlPMappings()
+    nnoremap <buffer> <silent> <C-q> :call <sid>DeleteBuffer()<cr>
+endfunc
+func! s:DeleteBuffer()
+    let line = getline('.')
+    let bufid = line =~ '\[\d\+\*No Name\]$' ? str2nr(matchstr(line, '\d\+'))
+        \ : fnamemodify(line[2:], ':p')
+    exec "bd" bufid
+    exec "norm \<F5>"
+endfunc
+
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
     set guioptions+=A
@@ -339,6 +356,9 @@ if !empty($SSH_CLIENT)
 
     " Increase time allowed for multi-key mappings
     set timeoutlen=1000
+
+    " Increase time allowed for keycode mappings
+    set ttimeoutlen=100
 endif
 
 " Shortcut to print number of occurences of last search
