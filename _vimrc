@@ -243,6 +243,8 @@ let g:ctrlp_tabpage_position='al'
 let g:ctrlp_show_hidden=1
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_follow_symlinks=1
+nnoremap <silent> <M-b> :CtrlPBuffer<CR>
+nnoremap <silent> <Leader>be :CtrlPBuffer<CR>
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
@@ -254,7 +256,7 @@ if has('gui_running')
             " Big font for big TV
             set guifont=Inconsolata:h14
         else
-            set guifont=Inconsolata:h13
+            set guifont=Inconsolata:h12
         endif
 
         " Disable airline special characters in Windows
