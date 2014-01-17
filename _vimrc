@@ -243,7 +243,7 @@ let g:ctrlp_tabpage_position='al'
 let g:ctrlp_show_hidden=1
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_follow_symlinks=1
-nnoremap <silent> <M-b> :CtrlPBuffer<CR>
+nnoremap <silent> <M-f> :CtrlPBuffer<CR>
 nnoremap <silent> <Leader>be :CtrlPBuffer<CR>
 
 if has('gui_running')
