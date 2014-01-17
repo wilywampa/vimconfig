@@ -29,7 +29,7 @@ if !exists('s:bufnrPrev')
 endif
 
 function! s:ShortCWDupdateMaxLen()
-    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:.:~'))-strlen(&filetype)-50
+    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-50
 endfunction
 
 function! ShortCWD()
