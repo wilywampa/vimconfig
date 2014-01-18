@@ -337,11 +337,8 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 " Make B an alias for Bclose
 command! -nargs=* -bang B Bclose<bang><args>
 
-" Shortcut to toggle taglist
-autocmd VimEnter * if exists(":TlistToggle") | exe "nnoremap <silent> <Leader>t :TlistToggle<CR>" | endif
-
-" Move taglist to right side
-let Tlist_Use_Right_Window=1
+" Shortcut to toggle Tagbar
+autocmd VimEnter * if exists(":TagbarToggle") | exe "nnoremap <silent> <Leader>t :TagbarToggle<CR>" | endif
 
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
@@ -362,9 +359,39 @@ let g:NERDCustomDelimiters={
             \ 'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
             \ }
 
-" Add Arduino support to taglist.vim plugin
-let tlist_arduino_settings='c++;n:namespace;v:variable;d:macro;t:typedef;' .
-            \ 'c:class;g:enum;s:struct;u:union;f:function'
+" Add Arduino support to Tagbar
+let g:tagbar_type_arduino = {
+            \   'ctagstype' : 'c++',
+            \   'kinds'     : [
+            \     'd:macros:1:0',
+            \     'p:prototypes:1:0',
+            \     'g:enums',
+            \     'e:enumerators:0:0',
+            \     't:typedefs:0:0',
+            \     'n:namespaces',
+            \     'c:classes',
+            \     's:structs',
+            \     'u:unions',
+            \     'f:functions',
+            \     'm:members:0:0',
+            \     'v:variables:0:0'
+            \   ],
+            \   'sro'        : '::',
+            \   'kind2scope' : {
+            \     'g' : 'enum',
+            \     'n' : 'namespace',
+            \     'c' : 'class',
+            \     's' : 'struct',
+            \     'u' : 'union'
+            \   },
+            \   'scope2kind' : {
+            \     'enum'      : 'g',
+            \     'namespace' : 'n',
+            \     'class'     : 'c',
+            \     'struct'    : 's',
+            \     'union'     : 'u'
+            \   }
+            \ }
 
 " Override some default settings for Processing files
 autocmd FileType processing setl softtabstop=2|setl formatoptions-=o
