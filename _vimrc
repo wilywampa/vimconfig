@@ -26,8 +26,7 @@ set nowrap
 set lazyredraw
 
 " Turn on filetype plugins and indent settings
-filetype plugin on
-filetype indent on
+filetype plugin indent on
 
 " Set default file encoding
 set encoding=utf-8
@@ -56,6 +55,22 @@ set nrformats-=octal
 
 " Truncate filenames in messages when necessary
 set shortmess+=t
+
+" Show matching brace after inserting
+set showmatch
+
+" Round indent to multiple of shiftwidth
+set shiftround
+
+" Pad lines/columns with context around cursor
+set scrolloff=2
+set sidescrolloff=5
+
+" Show as much as possible of the last line in a window
+set display+=lastline
+
+" Automatically load file if changed outside of vim
+set autoread
 
 " Shortcuts to save current file if modified
 noremap <silent> <Leader>s :update<CR>
