@@ -358,8 +358,14 @@ autocmd FileType processing map <F7> :update<bar>call RunProcessing()<CR>|unmap 
 " Make NERDCommenter work in select mode
 smap <Bslash> <C-g><Bslash>
 
-" Assume powerline characters are available
-let g:airline_powerline_fonts=1
+" Only use powerline characters on Mac
+if !hasmac || !empty($SSH_CLIENT)
+    let g:airline_powerline_fonts=0
+    let g:airline_left_sep=''
+    let g:airline_right_sep=''
+else
+    let g:airline_powerline_fonts=1
+endif
 
 " Force airline to update when switching to a buffer
 if has("AirlineRefresh") | exe "autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh" | endif
@@ -390,11 +396,6 @@ endfunc
 
 if has('gui_running')
     if haswin
-        " Disable airline special characters in Windows
-        let g:airline_powerline_fonts=0
-        let g:airline_left_sep=''
-        let g:airline_right_sep=''
-
         " Don't use bold text for EasyMotion
         highlight EasyMotionTarget gui=NONE guifg=#ff0000
     endif
@@ -404,13 +405,6 @@ else
         let g:pathogen_disabled=[]
         call add(g:pathogen_disabled, 'CSApprox')
     endif
-endif
-
-if !empty($SSH_CLIENT)
-    " Disable airline special characters
-    let g:airline_powerline_fonts=0
-    let g:airline_left_sep=''
-    let g:airline_right_sep=''
 endif
 
 " Override plugin mappings after startup
