@@ -239,6 +239,9 @@ imap <C-c> <Esc>
 " Set color scheme
 colorscheme desert
 
+" Set airline color scheme
+let g:airline_theme='badwolf'
+
 " Assume powerline characters are available
 let g:airline_powerline_fonts=1
 
