@@ -213,9 +213,9 @@ if has('gui_running')
         " Set font for gVim
         if hostname() ==? 'Jake-Desktop'
             " Big font for big TV
-            set guifont=Inconsolata:h14
+            set guifont=Consolas:h13
         else
-            set guifont=Inconsolata:h12
+            set guifont=Consolas:h11
         endif
 
         " Hide menu/toolbars
@@ -400,8 +400,8 @@ autocmd FileType processing map <F7> :update<bar>call RunProcessing()<CR>|unmap 
 " Make NERDCommenter work in select mode
 smap <Bslash> <C-g><Bslash>
 
-" Only use powerline characters on Mac
-if !hasmac || !empty($SSH_CLIENT)
+" Use powerline font unless in Mac SSH session
+if hasmac && !empty($SSH_CLIENT)
     let g:airline_powerline_fonts=0
     let g:airline_left_sep=''
     let g:airline_right_sep=''
