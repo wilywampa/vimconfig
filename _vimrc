@@ -460,6 +460,10 @@ let g:EasyMotion_leader_key='<Space>'
 nmap <S-Space> <Space>
 vmap <S-Space> <Space>
 
+" Undotree settings
+nnoremap <Leader>u :UndotreeToggle<CR>
+let g:undotree_SplitWidth=40
+
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
 
