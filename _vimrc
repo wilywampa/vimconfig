@@ -213,9 +213,9 @@ if has('gui_running')
         " Set font for gVim
         if hostname() ==? 'Jake-Desktop'
             " Big font for big TV
-            set guifont=Consolas:h13
+            set guifont=Consolas:h14
         else
-            set guifont=Consolas:h11
+            set guifont=Consolas:h12
         endif
 
         " Hide menu/toolbars
