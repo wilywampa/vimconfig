@@ -93,8 +93,7 @@ set history=1000
 set tabpagemax=20
 
 " Make F2 toggle line numbers
-nnoremap <silent> <F2> :set nu! <bar> if &nu <bar> set rnu <bar> else <bar>
-            \set nornu <bar> endif<CR>
+nnoremap <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|endif<CR>
 
 let hasmac=has("mac")
 let haswin=has("win16") || has("win32") || has("win64")
