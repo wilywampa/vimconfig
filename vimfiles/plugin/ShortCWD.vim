@@ -19,17 +19,24 @@ endif
 let s:cwdMaxLen=40
 let s:cwdPrev=''
 let s:bufnrPrev=-1
+let s:winWidthPrev=-1
+let s:tagPrev=''
 
 function! ShortCWD()
-    if (getcwd() ==# s:cwdPrev) && (winbufnr(0) == s:bufnrPrev)
+    if (getcwd() ==# s:cwdPrev)
+  \ && (winbufnr(0) == s:bufnrPrev)
+  \ && (winwidth(0) == s:winWidthPrev)
+  \ && (tagbar#currenttag('%s','','') ==# s:tagPrev)
         return s:cwd
     endif
 
     let s:cwdPrev=getcwd()
     let s:bufnrPrev=winbufnr(0)
+    let s:winWidthPrev=winwidth(0)
     let s:cwd=substitute(s:cwdPrev,substitute(expand('~'),s:pathSep,'\\'.s:pathSep,'g'),'~','')
+    let s:tagPrev=tagbar#currenttag('%s','','')
 
-    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-50
+    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-50
 
     if strlen(s:cwd) > s:cwdMaxLen
         let s:cwdPrev=''
