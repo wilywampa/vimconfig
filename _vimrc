@@ -222,7 +222,7 @@ if has('gui_running')
         set guioptions-=T
     elseif hasmac
         " Set font for MacVim
-        set guifont=Inconsolata\ for\ Powerline:h18
+        set guifont=Consolas:h17
 
         " Start in fullscreen mode
         autocmd VimEnter * set fullscreen
