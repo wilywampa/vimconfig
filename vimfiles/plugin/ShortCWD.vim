@@ -18,20 +18,20 @@ endif
 
 let s:cwdMaxLen=40
 let s:cwdPrev=''
-let s:bufnrPrev=-1
+let s:bufNamePrev=''
 let s:winWidthPrev=-1
 let s:tagPrev=''
 
 function! ShortCWD()
     if (getcwd() ==# s:cwdPrev)
-  \ && (winbufnr(0) == s:bufnrPrev)
+  \ && (@% == s:bufNamePrev)
   \ && (winwidth(0) == s:winWidthPrev)
   \ && (tagbar#currenttag('%s','','') ==# s:tagPrev)
         return s:cwd
     endif
 
     let s:cwdPrev=getcwd()
-    let s:bufnrPrev=winbufnr(0)
+    let s:bufNamePrev=@%
     let s:winWidthPrev=winwidth(0)
     let s:cwd=substitute(s:cwdPrev,substitute(expand('~'),s:pathSep,'\\'.s:pathSep,'g'),'~','')
     let s:tagPrev=tagbar#currenttag('%s','','')
