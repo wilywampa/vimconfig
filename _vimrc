@@ -214,7 +214,7 @@ if has('gui_running')
             " Big font for big TV
             set guifont=Consolas:h14
         else
-            set guifont=Consolas:h12
+            set guifont=Consolas:h11
         endif
 
         " Hide menu/toolbars
