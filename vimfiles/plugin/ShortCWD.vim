@@ -16,21 +16,9 @@ else
     let s:charSet='[^\/]'
 endif
 
-if !exists('s:cwdMaxLen')
-    let s:cwdMaxLen=40
-endif
-
-if !exists('s:cwdPrev')
-    let s:cwdPrev=''
-endif
-
-if !exists('s:bufnrPrev')
-    let s:bufnrPrev=-1
-endif
-
-function! s:ShortCWDupdateMaxLen()
-    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-50
-endfunction
+let s:cwdMaxLen=40
+let s:cwdPrev=''
+let s:bufnrPrev=-1
 
 function! ShortCWD()
     if (getcwd() ==# s:cwdPrev) && (winbufnr(0) == s:bufnrPrev)
@@ -40,6 +28,8 @@ function! ShortCWD()
     let s:cwdPrev=getcwd()
     let s:bufnrPrev=winbufnr(0)
     let s:cwd=substitute(s:cwdPrev,substitute(expand('~'),s:pathSep,'\\'.s:pathSep,'g'),'~','')
+
+    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-50
 
     if strlen(s:cwd) > s:cwdMaxLen
         let s:cwdPrev=''
@@ -51,5 +41,3 @@ function! ShortCWD()
 
     return s:cwd
 endfunction
-
-autocmd BufEnter,VimResized * call s:ShortCWDupdateMaxLen()
