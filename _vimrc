@@ -140,9 +140,18 @@ augroup END
 nmap <silent> <C-p> :bp<CR>
 nmap <silent> <C-n> :bn<CR>
 
-" Shortcut to use vim grep recursively or non-recursively
-nmap ,gr :vim //j **/*<C-Left><C-Left><Right>
-nmap ,gn :vim //j *<C-Left><C-Left><Right>
+" Like bufdo but return to starting buffer
+function! Bufdo(command)
+  let currBuff=bufnr("%")
+  execute 'bufdo ' . a:command
+  execute 'buffer ' . currBuff
+endfunction
+com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
+
+" Shortcuts to use vim grep recursively or non-recursively
+nnoremap ,gr :vim //j **/*<C-Left><C-Left><Right>
+nnoremap ,gn :vim //j *<C-Left><C-Left><Right>
+nnoremap ,go :call setqflist([])<CR>:Bufdo vimgrepa //j %<C-Left><C-Left><Right>
 
 " Open tag in vertical split with Alt-]
 nnoremap <M-]> <C-w><C-]><C-w>L
