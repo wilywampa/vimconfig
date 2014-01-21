@@ -3,6 +3,11 @@
 " Allow settings that are not vi-compatible
 set nocompatible
 
+" Reset autocommands when vimrc is re-sourced
+augroup VimrcAugroup
+    autocmd!
+augroup END
+
 " Number of spaces to indent
 set shiftwidth=4
 
@@ -101,8 +106,10 @@ let hasunix=has("unix")
 
 " Session settings
 set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
-autocmd VimLeavePre * mksession! ~/session.vis
-autocmd BufRead,BufEnter * mksession! ~/periodic_session.vis
+augroup VimrcAutocmds
+    autocmd VimLeavePre * mksession! ~/session.vis
+    autocmd BufRead,BufEnter * mksession! ~/periodic_session.vis
+augroup END
 nnoremap <silent> ,l :source ~/session.vis<CR>
 
 " Allow switching buffer without saving changes first
@@ -225,7 +232,9 @@ if has('gui_running')
         set guifont=Consolas:h17
 
         " Start in fullscreen mode
-        autocmd VimEnter * set fullscreen
+        augroup VimrcAutocmds
+            autocmd VimEnter * set fullscreen
+        augroup END
     else
         " Set font for gVim
         set guifont=Inconsolata\ for\ Powerline\ Medium\ 15
@@ -295,7 +304,9 @@ nnoremap <silent> <C-w><C-e> :tabm +99<CR>
 nnoremap <silent> <C-w>e     :tabm +99<CR>
 
 " Don't auto comment new line made with 'o' or 'O'
-autocmd FileType * set formatoptions-=o
+augroup VimrcAutocmds
+    autocmd FileType * set formatoptions-=o
+augroup END
 
 " Remove last newline after copying visual selection to clipboard
 function! RemoveClipboardNewline()
@@ -311,7 +322,9 @@ endfunction
 vnoremap <expr> <SID>VisualEnter VisualEnter()
 nnoremap <expr> v <SID>VisualEnter('v')
 nnoremap <expr> V <SID>VisualEnter('V')
-autocmd CursorHold * call RemoveClipboardNewline()
+augroup VimrcAutocmds
+    autocmd CursorHold * call RemoveClipboardNewline()
+augroup END
 
 " Set color scheme
 colorscheme desert
@@ -337,21 +350,27 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 command! -nargs=* -bang B Bclose<bang><args>
 
 " Shortcut to toggle Tagbar
-autocmd VimEnter * if exists(":TagbarToggle") | exe "nnoremap <silent> <Leader>t :TagbarToggle<CR>" | endif
+augroup VimrcAutocmds
+    autocmd VimEnter * if exists(":TagbarToggle") | exe "nnoremap <silent> <Leader>t :TagbarToggle<CR>" | endif
+augroup END
 
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
 let OmniCpp_MayCompleteScope=1
-au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
+augroup VimrcAutocmds
+    au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
+augroup END
 
 " Enable Arduino syntax highlighting
-autocmd BufRead,BufNewFile *.ino set filetype=arduino
-autocmd BufRead,BufNewFile */arduino/*.cpp set filetype=arduino
-autocmd BufRead,BufNewFile */arduino/*.h set filetype=arduino
-autocmd FileType arduino setlocal cindent
-autocmd FileType arduino map <F7> :wa<CR>:silent !open $ARDUINO_DIR/build.app<CR>
-            \:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
-autocmd FileType arduino map <S-F7> :wa<CR>:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
+augroup VimrcAutocmds
+    autocmd BufRead,BufNewFile *.ino set filetype=arduino
+    autocmd BufRead,BufNewFile */arduino/*.cpp set filetype=arduino
+    autocmd BufRead,BufNewFile */arduino/*.h set filetype=arduino
+    autocmd FileType arduino setlocal cindent
+    autocmd FileType arduino map <F7> :wa<CR>:silent !open $ARDUINO_DIR/build.app<CR>
+                \:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
+    autocmd FileType arduino map <S-F7> :wa<CR>:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
+augroup END
 
 " Set comment delimiters for Arduino
 let g:NERDCustomDelimiters={
@@ -393,8 +412,10 @@ let g:tagbar_type_arduino = {
             \ }
 
 " Override some default settings for Processing files
-autocmd FileType processing setl softtabstop=2|setl formatoptions-=o
-autocmd FileType processing map <F7> :update<bar>call RunProcessing()<CR>|unmap <F5>
+augroup VimrcAutocmds
+    autocmd FileType processing setl softtabstop=2|setl formatoptions-=o
+    autocmd FileType processing map <F7> :update<bar>call RunProcessing()<CR>|unmap <F5>
+augroup END
 
 " Make NERDCommenter work in select mode
 smap <Bslash> <C-g><Bslash>
@@ -449,10 +470,12 @@ else
 endif
 
 " Override plugin mappings after startup
-autocmd VimEnter * silent! unmap <Tab>
-autocmd VimEnter * silent! unmap <Space>
-autocmd VimEnter * silent! unmap <ScrollWheelUp>
-autocmd VimEnter * silent! unmap <ScrollWheelDown>
+augroup VimrcAutocmds
+    autocmd VimEnter * silent! unmap <Tab>
+    autocmd VimEnter * silent! unmap <Space>
+    autocmd VimEnter * silent! unmap <ScrollWheelUp>
+    autocmd VimEnter * silent! unmap <ScrollWheelDown>
+augroup END
 
 " EasyMotion settings
 let g:EasyMotion_leader_key='<Space>'
