@@ -87,6 +87,9 @@ nnoremap <silent> <C-l> :nohl<CR><C-l>
 " Execute q macro with Q
 nnoremap Q @q
 
+" Shortcut to toggle paste mode
+nnoremap <silent> <Leader>p :set paste!<CR>
+
 " Turn on hybrid line numbers (or relative line numbers before Vim 7.4)
 set number
 set relativenumber
@@ -346,6 +349,36 @@ colorscheme desert
 let g:airline_theme='badwolf'
 let g:airline#extensions#ctrlp#color_template = 'normal'
 
+" Use powerline font unless in Mac SSH session
+if hasmac && !empty($SSH_CLIENT)
+    let g:airline_powerline_fonts=0
+    let g:airline_left_sep=''
+    let g:airline_right_sep=''
+else
+    let g:airline_powerline_fonts=1
+endif
+
+" Force airline to update when switching to a buffer
+augroup VimrcAutocmds
+    autocmd BufEnter,VimEnter * AirlineRefresh
+augroup END
+
+" Don't use tagbar integration in airline in csh (slow startup)
+if &shell ==# '/bin/csh'
+    let g:airline#extensions#tagbar#enabled=1
+endif
+
+" Shortcut to toggle warnings in airline
+function! s:ToggleAirlineWarnings()
+    if g:airline_section_warning == ''
+        let g:airline_section_warning='%{airline#util#wrap(airline#extensions#whitespace#check(),0)}'
+    else
+        let g:airline_section_warning=''
+    endif
+    exe 'AirlineToggle' | exe 'AirlineToggle'
+endfunction
+nnoremap <silent> <M-w> :call <SID>ToggleAirlineWarnings()<CR>
+
 " Automatically close NERDTree after opening a buffer
 let NERDTreeQuitOnOpen=1
 
@@ -358,10 +391,11 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 " Make B an alias for Bclose
 command! -nargs=* -bang B Bclose<bang><args>
 
-" Shortcut to toggle Tagbar
+" Tagbar configuration
 augroup VimrcAutocmds
     autocmd VimEnter * if exists(":TagbarToggle") | exe "nnoremap <silent> <Leader>t :TagbarToggle<CR>" | endif
 augroup END
+let g:tagbar_iconchars=['+','-']
 
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
@@ -376,9 +410,9 @@ augroup VimrcAutocmds
     autocmd BufRead,BufNewFile */arduino/*.cpp set filetype=arduino
     autocmd BufRead,BufNewFile */arduino/*.h set filetype=arduino
     autocmd FileType arduino setlocal cindent
-    autocmd FileType arduino map <F7> :wa<CR>:silent !open $ARDUINO_DIR/build.app<CR>
+    autocmd FileType arduino nnoremap <F7> :wa<CR>:silent !open $ARDUINO_DIR/build.app<CR>
                 \:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
-    autocmd FileType arduino map <S-F7> :wa<CR>:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
+    autocmd FileType arduino nnoremap <S-F7> :wa<CR>:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
 augroup END
 
 " Set comment delimiters for Arduino
@@ -423,23 +457,11 @@ let g:tagbar_type_arduino = {
 " Override some default settings for Processing files
 augroup VimrcAutocmds
     autocmd FileType processing setl softtabstop=2|setl formatoptions-=o
-    autocmd FileType processing map <F7> :update<bar>call RunProcessing()<CR>|unmap <F5>
+    autocmd FileType processing nnoremap <F7> :update<bar>call RunProcessing()<CR>|unmap <F5>
 augroup END
 
 " Make NERDCommenter work in select mode
 smap <Bslash> <C-g><Bslash>
-
-" Use powerline font unless in Mac SSH session
-if hasmac && !empty($SSH_CLIENT)
-    let g:airline_powerline_fonts=0
-    let g:airline_left_sep=''
-    let g:airline_right_sep=''
-else
-    let g:airline_powerline_fonts=1
-endif
-
-" Force airline to update when switching to a buffer
-if has("AirlineRefresh") | exe "autocmd BufEnter,TabEnter,WinEnter * AirlineRefresh" | endif
 
 " CtrlP configuration
 let g:ctrlp_cmd='CtrlPMRU'
@@ -465,17 +487,10 @@ func! s:DeleteBuffer()
     exec "norm \<F5>"
 endfunc
 
-if has('gui_running')
-    if haswin
-        " Don't use bold text for EasyMotion
-        highlight EasyMotionTarget gui=NONE guifg=#ff0000
-    endif
-else
-    " Disable CSApprox if color palette is too small
-    if &t_Co < 88
-        let g:pathogen_disabled=[]
-        call add(g:pathogen_disabled, 'CSApprox')
-    endif
+" Disable CSApprox if color palette is too small
+if !has('gui_running') && (&t_Co < 88)
+    let g:pathogen_disabled=[]
+    call add(g:pathogen_disabled, 'CSApprox')
 endif
 
 " Override plugin mappings after startup
