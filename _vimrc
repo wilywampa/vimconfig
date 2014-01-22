@@ -8,74 +8,55 @@ augroup VimrcAugroup
     autocmd!
 augroup END
 
-" Number of spaces to indent
-set shiftwidth=4
-
-" Use spaces instead of tabs
-set expandtab
-
-" Length of indent
-set tabstop=4
+set shiftwidth=4               " Number of spaces to indent
+set expandtab                  " Use spaces instead of tabs
+set tabstop=4                  " Length of indent
 set softtabstop=4
-
-" Automatic indentation
-set autoindent
-
-" Don't indent namespaces in C++
-set cinoptions=N-s
-
-" Don't wrap lines
-set nowrap
-
-" Don't update display during macro execution
-set lazyredraw
+set autoindent                 " Automatic indentation
+set cinoptions=N-s             " Don't indent namespaces in C++
+set nowrap                     " Don't wrap lines
+set lazyredraw                 " Don't update display during macro execution
+set encoding=utf-8             " Set default file encoding
+set backspace=indent,eol,start " Backspace through everything in insert mode
+set hlsearch                   " Highlight search terms
+set incsearch                  " Incremental searching
+set ic                         " Make search case-insensitive and smart
+set smartcase
+set showcmd                    " Show information about running command
+set showmode                   " Show current mode
+set nrformats-=octal           " Don't treat numbers as octal when incrementing/decrementing
+set shortmess+=t               " Truncate filenames in messages when necessary
+set showmatch                  " Show matching brace after inserting
+set shiftround                 " Round indent to multiple of shiftwidth
+set scrolloff=2                " Pad lines/columns with context around cursor
+set sidescrolloff=5
+set display+=lastline          " Show as much as possible of the last line in a window
+set autoread                   " Automatically load file if changed outside of vim
+set number                     " Turn on hybrid line numbers (or relative line numbers before Vim 7.4)
+set relativenumber
+set history=1000               " Remember more command history
+set tabpagemax=20              " Allow more tabs
+set hidden                     " Allow switching buffer without saving changes first
+set wildmenu                   " Turn on autocompletion
+set wildmode=full
+set vb                         " Use visual bell instead of sound
+set undofile                   " Enable persistent undo
+set undolevels=1000
+set undoreload=10000
+set history=1000               " Make vim remember more commands
+set timeoutlen=500             " Shorter timeout length for multi-key mappings
+set ttimeout                   " Even shorter delay for keycode mappings
+set ttimeoutlen=50
+set laststatus=2               " Always show statusline
+set foldopen-=block            " Don't open folds when traversed block-wise
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
 
-" Set default file encoding
-set encoding=utf-8
+" Turn on syntax highlighting
+syntax enable
 
-" Backspace through everything in insert mode
-set backspace=indent,eol,start
-
-" Highlight search terms
-set hlsearch
-
-" Incremental searching
-set incsearch
-
-" Make search case-insensitive and smart
-set ic
-set smartcase
-
-" Show information about running command
-set showcmd
-
-" Show current mode
-set showmode
-
-" Don't treat numbers as octal when incrementing/decrementing
-set nrformats-=octal
-
-" Truncate filenames in messages when necessary
-set shortmess+=t
-
-" Show matching brace after inserting
-set showmatch
-
-" Round indent to multiple of shiftwidth
-set shiftround
-
-" Pad lines/columns with context around cursor
-set scrolloff=2
-set sidescrolloff=5
-
-" Show as much as possible of the last line in a window
-set display+=lastline
-
-" Automatically load file if changed outside of vim
-set autoread
+" {{{ Mappings
 
 " Shortcuts to save current file if modified
 noremap <silent> <Leader>s :update<CR>
@@ -90,40 +71,8 @@ nnoremap Q @q
 " Shortcut to toggle paste mode
 nnoremap <silent> <Leader>p :set paste!<CR>
 
-" Turn on hybrid line numbers (or relative line numbers before Vim 7.4)
-set number
-set relativenumber
-
-" Remember more command history
-set history=1000
-
-" Allow more tabs
-set tabpagemax=20
-
 " Make F2 toggle line numbers
 nnoremap <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
-
-let hasmac=has("mac")
-let haswin=has("win16") || has("win32") || has("win64")
-let hasunix=has("unix")
-
-" Session settings
-set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
-augroup VimrcAutocmds
-    autocmd VimLeavePre * mksession! ~/session.vis
-    autocmd BufRead,BufEnter * mksession! ~/periodic_session.vis
-augroup END
-nnoremap <silent> ,l :source ~/session.vis<CR>
-
-" Allow switching buffer without saving changes first
-set hidden
-
-" Turn on syntax highlighting
-syntax enable
-
-" Turn on autocompletion
-set wildmenu
-set wildmode=full
 
 " Make it easy to edit this file (, 'e'dit 'v'imrc)
 nmap <silent> ,ev :e $MYVIMRC<CR>
@@ -131,25 +80,9 @@ nmap <silent> ,ev :e $MYVIMRC<CR>
 " Make it easy to source this file (, 's'ource 'v'imrc)
 nmap <silent> ,sv :so $MYVIMRC<CR>
 
-" Highlight current line in active window
-augroup BgHighlight
-    autocmd!
-    autocmd BufRead,BufNewFile * set cul
-    autocmd WinEnter * set cul
-    autocmd WinLeave * set nocul
-augroup END
-
 " Shortcuts for switching buffer
 nmap <silent> <C-p> :bp<CR>
 nmap <silent> <C-n> :bn<CR>
-
-" Like bufdo but return to starting buffer
-function! Bufdo(command)
-  let currBuff=bufnr("%")
-  execute 'bufdo ' . a:command
-  execute 'buffer ' . currBuff
-endfunction
-com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Shortcuts to use vim grep recursively or non-recursively
 nnoremap ,gr :vim //j **/*<C-Left><C-Left><Right>
@@ -159,23 +92,70 @@ nnoremap ,go :call setqflist([])<CR>:Bufdo vimgrepa //j %<C-Left><C-Left><Right>
 " Open tag in vertical split with Alt-]
 nnoremap <M-]> <C-w><C-]><C-w>L
 
-" Use visual bell instead of sound
-set vb
+" Make Ctrl-c function the same as Esc in insert mode
+imap <C-c> <Esc>
 
-" Enable persistent undo
-set undofile
-set undolevels=1000
-set undoreload=10000
+" Shortcuts for switching tab
+nmap <silent> <C-tab>   :tabnext<CR>
+nmap <silent> <F12>     :tabnext<CR>
+nmap <silent> <C-S-tab> :tabprevious<CR>
+nmap <silent> <F11>     :tabprevious<CR>
 
-" Make vim remember more commands
-set history=1000
+" Shortcut to open new tab
+nnoremap <silent> <M-t> :tabnew<CR>
 
-" Shorter timeout length for multi-key mappings
-set timeoutlen=500
+" Shortcut to print number of occurences of last search
+nnoremap <silent> <M-n> <Esc>:%s///gn<CR>
+nnoremap <silent> <Leader>n <Esc>:%s///gn<CR>
 
-" Even shorter delay for keycode mappings
-set ttimeout
-set ttimeoutlen=50
+" Delete without yank by default, and <M-d> for delete with yank
+nnoremap c "_c|nnoremap <M-c> c|nnoremap \\c c|vnoremap c "_c|vnoremap <M-c> c|vnoremap \\c c
+nnoremap C "_C|nnoremap <M-C> C|nnoremap \\C C|vnoremap C "_C|vnoremap <M-C> C|vnoremap \\C C
+nnoremap d "_d|nnoremap <M-d> d|nnoremap \\d d|vnoremap d "_d|vnoremap <M-d> d|vnoremap \\d d
+nnoremap D "_D|nnoremap <M-D> D|nnoremap \\D D|vnoremap D "_D|vnoremap <M-D> D|vnoremap \\D D
+nnoremap s "_s|nnoremap <M-s> s|nnoremap \\s s|vnoremap s "_s|vnoremap <M-s> s|vnoremap \\s s
+nnoremap S "_S|nnoremap <M-S> S|nnoremap \\S S|vnoremap S "_S|vnoremap <M-S> S|vnoremap \\S S
+nnoremap x "_x|nnoremap <M-x> x|nnoremap \\x x|vnoremap x "_x|vnoremap <M-x> x|vnoremap \\x x
+nnoremap X "_X|nnoremap <M-X> X|nnoremap \\X X|vnoremap X "_X|vnoremap <M-X> X|vnoremap \\X X
+
+" Copy full file path to clipboard on Ctrl-g
+nnoremap <C-g> :let @+=expand('%:p')<CR><C-g>
+
+" Move current tab to last position
+nnoremap <silent> <C-w><C-e> :tabm +99<CR>
+nnoremap <silent> <C-w>e     :tabm +99<CR>
+
+" }}}
+
+" Session settings
+set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
+augroup VimrcAutocmds
+    autocmd VimLeavePre * mksession! ~/session.vis
+    autocmd BufRead,BufEnter * mksession! ~/periodic_session.vis
+augroup END
+nnoremap <silent> ,l :source ~/session.vis<CR>
+
+" Highlight current line in active window
+augroup BgHighlight
+    autocmd!
+    autocmd BufRead,BufNewFile * set cul
+    autocmd WinEnter * set cul
+    autocmd WinLeave * set nocul
+augroup END
+
+" Like bufdo but return to starting buffer
+function! Bufdo(command)
+  let currBuff=bufnr("%")
+  execute 'bufdo ' . a:command
+  execute 'buffer ' . currBuff
+endfunction
+com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
+
+" {{{ Platform-specific configuration
+
+let hasmac=has("mac")
+let haswin=has("win16") || has("win32") || has("win64")
+let hasunix=has("unix")
 
 if hasmac
     " Enable use of option key as meta key
@@ -220,8 +200,12 @@ else
     endif
 endif
 
-" Make Ctrl-c function the same as Esc in insert mode
-imap <C-c> <Esc>
+if hasunix
+    " Enable mouse
+    set mouse=a
+endif
+
+" }}}
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
@@ -269,23 +253,6 @@ else
     unlet ns n
 endif
 
-if hasunix
-    " Enable mouse
-    set mouse=a
-endif
-
-" Shortcuts for switching tab
-nmap <silent> <C-tab>   :tabnext<CR>
-nmap <silent> <F12>     :tabnext<CR>
-nmap <silent> <C-S-tab> :tabprevious<CR>
-nmap <silent> <F11>     :tabprevious<CR>
-
-" Shortcut to open new tab
-nnoremap <silent> <M-t> :tabnew<CR>
-
-" Always show statusline
-set laststatus=2
-
 if !empty($SSH_CLIENT)
     " Increase time allowed for multi-key mappings
     set timeoutlen=1000
@@ -293,27 +260,6 @@ if !empty($SSH_CLIENT)
     " Increase time allowed for keycode mappings
     set ttimeoutlen=100
 endif
-
-" Shortcut to print number of occurences of last search
-nnoremap <silent> <M-n> <Esc>:%s///gn<CR>
-nnoremap <silent> <Leader>n <Esc>:%s///gn<CR>
-
-" Delete without yank by default, and <M-d> for delete with yank
-nnoremap c "_c|nnoremap <M-c> c|nnoremap \\c c|vnoremap c "_c|vnoremap <M-c> c|vnoremap \\c c
-nnoremap C "_C|nnoremap <M-C> C|nnoremap \\C C|vnoremap C "_C|vnoremap <M-C> C|vnoremap \\C C
-nnoremap d "_d|nnoremap <M-d> d|nnoremap \\d d|vnoremap d "_d|vnoremap <M-d> d|vnoremap \\d d
-nnoremap D "_D|nnoremap <M-D> D|nnoremap \\D D|vnoremap D "_D|vnoremap <M-D> D|vnoremap \\D D
-nnoremap s "_s|nnoremap <M-s> s|nnoremap \\s s|vnoremap s "_s|vnoremap <M-s> s|vnoremap \\s s
-nnoremap S "_S|nnoremap <M-S> S|nnoremap \\S S|vnoremap S "_S|vnoremap <M-S> S|vnoremap \\S S
-nnoremap x "_x|nnoremap <M-x> x|nnoremap \\x x|vnoremap x "_x|vnoremap <M-x> x|vnoremap \\x x
-nnoremap X "_X|nnoremap <M-X> X|nnoremap \\X X|vnoremap X "_X|vnoremap <M-X> X|vnoremap \\X X
-
-" Copy full file path to clipboard on Ctrl-g
-nnoremap <C-g> :let @+=expand('%:p')<CR><C-g>
-
-" Move current tab to last position
-nnoremap <silent> <C-w><C-e> :tabm +99<CR>
-nnoremap <silent> <C-w>e     :tabm +99<CR>
 
 " Don't auto comment new line made with 'o' or 'O'
 augroup VimrcAutocmds
