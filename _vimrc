@@ -56,6 +56,9 @@ filetype plugin indent on
 " Turn on syntax highlighting
 syntax enable
 
+" Use four spaces to indent vim file line continuation
+let g:vim_indent_cont=4
+
 " Session settings
 set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
 augroup VimrcAutocmds
@@ -73,11 +76,11 @@ augroup BgHighlight
 augroup END
 
 " Like bufdo but return to starting buffer
-function! Bufdo(command)
-  let currBuff=bufnr("%")
-  execute 'bufdo ' . a:command
-  execute 'buffer ' . currBuff
-endfunction
+func! Bufdo(command)
+    let currBuff=bufnr("%")
+    execute 'bufdo ' . a:command
+    execute 'buffer ' . currBuff
+endfunc
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Shortcut to switch to last active tab
@@ -129,8 +132,8 @@ else
     set undodir=~/.tmp
 
     if hasmac
-    	" Shortcut to reveal current file in Finder
-    	nnoremap <silent> <F4> :silent !reveal %:p > /dev/null<CR>:redraw!<CR>
+        " Shortcut to reveal current file in Finder
+        nnoremap <silent> <F4> :silent !reveal %:p > /dev/null<CR>:redraw!<CR>
     endif
 endif
 
@@ -275,16 +278,16 @@ augroup VimrcAutocmds
 augroup END
 
 " Remove last newline after copying visual selection to clipboard
-function! RemoveClipboardNewline()
+func! RemoveClipboardNewline()
     if &updatetime==1
         let @*=substitute(@*,'\n$','','g')
         set updatetime=4000
     endif
-endfunction
-function! s:VisualEnter(arg)
+endfunc
+func! s:VisualEnter(arg)
     set updatetime=1
     return a:arg
-endfunction
+endfunc
 vnoremap <expr> <SID>VisualEnter VisualEnter()
 nnoremap <expr> v <SID>VisualEnter('v')
 nnoremap <expr> V <SID>VisualEnter('V')
@@ -352,48 +355,48 @@ augroup VimrcAutocmds
     autocmd BufRead,BufNewFile */arduino/*.h set filetype=arduino
     autocmd FileType arduino setlocal cindent
     autocmd FileType arduino nnoremap <F7> :wa<CR>:silent !open $ARDUINO_DIR/build.app<CR>
-                \:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
+        \ :silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
     autocmd FileType arduino nnoremap <S-F7> :wa<CR>:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
 augroup END
 
 " Set comment delimiters for Arduino
 let g:NERDCustomDelimiters={
-            \ 'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
-            \ }
+    \ 'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+    \ }
 
 " Add Arduino support to Tagbar
 let g:tagbar_type_arduino = {
-            \   'ctagstype' : 'c++',
-            \   'kinds'     : [
-            \     'd:macros:1:0',
-            \     'p:prototypes:1:0',
-            \     'g:enums',
-            \     'e:enumerators:0:0',
-            \     't:typedefs:0:0',
-            \     'n:namespaces',
-            \     'c:classes',
-            \     's:structs',
-            \     'u:unions',
-            \     'f:functions',
-            \     'm:members:0:0',
-            \     'v:variables:0:0'
-            \   ],
-            \   'sro'        : '::',
-            \   'kind2scope' : {
-            \     'g' : 'enum',
-            \     'n' : 'namespace',
-            \     'c' : 'class',
-            \     's' : 'struct',
-            \     'u' : 'union'
-            \   },
-            \   'scope2kind' : {
-            \     'enum'      : 'g',
-            \     'namespace' : 'n',
-            \     'class'     : 'c',
-            \     'struct'    : 's',
-            \     'union'     : 'u'
-            \   }
-            \ }
+    \   'ctagstype' : 'c++',
+    \   'kinds'     : [
+    \     'd:macros:1:0',
+    \     'p:prototypes:1:0',
+    \     'g:enums',
+    \     'e:enumerators:0:0',
+    \     't:typedefs:0:0',
+    \     'n:namespaces',
+    \     'c:classes',
+    \     's:structs',
+    \     'u:unions',
+    \     'f:functions',
+    \     'm:members:0:0',
+    \     'v:variables:0:0'
+    \   ],
+    \   'sro'        : '::',
+    \   'kind2scope' : {
+    \     'g' : 'enum',
+    \     'n' : 'namespace',
+    \     'c' : 'class',
+    \     's' : 'struct',
+    \     'u' : 'union'
+    \   },
+    \   'scope2kind' : {
+    \     'enum'      : 'g',
+    \     'namespace' : 'n',
+    \     'class'     : 'c',
+    \     'struct'    : 's',
+    \     'union'     : 'u'
+    \   }
+    \ }
 
 " Override some default settings for Processing files
 augroup VimrcAutocmds
