@@ -20,7 +20,7 @@ set encoding=utf-8             " Set default file encoding
 set backspace=indent,eol,start " Backspace through everything in insert mode
 set hlsearch                   " Highlight search terms
 set incsearch                  " Incremental searching
-set ic                         " Make search case-insensitive and smart
+set ignorecase                 " Make search case-insensitive and smart
 set smartcase
 set showcmd                    " Show information about running command
 set showmode                   " Show current mode
@@ -39,7 +39,7 @@ set tabpagemax=20              " Allow more tabs
 set hidden                     " Allow switching buffer without saving changes first
 set wildmenu                   " Turn on autocompletion
 set wildmode=full
-set vb                         " Use visual bell instead of sound
+set visualbell                 " Use visual bell instead of sound
 set undofile                   " Enable persistent undo
 set undolevels=1000
 set undoreload=10000
@@ -79,6 +79,11 @@ function! Bufdo(command)
   execute 'buffer ' . currBuff
 endfunction
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
+
+" Shortcut to switch to last active tab
+let g:lastTab = 1
+au TabLeave * let g:lastTab=tabpagenr()
+nnoremap <Leader>l :exe "tabn ".g:lastTab<CR>
 
 " {{{ Platform-specific configuration
 
@@ -204,6 +209,9 @@ nn <C-g> :let @+=expand('%:p')<CR><C-g>
 " Move current tab to last position
 nn <silent> <C-w><C-e> :tabm +99<CR>
 nn <silent> <C-w>e     :tabm +99<CR>
+
+" Insert result of visually selected expression
+vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 
 " }}}
 
@@ -410,7 +418,7 @@ nnoremap <silent> <Leader>be :CtrlPBuffer<CR>
 " Map <C-q> to delete buffer in CtrlP
 let g:ctrlp_buffer_func = { 'enter': 'MyCtrlPMappings' }
 func! MyCtrlPMappings()
-    nnoremap <buffer> <silent> <C-q> :call <sid>DeleteBuffer()<cr>
+    nnoremap <buffer> <silent> <C-q> :call <SID>DeleteBuffer()<cr>
 endfunc
 func! s:DeleteBuffer()
     let line = getline('.')

@@ -34,7 +34,9 @@ function! ShortCWD()
     let s:bufNamePrev=@%
     let s:winWidthPrev=winwidth(0)
     let s:cwd=substitute(s:cwdPrev,substitute(expand('~'),s:pathSep,'\\'.s:pathSep,'g'),'~','')
-    let s:tagPrev=tagbar#currenttag('%s','','')
+    if exists(':TagbarToggle')
+        let s:tagPrev=tagbar#currenttag('%s','','')
+    endif
 
     if strlen(s:tagPrev)
         let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-55
