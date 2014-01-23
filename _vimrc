@@ -56,77 +56,6 @@ filetype plugin indent on
 " Turn on syntax highlighting
 syntax enable
 
-" {{{ Mappings
-
-" Shortcuts to save current file if modified
-noremap <silent> <Leader>s :update<CR>
-noremap <silent> <Leader>w :update<CR>
-
-" <Ctrl-l> redraws the screen and removes any search highlighting.
-nnoremap <silent> <C-l> :nohl<CR><C-l>
-
-" Execute q macro with Q
-nnoremap Q @q
-
-" Shortcut to toggle paste mode
-nnoremap <silent> <Leader>p :set paste!<CR>
-
-" Make F2 toggle line numbers
-nnoremap <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
-
-" Make it easy to edit this file (, 'e'dit 'v'imrc)
-nmap <silent> ,ev :e $MYVIMRC<CR>
-
-" Make it easy to source this file (, 's'ource 'v'imrc)
-nmap <silent> ,sv :so $MYVIMRC<CR>
-
-" Shortcuts for switching buffer
-nmap <silent> <C-p> :bp<CR>
-nmap <silent> <C-n> :bn<CR>
-
-" Shortcuts to use vim grep recursively or non-recursively
-nnoremap ,gr :vim //j **/*<C-Left><C-Left><Right>
-nnoremap ,gn :vim //j *<C-Left><C-Left><Right>
-nnoremap ,go :call setqflist([])<CR>:Bufdo vimgrepa //j %<C-Left><C-Left><Right>
-
-" Open tag in vertical split with Alt-]
-nnoremap <M-]> <C-w><C-]><C-w>L
-
-" Make Ctrl-c function the same as Esc in insert mode
-imap <C-c> <Esc>
-
-" Shortcuts for switching tab
-nmap <silent> <C-tab>   :tabnext<CR>
-nmap <silent> <F12>     :tabnext<CR>
-nmap <silent> <C-S-tab> :tabprevious<CR>
-nmap <silent> <F11>     :tabprevious<CR>
-
-" Shortcut to open new tab
-nnoremap <silent> <M-t> :tabnew<CR>
-
-" Shortcut to print number of occurences of last search
-nnoremap <silent> <M-n> <Esc>:%s///gn<CR>
-nnoremap <silent> <Leader>n <Esc>:%s///gn<CR>
-
-" Delete without yank by default, and <M-d> for delete with yank
-nnoremap c "_c|nnoremap <M-c> c|nnoremap \\c c|vnoremap c "_c|vnoremap <M-c> c|vnoremap \\c c
-nnoremap C "_C|nnoremap <M-C> C|nnoremap \\C C|vnoremap C "_C|vnoremap <M-C> C|vnoremap \\C C
-nnoremap d "_d|nnoremap <M-d> d|nnoremap \\d d|vnoremap d "_d|vnoremap <M-d> d|vnoremap \\d d
-nnoremap D "_D|nnoremap <M-D> D|nnoremap \\D D|vnoremap D "_D|vnoremap <M-D> D|vnoremap \\D D
-nnoremap s "_s|nnoremap <M-s> s|nnoremap \\s s|vnoremap s "_s|vnoremap <M-s> s|vnoremap \\s s
-nnoremap S "_S|nnoremap <M-S> S|nnoremap \\S S|vnoremap S "_S|vnoremap <M-S> S|vnoremap \\S S
-nnoremap x "_x|nnoremap <M-x> x|nnoremap \\x x|vnoremap x "_x|vnoremap <M-x> x|vnoremap \\x x
-nnoremap X "_X|nnoremap <M-X> X|nnoremap \\X X|vnoremap X "_X|vnoremap <M-X> X|vnoremap \\X X
-
-" Copy full file path to clipboard on Ctrl-g
-nnoremap <C-g> :let @+=expand('%:p')<CR><C-g>
-
-" Move current tab to last position
-nnoremap <silent> <C-w><C-e> :tabm +99<CR>
-nnoremap <silent> <C-w>e     :tabm +99<CR>
-
-" }}}
-
 " Session settings
 set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
 augroup VimrcAutocmds
@@ -204,6 +133,77 @@ if hasunix
     " Enable mouse
     set mouse=a
 endif
+
+" }}}
+
+" {{{ Mappings
+
+" Shortcuts to save current file if modified
+nn <silent> <Leader>s :update<CR>
+nn <silent> <Leader>w :update<CR>
+
+" <Ctrl-l> redraws the screen and removes any search highlighting.
+nn <silent> <C-l> :nohl<CR><C-l>
+
+" Execute q macro with Q
+nn Q @q
+
+" Shortcut to toggle paste mode
+nn <silent> <Leader>p :set paste!<CR>
+
+" Make F2 toggle line numbers
+nn <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
+
+" Make it easy to edit this file (, 'e'dit 'v'imrc)
+nn <silent> ,ev :e $MYVIMRC<CR>
+
+" Make it easy to source this file (, 's'ource 'v'imrc)
+nn <silent> ,sv :so $MYVIMRC<CR>
+
+" Shortcuts for switching buffer
+nn <silent> <C-p> :bp<CR>
+nn <silent> <C-n> :bn<CR>
+
+" Shortcuts to use vim grep recursively or non-recursively
+nn ,gr :vim //j **/*<C-Left><C-Left><Right>
+nn ,gn :vim //j *<C-Left><C-Left><Right>
+nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa //j %<C-Left><C-Left><Right>
+
+" Open tag in vertical split with Alt-]
+nn <M-]> <C-w><C-]><C-w>L
+
+" Make Ctrl-c function the same as Esc in insert mode
+imap <C-c> <Esc>
+
+" Shortcuts for switching tab
+nn <silent> <C-Tab>   :tabnext<CR>
+nn <silent> <F12>     :tabnext<CR>
+nn <silent> <C-S-Tab> :tabprevious<CR>
+nn <silent> <F11>     :tabprevious<CR>
+
+" Shortcut to open new tab
+nn <silent> <M-t> :tabnew<CR>
+
+" Shortcut to print number of occurences of last search
+nn <silent> <M-n> <Esc>:%s///gn<CR>
+nn <silent> <Leader>n <Esc>:%s///gn<CR>
+
+" Delete without yank by default, and <M-d> for delete with yank
+nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
+nn C "_C|nn <M-C> C|nn \\C C|vn C "_C|vn <M-C> C|vn \\C C
+nn d "_d|nn <M-d> d|nn \\d d|vn d "_d|vn <M-d> d|vn \\d d
+nn D "_D|nn <M-D> D|nn \\D D|vn D "_D|vn <M-D> D|vn \\D D
+nn s "_s|nn <M-s> s|nn \\s s|vn s "_s|vn <M-s> s|vn \\s s
+nn S "_S|nn <M-S> S|nn \\S S|vn S "_S|vn <M-S> S|vn \\S S
+nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
+nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
+
+" Copy full file path to clipboard on Ctrl-g
+nn <C-g> :let @+=expand('%:p')<CR><C-g>
+
+" Move current tab to last position
+nn <silent> <C-w><C-e> :tabm +99<CR>
+nn <silent> <C-w>e     :tabm +99<CR>
 
 " }}}
 
@@ -309,21 +309,8 @@ augroup VimrcAutocmds
     autocmd BufEnter,VimEnter * AirlineRefresh
 augroup END
 
-" Don't use tagbar integration in airline in csh (slow startup)
-if &shell ==# '/bin/csh'
-    let g:airline#extensions#tagbar#enabled=1
-endif
-
 " Shortcut to toggle warnings in airline
-function! s:ToggleAirlineWarnings()
-    if g:airline_section_warning == ''
-        let g:airline_section_warning='%{airline#util#wrap(airline#extensions#whitespace#check(),0)}'
-    else
-        let g:airline_section_warning=''
-    endif
-    exe 'AirlineToggle' | exe 'AirlineToggle'
-endfunction
-nnoremap <silent> <M-w> :call <SID>ToggleAirlineWarnings()<CR>
+nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
 
 " Automatically close NERDTree after opening a buffer
 let NERDTreeQuitOnOpen=1
@@ -443,8 +430,6 @@ endif
 augroup VimrcAutocmds
     autocmd VimEnter * silent! unmap <Tab>
     autocmd VimEnter * silent! unmap <Space>
-    autocmd VimEnter * silent! unmap <ScrollWheelUp>
-    autocmd VimEnter * silent! unmap <ScrollWheelDown>
 augroup END
 
 " EasyMotion settings
@@ -461,6 +446,11 @@ execute pathogen#infect()
 
 " Add current directory to status line
 let g:airline_section_b=airline#section#create(['%{ShortCWD()}'])
+
+" Default whitespace symbol not available everywhere
+if exists('g:airline_symbols')
+    let g:airline_symbols.whitespace='!'
+endif
 
 " }}}
 

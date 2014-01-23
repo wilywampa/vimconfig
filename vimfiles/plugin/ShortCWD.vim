@@ -36,7 +36,11 @@ function! ShortCWD()
     let s:cwd=substitute(s:cwdPrev,substitute(expand('~'),s:pathSep,'\\'.s:pathSep,'g'),'~','')
     let s:tagPrev=tagbar#currenttag('%s','','')
 
-    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-50
+    if strlen(s:tagPrev)
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-55
+    else
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-50
+    endif
 
     if strlen(s:cwd) > s:cwdMaxLen
         let s:cwdPrev=''
