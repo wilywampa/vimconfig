@@ -23,11 +23,14 @@ let s:winWidthPrev=-1
 let s:tagPrev=''
 
 function! ShortCWD()
-    if (getcwd() ==# s:cwdPrev)
-  \ && (@% == s:bufNamePrev)
-  \ && (winwidth(0) == s:winWidthPrev)
-  \ && (tagbar#currenttag('%s','','') ==# s:tagPrev)
-        return s:cwd
+    if (getcwd() ==# s:cwdPrev) && (@% == s:bufNamePrev) && (winwidth(0) == s:winWidthPrev)
+        if exists(':TagbarToggle')
+            if (tagbar#currenttag('%s','','') ==# s:tagPrev)
+                return s:cwd
+            endif
+        else
+            return s:cwd
+        endif
     endif
 
     let s:cwdPrev=getcwd()
@@ -39,15 +42,15 @@ function! ShortCWD()
     endif
 
     if strlen(s:tagPrev)
-        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-55
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-53
     else
         let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-50
     endif
 
     if strlen(s:cwd) > s:cwdMaxLen
-        let s:cwdPrev=''
-        while (strlen(s:cwd) >= s:cwdMaxLen) && !(s:cwd ==# s:cwdPrev)
-            let s:cwdPrev=s:cwd
+        let s:shortCWDprev=''
+        while (strlen(s:cwd) >= s:cwdMaxLen) && !(s:cwd ==# s:shortCWDprev)
+            let s:shortCWDprev=s:cwd
             let s:cwd=substitute(s:cwd,'\('.s:pathSep.'\)\('.s:charSet.'\)\('.s:charSet.'\+\)\ze\.*'.s:pathSep.'\@=','\1\2','')
         endwhile
     endif
