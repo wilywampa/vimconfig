@@ -4,7 +4,7 @@
 set nocompatible
 
 " Reset autocommands when vimrc is re-sourced
-augroup VimrcAugroup
+augroup VimrcAutocmds
     autocmd!
 augroup END
 
