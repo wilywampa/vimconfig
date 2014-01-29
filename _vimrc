@@ -43,7 +43,6 @@ set visualbell                 " Use visual bell instead of sound
 set undofile                   " Enable persistent undo
 set undolevels=1000
 set undoreload=10000
-set history=1000               " Make vim remember more commands
 set timeoutlen=500             " Shorter timeout length for multi-key mappings
 set ttimeout                   " Even shorter delay for keycode mappings
 set ttimeoutlen=50
@@ -66,14 +65,6 @@ augroup VimrcAutocmds
     autocmd BufRead,BufEnter * mksession! ~/periodic_session.vis
 augroup END
 nnoremap <silent> ,l :source ~/session.vis<CR>
-
-" Highlight current line in active window
-augroup BgHighlight
-    autocmd!
-    autocmd BufRead,BufNewFile * set cul
-    autocmd WinEnter * set cul
-    autocmd WinLeave * set nocul
-augroup END
 
 " Like bufdo but return to starting buffer
 func! Bufdo(command)
@@ -110,7 +101,7 @@ if haswin
 
     " Source Windows-specific settings
     source $VIMRUNTIME/mswin.vim
-    unmap <C-y>
+    unmap! <C-y>
 
     " Map increment/decrement function to Alt instead of Ctrl
     nnoremap <M-a> <C-a>
@@ -272,9 +263,17 @@ if !empty($SSH_CLIENT)
     set ttimeoutlen=100
 endif
 
-" Don't auto comment new line made with 'o' or 'O'
 augroup VimrcAutocmds
+    " Don't auto comment new line made with 'o' or 'O'
     autocmd FileType * set formatoptions-=o
+
+    " Use line wrapping for plain text files
+    autocmd FileType txt setl wrap | setl linebreak
+
+    " Highlight current line in active window
+    autocmd BufRead,BufNewFile * set cul
+    autocmd WinEnter * set cul
+    autocmd WinLeave * set nocul
 augroup END
 
 " Remove last newline after copying visual selection to clipboard
@@ -346,17 +345,6 @@ let OmniCpp_ShowPrototypeInAbbr=1
 let OmniCpp_MayCompleteScope=1
 augroup VimrcAutocmds
     au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
-augroup END
-
-" Enable Arduino syntax highlighting
-augroup VimrcAutocmds
-    autocmd BufRead,BufNewFile *.ino set filetype=arduino
-    autocmd BufRead,BufNewFile */arduino/*.cpp set filetype=arduino
-    autocmd BufRead,BufNewFile */arduino/*.h set filetype=arduino
-    autocmd FileType arduino setlocal cindent
-    autocmd FileType arduino nnoremap <F7> :wa<CR>:silent !open $ARDUINO_DIR/build.app<CR>
-        \ :silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
-    autocmd FileType arduino nnoremap <S-F7> :wa<CR>:silent !$ARDUINO_DIR/mk_arduino_tags.sh teensy3<CR>
 augroup END
 
 " Set comment delimiters for Arduino
