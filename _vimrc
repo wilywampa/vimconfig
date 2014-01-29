@@ -61,8 +61,9 @@ let g:vim_indent_cont=4
 " Session settings
 set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
 augroup VimrcAutocmds
-    autocmd VimLeavePre * mksession! ~/session.vis
-    autocmd BufEnter,BufRead,BufWrite,CursorHold * mksession! ~/periodic_session.vis
+    au VimLeavePre * mks! ~/session.vis
+    au VimEnter * mks! ~/periodic_session.vis
+    au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * mks! ~/periodic_session.vis"
 augroup END
 nnoremap <silent> ,l :source ~/session.vis<CR>
 
