@@ -209,8 +209,8 @@ nn <silent> <C-w>e     :tabm +99<CR>
 vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 
 " ZZ and ZQ close buffer instead of just closing window
-nn ZZ :up<CR>:bd<CR>
-nn ZQ :bd!<CR>
+nn ZZ :up<CR>:Bclose<CR>:q<CR>
+nn ZQ :Bclose!<CR>:q!<CR>
 
 " Make <C-c> cancel <C-w> instead of closing window
 nn <C-w><C-c> <NOP>
