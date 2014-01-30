@@ -4,7 +4,7 @@
 "
 "
 " Copyright:
-" 
+"
 "    Jochen Baier, 2006 (email@Jochen-Baier.de)
 "
 " Version: 0.02
@@ -19,9 +19,9 @@
 " (or insert a new line.....).
 "
 "
-" Installation: 
+" Installation:
 "
-" * Drop cr-bs-del-space-tab.vim into your plugin directory           
+" * Drop cr-bs-del-space-tab.vim into your plugin directory
 "
 
 
@@ -48,7 +48,7 @@ function! Delete_key(...)
   execute "normal i\<DEL>\<ESC>"
 
   if first_or_end == 0
-     execute "normal l" 
+     execute "normal l"
   endif
 
 endfunction
@@ -68,11 +68,11 @@ function! BS_key(...)
       endif
     else
       if column > 2
-        execute "normal l" 
+        execute "normal l"
       endif
     endif
 
-endfunction       
+endfunction
 
 
 function! TAB_key (...)
@@ -86,7 +86,7 @@ function! TAB_key (...)
   let end_pos = col(".")
   let diff = end_pos - start_pos
   let counter = 0
-  
+
 
   "ugly :)
   while 1==1
@@ -98,23 +98,29 @@ function! TAB_key (...)
   endwhile
 
   execute "normal \<ESC>"
-       
+
 endfunction
 
 
 function! Return_key ()
 
-  let buftype = getbufvar(bufnr(''), '&buftype') 
-  
+  let buftype = getbufvar(bufnr(''), '&buftype')
+
   if buftype != ""
     unmap <CR>
     execute "normal \<CR>"
     nnoremap <silent> <CR> :call Return_key()<CR>
-  else
-    execute "normal i\<CR>\<ESC>" 
-  endif
+else
+    if col('.') == strlen(getline('.'))
+        execute "normal a\<CR>\<ESC>k"
+    else
+        execute "normal i\<CR>\<ESC>k"
+    endif
+    silent! execute ":s\/\\m\\s\\+\$//"
+    execute "normal j^"
+endif
 
-endfunction           
+endfunction
 
 
 
