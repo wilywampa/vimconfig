@@ -208,11 +208,30 @@ nn <silent> <C-w>e     :tabm +99<CR>
 " Insert result of visually selected expression
 vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 
+" ZZ and ZQ close buffer instead of just closing window
+nn ZZ :up<CR>:bd<CR>
+nn ZQ :bd!<CR>
+
+" Make <C-c> cancel <C-w> instead of closing window
+nn <C-w><C-c> <NOP>
+vn <C-w><C-c> <NOP>
+
+" <C-k>/<C-j> inserts blank line above/below
+nn <silent><C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
+nn <silent><C-k> :set paste<CR>m`O<Esc>``:set nopaste<CR>
+
+" <M-k>/<M-j> deletes blank line above/below
+nn <silent><M-j> m`:silent +g/\m^\s*$/d<CR>``:noh<CR>
+nn <silent><M-k> m`:silent -g/\m^\s*$/d<CR>``:noh<CR>
+
 " }}}
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
     set guioptions+=A
+
+    " Don't use second vertical scrollbar
+    set guioptions-=L
 
     if haswin
         " Set font for gVim
@@ -268,8 +287,9 @@ augroup VimrcAutocmds
     " Don't auto comment new line made with 'o' or 'O'
     autocmd FileType * set formatoptions-=o
 
-    " Use line wrapping for plain text files
-    autocmd FileType txt setl wrap | setl linebreak
+    " Use line wrapping for plain text files (but not help files)
+    autocmd FileType text setl wrap | setl linebreak
+    autocmd FileType help setl nowrap | setl nolinebreak
 
     " Highlight current line in active window
     autocmd BufRead,BufNewFile * set cul
