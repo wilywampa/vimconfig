@@ -107,18 +107,18 @@ function! Return_key ()
   let buftype = getbufvar(bufnr(''), '&buftype')
 
   if buftype != ""
-    unmap <CR>
-    execute "normal \<CR>"
-    nnoremap <silent> <CR> :call Return_key()<CR>
-else
-    if col('.') == strlen(getline('.'))
-        execute "normal a\<CR>\<ESC>k"
-    else
-        execute "normal i\<CR>\<ESC>k"
-    endif
-    silent! execute ":s\/\\m\\s\\+\$//"
-    execute "normal j^"
-endif
+      unmap <CR>
+      execute "normal \<CR>"
+      nnoremap <silent> <CR> :call Return_key()<CR>
+  else
+      if col('.') == strlen(getline('.'))
+          execute "normal a\<CR>\<ESC>k"
+      else
+          execute "normal i\<CR>\<ESC>k"
+      endif
+      silent! execute ":s\/\\m\\s\\+\$//"
+      execute "normal j^"
+  endif
 
 endfunction
 
