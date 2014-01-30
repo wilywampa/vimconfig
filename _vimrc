@@ -48,6 +48,11 @@ set ttimeout                   " Even shorter delay for keycode mappings
 set ttimeoutlen=50
 set laststatus=2               " Always show statusline
 set foldopen-=block            " Don't open folds when traversed block-wise
+set listchars=tab:>\           " Configure display of whitespace
+set listchars+=trail:-
+set listchars+=extends:>
+set listchars+=precedes:<
+set listchars+=nbsp:+
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -63,7 +68,7 @@ set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
 augroup VimrcAutocmds
     au VimLeavePre * mks! ~/session.vis
     au VimEnter * mks! ~/periodic_session.vis
-    au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * mks! ~/periodic_session.vis"
+    au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * silent! mks! ~/periodic_session.vis"
 augroup END
 nnoremap <silent> ,l :source ~/session.vis<CR>
 
