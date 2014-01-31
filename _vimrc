@@ -156,7 +156,7 @@ xn <Leader>a <C-c>ggVG
 nn <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
 
 " Make it easy to edit this file (, 'e'dit 'v'imrc)
-nn <silent> ,ev :e $MYVIMRC<CR>
+nn <silent> ,ev :tabe $MYVIMRC<CR>
 
 " Make it easy to source this file (, 's'ource 'v'imrc)
 nn <silent> ,sv :so $MYVIMRC<CR>
