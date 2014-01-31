@@ -18,6 +18,7 @@ set nowrap                     " Don't wrap lines
 set lazyredraw                 " Don't update display during macro execution
 set encoding=utf-8             " Set default file encoding
 set backspace=indent,eol,start " Backspace through everything in insert mode
+set whichwrap+=<,>,[,]         " Cursor keys wrap to previous/next line
 set hlsearch                   " Highlight search terms
 set incsearch                  " Incremental searching
 set ignorecase                 " Make search case-insensitive and smart
@@ -105,18 +106,6 @@ if haswin
     set directory=C:\temp\vimtmp,.
     set undodir=C:\temp\vimtmp,.
 
-    " Source Windows-specific settings
-    source $VIMRUNTIME/mswin.vim
-    unmap! <C-y>
-
-    " Map increment/decrement function to Alt instead of Ctrl
-    nnoremap <M-a> <C-a>
-    nnoremap <M-x> <C-x>
-
-    " Make Ctrl-c exit visual/select mode after copying
-    vnoremap <C-c> "+y<Esc>
-    snoremap <C-c> <C-g>"+y<Esc>
-
     " Shortcut to explore to current file
     nnoremap <silent> <F4> :silent execute "!start explorer /select,\"" . expand("%:p") . "\""<CR>
 else
@@ -146,6 +135,9 @@ endif
 " Shortcuts to save current file if modified
 nn <silent> <Leader>s :update<CR>
 nn <silent> <Leader>w :update<CR>
+no <silent> <C-s> :update<CR>
+xn <silent> <C-s> <C-c>:update<CR>
+ino <silent> <C-s> <C-o>:update<CR>
 
 " <Ctrl-l> redraws the screen and removes any search highlighting.
 nn <silent> <C-l> :nohl<CR><C-l>
@@ -155,6 +147,10 @@ nn Q @q
 
 " Shortcut to toggle paste mode
 nn <silent> <Leader>p :set paste!<CR>
+
+" Shortcut to select all
+nn <Leader>a ggVG
+xn <Leader>a <C-c>ggVG
 
 " Make F2 toggle line numbers
 nn <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
@@ -178,7 +174,7 @@ nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa //j %<C-Left><C-Left><Righ
 nn <M-]> <C-w><C-]><C-w>L
 
 " Make Ctrl-c function the same as Esc in insert mode
-imap <C-c> <Esc>
+ino <C-c> <Esc>
 
 " Shortcuts for switching tab
 nn <silent> <C-Tab>   :tabnext<CR>
@@ -213,10 +209,6 @@ nn <silent> <C-w>e     :tabm +99<CR>
 " Insert result of visually selected expression
 vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 
-" ZZ and ZQ close buffer instead of just closing window
-nn ZZ :up<CR>:Bclose<CR>:q<CR>
-nn ZQ :Bclose!<CR>:q!<CR>
-
 " Make <C-c> cancel <C-w> instead of closing window
 nn <C-w><C-c> <NOP>
 vn <C-w><C-c> <NOP>
@@ -228,6 +220,18 @@ nn <silent><C-k> :set paste<CR>m`O<Esc>``:set nopaste<CR>
 " <M-k>/<M-j> deletes blank line above/below
 nn <silent><M-j> m`:silent +g/\m^\s*$/d<CR>``:noh<CR>
 nn <silent><M-k> m`:silent -g/\m^\s*$/d<CR>``:noh<CR>
+
+" Backspace deletes visual selection
+xn <BS> "_d
+
+" Ctrl-c copies visual selection to system clipboard
+xn <C-c> "+y<C-c>
+
+" <M-v> pastes from system clipboard
+no <M-v> "+gP
+cno <M-v> <C-r>+
+exe 'inoremap <script> <M-v> <C-g>u'.paste#paste_cmd['i']
+exe 'vnoremap <script> <M-v> '.paste#paste_cmd['v']
 
 " }}}
 
@@ -359,6 +363,10 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 
 " Make B an alias for Bclose
 command! -nargs=* -bang B Bclose<bang><args>
+
+" ZZ and ZQ close buffer instead of just closing window
+nn <silent> ZZ :up<CR>:Bclose<CR>:q<CR>
+nn <silent> ZQ :Bclose!<CR>:q!<CR>
 
 " Tagbar configuration
 augroup VimrcAutocmds
