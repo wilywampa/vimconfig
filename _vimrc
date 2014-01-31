@@ -242,6 +242,10 @@ if has('gui_running')
     " Don't use second vertical scrollbar
     set guioptions-=L
 
+    " Hide menu/toolbars
+    set guioptions-=m
+    set guioptions-=T
+
     if haswin
         " Set font for gVim
         if hostname() ==? 'Jake-Desktop'
@@ -250,10 +254,6 @@ if has('gui_running')
         else
             set guifont=Consolas:h11
         endif
-
-        " Hide menu/toolbars
-        set guioptions-=m
-        set guioptions-=T
     elseif hasmac
         " Set font for MacVim
         set guifont=Consolas:h17
