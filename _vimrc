@@ -1,4 +1,4 @@
-" {{{ Vim built-in configuration
+" {{{1 Vim built-in configuration
 
 " Allow settings that are not vi-compatible
 set nocompatible
@@ -48,7 +48,7 @@ set timeoutlen=500             " Shorter timeout length for multi-key mappings
 set ttimeout                   " Even shorter delay for keycode mappings
 set ttimeoutlen=50
 set laststatus=2               " Always show statusline
-set foldopen-=block            " Don't open folds when traversed block-wise
+"set foldopen-=block            " Don't open folds when traversed block-wise
 set listchars=tab:>\           " Configure display of whitespace
 set listchars+=trail:-
 set listchars+=extends:>
@@ -86,7 +86,7 @@ let g:lastTab = 1
 au TabLeave * let g:lastTab=tabpagenr()
 nnoremap <Leader>l :exe "tabn ".g:lastTab<CR>
 
-" {{{ Platform-specific configuration
+" {{{2 Platform-specific configuration
 
 let hasmac=has("mac")
 let haswin=has("win16") || has("win32") || has("win64")
@@ -128,9 +128,7 @@ if hasunix
     set mouse=a
 endif
 
-" }}}
-
-" {{{ Mappings
+" {{{2 Mappings
 
 " Shortcuts to save current file if modified
 nn <silent> <Leader>s :update<CR>
@@ -229,13 +227,13 @@ xn <BS> "_d
 " Ctrl-c copies visual selection to system clipboard
 xn <C-c> "+y<C-c>
 
+" }}}2
+
 " <M-v> pastes from system clipboard
 no <M-v> "+gP
 cno <M-v> <C-r>+
 exe 'inoremap <script> <M-v> <C-g>u'.paste#paste_cmd['i']
 exe 'vnoremap <script> <M-v> '.paste#paste_cmd['v']
-
-" }}}
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
@@ -329,9 +327,7 @@ augroup END
 " Set color scheme
 colorscheme desert
 
-" }}}
-
-" {{{ Plugin configuration
+" {{{1 Plugin configuration
 
 " Set airline color scheme
 let g:airline_theme='badwolf'
@@ -486,7 +482,5 @@ let g:airline_section_b=airline#section#create(['%{ShortCWD()}'])
 if exists('g:airline_symbols')
     let g:airline_symbols.whitespace='!'
 endif
-
-" }}}
 
 " vim: set fdm=marker:
