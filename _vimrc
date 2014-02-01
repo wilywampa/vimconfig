@@ -156,7 +156,9 @@ xn <Leader>a <C-c>ggVG
 nn <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
 
 " Make it easy to edit this file (, 'e'dit 'v'imrc)
-nn <silent> ,ev :tabe $MYVIMRC<CR>
+" Open in new tab if current window is not empty
+nn <silent> ,ev :if strlen(expand('%'))||strlen(getline(1))
+    \|tabe $MYVIMRC|el|e $MYVIMRC|en<CR>
 
 " Make it easy to source this file (, 's'ource 'v'imrc)
 nn <silent> ,sv :so $MYVIMRC<CR>
@@ -365,8 +367,8 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 command! -nargs=* -bang B Bclose<bang><args>
 
 " ZZ and ZQ close buffer instead of just closing window
-nn <silent> ZZ :up<CR>:Bclose<CR>:q<CR>
-nn <silent> ZQ :Bclose!<CR>:q!<CR>
+nn <silent> ZZ :up<CR>:sil! Bclose<CR>:q<CR>
+nn <silent> ZQ :sil! Bclose!<CR>:q!<CR>
 
 " Tagbar configuration
 augroup VimrcAutocmds
