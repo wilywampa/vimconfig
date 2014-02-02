@@ -219,8 +219,10 @@ nn <silent><C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
 nn <silent><C-k> :set paste<CR>m`O<Esc>``:set nopaste<CR>
 
 " <M-k>/<M-j> deletes blank line above/below
-nn <silent><M-j> m`:silent +g/\m^\s*$/d<CR>``:noh<CR>
-nn <silent><M-k> m`:silent -g/\m^\s*$/d<CR>``:noh<CR>
+nn <silent><M-j> m`:sil +g/\m^\s*$/d<CR>``:noh<CR>:call
+    \ histdel("search",-1)<CR>:let @/=histget("search",-1)<CR>
+nn <silent><M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
+    \ histdel("search",-1)<CR>:let @/=histget("search",-1)<CR>
 
 " Backspace deletes visual selection
 xn <BS> "_d
