@@ -82,7 +82,9 @@ com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Shortcut to switch to last active tab
 let g:lastTab = 1
-au TabLeave * let g:lastTab=tabpagenr()
+augroup VimrcAutocmds
+    au TabLeave * let g:lastTab=tabpagenr()
+augroup END
 nnoremap <Leader>l :exe "tabn ".g:lastTab<CR>
 
 " {{{2 Platform-specific configuration
@@ -337,6 +339,9 @@ if hasmac && !empty($SSH_CLIENT)
     let g:airline_powerline_fonts=0
     let g:airline_left_sep=''
     let g:airline_right_sep=''
+
+    " Disable background color erase
+    set t_ut=
 else
     let g:airline_powerline_fonts=1
 endif
