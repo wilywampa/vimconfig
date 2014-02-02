@@ -48,7 +48,6 @@ set timeoutlen=500             " Shorter timeout length for multi-key mappings
 set ttimeout                   " Even shorter delay for keycode mappings
 set ttimeoutlen=50
 set laststatus=2               " Always show statusline
-"set foldopen-=block            " Don't open folds when traversed block-wise
 set listchars=tab:>\           " Configure display of whitespace
 set listchars+=trail:-
 set listchars+=extends:>
