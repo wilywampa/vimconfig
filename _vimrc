@@ -81,7 +81,7 @@ endfunc
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Shortcut to switch to last active tab
-let g:lastTab = 1
+let g:lastTab=1
 augroup VimrcAutocmds
     au TabLeave * let g:lastTab=tabpagenr()
 augroup END
@@ -230,6 +230,9 @@ xn <BS> "_d
 " Ctrl-c copies visual selection to system clipboard
 xn <C-c> "+y<C-c>
 
+" File explorer at current buffer with -
+nn - :Explore<CR>
+
 " }}}2
 
 " <M-v> pastes from system clipboard
@@ -334,7 +337,7 @@ colorscheme desert
 
 " Set airline color scheme
 let g:airline_theme='badwolf'
-let g:airline#extensions#ctrlp#color_template = 'normal'
+let g:airline#extensions#ctrlp#color_template='normal'
 
 " Use powerline font unless in Mac SSH session
 if hasmac && !empty($SSH_CLIENT)
@@ -391,7 +394,7 @@ let g:NERDCustomDelimiters={
     \ }
 
 " Add Arduino support to Tagbar
-let g:tagbar_type_arduino = {
+let g:tagbar_type_arduino={
     \   'ctagstype' : 'c++',
     \   'kinds'     : [
     \     'd:macros:1:0',
@@ -439,19 +442,19 @@ let g:ctrlp_map='<M-p>'
 let g:ctrlp_clear_cache_on_exit=0
 let g:ctrlp_tabpage_position='al'
 let g:ctrlp_show_hidden=1
-let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
+let g:ctrlp_custom_ignore='\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_follow_symlinks=1
 nnoremap <silent> <M-f> :CtrlPBuffer<CR>
 nnoremap <silent> <Leader>be :CtrlPBuffer<CR>
 
 " Map <C-q> to delete buffer in CtrlP
-let g:ctrlp_buffer_func = { 'enter': 'MyCtrlPMappings' }
+let g:ctrlp_buffer_func={ 'enter': 'MyCtrlPMappings' }
 func! MyCtrlPMappings()
     nnoremap <buffer> <silent> <C-q> :call <SID>DeleteBuffer()<cr>
 endfunc
 func! s:DeleteBuffer()
-    let line = getline('.')
-    let bufid = line =~ '\[\d\+\*No Name\]$' ? str2nr(matchstr(line, '\d\+'))
+    let line=getline('.')
+    let bufid=line =~ '\[\d\+\*No Name\]$' ? str2nr(matchstr(line, '\d\+'))
         \ : fnamemodify(line[2:], ':p')
     exec "bd" bufid
     exec "norm \<F5>"
