@@ -204,8 +204,8 @@ nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 nn <C-g> :let @+=expand('%:p')<CR><C-g>
 
 " Move current tab to last position
-nn <silent> <C-w><C-e> :tabm +99<CR>
-nn <silent> <C-w>e     :tabm +99<CR>
+nn <silent> <C-w><C-e> :tabm<CR>
+nn <silent> <C-w>e     :tabm<CR>
 
 " Insert result of visually selected expression
 vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
