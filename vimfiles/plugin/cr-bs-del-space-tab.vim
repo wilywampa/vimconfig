@@ -108,16 +108,16 @@ function! Return_key ()
 
   if buftype != ""
     unmap <CR>
-    execute "normal \<CR>"
+    execute "normal! \<CR>"
     nnoremap <silent> <CR> :call Return_key()<CR>
   else
     if col('.') == strlen(getline('.'))
-      execute "normal a\<CR>\<ESC>k"
+      execute "normal! a\<CR>\<ESC>k"
     else
-      execute "normal i\<CR>\<ESC>k"
+      execute "normal! i\<CR>\<ESC>k"
     endif
     silent! execute ":s\/\\m\\s\\+\$//"
-    execute "normal j^"
+    execute "normal! j^"
   endif
 
 endfunction
