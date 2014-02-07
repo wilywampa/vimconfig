@@ -89,16 +89,22 @@ nnoremap <Leader>l :exe "tabn ".g:lastTab<CR>
 
 " {{{2 Platform-specific configuration
 
-let hasmac=has("mac")
-let haswin=has("win16") || has("win32") || has("win64")
-let hasunix=has("unix")
+let hasMac=has("mac")
+let hasWin=has("win16") || has("win32") || has("win64")
+let hasUnix=has("unix")
+let hasSSH=!empty($SSH_CLIENT)
 
-if hasmac
+let macSSH=0
+if hasMac
     " Enable use of option key as meta key
     set macmeta
+
+    if hasSSH
+        let macSSH=1
+    endif
 endif
 
-if haswin
+if hasWin
     " Change where backups are saved
     if !isdirectory("C:\\temp\\vimtmp")
         call mkdir("C:\\temp\\vimtmp", "p")
@@ -118,13 +124,13 @@ else
     set directory=~/.tmp
     set undodir=~/.tmp
 
-    if hasmac
+    if hasMac
         " Shortcut to reveal current file in Finder
         nnoremap <silent> <F4> :silent !reveal %:p > /dev/null<CR>:redraw!<CR>
     endif
 endif
 
-if hasunix
+if hasUnix
     " Enable mouse
     set mouse=a
 endif
@@ -218,13 +224,13 @@ nn <C-w><C-c> <NOP>
 vn <C-w><C-c> <NOP>
 
 " <C-k>/<C-j> inserts blank line above/below
-nn <silent><C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
-nn <silent><C-k> :set paste<CR>m`O<Esc>``:set nopaste<CR>
+nn <silent> <C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
+nn <silent> <C-k> :set paste<CR>m`O<Esc>``:set nopaste<CR>
 
 " <M-k>/<M-j> deletes blank line above/below
-nn <silent><M-j> m`:sil +g/\m^\s*$/d<CR>``:noh<CR>:call
+nn <silent> <M-j> m`:sil +g/\m^\s*$/d<CR>``:noh<CR>:call
     \ histdel("search",-1)<CR>:let @/=histget("search",-1)<CR>
-nn <silent><M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
+nn <silent> <M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
     \ histdel("search",-1)<CR>:let @/=histget("search",-1)<CR>
 
 " Backspace deletes visual selection
@@ -234,7 +240,7 @@ xn <BS> "_d
 xn <C-c> "+y<C-c>
 
 " File explorer at current buffer with -
-nn - :Explore<CR>
+nn <silent> - :Explore<CR>
 
 " Repeat last command with a bang
 nn @! :<Up><Home><C-Right>!<CR>
@@ -258,7 +264,7 @@ if has('gui_running')
     set guioptions-=m
     set guioptions-=T
 
-    if haswin
+    if hasWin
         " Set font for gVim
         if hostname() ==? 'Jake-Desktop'
             " Big font for big TV
@@ -266,7 +272,7 @@ if has('gui_running')
         else
             set guifont=Consolas:h11
         endif
-    elseif hasmac
+    elseif hasMac
         " Set font for MacVim
         set guifont=Consolas:h17
 
@@ -287,23 +293,16 @@ else
     nnoremap [1;5I gt
     nnoremap [1;6I gT
 
-    " Map escape sequences to act as meta keys in normal/visual mode
+    " Map escape sequences to act as meta keys
     let ns=range(33,78) + range(80,90) + range(92,123) + range(125,126)
     for n in ns
-        exec "nmap ".nr2char(n)." <M-".nr2char(n).">"
-        exec "vmap ".nr2char(n)." <M-".nr2char(n).">"
-    endfor
-
-    " Map \\<key> to act as meta keys in normal/visual mode
-    let ns=range(97,122)
-    for n in ns
-        exec "nmap \\".nr2char(n)." <M-".nr2char(n).">"
-        exec "vmap \\".nr2char(n)." <M-".nr2char(n).">"
+        exec "map ".nr2char(n)." <M-".nr2char(n).">"
+        exec "map! ".nr2char(n)." <M-".nr2char(n).">"
     endfor
     unlet ns n
 endif
 
-if !empty($SSH_CLIENT)
+if hasSSH
     " Increase time allowed for multi-key mappings
     set timeoutlen=1000
 
@@ -353,7 +352,7 @@ let g:airline_theme='badwolf'
 let g:airline#extensions#ctrlp#color_template='normal'
 
 " Use powerline font unless in Mac SSH session
-if hasmac && !empty($SSH_CLIENT)
+if macSSH
     let g:airline_powerline_fonts=0
     let g:airline_left_sep=''
     let g:airline_right_sep=''
@@ -481,8 +480,9 @@ endif
 
 " EasyMotion settings
 map <Space> <Plug>(easymotion-prefix)
-nmap <S-Space> <Space>
-vmap <S-Space> <Space>
+map <S-Space> <Space>
+map! <S-Space> <Space>
+let g:EasyMotion_keys = 'asdghklqwertyuiopzxcvbnmfj'
 
 " Undotree settings
 nnoremap <Leader>u :UndotreeToggle<CR>
