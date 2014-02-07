@@ -144,6 +144,9 @@ nn <silent> <C-l> :nohl<CR><C-l>
 " Execute q macro with Q
 nn Q @q
 
+" Execute q macro recursively
+nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>:set ws<CR>
+
 " Shortcut to toggle paste mode
 nn <silent> <Leader>p :set paste!<CR>
 
@@ -233,6 +236,9 @@ xn <C-c> "+y<C-c>
 " File explorer at current buffer with -
 nn - :Explore<CR>
 
+" Repeat last command with a bang
+nn @! :<Up><Home><C-Right>!<CR>
+
 " }}}2
 
 " <M-v> pastes from system clipboard
@@ -286,6 +292,13 @@ else
     for n in ns
         exec "nmap ".nr2char(n)." <M-".nr2char(n).">"
         exec "vmap ".nr2char(n)." <M-".nr2char(n).">"
+    endfor
+
+    " Map \\<key> to act as meta keys in normal/visual mode
+    let ns=range(97,122)
+    for n in ns
+        exec "nmap \\".nr2char(n)." <M-".nr2char(n).">"
+        exec "vmap \\".nr2char(n)." <M-".nr2char(n).">"
     endfor
     unlet ns n
 endif
@@ -466,14 +479,8 @@ if !has('gui_running') && (&t_Co < 88)
     call add(g:pathogen_disabled, 'CSApprox')
 endif
 
-" Override plugin mappings after startup
-augroup VimrcAutocmds
-    autocmd VimEnter * silent! unmap <Tab>
-    autocmd VimEnter * silent! unmap <Space>
-augroup END
-
 " EasyMotion settings
-let g:EasyMotion_leader_key='<Space>'
+map <Space> <Plug>(easymotion-prefix)
 nmap <S-Space> <Space>
 vmap <S-Space> <Space>
 
