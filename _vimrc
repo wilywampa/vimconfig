@@ -93,15 +93,11 @@ let hasMac=has("mac")
 let hasWin=has("win16") || has("win32") || has("win64")
 let hasUnix=has("unix")
 let hasSSH=!empty($SSH_CLIENT)
+let macSSH=hasMac && hasSSH
 
-let macSSH=0
 if hasMac
     " Enable use of option key as meta key
     set macmeta
-
-    if hasSSH
-        let macSSH=1
-    endif
 endif
 
 if hasWin
@@ -286,19 +282,23 @@ if has('gui_running')
     endif
 else
     " Shortcuts for moving cursor in command in PuTTY
-    cmap <ESC>[C <C-Right>
-    cmap <ESC>[D <C-Left>
+    set <M-:>=[C
+    set <M-'>=[D
+    cmap <M-:> <C-Right>
+    cmap <M-'> <C-Left>
 
     " Shortcuts to change tab in MinTTY
-    nnoremap [1;5I gt
-    nnoremap [1;6I gT
+    set <M-(>=[1;5I
+    set <M-)>=[1;6I
+    nnoremap <M-(> gt
+    nnoremap <M-)> gT
 
-    " Map escape sequences to act as meta keys
-    let ns=range(33,78) + range(80,90) + range(92,123) + range(125,126)
+    " Set key codes to work as meta key combinations
+    let ns=range(65,90)+range(92,123)+range(125,126)
     for n in ns
-        exec "map ".nr2char(n)." <M-".nr2char(n).">"
-        exec "map! ".nr2char(n)." <M-".nr2char(n).">"
+        exec "set <M-".nr2char(n).">=".nr2char(n)
     endfor
+    set <M-\|>=\| " Bar needs special handling
     unlet ns n
 endif
 
@@ -307,7 +307,11 @@ if hasSSH
     set timeoutlen=1000
 
     " Increase time allowed for keycode mappings
-    set ttimeoutlen=100
+    if macSSH
+        set ttimeoutlen=500
+    else
+        set ttimeoutlen=100
+    endif
 endif
 
 augroup VimrcAutocmds
