@@ -13,7 +13,8 @@ set expandtab                  " Use spaces instead of tabs
 set tabstop=4                  " Length of indent
 set softtabstop=4
 set autoindent                 " Automatic indentation
-set cinoptions=N-s             " Don't indent namespaces in C++
+set cinoptions+=N-s            " Don't indent namespaces in C++
+set cinoptions+=(0             " Line up function arguments
 set nowrap                     " Don't wrap lines
 set lazyredraw                 " Don't update display during macro execution
 set encoding=utf-8             " Set default file encoding
@@ -162,7 +163,7 @@ nn <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
 " Make it easy to edit this file (, 'e'dit 'v'imrc)
 " Open in new tab if current window is not empty
 nn <silent> ,ev :if strlen(expand('%'))||strlen(getline(1))
-    \|tabe $MYVIMRC|el|e $MYVIMRC|en<CR>
+    \|tab drop $MYVIMRC|el|e $MYVIMRC|en<CR>
 
 " Make it easy to source this file (, 's'ource 'v'imrc)
 nn <silent> ,sv :so $MYVIMRC<CR>
@@ -175,6 +176,9 @@ nn <silent> <C-n> :bn<CR>
 nn ,gr :vim //j **/*<C-Left><C-Left><Right>
 nn ,gn :vim //j *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa //j %<C-Left><C-Left><Right>
+
+" Shortcut to delete trailing whitespace
+nn <silent> ,ws :%s/\s\+$//g<CR>
 
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
