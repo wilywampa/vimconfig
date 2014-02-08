@@ -34,7 +34,7 @@ set scrolloff=2                " Pad lines/columns with context around cursor
 set sidescrolloff=5
 set display+=lastline          " Show as much as possible of the last line in a window
 set autoread                   " Automatically load file if changed outside of vim
-set number                     " Turn on hybrid line numbers (or relative line numbers before Vim 7.4)
+set number                     " Turn on hybrid line numbers
 set relativenumber
 set history=1000               " Remember more command history
 set tabpagemax=20              " Allow more tabs
@@ -397,7 +397,8 @@ nn <silent> ZQ :sil! Bclose!<CR>:q!<CR>
 
 " Tagbar configuration
 augroup VimrcAutocmds
-    autocmd VimEnter * if exists(":TagbarToggle") | exe "nnoremap <silent> <Leader>t :TagbarToggle<CR>" | endif
+    autocmd VimEnter * if exists(":TagbarToggle") | exe "nnoremap <silent>
+        \ <Leader>t :TagbarToggle<CR>" | endif
 augroup END
 let g:tagbar_iconchars=['+','-']
 
@@ -487,7 +488,6 @@ if !has('gui_running') && (&t_Co < 88)
 endif
 
 " EasyMotion settings
-map <Space> <Plug>(easymotion-prefix)
 map <S-Space> <Space>
 map! <S-Space> <Space>
 let g:EasyMotion_keys='asdghklqwertyuiopzxcvbnmfj'
