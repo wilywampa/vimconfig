@@ -490,7 +490,16 @@ endif
 map <Space> <Plug>(easymotion-prefix)
 map <S-Space> <Space>
 map! <S-Space> <Space>
-let g:EasyMotion_keys = 'asdghklqwertyuiopzxcvbnmfj'
+let g:EasyMotion_keys='asdghklqwertyuiopzxcvbnmfj'
+let g:EasyMotion_smartcase=1
+map <Space>f  <Plug>(easymotion-bd-f)
+map <Space>t  <Plug>(easymotion-bd-t)
+map <Space>w  <Plug>(easymotion-bd-w)
+map <Space>W  <Plug>(easymotion-bd-W)
+map <Space>e  <Plug>(easymotion-bd-e)
+map <Space>E  <Plug>(easymotion-bd-E)
+map <Space>jk <Plug>(easymotion-bd-jk)
+map <Space>n  <Plug>(easymotion-bd-n)
 
 " Undotree settings
 nnoremap <Leader>u :UndotreeToggle<CR>
