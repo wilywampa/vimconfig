@@ -245,6 +245,9 @@ nn <silent> - :Explore<CR>
 " Repeat last command with a bang
 nn @! :<Up><Home><C-Right>!<CR>
 
+" Repeat last command with case of first character switched
+nn @~ :<Up><C-f>^~<CR>
+
 " }}}2
 
 " <M-v> pastes from system clipboard
