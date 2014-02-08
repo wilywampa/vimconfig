@@ -173,9 +173,9 @@ nn <silent> <C-p> :bp<CR>
 nn <silent> <C-n> :bn<CR>
 
 " Shortcuts to use vim grep recursively or non-recursively
-nn ,gr :vim //j **/*<C-Left><C-Left><Right>
-nn ,gn :vim //j *<C-Left><C-Left><Right>
-nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa //j %<C-Left><C-Left><Right>
+nn ,gr :vim // **/*<C-Left><C-Left><Right>
+nn ,gn :vim // *<C-Left><C-Left><Right>
+nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
 
 " Shortcut to delete trailing whitespace
 nn <silent> ,ws :%s/\s\+$//g<CR>
