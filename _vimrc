@@ -289,14 +289,14 @@ if has('gui_running')
     endif
 else
     " Shortcuts for moving cursor in command in PuTTY
-    set <M-:>=[C
-    set <M-'>=[D
+    set <M-:>=[C " <C-Right>
+    set <M-'>=[D " <C-Left>
     cmap <M-:> <C-Right>
     cmap <M-'> <C-Left>
 
     " Shortcuts to change tab in MinTTY
-    set <M-(>=[1;5I
-    set <M-)>=[1;6I
+    set <M-(>=[1;5I " <C-Tab>
+    set <M-)>=[1;6I " <C-S-Tab>
     nnoremap <M-(> gt
     nnoremap <M-)> gT
 
@@ -306,7 +306,6 @@ else
         exec "set <M-".nr2char(n).">=".nr2char(n)
     endfor
     set <M-\|>=\| " Bar needs special handling
-    unlet ns n
 endif
 
 if hasSSH
@@ -334,6 +333,16 @@ augroup VimrcAutocmds
     autocmd WinEnter * set cul
     autocmd WinLeave * set nocul
 augroup END
+
+" Delete hidden buffers
+func! DeleteHiddenBuffers()
+    let tpbl=[]
+    call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
+    for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
+        silent! execute 'bd' buf
+    endfor
+endfunc
+nnoremap <silent> <Leader>dh :call DeleteHiddenBuffers()<CR>
 
 " Remove last newline after copying visual selection to clipboard
 func! RemoveClipboardNewline()
@@ -496,13 +505,18 @@ map! <S-Space> <Space>
 let g:EasyMotion_keys='asdghklqwertyuiopzxcvbnmfj'
 let g:EasyMotion_smartcase=1
 map <Space>f  <Plug>(easymotion-bd-f)
+map <Space>F  <Plug>(easymotion-bd-f)
 map <Space>t  <Plug>(easymotion-bd-t)
+map <Space>T  <Plug>(easymotion-bd-t)
 map <Space>w  <Plug>(easymotion-bd-w)
 map <Space>W  <Plug>(easymotion-bd-W)
+map <Space>b  <Plug>(easymotion-bd-w)
+map <Space>B  <Plug>(easymotion-bd-W)
 map <Space>e  <Plug>(easymotion-bd-e)
 map <Space>E  <Plug>(easymotion-bd-E)
 map <Space>jk <Plug>(easymotion-bd-jk)
 map <Space>n  <Plug>(easymotion-bd-n)
+map <Space>N  <Plug>(easymotion-bd-n)
 
 " Undotree settings
 nnoremap <Leader>u :UndotreeToggle<CR>
