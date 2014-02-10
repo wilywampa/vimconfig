@@ -556,5 +556,6 @@ endif
 let g:airline#extensions#tabline#enabled=1
 let g:airline#extensions#tabline#tab_nr_type=1
 let g:airline#extensions#tabline#buffer_min_count=2
+let g:airline#extensions#tabline#show_buffers=0
 
 " vim: set fdm=marker:
