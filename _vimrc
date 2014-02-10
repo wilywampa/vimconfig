@@ -165,6 +165,18 @@ nn <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
 nn <silent> ,ev :if strlen(expand('%'))||strlen(getline(1))
     \|tab drop $MYVIMRC|el|e $MYVIMRC|en<CR>
 
+" Make it easy to edit bashrc
+nn <silent> ,eb :if strlen(expand('%'))||strlen(getline(1))
+    \|tab drop ~/.bashrc|el|e ~/.bashrc|en<CR>
+
+" Make it easy to edit cshrc
+nn <silent> ,ec :if strlen(expand('%'))||strlen(getline(1))
+    \|tab drop ~/.cshrc|el|e ~/.cshrc|en<CR>
+
+" Make it easy to edit zshrc
+nn <silent> ,ez :if strlen(expand('%'))||strlen(getline(1))
+    \|tab drop ~/.zshrc|el|e ~/.zshrc|en<CR>
+
 " Make it easy to source this file (, 's'ource 'v'imrc)
 nn <silent> ,sv :so $MYVIMRC<CR>
 
@@ -460,10 +472,17 @@ let g:tagbar_type_arduino={
     \   }
     \ }
 
+" Add Processing support to Tagbar (Processing is not C++, but is close enough
+" for C++ tags to be useful)
+let g:tagbar_type_processing=g:tagbar_type_arduino
+
 " Override some default settings for Processing files
 augroup VimrcAutocmds
     autocmd FileType processing setl softtabstop=2|setl formatoptions-=o
-    autocmd FileType processing nnoremap <F7> :update<bar>call RunProcessing()<CR>|unmap <F5>
+    autocmd FileType processing nnoremap <buffer> <silent> <F5> :cd %:p:h<CR>:up<bar>call
+        \ RunProcessing()<CR>:silent !ctags --language-force=c++ %<CR>:cd -<CR>
+    autocmd FileType processing nnoremap <buffer> <silent> <S-F5> :silent
+        \ !ctags --language-force=c++ %<CR>
 augroup END
 
 " Make NERDCommenter work in select mode
