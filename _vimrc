@@ -519,7 +519,9 @@ if !has('gui_running') && (&t_Co < 88)
 endif
 
 " Don't use shell mappings if not in GUI
-let g:shell_mappings_enabled=0
+if !has('gui_running')
+    let g:shell_mappings_enabled=0
+endif
 
 " EasyMotion settings
 map <S-Space> <Space>
