@@ -267,7 +267,7 @@ exe 'inoremap <script> <C-V> <C-G>u'.paste#paste_cmd['i']
 exe 'vnoremap <script> <C-V> '.paste#paste_cmd['v']
 
 " Use <C-q> to do what <C-v> used to do
-noremap <C-Q> <C-V>
+noremap <C-q> <C-v>
 
 " }}}2
 
