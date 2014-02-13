@@ -260,13 +260,16 @@ nn @! :<Up><Home><C-Right>!<CR>
 " Repeat last command with case of first character switched
 nn @~ :<Up><C-f>^~<CR>
 
-" }}}2
+" <C-v> pastes from system clipboard
+map <C-V> "+gP
+cmap <C-V> <C-R>+
+exe 'inoremap <script> <C-V> <C-G>u'.paste#paste_cmd['i']
+exe 'vnoremap <script> <C-V> '.paste#paste_cmd['v']
 
-" <M-v> pastes from system clipboard
-no <M-v> "+gP
-cno <M-v> <C-r>+
-exe 'inoremap <script> <M-v> <C-g>u'.paste#paste_cmd['i']
-exe 'vnoremap <script> <M-v> '.paste#paste_cmd['v']
+" Use <C-q> to do what <C-v> used to do
+noremap <C-Q> <C-V>
+
+" }}}2
 
 if has('gui_running')
     " Copy mouse modeless selection to clipboard
