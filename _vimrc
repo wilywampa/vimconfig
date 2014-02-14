@@ -138,7 +138,7 @@ endif
 nn <silent> <Leader>s :update<CR>
 nn <silent> <Leader>w :update<CR>
 no <silent> <C-s> :update<CR>
-xn <silent> <C-s> <C-c>:update<CR>
+vn <silent> <C-s> <C-c>:update<CR>
 ino <silent> <C-s> <C-o>:update<CR>
 
 " <Ctrl-l> redraws the screen and removes any search highlighting.
@@ -155,7 +155,7 @@ nn <silent> <Leader>p :set paste!<CR>
 
 " Shortcut to select all
 nn <Leader>a ggVG
-xn <Leader>a <C-c>ggVG
+vn <Leader>a <C-c>ggVG
 
 " Make F2 toggle line numbers
 nn <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
@@ -212,14 +212,14 @@ nn <silent> <M-n> <Esc>:%s///gn<CR>
 nn <silent> <Leader>n <Esc>:%s///gn<CR>
 
 " Delete without yank by default, and <M-d> for delete with yank
-nn c "_c|nn <M-c> c|nn \\c c|xn c "_c|xn <M-c> c|xn \\c c
-nn C "_C|nn <M-C> C|nn \\C C|xn C "_C|xn <M-C> C|xn \\C C
-nn d "_d|nn <M-d> d|nn \\d d|xn d "_d|xn <M-d> d|xn \\d d
-nn D "_D|nn <M-D> D|nn \\D D|xn D "_D|xn <M-D> D|xn \\D D
-nn s "_s|nn <M-s> s|nn \\s s|xn s "_s|xn <M-s> s|xn \\s s
-nn S "_S|nn <M-S> S|nn \\S S|xn S "_S|xn <M-S> S|xn \\S S
-nn x "_x|nn <M-x> x|nn \\x x|xn x "_x|xn <M-x> x|xn \\x x
-nn X "_X|nn <M-X> X|nn \\X X|xn X "_X|xn <M-X> X|xn \\X X
+nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
+nn C "_C|nn <M-C> C|nn \\C C|vn C "_C|vn <M-C> C|vn \\C C
+nn d "_d|nn <M-d> d|nn \\d d|vn d "_d|vn <M-d> d|vn \\d d
+nn D "_D|nn <M-D> D|nn \\D D|vn D "_D|vn <M-D> D|vn \\D D
+nn s "_s|nn <M-s> s|nn \\s s|vn s "_s|vn <M-s> s|vn \\s s
+nn S "_S|nn <M-S> S|nn \\S S|vn S "_S|vn <M-S> S|vn \\S S
+nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
+nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 
 " Copy full file path to clipboard on Ctrl-g
 nn <C-g> :let @+=expand('%:p')<CR><C-g>
@@ -245,10 +245,10 @@ nn <silent> <M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
     \ histdel("search",-1)<CR>:let @/=histget("search",-1)<CR>
 
 " Backspace deletes visual selection
-xn <BS> "_d
+vn <BS> "_d
 
 " Ctrl-c copies visual selection to system clipboard
-xn <C-c> "+y<C-c>
+vn <C-c> "+y<C-c>
 
 " File explorer at current buffer with -
 nn <silent> - :Explore<CR>
