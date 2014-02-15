@@ -234,7 +234,7 @@ vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 " Make <C-c> cancel <C-w> instead of closing window
 no <C-w><C-c> <NOP>
 
-" Don't let <C-w>q/<C-w><C-q> quit
+" Don't let <C-w>q/<C-w><C-q> close last window
 no <C-w><C-q> <C-w>c
 no <C-w>q <C-w>c
 
