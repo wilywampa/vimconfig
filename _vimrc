@@ -222,7 +222,7 @@ nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
 nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 
 " Copy full file path to clipboard on Ctrl-g
-nn <C-g> :let @+=expand('%:p')<CR><C-g>
+nn <C-g> :let @*=expand('%:p')<CR><C-g>
 
 " Move current tab to last position
 nn <silent> <C-w><C-e> :tabm<CR>
@@ -252,7 +252,7 @@ nn <silent> <M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
 vn <BS> "_d
 
 " Ctrl-c copies visual selection to system clipboard
-vn <C-c> "+y<C-c>
+vn <C-c> "*y<C-c>
 
 " File explorer at current buffer with -
 nn <silent> - :Explore<CR>
@@ -264,8 +264,8 @@ nn @! :<Up><Home><C-Right>!<CR>
 nn @~ :<Up><C-f>^~<CR>
 
 " <C-v> pastes from system clipboard
-map <C-V> "+gP
-cmap <C-V> <C-R>+
+map <C-V> "*gP
+cmap <C-V> <C-R>*
 exe 'inoremap <script> <C-V> <C-G>u'.paste#paste_cmd['i']
 exe 'vnoremap <script> <C-V> '.paste#paste_cmd['v']
 
