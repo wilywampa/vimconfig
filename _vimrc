@@ -404,13 +404,6 @@ else
     let g:airline_powerline_fonts=1
 endif
 
-" Force airline to update when switching to a buffer
-augroup VimrcAutocmds
-    if exists('AirlineRefresh')
-        autocmd BufEnter,VimEnter * AirlineRefresh
-    endif
-augroup END
-
 " Shortcut to toggle warnings in airline
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
 
