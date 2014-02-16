@@ -557,6 +557,9 @@ map <Space>N  <Plug>(easymotion-bd-n)
 nnoremap <Leader>u :UndotreeToggle<CR>
 let g:undotree_SplitWidth=40
 
+" Choose SuperTab completion type based on context
+let g:SuperTabDefaultCompletionType="context"
+
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
 
