@@ -272,6 +272,9 @@ exe 'vnoremap <script> <C-V> '.paste#paste_cmd['v']
 " Use <C-q> to do what <C-v> used to do
 noremap <C-q> <C-v>
 
+" Show current line of diff at bottom of tab
+nn <Leader>dl tsjJtlsjJt:res<CR>b
+
 " }}}2
 
 if has('gui_running')
@@ -403,7 +406,9 @@ endif
 
 " Force airline to update when switching to a buffer
 augroup VimrcAutocmds
-    autocmd BufEnter,VimEnter * AirlineRefresh
+    if exists('AirlineRefresh')
+        autocmd BufEnter,VimEnter * AirlineRefresh
+    endif
 augroup END
 
 " Shortcut to toggle warnings in airline
