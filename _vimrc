@@ -96,6 +96,7 @@ func! StripComments()
     endif
     silent %s/\(\/\/\)\(.*\)$/\=submatch(1)
         \ .substitute(submatch(2),'[^ \n]','*','g')/g
+    call histdel('/','[-1,-2]')
     call setpos('.',s:curPos)
 endfunc
 com! StripComments call StripComments()
