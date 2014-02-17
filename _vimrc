@@ -545,6 +545,7 @@ map <Space>E  <Plug>(easymotion-bd-E)
 map <Space>jk <Plug>(easymotion-bd-jk)
 map <Space>n  <Plug>(easymotion-bd-n)
 map <Space>N  <Plug>(easymotion-bd-n)
+map <Space>/  <Plug>(easymotion-sn)
 
 " Undotree settings
 nnoremap <Leader>u :UndotreeToggle<CR>
