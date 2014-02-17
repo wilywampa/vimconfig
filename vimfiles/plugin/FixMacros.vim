@@ -1,3 +1,13 @@
+" Copyright 2014 Jacob Niehus
+" jacob.niehus@gmail.com
+" Do not distribute without permission.
+
+if exists('FixMacrosLoaded')
+    finish
+endif
+
+let FixMacrosLoaded=1
+
 nnoremap <expr> @ <SID>FixMacros()
 
 function! s:FixMacros()
