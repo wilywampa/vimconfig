@@ -81,26 +81,6 @@ func! Bufdo(command)
 endfunc
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
-" Replace C-style comments with asterisks (excepts newlines and spaces)
-func! StripComments()
-    let s:curPos=getpos('.')
-    if v:version >= 704
-        silent %s/\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1)
-            \ .substitute(submatch(2),'[^ \n]','*','g')
-            \ .submatch(3)/g
-    else
-        silent %s/\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1).
-            \ substitute(substitute(substitute(submatch(2),' ',
-            \ nr2char(1),'g'),'\p','*','g'),nr2char(1),' ','g')
-            \ .submatch(3)/g
-    endif
-    silent %s/\(\/\/\)\(.*\)$/\=submatch(1)
-        \ .substitute(submatch(2),'[^ \n]','*','g')/g
-    call histdel('/','[-1,-2]')
-    call setpos('.',s:curPos)
-endfunc
-com! StripComments call StripComments()
-
 " Shortcut to switch to last active tab
 let g:lastTab=1
 augroup VimrcAutocmds
@@ -210,7 +190,7 @@ nn ,gn :vim // *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
 
 " Shortcut to delete trailing whitespace
-nn <silent> ,ws :%s/\s\+$//g<CR>
+nn <silent> ,ws :%s/\s\+$//g<CR>:call histdel('/',-1)<CR>
 
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
