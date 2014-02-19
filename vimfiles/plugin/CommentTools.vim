@@ -82,6 +82,8 @@ endfunc
 
 func! s:UnmapCR()
     silent! cunmap <CR>
+    silent! cunmap <Esc>
+    silent! cunmap <C-c>
 endfunc
 
 func! s:MapCR()
