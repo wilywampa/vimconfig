@@ -500,8 +500,11 @@ let g:ctrlp_tabpage_position='al'
 let g:ctrlp_show_hidden=1
 let g:ctrlp_custom_ignore='\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_follow_symlinks=1
-nnoremap <silent> <M-f> :CtrlPBuffer<CR>
-nnoremap <silent> <Leader>be :CtrlPBuffer<CR>
+augroup VimrcAutocmds
+    autocmd VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
+augroup END
+nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
+nnoremap <silent> <Leader>be :let v:errmsg=""<CR>:CtrlPBuffer<CR>
 
 " Map <C-q> to delete buffer in CtrlP
 let g:ctrlp_buffer_func={ 'enter': 'MyCtrlPMappings' }

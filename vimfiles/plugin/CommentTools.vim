@@ -13,10 +13,10 @@ if !exists('g:findInComments')
 endif
 
 " Replace C-style comments with asterisks (excepts newlines and spaces)
-func! StripComments()
+func! s:StripComments()
     " Save window, cursor, etc. positions
     let s:winSave=winsaveview()
-    if v:version >= 704
+    if v:version >= 703
         silent! %s/\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1)
             \ .substitute(submatch(2),'[^ \n]','*','g')
             \ .submatch(3)/g
@@ -35,20 +35,20 @@ func! StripComments()
     call histdel('/','[-1,-2]')
 endfunc
 
-com! StripComments call StripComments()
+com! StripComments call <SID>StripComments()
 
 " Use StripComments functions to search in non-commented text only
-func! FindNotInComment(direction)
-    if v:version >= 704
+func! s:FindNotInComment(direction)
+    if v:version >= 703
         let s:undo_file = tempname()
         execute "wundo" s:undo_file
     endif
 
     " Save last search and last change for later use
-    let s:search=histget('/')
+    let s:search=@/
     let s:change=changenr()
 
-    call StripComments()
+    call s:StripComments()
     let @/=s:search
 
     " Jump to next or previous match depending on search direction and n/N
@@ -67,7 +67,7 @@ func! FindNotInComment(direction)
     endif
     call winrestview(s:winSave)
 
-    if v:version >= 704 && filereadable(s:undo_file)
+    if v:version >= 703 && filereadable(s:undo_file)
         silent execute "rundo" s:undo_file
         unlet s:undo_file
     endif
@@ -80,25 +80,27 @@ func! FindNotInComment(direction)
     endif
 endfunc
 
-func! UnmapCR()
+func! s:UnmapCR()
     silent! cunmap <CR>
 endfunc
 
-func! MapCR()
-    cnoremap <silent> <CR> <CR>``:call FindNotInComment(1)<CR>:call MapN()<CR>:call UnmapCR()<CR>
+func! s:MapCR()
+    cnoremap <silent> <CR> <CR>``:call <SID>FindNotInComment(1)<CR>:call <SID>MapN()<CR>:call <SID>UnmapCR()<CR>
+    cnoremap <silent> <Esc> <Esc>:call <SID>UnmapCR()<CR>
+    cnoremap <silent> <C-c> <C-c>:call <SID>UnmapCR()<CR>
 endfunc
 
-func! MapN()
-    nnoremap <silent> n :call FindNotInComment(1)<CR>
-    nnoremap <silent> N :call FindNotInComment(0)<CR>
+func! s:MapN()
+    nnoremap <silent> n :call <SID>FindNotInComment(1)<CR>
+    nnoremap <silent> N :call <SID>FindNotInComment(0)<CR>
 endfunc
 
-func! ToggleFindInComments()
+func! s:ToggleFindInComments()
     if g:findInComments
         let g:sfsave=v:searchforward
-        call MapN()
-        nnoremap <silent> / m`:call MapCR()<CR>:let g:sfsave=1<CR>/
-        nnoremap <silent> ? m`:call MapCR()<CR>:let g:sfsave=0<CR>?
+        call s:MapN()
+        nnoremap <silent> / m`:call <SID>MapCR()<CR>:let g:sfsave=1<CR>/
+        nnoremap <silent> ? m`:call <SID>MapCR()<CR>:let g:sfsave=0<CR>?
         let g:findInComments=0
         redraw
         echo "Searching text not in C-style comments"
@@ -107,7 +109,7 @@ func! ToggleFindInComments()
         silent! unmap N
         silent! unmap /
         silent! unmap ?
-        call UnmapCR()
+        call s:UnmapCR()
 
         " Handle case where previous search was backwards
         if g:sfsave==0
@@ -120,7 +122,7 @@ func! ToggleFindInComments()
     endif
 endfunc
 
-com! ToggleFindInComments call ToggleFindInComments()
+com! ToggleFindInComments call <SID>ToggleFindInComments()
 
 nnoremap ,c :ToggleFindInComments<CR>
 
