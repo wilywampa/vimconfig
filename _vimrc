@@ -145,7 +145,7 @@ ino <silent> <C-s> <C-o>:update<CR>
 nn <silent> <C-l> :nohl<CR><C-l>
 
 " Execute q macro with Q
-nn Q @q
+nm Q @q
 
 " Execute q macro recursively
 nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>:set ws<CR>
