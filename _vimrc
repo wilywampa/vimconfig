@@ -540,20 +540,21 @@ map <S-Space> <Space>
 map! <S-Space> <Space>
 let g:EasyMotion_keys='asdghklqwertyuiopzxcvbnmfj'
 let g:EasyMotion_smartcase=1
-map <Space>f  <Plug>(easymotion-bd-f)
-map <Space>F  <Plug>(easymotion-bd-f)
-map <Space>t  <Plug>(easymotion-bd-t)
-map <Space>T  <Plug>(easymotion-bd-t)
-map <Space>w  <Plug>(easymotion-bd-w)
-map <Space>W  <Plug>(easymotion-bd-W)
-map <Space>b  <Plug>(easymotion-bd-w)
-map <Space>B  <Plug>(easymotion-bd-W)
-map <Space>e  <Plug>(easymotion-bd-e)
-map <Space>E  <Plug>(easymotion-bd-E)
-map <Space>jk <Plug>(easymotion-bd-jk)
-map <Space>n  <Plug>(easymotion-bd-n)
-map <Space>N  <Plug>(easymotion-bd-n)
-map <Space>/  <Plug>(easymotion-sn)
+map <Space>f <Plug>(easymotion-bd-f)
+map <Space>F <Plug>(easymotion-bd-f)
+map <Space>t <Plug>(easymotion-bd-t)
+map <Space>T <Plug>(easymotion-bd-t)
+map <Space>w <Plug>(easymotion-bd-w)
+map <Space>W <Plug>(easymotion-bd-W)
+map <Space>b <Plug>(easymotion-bd-w)
+map <Space>B <Plug>(easymotion-bd-W)
+map <Space>e <Plug>(easymotion-bd-e)
+map <Space>E <Plug>(easymotion-bd-E)
+map <Space>j <Plug>(easymotion-bd-jk)
+map <Space>k <Plug>(easymotion-bd-jk)
+map <Space>n <Plug>(easymotion-bd-n)
+map <Space>N <Plug>(easymotion-bd-n)
+map <Space>/ <Plug>(easymotion-sn)
 
 " Undotree settings
 nnoremap <Leader>u :UndotreeToggle<CR>
