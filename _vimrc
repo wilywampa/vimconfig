@@ -288,6 +288,10 @@ no <C-Up>    <C-w>k
 no <C-Left>  <C-w>h
 no <C-Right> <C-w>l
 
+" Use gn and gp to cycle through quickfix results
+no gn :cn<CR>
+no gp :cp<CR>
+
 " }}}2
 
 if has('gui_running')

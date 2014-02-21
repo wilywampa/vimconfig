@@ -17,17 +17,17 @@ func! s:StripComments()
     " Save window, cursor, etc. positions
     let s:winSave=winsaveview()
     if v:version >= 703
-        silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1)
+        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1)
             \ .substitute(submatch(2),'[^ \n]','*','g')
             \ .submatch(3)/g
     else
-        silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1).
+        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1).
             \ substitute(substitute(substitute(submatch(2),' ',
             \ nr2char(1),'g'),'\p','*','g'),nr2char(1),' ','g')
             \ .submatch(3)/g
     endif
 
-    silent! %s/\m\(\/\/\)\(.*\)$/\=submatch(1)
+    keepj silent! %s/\m\(\/\/\)\(.*\)$/\=submatch(1)
         \ .substitute(submatch(2),'[^ \n]','*','g')/g
 
     " Restore window, cursor, etc. positions
@@ -63,7 +63,7 @@ func! s:FindNotInComment(direction)
     " Undo changes caused by StripComments
     let s:winSave=winsaveview()
     if s:change!=changenr()
-        normal! u
+        keepj normal! u
     endif
     call winrestview(s:winSave)
 
