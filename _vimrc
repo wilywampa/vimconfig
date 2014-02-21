@@ -277,6 +277,9 @@ noremap <C-q> <C-v>
 " Show current line of diff at bottom of tab
 nn <Leader>dl tsjJtlsjJt:res<CR>b
 
+" Make Y behave like other capital letters
+map Y y$
+
 " }}}2
 
 if has('gui_running')
