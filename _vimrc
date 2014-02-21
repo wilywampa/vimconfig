@@ -533,6 +533,9 @@ endif
 " Don't use shell mappings if not in GUI
 if !has('gui_running')
     let g:shell_mappings_enabled=0
+else
+    inoremap <F11> <C-o>:Fullscreen<CR>
+    nnoremap <F11> :Fullscreen<CR>
 endif
 
 " EasyMotion settings
@@ -559,6 +562,9 @@ map <Space>/ <Plug>(easymotion-sn)
 " Undotree settings
 nnoremap <Leader>u :UndotreeToggle<CR>
 let g:undotree_SplitWidth=40
+
+" Surround settings
+xmap S <Plug>VSurround
 
 " Choose SuperTab completion type based on context
 let g:SuperTabDefaultCompletionType="context"
