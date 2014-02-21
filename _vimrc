@@ -282,6 +282,12 @@ nn <Leader>dl tsjJtlsjJt:res<CR>b
 " Make Y behave like other capital letters
 map Y y$
 
+" Navigate windows with control-arrow keys
+noremap <C-Down>  <C-W>j
+noremap <C-Up>    <C-W>k
+noremap <C-Left>  <C-W>h
+noremap <C-Right> <C-W>l
+
 " }}}2
 
 if has('gui_running')
@@ -511,7 +517,10 @@ augroup VimrcAutocmds
     autocmd VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
 augroup END
 nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
-nnoremap <silent> <Leader>be :let v:errmsg=""<CR>:CtrlPBuffer<CR>
+
+" MiniBufExplorer configuration
+nnoremap <silent> <Leader>be :MBEToggle<CR>:MBEFocus<CR>
+let g:miniBufExplorerAutoStart=0
 
 " Map <C-q> to delete buffer in CtrlP
 let g:ctrlp_buffer_func={ 'enter': 'MyCtrlPMappings' }
