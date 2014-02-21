@@ -209,7 +209,9 @@ nn <silent> <M-t> :tabnew<CR>
 
 " Shortcut to print number of occurences of last search
 nn <silent> <M-n> <Esc>:%s///gn<CR>
-nn <silent> <Leader>n <Esc>:%s///gn<CR>
+
+" Shortcut to make last search a whole word
+nn <silent> <Leader>n :let @/='\<'.@/.'\>'<CR>
 
 " Delete without yank by default, and <M-d> for delete with yank
 nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
