@@ -543,8 +543,10 @@ endif
 " EasyMotion settings
 map <S-Space> <Space>
 map! <S-Space> <Space>
-let g:EasyMotion_keys='asdghklqwertyuiopzxcvbnmfj'
+let g:EasyMotion_keys='ASDGHKLQWERTYUIOPZXCVBNMFJ'
 let g:EasyMotion_smartcase=1
+let g:EasyMotion_use_upper=1
+map <Space><Space> <Plug>(easymotion-bd-f)
 map <Space>f <Plug>(easymotion-bd-f)
 map <Space>F <Plug>(easymotion-bd-f)
 map <Space>t <Plug>(easymotion-bd-t)
