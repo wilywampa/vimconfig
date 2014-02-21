@@ -59,7 +59,9 @@ set listchars+=nbsp:+
 filetype plugin indent on
 
 " Turn on syntax highlighting
-syntax enable
+if !exists("syntax_on")
+    syntax enable
+endif
 
 " Use four spaces to indent vim file line continuation
 let g:vim_indent_cont=4
