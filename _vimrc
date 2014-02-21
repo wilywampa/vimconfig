@@ -282,11 +282,11 @@ nn <Leader>dl tsjJtlsjJt:res<CR>b
 " Make Y behave like other capital letters
 map Y y$
 
-" Navigate windows with control-arrow keys
-noremap <C-Down>  <C-W>j
-noremap <C-Up>    <C-W>k
-noremap <C-Left>  <C-W>h
-noremap <C-Right> <C-W>l
+" Navigate windows with control + arrow keys
+no <C-Down>  <C-w>j
+no <C-Up>    <C-w>k
+no <C-Left>  <C-w>h
+no <C-Right> <C-w>l
 
 " }}}2
 
