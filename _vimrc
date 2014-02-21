@@ -192,7 +192,7 @@ nn ,gn :vim // *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
 
 " Shortcut to delete trailing whitespace
-nn <silent> ,ws :%s/\s\+$//g<CR>:call histdel('/',-1)<CR>
+nn <silent> ,ws :keepj %s/\s\+$//g<CR>:call histdel('/',-1)<CR>
 
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
