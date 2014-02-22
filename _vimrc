@@ -238,9 +238,15 @@ vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 " Make <C-c> cancel <C-w> instead of closing window
 no <C-w><C-c> <NOP>
 
-" Don't let <C-w>q/<C-w><C-q> close last window
-no <C-w><C-q> <C-w>c
-no <C-w>q <C-w>c
+augroup VimrcAutocmds
+    " Don't let <C-w>q/<C-w><C-q> close last window
+    au VimEnter,CmdwinLeave * no <C-w><C-q> <C-w>c
+    au VimEnter,CmdwinLeave * no <C-w>q <C-w>c
+
+    " Close command window with <C-w>q/<C-w><C-q>
+    au CmdwinEnter * no <C-w><C-q> <C-c><C-c>
+    au CmdwinEnter * no <C-w>q <C-c><C-c>
+augroup END
 
 " <C-k>/<C-j> inserts blank line above/below
 nn <silent> <C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
