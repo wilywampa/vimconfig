@@ -552,11 +552,6 @@ if !has('gui_running') && (&t_Co < 88)
     call add(g:pathogen_disabled, 'CSApprox')
 endif
 
-" Don't use shell mappings if not in GUI
-if !has('gui_running')
-    let g:shell_mappings_enabled=0
-endif
-
 " {{{2 EasyMotion settings
 map <S-Space> <Space>
 map! <S-Space> <Space>
