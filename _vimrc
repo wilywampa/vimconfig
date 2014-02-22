@@ -288,9 +288,13 @@ no <C-Up>    <C-w>k
 no <C-Left>  <C-w>h
 no <C-Right> <C-w>l
 
-" Use gn and gp to cycle through quickfix results
-no gn :cn<CR>
-no gp :cp<CR>
+" Use ,n and ,N to cycle through quickfix results
+no ,n :cn<CR>
+no ,N :cp<CR>
+
+" Stay in visual mode after indent change
+vn < <gv
+vn > >gv
 
 " }}}2
 
@@ -370,6 +374,9 @@ augroup VimrcAutocmds
     autocmd BufRead,BufNewFile * set cul
     autocmd WinEnter * set cul
     autocmd WinLeave * set nocul
+
+    " Disable paste mode after leaving insert mode
+    autocmd InsertLeave * set nopaste
 augroup END
 
 " Delete hidden buffers
@@ -553,7 +560,7 @@ else
     nnoremap <F11> :Fullscreen<CR>
 endif
 
-" EasyMotion settings
+" {{{2 EasyMotion settings
 map <S-Space> <Space>
 map! <S-Space> <Space>
 let g:EasyMotion_keys='ASDGHKLQWERTYUIOPZXCVBNMFJ'
@@ -575,6 +582,10 @@ map <Space>k <Plug>(easymotion-bd-jk)
 map <Space>n <Plug>(easymotion-bd-n)
 map <Space>N <Plug>(easymotion-bd-n)
 map <Space>/ <Plug>(easymotion-sn)
+augroup VimrcAutocmds
+    autocmd VimEnter * unmap <Leader><Leader>
+augroup END
+" }}}2
 
 " Undotree settings
 nnoremap <Leader>u :UndotreeToggle<CR>
