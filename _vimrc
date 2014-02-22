@@ -336,11 +336,15 @@ if has('gui_running')
         set guifont=Inconsolata\ for\ Powerline\ Medium\ 15
     endif
 else
-    " Shortcuts for moving cursor in command in PuTTY
-    set <M-:>=[C " <C-Right>
-    set <M-'>=[D " <C-Left>
-    cmap <M-:> <C-Right>
-    cmap <M-'> <C-Left>
+    " Make control + arrow keys work in PuTTY
+    set <M-:>=[A " <C-Up>
+    set <M-'>=[B " <C-Down>
+    map <M-:> <C-Up>
+    map <M-'> <C-Down>
+    map! <M-:> <C-Up>
+    map! <M-'> <C-Down>
+    set <C-Right>=[C
+    set <C-Left> =[D
 
     " Shortcuts to change tab in MinTTY
     set <M-(>=[1;5I " <C-Tab>
