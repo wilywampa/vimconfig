@@ -302,6 +302,32 @@ no ,N :cp<CR>
 vn < <gv
 vn > >gv
 
+" {{{2 Cscope configuration
+
+" Use quickfix list for cscope results
+set cscopequickfix=s-,c-,d-,i-,t-,e-
+
+" Use cscope instead of ctags when possible
+set cscopetag
+
+" Abbreviations for cscope commands
+cnoreabbrev <expr> csa ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs add'  : 'csa')
+cnoreabbrev <expr> csf ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs find' : 'csf')
+cnoreabbrev <expr> csk ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs kill' : 'csk')
+cnoreabbrev <expr> csr ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs reset' : 'csr')
+cnoreabbrev <expr> css ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs show' : 'css')
+cnoreabbrev <expr> csh ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs help' : 'csh')
+
+" Mappings for cscope find commands
+no <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
+no <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
+no <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
+no <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
+no <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
+no <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
+no <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+no <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+
 " }}}2
 
 if has('gui_running')
