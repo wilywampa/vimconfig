@@ -35,16 +35,16 @@ set sidescrolloff=5
 set display+=lastline          " Show as much as possible of the last line in a window
 set autoread                   " Automatically load file if changed outside of vim
 set number                     " Turn on hybrid line numbers
-set relativenumber
+sil! set relativenumber
 set history=1000               " Remember more command history
 set tabpagemax=20              " Allow more tabs
 set hidden                     " Allow switching buffer without saving changes first
 set wildmenu                   " Turn on autocompletion
 set wildmode=full
 set visualbell                 " Use visual bell instead of sound
-set undofile                   " Enable persistent undo
+sil! set undofile              " Enable persistent undo
 set undolevels=1000
-set undoreload=10000
+sil! set undoreload=10000
 set timeoutlen=500             " Shorter timeout length for multi-key mappings
 set ttimeout                   " Even shorter delay for keycode mappings
 set ttimeoutlen=50
@@ -100,7 +100,7 @@ let macSSH=hasMac && hasSSH
 
 if hasMac
     " Enable use of option key as meta key
-    set macmeta
+    sil! set macmeta
 endif
 
 if hasWin
@@ -110,7 +110,7 @@ if hasWin
     endif
     set backupdir=C:\temp\vimtmp,.
     set directory=C:\temp\vimtmp,.
-    set undodir=C:\temp\vimtmp,.
+    sil! set undodir=C:\temp\vimtmp,.
 
     " Shortcut to explore to current file
     nnoremap <silent> <F4> :silent execute "!start explorer /select,\"" . expand("%:p") . "\""<CR>
@@ -121,7 +121,7 @@ else
     endif
     set backupdir=~/.tmp
     set directory=~/.tmp
-    set undodir=~/.tmp
+    sil! set undodir=~/.tmp
 
     if hasMac
         " Shortcut to reveal current file in Finder
@@ -160,24 +160,24 @@ nn <Leader>a ggVG
 vn <Leader>a <C-c>ggVG
 
 " Make F2 toggle line numbers
-nn <silent> <F2> :se nu!|if &nu|se rnu|el|se nornu|en<CR>
+nn <silent> <F2> :se nu!\|if &nu\|sil! se rnu\|el\|sil! se nornu\|en<CR>
 
 " Make it easy to edit this file (, 'e'dit 'v'imrc)
 " Open in new tab if current window is not empty
-nn <silent> ,ev :if strlen(expand('%'))||strlen(getline(1))
-    \|tab drop $MYVIMRC|el|e $MYVIMRC|en<CR>
+nn <silent> ,ev :if strlen(expand('%'))\|\|strlen(getline(1))
+    \\|tab drop $MYVIMRC\|el\|e $MYVIMRC\|en<CR>
 
 " Make it easy to edit bashrc
-nn <silent> ,eb :if strlen(expand('%'))||strlen(getline(1))
-    \|tab drop ~/.bashrc|el|e ~/.bashrc|en<CR>
+nn <silent> ,eb :if strlen(expand('%'))\|\|strlen(getline(1))
+    \\|tab drop ~/.bashrc\|el\|e ~/.bashrc\|en<CR>
 
 " Make it easy to edit cshrc
-nn <silent> ,ec :if strlen(expand('%'))||strlen(getline(1))
-    \|tab drop ~/.cshrc|el|e ~/.cshrc|en<CR>
+nn <silent> ,ec :if strlen(expand('%'))\|\|strlen(getline(1))
+    \\|tab drop ~/.cshrc\|el\|e ~/.cshrc\|en<CR>
 
 " Make it easy to edit zshrc
-nn <silent> ,ez :if strlen(expand('%'))||strlen(getline(1))
-    \|tab drop ~/.zshrc|el|e ~/.zshrc|en<CR>
+nn <silent> ,ez :if strlen(expand('%'))\|\|strlen(getline(1))
+    \\|tab drop ~/.zshrc\|el\|e ~/.zshrc\|en<CR>
 
 " Make it easy to source this file (, 's'ource 'v'imrc)
 nn <silent> ,sv :so $MYVIMRC<CR>
@@ -355,7 +355,7 @@ if has('gui_running')
 
         " Start in fullscreen mode
         augroup VimrcAutocmds
-            autocmd VimEnter * set fullscreen
+            autocmd VimEnter * sil! set fullscreen
         augroup END
     else
         " Set font for gVim
@@ -566,7 +566,7 @@ augroup END
 nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
 
 " MiniBufExplorer configuration
-nnoremap <silent> <Leader>be :exec "MBEToggle" | exec "MBEFocus"<CR>
+nnoremap <silent> <Leader>be :exec "MBEToggle" \| exec "MBEFocus"<CR>
 let g:miniBufExplorerAutoStart=0
 
 " Map <C-q> to delete buffer in CtrlP
