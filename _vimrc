@@ -202,9 +202,9 @@ ino <C-c> <Esc>
 
 " Shortcuts for switching tab
 nn <silent> <C-Tab>   :tabnext<CR>
-nn <silent> <F12>     :tabnext<CR>
+nn <silent> <M-l>     :tabnext<CR>
 nn <silent> <C-S-Tab> :tabprevious<CR>
-nn <silent> <F11>     :tabprevious<CR>
+nn <silent> <M-h>     :tabprevious<CR>
 
 " Shortcut to open new tab
 nn <silent> <M-t> :tabnew<CR>
@@ -555,9 +555,6 @@ endif
 " Don't use shell mappings if not in GUI
 if !has('gui_running')
     let g:shell_mappings_enabled=0
-else
-    inoremap <F11> <C-o>:Fullscreen<CR>
-    nnoremap <F11> :Fullscreen<CR>
 endif
 
 " {{{2 EasyMotion settings
