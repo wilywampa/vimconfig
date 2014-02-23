@@ -98,11 +98,6 @@ let hasUnix=has("unix")
 let hasSSH=!empty($SSH_CLIENT)
 let macSSH=hasMac && hasSSH
 
-if hasMac
-    " Enable use of option key as meta key
-    sil! set macmeta
-endif
-
 if hasWin
     " Change where backups are saved
     if !isdirectory("C:\\temp\\vimtmp")
@@ -126,6 +121,9 @@ else
     if hasMac
         " Shortcut to reveal current file in Finder
         nnoremap <silent> <F4> :silent !reveal %:p > /dev/null<CR>:redraw!<CR>
+
+        " Enable use of option key as meta key
+        sil! set macmeta
     endif
 endif
 
