@@ -1,7 +1,9 @@
 " {{{1 Vim built-in configuration
 
 " Allow settings that are not vi-compatible
-set nocompatible
+if &compatible
+    set nocompatible
+endif
 
 " Reset autocommands when vimrc is re-sourced
 augroup VimrcAutocmds
@@ -299,6 +301,10 @@ no ,N :cp<CR>
 " Stay in visual mode after indent change
 vn < <gv
 vn > >gv
+
+" Copy WORD above/below cursor with <M-y>/<M-e>
+ino <expr> <M-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|.\)')
+ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|.\)')
 
 " {{{2 Cscope configuration
 
