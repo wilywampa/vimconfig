@@ -288,11 +288,17 @@ nn <Leader>dl tsjJtlsjJt:res<CR>b
 " Make Y behave like other capital letters
 map Y y$
 
-" Navigate windows with control + arrow keys
-no <C-Down>  <C-w>j
-no <C-Up>    <C-w>k
-no <C-Left>  <C-w>h
-no <C-Right> <C-w>l
+" Navigate windows with arrow keys
+no <Down>  <C-w>j
+no <Up>    <C-w>k
+no <Left>  <C-w>h
+no <Right> <C-w>l
+
+" Change window size with control + arrow keys
+no <C-Down>  <C-w>-
+no <C-Up>    <C-w>+
+no <C-Left>  <C-w><
+no <C-Right> <C-w>>
 
 " Use ,n and ,N to cycle through quickfix results
 no ,n :cn<CR>
