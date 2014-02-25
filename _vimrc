@@ -141,7 +141,7 @@ nn <silent> <Leader>s :update<CR>
 nn <silent> <Leader>w :update<CR>
 no <silent> <C-s> :update<CR>
 vn <silent> <C-s> <C-c>:update<CR>
-ino <silent> <C-s> <C-o>:update<CR>
+ino <silent> <C-s> <Esc>:update<CR>
 
 " <Ctrl-l> redraws the screen and removes any search highlighting.
 nn <silent> <C-l> :nohl<CR><C-l>
@@ -456,8 +456,8 @@ colorscheme desert
 let g:airline_theme='badwolf'
 let g:airline#extensions#ctrlp#color_template='normal'
 
-" Use powerline font unless in Mac SSH session
-if macSSH
+" Use powerline font unless in Mac SSH session or in old Vim
+if macSSH || v:version < 704
     let g:airline_powerline_fonts=0
     let g:airline_left_sep=''
     let g:airline_right_sep=''
