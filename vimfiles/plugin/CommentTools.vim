@@ -16,6 +16,7 @@ endif
 func! s:StripComments()
     " Save window, cursor, etc. positions
     let s:winSave=winsaveview()
+
     if v:version >= 703
         keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1)
             \ .substitute(submatch(2),'[^ \n]','*','g')
@@ -103,6 +104,10 @@ func! s:ToggleFindInComments()
         call s:MapN()
         nnoremap <silent> / m`:call <SID>MapCR()<CR>:let g:sfsave=1<CR>/
         nnoremap <silent> ? m`:call <SID>MapCR()<CR>:let g:sfsave=0<CR>?
+        nnoremap <silent> * m`:let @/=expand('<cword>')<CR>:let g:sfsave=1<CR>:call
+            \<SID>FindNotInComment(1)<CR>:set hlsearch<CR>
+        nnoremap <silent> # m`:let @/=expand('<cword>')<CR>:let g:sfsave=0<CR>:call
+            \<SID>FindNotInComment(1)<CR>:set hlsearch<CR>
         let g:findInComments=0
         redraw
         echo "Searching text not in C-style comments"
@@ -111,6 +116,8 @@ func! s:ToggleFindInComments()
         silent! unmap N
         silent! unmap /
         silent! unmap ?
+        silent! unmap *
+        silent! unmap #
         call s:UnmapCR()
 
         " Handle case where previous search was backwards
