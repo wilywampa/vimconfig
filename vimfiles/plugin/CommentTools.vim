@@ -33,7 +33,6 @@ func! s:StripComments()
 
     " Restore window, cursor, etc. positions
     call winrestview(s:winSave)
-    call histdel('/','[-1,-2]')
 endfunc
 
 com! StripComments call <SID>StripComments()
@@ -104,9 +103,9 @@ func! s:ToggleFindInComments()
         call s:MapN()
         nnoremap <silent> / m`:call <SID>MapCR()<CR>:let g:sfsave=1<CR>/
         nnoremap <silent> ? m`:call <SID>MapCR()<CR>:let g:sfsave=0<CR>?
-        nnoremap <silent> * m`:let @/=expand('<cword>')<CR>:let g:sfsave=1<CR>:call
+        nnoremap <silent> * m`:let @/='\<'.expand('<cword>').'\>'<CR>:let g:sfsave=1<CR>:call
             \<SID>FindNotInComment(1)<CR>:set hlsearch<CR>
-        nnoremap <silent> # m`:let @/=expand('<cword>')<CR>:let g:sfsave=0<CR>:call
+        nnoremap <silent> # m`:let @/='\<'.expand('<cword>').'\>'<CR>:let g:sfsave=0<CR>:call
             \<SID>FindNotInComment(1)<CR>:set hlsearch<CR>
         let g:findInComments=0
         redraw

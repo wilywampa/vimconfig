@@ -85,12 +85,16 @@ func! Bufdo(command)
 endfunc
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
-" Shortcut to switch to last active tab
+" Shortcuts to switch to last active tab/window
 let g:lastTab=1
+let g:lastWin=1
+let g:lastWinTab=1
 augroup VimrcAutocmds
     au TabLeave * let g:lastTab=tabpagenr()
+    au WinLeave * let g:lastWin=winnr() | let g:lastWinTab=tabpagenr()
 augroup END
 nnoremap <Leader>l :exe "tabn ".g:lastTab<CR>
+nnoremap <silent> ` :exe 'tabn '.g:lastWinTab' \| '.g:lastWin.'wincmd w'<CR>
 
 " {{{2 Platform-specific configuration
 
@@ -137,7 +141,6 @@ endif
 " {{{2 Mappings
 
 " Shortcuts to save current file if modified
-nn <silent> <Leader>s :update<CR>
 nn <silent> <Leader>w :update<CR>
 no <silent> <C-s> :update<CR>
 vn <silent> <C-s> <C-c>:update<CR>
@@ -210,7 +213,7 @@ nn <silent> <M-h>     :tabprevious<CR>
 nn <silent> <M-t> :tabnew<CR>
 
 " Shortcut to print number of occurences of last search
-nn <silent> <M-n> <Esc>:%s///gn<CR>
+nn <silent> <M-n> :%s///gn<CR>
 
 " Shortcut to make last search a whole word
 nn <silent> <Leader>n :let @/='\<'.@/.'\>'<CR>
@@ -600,22 +603,22 @@ map! <S-Space> <Space>
 let g:EasyMotion_keys='ASDGHKLQWERTYUIOPZXCVBNMFJ'
 let g:EasyMotion_smartcase=1
 let g:EasyMotion_use_upper=1
-map <Space><Space> <Plug>(easymotion-bd-f)
-map <Space>f <Plug>(easymotion-bd-f)
-map <Space>F <Plug>(easymotion-bd-f)
-map <Space>t <Plug>(easymotion-bd-t)
-map <Space>T <Plug>(easymotion-bd-t)
-map <Space>w <Plug>(easymotion-bd-w)
-map <Space>W <Plug>(easymotion-bd-W)
-map <Space>b <Plug>(easymotion-bd-w)
-map <Space>B <Plug>(easymotion-bd-W)
-map <Space>e <Plug>(easymotion-bd-e)
-map <Space>E <Plug>(easymotion-bd-E)
-map <Space>j <Plug>(easymotion-bd-jk)
-map <Space>k <Plug>(easymotion-bd-jk)
-map <Space>n <Plug>(easymotion-bd-n)
-map <Space>N <Plug>(easymotion-bd-n)
-map <Space>/ <Plug>(easymotion-sn)
+map <Space> <Plug>(easymotion-bd-f)
+map <Space><Space>f <Plug>(easymotion-bd-f)
+map <Space><Space>F <Plug>(easymotion-bd-f)
+map <Space><Space>t <Plug>(easymotion-bd-t)
+map <Space><Space>T <Plug>(easymotion-bd-t)
+map <Space><Space>w <Plug>(easymotion-bd-w)
+map <Space><Space>W <Plug>(easymotion-bd-W)
+map <Space><Space>b <Plug>(easymotion-bd-w)
+map <Space><Space>B <Plug>(easymotion-bd-W)
+map <Space><Space>e <Plug>(easymotion-bd-e)
+map <Space><Space>E <Plug>(easymotion-bd-E)
+map <Space><Space>j <Plug>(easymotion-bd-jk)
+map <Space><Space>k <Plug>(easymotion-bd-jk)
+map <Space><Space>n <Plug>(easymotion-bd-n)
+map <Space><Space>N <Plug>(easymotion-bd-n)
+map <Space><Space>/ <Plug>(easymotion-sn)
 augroup VimrcAutocmds
     autocmd VimEnter * unmap <Leader><Leader>
 augroup END
