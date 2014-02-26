@@ -245,6 +245,7 @@ augroup VimrcAutocmds
     " Don't let <C-w>q/<C-w><C-q> close last window
     au VimEnter,CmdwinLeave * no <C-w><C-q> <C-w>c
     au VimEnter,CmdwinLeave * no <C-w>q <C-w>c
+    au VimEnter,CmdwinLeave * sil! nun <C-w><C-w>
 
     " Close command window with <C-w>q/<C-w><C-q>/<C-w><C-w>
     au CmdwinEnter * no <C-w><C-q> <C-c><C-c>
@@ -304,9 +305,15 @@ no <C-Up>    <C-w>+
 no <C-Left>  <C-w><
 no <C-Right> <C-w>>
 
-" Use ,n and ,N to cycle through quickfix results
+" Use ,n and ,N or ,p to cycle through quickfix results
 no ,n :cn<CR>
 no ,N :cp<CR>
+no ,p :cp<CR>
+
+" Use ,,n and ,,N or ,,p to cycle through location list results
+no ,,n :lne<CR>
+no ,,N :lp<CR>
+no ,,p :lp<CR>
 
 " Stay in visual mode after indent change
 vn < <gv
@@ -635,6 +642,14 @@ xmap S <Plug>VSurround
 
 " Choose SuperTab completion type based on context
 let g:SuperTabDefaultCompletionType="context"
+
+" Tabular configuration
+augroup VimrcAutocmds
+    autocmd VimEnter * AddTabularPipeline! align_with_equals
+        \ /^[^=]*\zs=\([^;]*$\)\@=\|^\s*\zs[+-\/\*\d]/
+        \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','','g')")
+        \ | tabular#TabularizeStrings(a:lines,'^\s*\zs\S\(.*=\)\@!\|^[^=]*\zs=\([^;]*$\)\@=','l1')
+augroup END
 
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
