@@ -575,10 +575,6 @@ augroup VimrcAutocmds
 augroup END
 nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
 
-" MiniBufExplorer configuration
-nnoremap <silent> <Leader>be :exec "MBEToggle" \| exec "MBEFocus"<CR>
-let g:miniBufExplorerAutoStart=0
-
 " Map <C-q> to delete buffer in CtrlP
 let g:ctrlp_buffer_func={ 'enter': 'MyCtrlPMappings' }
 func! MyCtrlPMappings()
