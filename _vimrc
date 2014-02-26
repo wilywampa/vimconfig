@@ -586,7 +586,8 @@ endfunc
 func! s:DeleteBuffer()
     let line=getline('.')
     let bufid=line =~ '\[\d\+\*No Name\]$' ? str2nr(matchstr(line, '\d\+'))
-        \ : fnamemodify(line[2:], ':p')
+    " Use substitute to remove status characters after filename
+        \ : substitute(fnamemodify(line[2:], ':p'),'\m\(.*\) [#-=+\.]*$','\1','')
     exec "bd" bufid
     exec "norm \<F5>"
 endfunc
