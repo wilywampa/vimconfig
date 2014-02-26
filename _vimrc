@@ -246,9 +246,10 @@ augroup VimrcAutocmds
     au VimEnter,CmdwinLeave * no <C-w><C-q> <C-w>c
     au VimEnter,CmdwinLeave * no <C-w>q <C-w>c
 
-    " Close command window with <C-w>q/<C-w><C-q>
+    " Close command window with <C-w>q/<C-w><C-q>/<C-w><C-w>
     au CmdwinEnter * no <C-w><C-q> <C-c><C-c>
     au CmdwinEnter * no <C-w>q <C-c><C-c>
+    au CmdwinEnter * no <C-w><C-w> <C-c><C-c>
 augroup END
 
 " <C-k>/<C-j> inserts blank line above/below
