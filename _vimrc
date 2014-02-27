@@ -500,6 +500,9 @@ nnoremap <silent> <M--> :NERDTreeFind<CR>
 " Make B an alias for Bclose
 command! -nargs=* -bang B Bclose<bang><args>
 
+" Shortcut to force close buffer without closing window
+nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
+
 " ZZ and ZQ close buffer instead of just closing window
 nn <silent> ZZ :up<CR>:sil! Bclose<CR>:q<CR>
 nn <silent> ZQ :sil! Bclose!<CR>:q!<CR>
@@ -609,8 +612,7 @@ endif
 " {{{2 EasyMotion settings
 map <S-Space> <Space>
 map! <S-Space> <Space>
-let g:EasyMotion_keys='ASDGHKLQWERTYUIOPZXCVBNMFJ'
-let g:EasyMotion_smartcase=1
+let g:EasyMotion_keys='ABCDEFGIMNOPQRSTUVWXYZLKJH'
 let g:EasyMotion_use_upper=1
 map <Space> <Plug>(easymotion-bd-f)
 map <Space><Space>f <Plug>(easymotion-bd-f)
@@ -646,9 +648,10 @@ let g:SuperTabDefaultCompletionType="context"
 " Tabular configuration
 augroup VimrcAutocmds
     autocmd VimEnter * AddTabularPipeline! align_with_equals
-        \ /^[^=]*\zs=\([^;]*$\)\@=\|^\s*\zs[+-\/\*\d]/
+        \ /^[^=]*\zs=\([^;]*$\)\@=\|^\s*\zs\([+*]\|-\|\d\|\a\|\/\/\@!\)\(.*=.*;\)\@!/
         \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','','g')")
-        \ | tabular#TabularizeStrings(a:lines,'^\s*\zs\S\(.*=\)\@!\|^[^=]*\zs=\([^;]*$\)\@=','l1')
+        \ | tabular#TabularizeStrings(a:lines,
+        \ '^\s*\zs\S\(.*=\)\@!.*$\|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
 augroup END
 
 " Import scripts (e.g. NERDTree)
