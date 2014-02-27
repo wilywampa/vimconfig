@@ -167,19 +167,19 @@ nn <silent> <F2> :se nu!\|if &nu\|sil! se rnu\|el\|sil! se nornu\|en<CR>
 
 " Make it easy to edit this file (, 'e'dit 'v'imrc)
 " Open in new tab if current window is not empty
-nn <silent> ,ev :if strlen(expand('%'))\|\|strlen(getline(1))
+nn <silent> ,ev :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
     \\|tab drop $MYVIMRC\|el\|e $MYVIMRC\|en<CR>
 
 " Make it easy to edit bashrc
-nn <silent> ,eb :if strlen(expand('%'))\|\|strlen(getline(1))
+nn <silent> ,eb :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
     \\|tab drop ~/.bashrc\|el\|e ~/.bashrc\|en<CR>
 
 " Make it easy to edit cshrc
-nn <silent> ,ec :if strlen(expand('%'))\|\|strlen(getline(1))
+nn <silent> ,ec :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
     \\|tab drop ~/.cshrc\|el\|e ~/.cshrc\|en<CR>
 
 " Make it easy to edit zshrc
-nn <silent> ,ez :if strlen(expand('%'))\|\|strlen(getline(1))
+nn <silent> ,ez :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
     \\|tab drop ~/.zshrc\|el\|e ~/.zshrc\|en<CR>
 
 " Make it easy to source this file (, 's'ource 'v'imrc)
