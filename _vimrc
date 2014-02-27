@@ -648,7 +648,7 @@ let g:SuperTabDefaultCompletionType="context"
 " Tabular configuration
 augroup VimrcAutocmds
     autocmd VimEnter * AddTabularPipeline! align_with_equals
-        \ /^[^=]*\zs=\([^;]*$\)\@=\|^\s*\zs\([+*]\|-\|\d\|\a\|\/\/\@!\)\(.*=.*;\)\@!/
+        \ /^[^=]*\zs=\([^;]*$\)\@=\|^\s*\zs\([+*]\|-\|\d\|\a\|\/\/\@!\)\(.*=.*;\|.*\*\/\)\@!/
         \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','','g')")
         \ | tabular#TabularizeStrings(a:lines,
         \ '^\s*\zs\S\(.*=\)\@!.*$\|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
