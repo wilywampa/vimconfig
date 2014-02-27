@@ -412,11 +412,7 @@ if hasSSH
     set timeoutlen=1000
 
     " Increase time allowed for keycode mappings
-    if macSSH
-        set ttimeoutlen=500
-    else
-        set ttimeoutlen=100
-    endif
+    set ttimeoutlen=100
 endif
 
 augroup VimrcAutocmds
@@ -463,6 +459,9 @@ nnoremap <expr> V <SID>VisualEnter('V')
 augroup VimrcAutocmds
     autocmd CursorHold * call RemoveClipboardNewline()
 augroup END
+
+" Abbreviation to open help in new tab
+cnoreabbrev <expr> ht ((getcmdtype() == ':' && getcmdpos() <= 3)? 'tab help'  : 'ht')
 
 " Set color scheme
 colorscheme desert
