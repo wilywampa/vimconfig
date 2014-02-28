@@ -583,6 +583,8 @@ let g:ctrlp_tabpage_position='al'
 let g:ctrlp_show_hidden=1
 let g:ctrlp_custom_ignore='\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_follow_symlinks=1
+let g:ctrlp_by_filename=1
+let g:ctrlp_regexp=1
 augroup VimrcAutocmds
     autocmd VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
 augroup END
@@ -647,7 +649,9 @@ let g:SuperTabDefaultCompletionType="context"
 " Tabular configuration
 augroup VimrcAutocmds
     autocmd VimEnter * AddTabularPipeline! align_with_equals
-        \ /^[^=]*\zs=\([^;]*$\)\@=\|^\s*\zs\([+*]\|-\|\d\|\a\|\/\/\@!\)\(.*=.*;\|.*\*\/\)\@!/
+        \ /^[^=]*\zs=\([^;]*$\)\@=
+        \\|^\s*\zs\S.*;.*$
+        \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
         \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','','g')")
         \ | tabular#TabularizeStrings(a:lines,
         \ '^\s*\zs\S\(.*=\)\@!.*$\|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
