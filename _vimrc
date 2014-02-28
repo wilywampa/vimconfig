@@ -650,7 +650,7 @@ let g:SuperTabDefaultCompletionType="context"
 augroup VimrcAutocmds
     autocmd VimEnter * AddTabularPipeline! align_with_equals
         \ /^[^=]*\zs=\([^;]*$\)\@=
-        \\|^\s*\zs\S.*;.*$
+        \\|^\s*\zs=\@<!\S[^=]*;.*$
         \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
         \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','','g')")
         \ | tabular#TabularizeStrings(a:lines,
