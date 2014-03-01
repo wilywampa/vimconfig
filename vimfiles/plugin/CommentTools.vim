@@ -18,18 +18,20 @@ func! s:StripComments()
     let s:winSave=winsaveview()
 
     if v:version >= 703
-        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1)
+        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$strip^/\=submatch(1)
             \ .substitute(submatch(2),'[^ \n]','*','g')
             \ .submatch(3)/g
     else
-        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)/\=submatch(1).
+        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$strip^/\=submatch(1).
             \ substitute(substitute(substitute(submatch(2),' ',
             \ nr2char(1),'g'),'\p','*','g'),nr2char(1),' ','g')
             \ .submatch(3)/g
     endif
 
-    keepj silent! %s/\m\(\/\/\)\(.*\)$/\=submatch(1)
+    keepj silent! %s/\m\(\/\/\)\(.*\)$\|$strip^/\=submatch(1)
         \ .substitute(submatch(2),'[^ \n]','*','g')/g
+
+    call histdel('/','\V$strip^')
 
     " Restore window, cursor, etc. positions
     call winrestview(s:winSave)
