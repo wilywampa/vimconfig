@@ -671,6 +671,19 @@ augroup VimrcAutocmds
         \ '^\s*\zs\S\(.*=\)\@!.*$\|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
 augroup END
 
+" Function to find and align lines of a C assignment
+func! s:AlignUnterminatedAssignment()
+    if !hlexists('cComment') | return | endif
+    let s:pat='^\s*\zs.*[=!<>]\@<!==\@![^;]*$'
+    call search(s:pat,'W')
+    while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
+        call search(s:pat,'W')
+    endwhile
+    .,/;/Tabularize align_with_equals
+    call search(';','W')
+endfunc
+com! AlignUnterminatedAssignment call <SID>AlignUnterminatedAssignment()
+
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
 
