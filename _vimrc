@@ -342,13 +342,18 @@ set cscopequickfix=s-,c-,d-,i-,t-,e-
 " Use cscope instead of ctags when possible
 set cscopetag
 
+" Abbreviations for diff commands
+cnoreabbrev <expr> dt ((getcmdtype() == ':' && getcmdpos() <= 3)? 'windo diffthis' : 'dt')
+cnoreabbrev <expr> do ((getcmdtype() == ':' && getcmdpos() <= 3)? 'windo diffoff'  : 'do')
+cnoreabbrev <expr> du ((getcmdtype() == ':' && getcmdpos() <= 3)? 'diffupdate'     : 'du')
+
 " Abbreviations for cscope commands
-cnoreabbrev <expr> csa ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs add'  : 'csa')
-cnoreabbrev <expr> csf ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs find' : 'csf')
-cnoreabbrev <expr> csk ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs kill' : 'csk')
+cnoreabbrev <expr> csa ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs add'   : 'csa')
+cnoreabbrev <expr> csf ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs find'  : 'csf')
+cnoreabbrev <expr> csk ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs kill'  : 'csk')
 cnoreabbrev <expr> csr ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs reset' : 'csr')
-cnoreabbrev <expr> css ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs show' : 'css')
-cnoreabbrev <expr> csh ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs help' : 'csh')
+cnoreabbrev <expr> css ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs show'  : 'css')
+cnoreabbrev <expr> csh ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs help'  : 'csh')
 
 " Mappings for cscope find commands
 no <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
