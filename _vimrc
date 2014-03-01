@@ -674,7 +674,7 @@ augroup END
 " Function to find and align lines of a C assignment
 func! s:AlignUnterminatedAssignment()
     if !hlexists('cComment') | return | endif
-    let s:pat='^\s*\zs.*[=!<>]\@<!==\@![^;]*$'
+    let s:pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$'
     call search(s:pat,'W')
     while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         call search(s:pat,'W')
