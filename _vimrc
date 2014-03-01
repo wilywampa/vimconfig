@@ -93,7 +93,7 @@ augroup VimrcAutocmds
     au TabLeave * let g:lastTab=tabpagenr()
     au WinLeave * let g:lastWin=winnr() | let g:lastWinTab=tabpagenr()
 augroup END
-nnoremap <Leader>l :exe "tabn ".g:lastTab<CR>
+nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ` :exe 'tabn '.g:lastWinTab' \| '.g:lastWin.'wincmd w'<CR>
 
 " {{{2 Platform-specific configuration
