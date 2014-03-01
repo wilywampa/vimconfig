@@ -203,11 +203,22 @@ nn <M-]> <C-w><C-]><C-w>L
 " Make Ctrl-c function the same as Esc in insert mode
 ino <C-c> <Esc>
 
-" Shortcuts for switching tab
-nn <silent> <C-Tab>   :tabnext<CR>
-nn <silent> <M-l>     :tabnext<CR>
-nn <silent> <C-S-Tab> :tabprevious<CR>
-nn <silent> <M-h>     :tabprevious<CR>
+" Shortcuts for switching tab, including closing command window if it's open
+augroup VimrcAutocmds
+    au VimEnter,CmdwinLeave * nn <silent> <C-Tab>    gt
+    au VimEnter,CmdwinLeave * nn <silent> <C-S-Tab>  gT
+    au VimEnter,CmdwinLeave * nn <silent> <M-l>      gt
+    au VimEnter,CmdwinLeave * nn <silent> <M-h>      gT
+    au VimEnter,CmdwinLeave * nn <M-(>               gt
+    au VimEnter,CmdwinLeave * nn <M-)>               gT
+
+    au CmdwinEnter * nn <silent> <C-Tab>   <C-c><C-c>gt
+    au CmdwinEnter * nn <silent> <C-S-Tab> <C-c><C-c>gT
+    au CmdwinEnter * nn <silent> <M-l>     <C-c><C-c>gt
+    au CmdwinEnter * nn <silent> <M-h>     <C-c><C-c>gT
+    au CmdwinEnter * nn <silent> <M-(>     <C-c><C-c>gt
+    au CmdwinEnter * nn <silent> <M-)>     <C-c><C-c>gT
+augroup END
 
 " Shortcut to open new tab
 nn <silent> <M-t> :tabnew<CR>
@@ -396,8 +407,6 @@ else
     " Shortcuts to change tab in MinTTY
     set <M-(>=[1;5I " <C-Tab>
     set <M-)>=[1;6I " <C-S-Tab>
-    nnoremap <M-(> gt
-    nnoremap <M-)> gT
 
     " Set key codes to work as meta key combinations
     let ns=range(65,90)+range(92,123)+range(125,126)
