@@ -675,13 +675,19 @@ augroup END
 " Function to find and align lines of a C assignment
 func! s:AlignUnterminatedAssignment()
     if !hlexists('cComment') | return | endif
-    let s:pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$'
-    call search(s:pat,'W')
+    let pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$'
+    let top=search(pat,'W')
     while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
-        call search(s:pat,'W')
+        let top=search(pat,'W')
     endwhile
-    .,/;/Tabularize align_with_equals
-    call search(';','W')
+    let bottom=search(';','W')
+    while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
+        let bottom=search(';','W')
+    endwhile
+    if top && bottom
+        exec top.','.bottom.'Tabularize align_with_equals'
+    endif
+    call cursor(bottom, 1)
 endfunc
 com! AlignUnterminatedAssignment call <SID>AlignUnterminatedAssignment()
 
