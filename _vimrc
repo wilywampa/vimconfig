@@ -598,6 +598,7 @@ let g:ctrlp_show_hidden=1
 let g:ctrlp_custom_ignore='\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_follow_symlinks=1
 let g:ctrlp_by_filename=1
+let g:ctrlp_working_path_mode='rw'
 let g:ctrlp_regexp=1
 augroup VimrcAutocmds
     autocmd VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
