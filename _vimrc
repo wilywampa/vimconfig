@@ -427,7 +427,11 @@ if hasSSH
     set timeoutlen=1000
 
     " Increase time allowed for keycode mappings
-    set ttimeoutlen=100
+    if macSSH
+        set ttimeoutlen=250
+    else
+        set ttimeoutlen=100
+    endif
 endif
 
 augroup VimrcAutocmds
@@ -655,6 +659,7 @@ augroup END
 " Undotree settings
 nnoremap <Leader>u :UndotreeToggle<CR>
 let g:undotree_SplitWidth=40
+let g:undotree_SetFocusWhenToggle=1
 
 " Surround settings
 xmap S <Plug>VSurround
