@@ -663,6 +663,7 @@ augroup END
 if has('python')
     call add(g:pathogen_disabled, 'undotree')
     nnoremap <silent> <Leader>u :GundoToggle<CR>
+    let g:gundo_help=0
 else
     call add(g:pathogen_disabled, 'Gundo')
     nnoremap <silent> <Leader>u :UndotreeToggle<CR>
