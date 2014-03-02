@@ -163,7 +163,8 @@ nn <Leader>a ggVG
 vn <Leader>a <C-c>ggVG
 
 " Make F2 toggle line numbers
-nn <silent> <F2> :se nu!\|if &nu\|sil! se rnu\|el\|sil! se nornu\|en<CR>
+nn <silent> <F2> :se nu!<bar>if &nu<bar>sil! se rnu<bar>el<bar>sil! se nornu<bar>en<CR>
+vm <silent> <F2> <Esc><F2>gv
 
 " Make it easy to edit this file (, 'e'dit 'v'imrc)
 " Open in new tab if current window is not empty
