@@ -18,26 +18,24 @@ func! s:StripComments()
     let s:winSave=winsaveview()
 
     if v:version >= 703
-        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$strip^/\=submatch(1)
+        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$t^/\=submatch(1)
             \ .substitute(submatch(2),'[^ \n]','*','g')
             \ .submatch(3)/g
     else
-        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$strip^/\=submatch(1).
+        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$t^/\=submatch(1).
             \ substitute(substitute(substitute(submatch(2),' ',
             \ nr2char(1),'g'),'\p','*','g'),nr2char(1),' ','g')
             \ .submatch(3)/g
     endif
 
-    keepj silent! %s/\m\(\/\/\)\(.*\)$\|$strip^/\=submatch(1)
+    keepj silent! %s/\m\(\/\/\)\(.*\)$\|$t^/\=submatch(1)
         \ .substitute(submatch(2),'[^ \n]','*','g')/g
 
-    call histdel('/','\V$strip^')
+    call histdel('/','\V$t^')
 
     " Restore window, cursor, etc. positions
     call winrestview(s:winSave)
 endfunc
-
-com! StripComments call <SID>StripComments()
 
 " Use StripComments functions to search in non-commented text only
 func! s:FindNotInComment(direction)
@@ -132,7 +130,100 @@ func! s:ToggleFindInComments()
     endif
 endfunc
 
+" Tabular pipeline for aligning = with first non-blank of lines up until ;
+autocmd VimEnter * AddTabularPipeline! align_with_equals
+    \ /^[^=]*\zs=\([^;]*$\)\@=
+    \\|^\s*\zs=\@<!\S[^=]*;.*$
+    \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
+    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','','g')")
+    \ | tabular#TabularizeStrings(a:lines,
+    \ '^\s*\zs\S\(.*=\)\@!.*$\|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
+
+" Function to find and align lines of a C assignment
+func! s:AlignUnterminatedAssignment()
+    if !hlexists('cComment') | return 0 | endif
+    let pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$'
+    let top=search(pat,'W')
+    if !top | return 0 | endif
+    while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
+        let top=search(pat,'W')
+    endwhile
+    let bottom=search(';','W')
+    while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
+        let bottom=search(';','W')
+    endwhile
+    exec top.','.bottom.'Tabularize align_with_equals'
+    call cursor(bottom, 1)
+    return 1
+endfunc
+
+" Function to fully format a C/C++ source file
+func! s:FormatC()
+    if !hlexists('cComment') | return | endif
+
+    " Save view to restore afterwards
+    let winSave=winsaveview()
+
+    " Replace tabs with spaces or vice versa
+    retab
+
+    " Remove trailing whitespace
+    keepj silent! %s/\s\+$\|$t^//g | call histdel('/','\V$t^')
+
+    " Go through all lines and indent correctly
+    call cursor(1,1)
+    while line('.') < line('$')
+        norm! j^
+        if getline('.') != ""
+            if (getline('.') !~ '^\s*\/\*') || (getline('.') =~ '^\s*\/\*.*\*\/')
+                " Regular line of code or single-line comment
+                norm! ==
+            else
+                " First line of block comment
+                let top=line('.')
+                let indent=cindent(top)-match(getline('.'),'\S')
+                call search('^.*\*\/','W')
+                let bottom=line('.')
+
+                " Indent all lines of block comment by same amount
+                while indent
+                    if indent > 0
+                        exec 'keepj silent! '.top.','.bottom.'s/^.*$\|$t^/ &'
+                        let indent -= 1
+                    else
+                        let space=1
+                        for n in range(top,bottom)
+                            if match(getline(n),'\S') == 0
+                                let space=0
+                            endif
+                        endfor
+                        if space
+                            exec 'keepj silent! '.top.','.bottom.'s/^\( \)\(.*\)$\|$t^/\2'
+                            let indent += 1
+                        else
+                            let indent=0
+                        endif
+                    endif
+                endwhile
+            endif
+        endif
+    endwhile
+
+    " Find and indent unterminated assignments
+    call cursor(1,1)
+    while s:AlignUnterminatedAssignment() | endwhile
+
+    " Clean up search history
+    call histdel('/','\V$t^')
+
+    " Restore view
+    call winrestview(winSave)
+endfunc
+
+com! StripComments call <SID>StripComments()
 com! ToggleFindInComments call <SID>ToggleFindInComments()
+com! AlignUnterminatedAssignment call <SID>AlignUnterminatedAssignment()
+com! FormatC call <SID>FormatC()
 
 nnoremap ,c :ToggleFindInComments<CR>
 

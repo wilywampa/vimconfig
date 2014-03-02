@@ -196,7 +196,7 @@ nn ,gn :vim // *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
 
 " Shortcut to delete trailing whitespace
-nn <silent> ,ws :keepj %s/\s\+$//g<CR>:call histdel('/',-1)<CR>
+nn <silent> ,ws :keepj sil!%s/\s\+$\|$t^//g<CR>:call histdel('/','\V$t^')<CR>
 
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
@@ -228,7 +228,8 @@ nn <silent> <M-t> :tabnew<CR>
 nn <silent> <M-n> :%s///gn<CR>
 
 " Shortcut to make last search a whole word
-nn <silent> <Leader>n :let @/='\<'.@/.'\>'<CR>
+nn <silent> <Leader>n :let @/='\<'.@/.'\>'<CR>n
+nn <silent> <Leader>N :let @/='\<'.@/.'\>'<CR>N
 
 " Delete without yank by default, and <M-d> for delete with yank
 nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
@@ -594,7 +595,13 @@ augroup END
 " Make NERDCommenter work in select mode
 smap <Bslash> <C-g><Bslash>
 
-" CtrlP configuration
+" Disable CSApprox if color palette is too small
+if !has('gui_running') && (&t_Co < 88)
+    let g:pathogen_disabled=[]
+    call add(g:pathogen_disabled, 'CSApprox')
+endif
+
+" {{{2 CtrlP configuration
 let g:ctrlp_cmd='CtrlPMRU'
 let g:ctrlp_map='<M-p>'
 let g:ctrlp_clear_cache_on_exit=0
@@ -623,12 +630,6 @@ func! s:DeleteBuffer()
     exec "bd" bufid
     exec "norm \<F5>"
 endfunc
-
-" Disable CSApprox if color palette is too small
-if !has('gui_running') && (&t_Co < 88)
-    let g:pathogen_disabled=[]
-    call add(g:pathogen_disabled, 'CSApprox')
-endif
 
 " {{{2 EasyMotion settings
 map <S-Space> <Space>
@@ -666,37 +667,6 @@ xmap S <Plug>VSurround
 
 " Choose SuperTab completion type based on context
 let g:SuperTabDefaultCompletionType="context"
-
-" Tabular configuration
-augroup VimrcAutocmds
-    autocmd VimEnter * AddTabularPipeline! align_with_equals
-        \ /^[^=]*\zs=\([^;]*$\)\@=
-        \\|^\s*\zs=\@<!\S[^=]*;.*$
-        \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
-        \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','','g')")
-        \ | tabular#TabularizeStrings(a:lines,
-        \ '^\s*\zs\S\(.*=\)\@!.*$\|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
-augroup END
-
-" Function to find and align lines of a C assignment
-func! s:AlignUnterminatedAssignment()
-    if !hlexists('cComment') | return | endif
-    let pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$'
-    let top=search(pat,'W')
-    while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
-        let top=search(pat,'W')
-    endwhile
-    let bottom=search(';','W')
-    while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
-        let bottom=search(';','W')
-    endwhile
-    if top && bottom
-        exec top.','.bottom.'Tabularize align_with_equals'
-    endif
-    call cursor(bottom, 1)
-endfunc
-com! AlignUnterminatedAssignment call <SID>AlignUnterminatedAssignment()
-
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
 
@@ -709,3 +679,4 @@ if exists('g:airline_symbols')
 endif
 
 " vim: set fdm=marker:
+
