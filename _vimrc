@@ -488,6 +488,9 @@ colorscheme desert
 
 " {{{1 Plugin configuration
 
+" Make empty list of disabled plugins
+let g:pathogen_disabled=[]
+
 " Set airline color scheme
 let g:airline_theme='badwolf'
 let g:airline#extensions#ctrlp#color_template='normal'
@@ -597,7 +600,6 @@ smap <Bslash> <C-g><Bslash>
 
 " Disable CSApprox if color palette is too small
 if !has('gui_running') && (&t_Co < 88)
-    let g:pathogen_disabled=[]
     call add(g:pathogen_disabled, 'CSApprox')
 endif
 
@@ -657,10 +659,16 @@ augroup VimrcAutocmds
 augroup END
 " }}}2
 
-" Undotree settings
-nnoremap <Leader>u :UndotreeToggle<CR>
-let g:undotree_SplitWidth=40
-let g:undotree_SetFocusWhenToggle=1
+" Undotree/Gundo settings
+if has('python')
+    call add(g:pathogen_disabled, 'undotree')
+    nnoremap <silent> <Leader>u :GundoToggle<CR>
+else
+    call add(g:pathogen_disabled, 'Gundo')
+    nnoremap <silent> <Leader>u :UndotreeToggle<CR>
+    let g:undotree_SplitWidth=40
+    let g:undotree_SetFocusWhenToggle=1
+endif
 
 " Surround settings
 xmap S <Plug>VSurround
