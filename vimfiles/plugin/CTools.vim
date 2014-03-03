@@ -2,11 +2,11 @@
 " jacob.niehus@gmail.com
 " Do not distribute without permission.
 
-if exists('CommentToolsLoaded')
+if exists('CToolsLoaded')
     finish
 endif
 
-let CommentToolsLoaded=1
+let CToolsLoaded=1
 
 if !exists('g:findInComments')
     let g:findInComments=1
@@ -14,44 +14,56 @@ endif
 
 " Replace C-style comments with asterisks (excepts newlines and spaces)
 func! s:StripComments()
-    " Save window, cursor, etc. positions
+    " Save window, cursor, etc. positions and last search
     let winSave=winsaveview()
+    let search=@/
 
     if v:version >= 703
-        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$t^/\=submatch(1)
+        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|\v$t^/\=submatch(1)
             \ .substitute(submatch(2),'[^ \n]','*','g')
             \ .submatch(3)/g
     else
-        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$t^/\=submatch(1).
-            \ substitute(substitute(substitute(submatch(2),' ',
+        keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|\v$t^/\=submatch(1)
+            \ .substitute(substitute(substitute(submatch(2),' ',
             \ nr2char(1),'g'),'\p','*','g'),nr2char(1),' ','g')
             \ .submatch(3)/g
     endif
 
-    keepj silent! %s/\m\(\/\/\)\(.*\)$\|$t^/\=submatch(1)
+    keepj silent! %s/\m\(\/\/\)\(.*\)$\|\v$t^/\=submatch(1)
         \ .substitute(submatch(2),'[^ \n]','*','g')/g
 
     call histdel('/','\V$t^')
 
-    " Restore window, cursor, etc. positions
+    " Restore window, cursor, etc. positions and last search
     call winrestview(winSave)
+    let @/=search
 endfunc
 
 " Use StripComments functions to search in non-commented text only
 func! s:FindNotInComment(direction)
-    if v:version >= 703
-        let undo_file = tempname()
-        execute "wundo" undo_file
-    endif
+    " Save some information to restore later
+    let buf=bufnr('%')
+    let winSave=winsaveview()
+    let len=line('$')
 
-    " Save last search and last change for later use
-    let search=@/
-    let change=changenr()
+    " Create scratch buffer
+    enew
+    setlocal buftype=nofile
+    setlocal bufhidden=hide
+    setlocal noswapfile
+    setlocal buflisted
+    let scratch=bufnr('%')
 
+    " Copy buffer contents to scratch buffer
+    for n in range(1,len)
+        call setline(n, getbufline(buf, n))
+    endfor
+
+    " Get rid of comments in scratch buffer
     call s:StripComments()
-    let @/=search
 
     " Jump to next or previous match depending on search direction and n/N
+    call winrestview(winSave)
     let v:errmsg=""
     if (a:direction && g:sfsave) || (!a:direction && !g:sfsave)
         silent! normal! /
@@ -60,18 +72,23 @@ func! s:FindNotInComment(direction)
     endif
     let errmsg=v:errmsg
 
-    " Undo changes caused by StripComments
+    " Save view in scratch buffer
     let winSave=winsaveview()
-    if change!=changenr()
-        keepj normal! u
-    endif
+
+    " Switch back to main buffer and wipe scratch buffer
+    exec 'silent b '.buf
+    exec 'bwipe '.scratch
     call winrestview(winSave)
 
-    if v:version >= 703 && filereadable(undo_file)
-        silent execute "rundo" undo_file
-        unlet undo_file
+    " Print normal search text
+    redraw
+    if (a:direction && g:sfsave) || (!a:direction && !g:sfsave)
+        echo '/'.@/
+    else
+        echo '?'.@/
     endif
 
+    " Give error message if there was one
     if errmsg != ""
         echohl ErrorMsg
         redraw
@@ -81,48 +98,49 @@ func! s:FindNotInComment(direction)
 endfunc
 
 func! s:UnmapCR()
-    silent! cunmap <CR>
-    silent! cunmap <Esc>
-    silent! cunmap <C-c>
+    silent! cunmap <buffer> <CR>
+    silent! cunmap <buffer> <Esc>
+    silent! cunmap <buffer> <C-c>
 endfunc
 
 func! s:MapCR()
-    cnoremap <silent> <CR> <CR>``:call <SID>FindNotInComment(1)<CR>:call <SID>MapN()<CR>:call <SID>UnmapCR()<CR>
-    cnoremap <silent> <Esc> <Esc>:call <SID>UnmapCR()<CR>
-    cnoremap <silent> <C-c> <C-c>:call <SID>UnmapCR()<CR>
+    cnoremap <buffer> <silent> <CR> <CR>``:call <SID>FindNotInComment(1)<CR>:call
+        \<SID>MapN()<CR>:call <SID>UnmapCR()<CR>
+    cnoremap <buffer> <silent> <Esc> <C-c>:call <SID>UnmapCR()<CR>
+    cnoremap <buffer> <silent> <C-c> <C-c>:call <SID>UnmapCR()<CR>
 endfunc
 
 func! s:MapN()
-    nnoremap <silent> n :call <SID>FindNotInComment(1)<CR>
-    nnoremap <silent> N :call <SID>FindNotInComment(0)<CR>
+    nnoremap <buffer> <silent> n :call <SID>FindNotInComment(1)<CR>
+    nnoremap <buffer> <silent> N :call <SID>FindNotInComment(0)<CR>
 endfunc
 
 func! s:ToggleFindInComments()
     if g:findInComments
         let g:sfsave=v:searchforward
         call s:MapN()
-        nnoremap <silent> / m`:call <SID>MapCR()<CR>:let g:sfsave=1<CR>/
-        nnoremap <silent> ? m`:call <SID>MapCR()<CR>:let g:sfsave=0<CR>?
-        nnoremap <silent> * m`:let @/='\<'.expand('<cword>').'\>'<CR>:let g:sfsave=1<CR>:call
-            \<SID>FindNotInComment(1)<CR>:set hlsearch<CR>
-        nnoremap <silent> # m`:let @/='\<'.expand('<cword>').'\>'<CR>:let g:sfsave=0<CR>:call
-            \<SID>FindNotInComment(1)<CR>:set hlsearch<CR>
+        nnoremap <buffer> <silent> / m`:call <SID>MapCR()<CR>:let g:sfsave=1<CR>:redraw<CR>/
+        nnoremap <buffer> <silent> ? m`:call <SID>MapCR()<CR>:let g:sfsave=0<CR>:redraw<CR>?
+        nnoremap <buffer> <silent> * m`:let @/='\<'.expand('<cword>').'\>'<CR>:let
+            \g:sfsave=1<CR>:call <SID>FindNotInComment(1)<CR>:set hlsearch<CR>
+        nnoremap <buffer> <silent> # m`:let @/='\<'.expand('<cword>').'\>'<CR>:let
+            \g:sfsave=0<CR>:call <SID>FindNotInComment(1)<CR>:set hlsearch<CR>
         let g:findInComments=0
         redraw
         echo "Searching text not in C-style comments"
     else
-        silent! unmap n
-        silent! unmap N
-        silent! unmap /
-        silent! unmap ?
-        silent! unmap *
-        silent! unmap #
+        silent! unmap <buffer> n
+        silent! unmap <buffer> N
+        silent! unmap <buffer> /
+        silent! unmap <buffer> ?
+        silent! unmap <buffer> *
+        silent! unmap <buffer> #
         call s:UnmapCR()
 
         " Handle case where previous search was backwards
         if g:sfsave==0
-            nnoremap <silent> n ?:unmap n<CR>:unmap N<CR>
-            nnoremap <silent> N ?NN:unmap n<CR>:unmap N<CR>
+            nnoremap <buffer> <silent> n ?:unmap <buffer> n<CR>:unmap <buffer> N<CR>
+            nnoremap <buffer> <silent> N ?NN:unmap <buffer> n<CR>:unmap <buffer> N<CR>
         endif
         let g:findInComments=1
         redraw
@@ -193,7 +211,7 @@ func! s:FormatC()
     retab
 
     " Remove trailing whitespace
-    keepj silent! %s/\s\+$\|$t^//g | call histdel('/','\V$t^')
+    keepj silent! %s/\s\+$\|\v$t^//g | call histdel('/','\V$t^')
 
     " Go through all lines and indent correctly
     call cursor(1,1)
@@ -213,7 +231,7 @@ func! s:FormatC()
                 " Indent all lines of block comment by same amount
                 while indent
                     if indent > 0
-                        exec 'keepj silent! '.top.','.bottom.'s/^.*$\|$t^/ &'
+                        exec 'keepj silent! '.top.','.bottom.'s/^.*$\|\v$t^/ &'
                         let indent -= 1
                     else
                         let space=1
@@ -223,7 +241,7 @@ func! s:FormatC()
                             endif
                         endfor
                         if space
-                            exec 'keepj silent! '.top.','.bottom.'s/^\( \)\(.*\)$\|$t^/\2'
+                            exec 'keepj silent! '.top.','.bottom.'s/^\( \)\(.*\)$\|\v$t^/\2'
                             let indent += 1
                         else
                             let indent=0

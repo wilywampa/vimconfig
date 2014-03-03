@@ -116,7 +116,8 @@ function! Return_key ()
     else
       execute "normal! i\<CR>\<ESC>k"
     endif
-    silent! execute ":s\/\\m\\s\\+\$//"
+    sil!%s/\s\+$\|\v$t^//g
+    call histdel('/','\V$t^')
     execute "normal! j^"
   endif
 
