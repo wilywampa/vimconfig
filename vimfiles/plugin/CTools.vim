@@ -15,7 +15,7 @@ endif
 " Replace C-style comments with asterisks (excepts newlines and spaces)
 func! s:StripComments()
     " Save window, cursor, etc. positions
-    let s:winSave=winsaveview()
+    let winSave=winsaveview()
 
     if v:version >= 703
         keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|$t^/\=submatch(1)
@@ -34,22 +34,22 @@ func! s:StripComments()
     call histdel('/','\V$t^')
 
     " Restore window, cursor, etc. positions
-    call winrestview(s:winSave)
+    call winrestview(winSave)
 endfunc
 
 " Use StripComments functions to search in non-commented text only
 func! s:FindNotInComment(direction)
     if v:version >= 703
-        let s:undo_file = tempname()
-        execute "wundo" s:undo_file
+        let undo_file = tempname()
+        execute "wundo" undo_file
     endif
 
     " Save last search and last change for later use
-    let s:search=@/
-    let s:change=changenr()
+    let search=@/
+    let change=changenr()
 
     call s:StripComments()
-    let @/=s:search
+    let @/=search
 
     " Jump to next or previous match depending on search direction and n/N
     let v:errmsg=""
@@ -58,24 +58,24 @@ func! s:FindNotInComment(direction)
     else
         silent! normal! ?
     endif
-    let s:errmsg=v:errmsg
+    let errmsg=v:errmsg
 
     " Undo changes caused by StripComments
-    let s:winSave=winsaveview()
-    if s:change!=changenr()
+    let winSave=winsaveview()
+    if change!=changenr()
         keepj normal! u
     endif
-    call winrestview(s:winSave)
+    call winrestview(winSave)
 
-    if v:version >= 703 && filereadable(s:undo_file)
-        silent execute "rundo" s:undo_file
-        unlet s:undo_file
+    if v:version >= 703 && filereadable(undo_file)
+        silent execute "rundo" undo_file
+        unlet undo_file
     endif
 
-    if s:errmsg != ""
+    if errmsg != ""
         echohl ErrorMsg
         redraw
-        echo s:errmsg
+        echo errmsg
         echohl None
     endif
 endfunc
@@ -139,10 +139,28 @@ autocmd VimEnter * AddTabularPipeline! align_with_equals
     \ | tabular#TabularizeStrings(a:lines,
     \ '^\s*\zs\S\(.*=\)\@!.*$\|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
 
+" Handle +=, -=, etc.
+autocmd VimEnter * AddTabularPipeline! align_with_equals_after1char
+    \ /^[^=]*\zs=\([^;]*$\)\@=
+    \\|^\s*\zs=\@<!\S[^=]*;.*$
+    \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
+    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!',' ','g')")
+    \ | tabular#TabularizeStrings(a:lines,
+    \ '^\s*\zs \S\(.*=\)\@!.*$\|^[^=]*\zs[+*/%&|^-]=[^;=]*$','l1')
+
+" Handle <<= and >>=
+autocmd VimEnter * AddTabularPipeline! align_with_equals_after2char
+    \ /^[^=]*\zs=\([^;]*$\)\@=
+    \\|^\s*\zs=\@<!\S[^=]*;.*$
+    \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
+    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','  ','g')")
+    \ | tabular#TabularizeStrings(a:lines,
+    \ '^\s*\zs  \S\(.*=\)\@!.*$\|^[^=]*\zs\(<<\|>>\)=[^;=]*$','l1')
+
 " Function to find and align lines of a C assignment
 func! s:AlignUnterminatedAssignment()
     if !hlexists('cComment') | return 0 | endif
-    let pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$'
+    let pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$\|^.*\zs\(<<\|>>\)=\ze[^;]*$'
     let top=search(pat,'W')
     if !top | return 0 | endif
     while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
@@ -152,7 +170,14 @@ func! s:AlignUnterminatedAssignment()
     while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         let bottom=search(';','W')
     endwhile
-    exec top.','.bottom.'Tabularize align_with_equals'
+    if match(getline(top),'\(<<\|>>\)=') != -1
+        exec top.','.bottom.'Tabularize align_with_equals_after2char'
+    elseif match(getline(top),'[+*/%&|^-]=') != -1
+        exec top.','.bottom.'Tabularize align_with_equals_after1char'
+    else
+        exec top.','.bottom.'Tabularize align_with_equals'
+    endif
+    call cursor(top, 1)
     call cursor(bottom, 1)
     return 1
 endfunc
