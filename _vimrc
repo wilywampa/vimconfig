@@ -56,6 +56,7 @@ set listchars+=trail:-
 set listchars+=extends:>
 set listchars+=precedes:<
 set listchars+=nbsp:+
+set keywordprg=:help           " Use Vim help instead of man to look up keywords
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -85,16 +86,40 @@ func! Bufdo(command)
 endfunc
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
-" Shortcuts to switch to last active tab/window
+" {{{2 Shortcuts to switch to last active tab/window
 let g:lastTab=1
-let g:lastWin=1
-let g:lastWinTab=1
+func! s:SetLastWindow()
+    for tab in range(1,tabpagenr('$'))
+        for win in range(1,winnr('$'))
+            call settabwinvar(tab,win,'last',0)
+        endfor
+    endfor
+    let w:last=1
+endfunc
+func! s:LastActiveWindow()
+    " Switch to last active window if it still exists
+    for tab in range(1,tabpagenr('$'))
+        for win in range(1,winnr('$'))
+            if gettabwinvar(tab,win,'last')
+                exec 'tabn '.tab
+                exec win.'wincmd w'
+                return
+            endif
+        endfor
+    endfor
+    if winnr('$') > 1
+        winc w
+    else
+        tabnext
+    endif
+endfunc
 augroup VimrcAutocmds
     au TabLeave * let g:lastTab=tabpagenr()
-    au WinLeave * let g:lastWin=winnr() | let g:lastWinTab=tabpagenr()
+    au WinEnter * let w:last=0
+    au WinLeave * call <SID>SetLastWindow()
 augroup END
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
-nnoremap <silent> ` :exe 'tabn '.g:lastWinTab' \| '.g:lastWin.'wincmd w'<CR>
+nnoremap <silent> ` :call <SID>LastActiveWindow()<CR>
 
 " {{{2 Platform-specific configuration
 
@@ -535,6 +560,7 @@ augroup VimrcAutocmds
         \ <Leader>t :TagbarToggle<CR>" | endif
 augroup END
 let g:tagbar_iconchars=['+','-']
+let g:tagbar_sort=1
 
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
