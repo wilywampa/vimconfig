@@ -8,10 +8,6 @@ endif
 
 let CToolsLoaded=1
 
-if !exists('g:findInComments')
-    let g:findInComments=1
-endif
-
 " Replace C-style comments with asterisks (excepts newlines and spaces)
 func! s:StripComments()
     " Save window, cursor, etc. positions and last search
@@ -65,7 +61,8 @@ func! s:FindNotInComment(direction)
     " Jump to next or previous match depending on search direction and n/N
     call winrestview(winSave)
     let v:errmsg=""
-    if (a:direction && g:sfsave) || (!a:direction && !g:sfsave)
+    let sfsave=getbufvar(buf,'sfsave')
+    if (a:direction && sfsave) || (!a:direction && !sfsave)
         silent! normal! /
     else
         silent! normal! ?
@@ -82,7 +79,7 @@ func! s:FindNotInComment(direction)
 
     " Print normal search text
     redraw
-    if (a:direction && g:sfsave) || (!a:direction && !g:sfsave)
+    if (a:direction && sfsave) || (!a:direction && !sfsave)
         echo '/'.@/
     else
         echo '?'.@/
@@ -116,16 +113,19 @@ func! s:MapN()
 endfunc
 
 func! s:ToggleFindInComments()
-    if g:findInComments
-        let g:sfsave=v:searchforward
+    if !exists('b:findInComments')
+        let b:findInComments=1
+    endif
+    if b:findInComments
+        let b:sfsave=v:searchforward
         call s:MapN()
-        nnoremap <buffer> <silent> / m`:call <SID>MapCR()<CR>:let g:sfsave=1<CR>:redraw<CR>/
-        nnoremap <buffer> <silent> ? m`:call <SID>MapCR()<CR>:let g:sfsave=0<CR>:redraw<CR>?
+        nnoremap <buffer> <silent> / m`:call <SID>MapCR()<CR>:let b:sfsave=1<CR>:redraw<CR>:echo '/'<CR>/
+        nnoremap <buffer> <silent> ? m`:call <SID>MapCR()<CR>:let b:sfsave=0<CR>:redraw<CR>:echo '?'<CR>?
         nnoremap <buffer> <silent> * m`:let @/='\<'.expand('<cword>').'\>'<CR>:let
-            \g:sfsave=1<CR>:call <SID>FindNotInComment(1)<CR>:set hlsearch<CR>
+            \ b:sfsave=1<CR>:call <SID>FindNotInComment(1)<CR>:set hlsearch<CR>
         nnoremap <buffer> <silent> # m`:let @/='\<'.expand('<cword>').'\>'<CR>:let
-            \g:sfsave=0<CR>:call <SID>FindNotInComment(1)<CR>:set hlsearch<CR>
-        let g:findInComments=0
+            \ b:sfsave=0<CR>:call <SID>FindNotInComment(1)<CR>:set hlsearch<CR>
+        let b:findInComments=0
         redraw
         echo "Searching text not in C-style comments"
     else
@@ -138,11 +138,11 @@ func! s:ToggleFindInComments()
         call s:UnmapCR()
 
         " Handle case where previous search was backwards
-        if g:sfsave==0
+        if b:sfsave==0
             nnoremap <buffer> <silent> n ?:unmap <buffer> n<CR>:unmap <buffer> N<CR>
             nnoremap <buffer> <silent> N ?NN:unmap <buffer> n<CR>:unmap <buffer> N<CR>
         endif
-        let g:findInComments=1
+        let b:findInComments=1
         redraw
         echo "Searching everywhere"
     endif
@@ -195,7 +195,6 @@ func! s:AlignUnterminatedAssignment()
     else
         exec top.','.bottom.'Tabularize align_with_equals'
     endif
-    call cursor(top, 1)
     call cursor(bottom, 1)
     return 1
 endfunc
@@ -215,8 +214,13 @@ func! s:FormatC()
 
     " Go through all lines and indent correctly
     call cursor(1,1)
+    let line1done=0
     while line('.') < line('$')
-        norm! j^
+        if line1done
+            norm! j^
+        else
+            let line1done=1
+        endif
         if getline('.') != ""
             if (getline('.') !~ '^\s*\/\*') || (getline('.') =~ '^\s*\/\*.*\*\/')
                 " Regular line of code or single-line comment
