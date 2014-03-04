@@ -178,19 +178,37 @@ autocmd VimEnter * AddTabularPipeline! align_with_equals_after2char
 " Function to find and align lines of a C assignment
 func! s:AlignUnterminatedAssignment()
     if !hlexists('cComment') | return 0 | endif
+
+    " Pattern to find an unterminated assignment
     let pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$\|^.*\zs\(<<\|>>\)=\ze[^;]*$'
     let top=search(pat,'W')
     if !top | return 0 | endif
+
+    " Make sure match is not...
+    while    getline(top) =~ "\"[^\"=;]*=[^\"=;]*\"[^\"=;]*$"
+        \ || getline(top) =~ "'[^'=;]*=[^'=;]*'[^'=;]*$"
+        \ || getline(top) =~ "([^()=;]*=[^()=;]*)[^()=;]*$"
+        \ || getline(top) =~ '=[^=;()]*\(\a\|\n\)\+\s*([^=;()]*$'
+        \ || getline(top) =~ "=$"
+        let top=search(pat,'W')
+        if !top | return 0 | endif
+    endwhile
+
+    " Find start of expression
     while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         let top=search(pat,'W')
     endwhile
     let bottom=search(';','W')
+
+    " Find end of expression
     while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         let bottom=search(';','W')
     endwhile
-    if match(getline(top),'\(<<\|>>\)=') != -1
+
+    " Tabularize
+    if getline(top) =~ '\(<<\|>>\)='
         exec top.','.bottom.'Tabularize align_with_equals_after2char'
-    elseif match(getline(top),'[+*/%&|^-]=') != -1
+    elseif getline(top) =~ '[+*/%&|^-]='
         exec top.','.bottom.'Tabularize align_with_equals_after1char'
     else
         exec top.','.bottom.'Tabularize align_with_equals'
