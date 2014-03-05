@@ -57,6 +57,7 @@ set listchars+=extends:>
 set listchars+=precedes:<
 set listchars+=nbsp:+
 set keywordprg=:help           " Use Vim help instead of man to look up keywords
+set splitright                 " Vertical splits open on the right
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -171,7 +172,6 @@ endif
 " {{{2 Mappings
 
 " Shortcuts to save current file if modified or execute command if in command window
-nn <silent> <Leader>w :update<CR>
 no <silent> <C-s> :update<CR>
 vn <silent> <C-s> <C-c>:update<CR>
 augroup VimrcAutocmds
@@ -352,14 +352,14 @@ no <C-Left>  <C-w><
 no <C-Right> <C-w>>
 
 " Use ,n and ,N or ,p to cycle through quickfix results
-no ,n :cn<CR>
-no ,N :cp<CR>
-no ,p :cp<CR>
+nn ,n :cn<CR>
+nn ,N :cp<CR>
+nn ,p :cp<CR>
 
 " Use ,,n and ,,N or ,,p to cycle through location list results
-no ,,n :lne<CR>
-no ,,N :lp<CR>
-no ,,p :lp<CR>
+nn ,,n :lne<CR>
+nn ,,N :lp<CR>
+nn ,,p :lp<CR>
 
 " Stay in visual mode after indent change
 vn < <gv
@@ -368,6 +368,10 @@ vn > >gv
 " Copy WORD above/below cursor with <M-y>/<M-e>
 ino <expr> <M-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|.\)')
 ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|.\)')
+
+" Make j/k work as expected on wrapped lines using <expr> map to minimize side effects
+no <expr> j &wrap?'gj':'j'
+no <expr> k &wrap?'gk':'k'
 
 " {{{2 Cscope configuration
 
@@ -378,17 +382,17 @@ set cscopequickfix=s-,c-,d-,i-,t-,e-
 set cscopetag
 
 " Abbreviations for diff commands
-cnoreabbrev <expr> dt ((getcmdtype() == ':' && getcmdpos() <= 3)? 'windo diffthis' : 'dt')
-cnoreabbrev <expr> do ((getcmdtype() == ':' && getcmdpos() <= 3)? 'windo diffoff'  : 'do')
-cnoreabbrev <expr> du ((getcmdtype() == ':' && getcmdpos() <= 3)? 'diffupdate'     : 'du')
+cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<= 3)? 'windo diffthis':'dt')
+cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<= 3)? 'windo diffoff' :'do')
+cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<= 3)? 'diffupdate'    :'du')
 
 " Abbreviations for cscope commands
-cnoreabbrev <expr> csa ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs add'   : 'csa')
-cnoreabbrev <expr> csf ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs find'  : 'csf')
-cnoreabbrev <expr> csk ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs kill'  : 'csk')
-cnoreabbrev <expr> csr ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs reset' : 'csr')
-cnoreabbrev <expr> css ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs show'  : 'css')
-cnoreabbrev <expr> csh ((getcmdtype() == ':' && getcmdpos() <= 4)? 'cs help'  : 'csh')
+cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs add'  :'csa')
+cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs find' :'csf')
+cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs kill' :'csk')
+cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs reset':'csr')
+cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs show' :'css')
+cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs help' :'csh')
 
 " Mappings for cscope find commands
 no <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
@@ -399,6 +403,7 @@ no <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
 no <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
 no <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
 no <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+vm <C-\> <Esc><C-\>
 
 " }}}2
 
@@ -514,7 +519,7 @@ augroup VimrcAutocmds
 augroup END
 
 " Abbreviation to open help in new tab
-cnoreabbrev <expr> ht ((getcmdtype() == ':' && getcmdpos() <= 3)? 'tab help'  : 'ht')
+cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<= 3)? 'tab help':'ht')
 
 " Set color scheme
 colorscheme desert
@@ -648,6 +653,7 @@ let g:ctrlp_follow_symlinks=1
 let g:ctrlp_by_filename=1
 let g:ctrlp_working_path_mode='rw'
 let g:ctrlp_regexp=1
+let g:ctrlp_match_window='max:20'
 augroup VimrcAutocmds
     autocmd VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
 augroup END
