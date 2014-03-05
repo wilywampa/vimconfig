@@ -192,11 +192,12 @@ func! s:AlignUnterminatedAssignment()
     " Can't be in string, in parens, after open paren, at EOL, or in a comment
     let top=search(pat,'W')
     if !top | return 0 | endif
-    while    getline(top) =~ "\"[^\"=;]*=[^\"]*\"[^\"=;]*$"
-        \ || getline(top) =~ "'[^'=;]*=[^'=;]*'[^'=;]*$"
-        \ || getline(top) =~ "([^()=;]*=[^()=;]*)[^()=;]*$"
-        \ || getline(top) =~ '=[^=;()]*[[:alnum:]]\+\s*([^=;()]*$'
-        \ || getline(top) =~ "=$"
+    while     getline(top) =~ "\"[^\"=;]*=[^\"]*\"[^\"=;]*$"
+        \ ||  getline(top) =~ "'[^'=;]*=[^'=;]*'[^'=;]*$"
+        \ ||  getline(top) =~ "([^()=;]*=[^()=;]*)[^()=;]*$"
+        \ || (getline(top) =~ '=[^=;()]*[[:alnum:]]\+\s*([^=;()]*$'
+        \  && getline(top+1) =~ '^\s*[*[:alnum:]]')
+        \ ||  getline(top) =~ "=$"
         \ || (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         let top=search(pat,'W')
         if !top | return 0 | endif
