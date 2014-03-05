@@ -153,27 +153,33 @@ autocmd VimEnter * AddTabularPipeline! align_with_equals
     \ /^[^=]*\zs=\([^;]*$\)\@=
     \\|^\s*\zs=\@<!\S[^=]*;.*$
     \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
-    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','','g')")
+    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','  ','g')")
     \ | tabular#TabularizeStrings(a:lines,
-    \ '^\s*\zs\S\(.*=\)\@!.*$\|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
+    \ '^\s*\zs  [[:alnum:]]\(.*=\)\@!.*$\
+    \|^\s*\zs[^[:alnum:][:blank:]]\(.*=\)\@!.*$\
+    \|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
 
 " Handle +=, -=, etc.
 autocmd VimEnter * AddTabularPipeline! align_with_equals_after1char
     \ /^[^=]*\zs=\([^;]*$\)\@=
     \\|^\s*\zs=\@<!\S[^=]*;.*$
     \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
-    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!',' ','g')")
+    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','   ','g')")
     \ | tabular#TabularizeStrings(a:lines,
-    \ '^\s*\zs \S\(.*=\)\@!.*$\|^[^=]*\zs[+*/%&|^-]=[^;=]*$','l1')
+    \ '^\s*\zs   [[:alnum:]]\(.*=\)\@!.*$\
+    \|^\s*\zs [^[:alnum:][:blank:]]\(.*=\)\@!.*$\
+    \|^[^=]*\zs[+*/%&|^-]=[^;=]*$','l1')
 
 " Handle <<= and >>=
 autocmd VimEnter * AddTabularPipeline! align_with_equals_after2char
     \ /^[^=]*\zs=\([^;]*$\)\@=
     \\|^\s*\zs=\@<!\S[^=]*;.*$
     \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
-    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','  ','g')")
+    \ map(a:lines,"substitute(v:val,'^\\s*\\(.*=\\)\\@!','    ','g')")
     \ | tabular#TabularizeStrings(a:lines,
-    \ '^\s*\zs  \S\(.*=\)\@!.*$\|^[^=]*\zs\(<<\|>>\)=[^;=]*$','l1')
+    \ '^\s*\zs    [[:alnum:]]\(.*=\)\@!.*$\
+    \|^\s*\zs  [^[:alnum:][:blank:]]\(.*=\)\@!.*$\
+    \|^[^=]*\zs\(<<\|>>\)=[^;=]*$','l1')
 
 " Function to find and align lines of a C assignment
 func! s:AlignUnterminatedAssignment()
