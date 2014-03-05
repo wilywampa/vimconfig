@@ -373,6 +373,37 @@ ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|.\)
 no <expr> j &wrap?'gj':'j'
 no <expr> k &wrap?'gk':'k'
 
+" {{{2 Abbreviations to open help
+func! s:OpenHelp(topic)
+    let v:errmsg=""
+    " Open in same windowif current tab is empty, or else open in new window
+    if strlen(expand('%')) || line('$')!=1 || getline(1)!='' || winnr('$')>1
+        " Open vertically if there's enough room
+        let split=0
+        for win in range(1,winnr('$'))
+            if winwidth(win) < &columns
+                let split=1
+            endif
+        endfor
+        if (&columns > 160) && !split
+            exe 'sil! vert help '.a:topic
+        else
+            exe 'sil! help '.a:topic
+        endif
+    else
+        setl ft=help|setl bt=help|setl noma
+        exe 'sil! keepjumps help '.a:topic
+    endif
+    if errmsg != ""
+        echohl ErrorMsg | redraw | echo errmsg | echohl None
+    endif
+endfunc
+com! -nargs=? -complete=help Help call <SID>OpenHelp(<q-args>)
+cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<= 3)? 'tab help':'ht')
+cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<= 2)? 'Help':'h')
+cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<= 2)? 'Help':'H')
+noremap <silent> K :exec 'Help '.expand('<cword>')<CR>
+
 " {{{2 Cscope configuration
 
 " Use quickfix list for cscope results
@@ -517,9 +548,6 @@ nnoremap <expr> V <SID>VisualEnter('V')
 augroup VimrcAutocmds
     autocmd CursorHold * call RemoveClipboardNewline()
 augroup END
-
-" Abbreviation to open help in new tab
-cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<= 3)? 'tab help':'ht')
 
 " Set color scheme
 colorscheme desert
