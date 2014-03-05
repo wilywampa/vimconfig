@@ -188,7 +188,7 @@ func! s:AlignUnterminatedAssignment()
     while    getline(top) =~ "\"[^\"=;]*=[^\"=;]*\"[^\"=;]*$"
         \ || getline(top) =~ "'[^'=;]*=[^'=;]*'[^'=;]*$"
         \ || getline(top) =~ "([^()=;]*=[^()=;]*)[^()=;]*$"
-        \ || getline(top) =~ '=[^=;()]*\(\a\|\n\)\+\s*([^=;()]*$'
+        \ || getline(top) =~ '=[^=;()]*[[:alnum:]]\+\s*([^=;()]*$'
         \ || getline(top) =~ "=$"
         let top=search(pat,'W')
         if !top | return 0 | endif
