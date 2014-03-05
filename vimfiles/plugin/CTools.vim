@@ -181,28 +181,27 @@ func! s:AlignUnterminatedAssignment()
 
     " Pattern to find an unterminated assignment
     let pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$\|^.*\zs\(<<\|>>\)=\ze[^;]*$'
+
+    " Find start of expression
+    " Can't be in string, in parens, after open paren, at EOL, or in a comment
     let top=search(pat,'W')
     if !top | return 0 | endif
-
-    " Make sure match is not...
-    while    getline(top) =~ "\"[^\"=;]*=[^\"=;]*\"[^\"=;]*$"
+    while    getline(top) =~ "\"[^\"=;]*=[^\"]*\"[^\"=;]*$"
         \ || getline(top) =~ "'[^'=;]*=[^'=;]*'[^'=;]*$"
         \ || getline(top) =~ "([^()=;]*=[^()=;]*)[^()=;]*$"
         \ || getline(top) =~ '=[^=;()]*[[:alnum:]]\+\s*([^=;()]*$'
         \ || getline(top) =~ "=$"
+        \ || (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         let top=search(pat,'W')
         if !top | return 0 | endif
     endwhile
 
-    " Find start of expression
-    while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
-        let top=search(pat,'W')
-    endwhile
-    let bottom=search(';','W')
-
     " Find end of expression
+    let bottom=search(';','W')
+    if !bottom | return 0 | endif
     while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         let bottom=search(';','W')
+        if !bottom | return 0 | endif
     endwhile
 
     " Tabularize
