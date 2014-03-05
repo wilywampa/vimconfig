@@ -86,12 +86,17 @@ func! Bufdo(command)
 endfunc
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
+" Enable matchit plugin
+runtime! macros/matchit.vim
+
 " {{{2 Shortcuts to switch to last active tab/window
 let g:lastTab=1
 func! s:SetLastWindow()
     for tab in range(1,tabpagenr('$'))
-        for win in range(1,winnr('$'))
-            call settabwinvar(tab,win,'last',0)
+        for win in range(1,tabpagewinnr(tab,'$'))
+            if gettabwinvar(tab,win,'last')
+                call settabwinvar(tab,win,'last',0)
+            endif
         endfor
     endfor
     let w:last=1
@@ -99,7 +104,7 @@ endfunc
 func! s:LastActiveWindow()
     " Switch to last active window if it still exists
     for tab in range(1,tabpagenr('$'))
-        for win in range(1,winnr('$'))
+        for win in range(1,tabpagewinnr(tab,'$'))
             if gettabwinvar(tab,win,'last')
                 exec 'tabn '.tab
                 exec win.'wincmd w'
@@ -165,11 +170,14 @@ endif
 
 " {{{2 Mappings
 
-" Shortcuts to save current file if modified
+" Shortcuts to save current file if modified or execute command if in command window
 nn <silent> <Leader>w :update<CR>
 no <silent> <C-s> :update<CR>
 vn <silent> <C-s> <C-c>:update<CR>
-ino <silent> <C-s> <Esc>:update<CR>
+augroup VimrcAutocmds
+    au VimEnter,CmdwinLeave * ino <silent> <C-s> <Esc>:update<CR>
+    au CmdwinEnter * ino <silent> <C-s> <CR>
+augroup ENDaugroup END
 
 " <Ctrl-l> redraws the screen and removes any search highlighting.
 nn <silent> <C-l> :nohl<CR><C-l>
