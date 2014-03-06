@@ -87,6 +87,26 @@ func! Bufdo(command)
 endfunc
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
+" Switch to existing window if it exists or open in new tab
+func! s:SwitchToOrOpen(fname)
+    let bufnr=bufnr(expand(a:fname))
+    if bufnr > 0 && buflisted(bufnr)
+        for tab in range(1, tabpagenr('$'))
+            let buflist = tabpagebuflist(tab)
+            if index(buflist,bufnr) >= 0
+                for win in range(1,tabpagewinnr(tab,'$'))
+                    if buflist[win-1] == bufnr
+                        exec 'tabn '.tab
+                        exec win.'wincmd w'
+                        return
+                    endif
+                endfor
+            endif
+        endfor
+    endif
+    exec 'tabedit '.a:fname
+endfunc
+
 " Enable matchit plugin
 runtime! macros/matchit.vim
 
@@ -202,19 +222,19 @@ vm <silent> <F2> <Esc><F2>gv
 " Make it easy to edit this file (, 'e'dit 'v'imrc)
 " Open in new tab if current window is not empty
 nn <silent> ,ev :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
-    \\|tab drop $MYVIMRC\|el\|e $MYVIMRC\|en<CR>
+    \\|call <SID>SwitchToOrOpen($MYVIMRC)\|el\|e $MYVIMRC\|en<CR>
 
 " Make it easy to edit bashrc
 nn <silent> ,eb :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
-    \\|tab drop ~/.bashrc\|el\|e ~/.bashrc\|en<CR>
+    \\|call <SID>SwitchToOrOpen('~/.bashrc')\|el\|e ~/.bashrc\|en<CR>
 
 " Make it easy to edit cshrc
 nn <silent> ,ec :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
-    \\|tab drop ~/.cshrc\|el\|e ~/.cshrc\|en<CR>
+    \\|call <SID>SwitchToOrOpen('~/.cshrc')\|el\|e ~/.cshrc\|en<CR>
 
 " Make it easy to edit zshrc
 nn <silent> ,ez :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
-    \\|tab drop ~/.zshrc\|el\|e ~/.zshrc\|en<CR>
+    \\|call <SID>SwitchToOrOpen('~/.zshrc')\|el\|e ~/.zshrc\|en<CR>
 
 " Make it easy to source this file (, 's'ource 'v'imrc)
 nn <silent> ,sv :so $MYVIMRC<CR>
