@@ -87,7 +87,10 @@ func! Bufdo(command)
 endfunc
 com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
-" Switch to existing window if it exists or open in new tab
+" Enable matchit plugin
+runtime! macros/matchit.vim
+
+" {{{2 Switch to existing window if it exists or open in new tab
 func! s:SwitchToOrOpen(fname)
     let bufnr=bufnr(expand(a:fname))
     if bufnr > 0 && buflisted(bufnr)
@@ -106,9 +109,6 @@ func! s:SwitchToOrOpen(fname)
     endif
     exec 'tabedit '.a:fname
 endfunc
-
-" Enable matchit plugin
-runtime! macros/matchit.vim
 
 " {{{2 Shortcuts to switch to last active tab/window
 let g:lastTab=1
@@ -396,7 +396,7 @@ no <expr> k &wrap?'gk':'k'
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
     let v:errmsg=""
-    " Open in same windowif current tab is empty, or else open in new window
+    " Open in same window if current tab is empty, or else open in new window
     if strlen(expand('%')) || line('$')!=1 || getline(1)!='' || winnr('$')>1
         " Open vertically if there's enough room
         let split=0
