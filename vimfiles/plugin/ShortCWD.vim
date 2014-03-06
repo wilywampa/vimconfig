@@ -16,14 +16,14 @@ else
     let s:charSet='[^\/]'
 endif
 
-let s:cwdMaxLen=40
 let s:cwdPrev=''
 let s:bufNamePrev=''
 let s:winWidthPrev=-1
 let s:tagPrev=''
+let s:bufModPrev=0
 
 function! ShortCWD()
-    if (getcwd() ==# s:cwdPrev) && (@% == s:bufNamePrev) && (winwidth(0) == s:winWidthPrev)
+    if (getcwd() ==# s:cwdPrev) && (@% == s:bufNamePrev) && (winwidth(0) == s:winWidthPrev) && (&mod == s:bufModPrev)
         if exists(':TagbarToggle')
             if (tagbar#currenttag('%s','','') ==# s:tagPrev)
                 return s:cwd
@@ -36,15 +36,16 @@ function! ShortCWD()
     let s:cwdPrev=getcwd()
     let s:bufNamePrev=@%
     let s:winWidthPrev=winwidth(0)
+    let s:bufModPrev=&modified
     let s:cwd=substitute(s:cwdPrev,substitute(expand('~'),s:pathSep,'\\'.s:pathSep,'g'),'~','')
     if exists(':TagbarToggle')
         let s:tagPrev=tagbar#currenttag('%s','','')
     endif
 
     if strlen(s:tagPrev)
-        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-53
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-3*&mod-&ro-53
     else
-        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-50
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-3*&mod-&ro-50
     endif
 
     if strlen(s:cwd) > s:cwdMaxLen
@@ -53,6 +54,10 @@ function! ShortCWD()
             let s:shortCWDprev=s:cwd
             let s:cwd=substitute(s:cwd,'\('.s:pathSep.'\)\('.s:charSet.'\)\('.s:charSet.'\+\)\ze\.*'.s:pathSep.'\@=','\1\2','')
         endwhile
+    endif
+
+    if strlen(s:cwd) > s:cwdMaxLen
+        let s:cwd=''
     endif
 
     return s:cwd
