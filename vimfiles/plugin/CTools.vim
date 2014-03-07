@@ -11,8 +11,8 @@ let CToolsLoaded=1
 " Replace C-style comments with asterisks (excepts newlines and spaces)
 func! s:StripComments()
     " Save window, cursor, etc. positions and last search
-    let winSave=winsaveview()
-    let search=@/
+    let l:winSave=winsaveview()
+    let l:search=@/
 
     if v:version >= 703
         keepj silent! %s/\m\(\/\*\)\(\_.\{-}\)\(\*\/\)\|\v$t^/\=submatch(1)
@@ -31,16 +31,16 @@ func! s:StripComments()
     call histdel('/','\V$t^')
 
     " Restore window, cursor, etc. positions and last search
-    call winrestview(winSave)
-    let @/=search
+    call winrestview(l:winSave)
+    let @/=l:search
 endfunc
 
 " Use StripComments functions to search in non-commented text only
 func! s:FindNotInComment(direction)
     " Save some information to restore later
-    let buf=bufnr('%')
-    let winSave=winsaveview()
-    let len=line('$')
+    let l:buf=bufnr('%')
+    let l:winSave=winsaveview()
+    let l:len=line('$')
 
     " Create scratch buffer
     enew
@@ -48,48 +48,48 @@ func! s:FindNotInComment(direction)
     setlocal bufhidden=hide
     setlocal noswapfile
     setlocal buflisted
-    let scratch=bufnr('%')
+    let l:scratch=bufnr('%')
 
     " Copy buffer contents to scratch buffer
-    for n in range(1,len)
-        call setline(n, getbufline(buf, n))
+    for n in range(1,l:len)
+        call setline(n, getbufline(l:buf, n))
     endfor
 
     " Get rid of comments in scratch buffer
     call s:StripComments()
 
     " Jump to next or previous match depending on search direction and n/N
-    call winrestview(winSave)
+    call winrestview(l:winSave)
     let v:errmsg=""
-    let sfsave=getbufvar(buf,'sfsave')
-    if (a:direction && sfsave) || (!a:direction && !sfsave)
+    let l:sfsave=getbufvar(l:buf,'sfsave')
+    if (a:direction && l:sfsave) || (!a:direction && !l:sfsave)
         silent! normal! /
     else
         silent! normal! ?
     endif
-    let errmsg=v:errmsg
+    let l:errmsg=v:errmsg
 
     " Save view in scratch buffer
-    let winSave=winsaveview()
+    let l:winSave=winsaveview()
 
     " Switch back to main buffer and wipe scratch buffer
-    exec 'silent b '.buf
-    exec 'bwipe '.scratch
-    call winrestview(winSave)
+    exec 'silent b '.l:buf
+    exec 'bwipe '.l:scratch
+    call winrestview(l:winSave)
 
     " Print normal search text
     redraw
-    if (a:direction && sfsave) || (!a:direction && !sfsave)
+    if (a:direction && l:sfsave) || (!a:direction && !l:sfsave)
         echo '/'.@/
     else
         echo '?'.@/
     endif
 
     " Give error message if there was one
-    if errmsg != ""
+    if l:errmsg != ""
         echohl ErrorMsg
         redraw
-        echo errmsg
+        echo l:errmsg
         echohl None
     endif
 endfunc
@@ -186,40 +186,40 @@ func! s:AlignUnterminatedAssignment()
     if !hlexists('cComment') | return 0 | endif
 
     " Pattern to find an unterminated assignment
-    let pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$\|^.*\zs\(<<\|>>\)=\ze[^;]*$'
+    let l:pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$\|^.*\zs\(<<\|>>\)=\ze[^;]*$'
 
     " Find start of expression
     " Can't be in string, in parens, after open paren, at EOL, or in a comment
-    let top=search(pat,'W')
-    if !top | return 0 | endif
-    while     getline(top) =~ "\"[^\"=;]*=[^\"]*\"[^\"=;]*$"
-        \ ||  getline(top) =~ "'[^'=;]*=[^'=;]*'[^'=;]*$"
-        \ ||  getline(top) =~ "([^()=;]*=[^()=;]*)[^()=;]*$"
-        \ || (getline(top) =~ '=[^=;()]*[[:alnum:]]\+\s*([^=;()]*$'
-        \  && getline(top+1) =~ '^\s*[*[:alnum:]]')
-        \ ||  getline(top) =~ "=$"
+    let l:top=search(l:pat,'W')
+    if !l:top | return 0 | endif
+    while     getline(l:top) =~ "\"[^\"=;]*=[^\"]*\"[^\"=;]*$"
+        \ ||  getline(l:top) =~ "'[^'=;]*=[^'=;]*'[^'=;]*$"
+        \ ||  getline(l:top) =~ "([^()=;]*=[^()=;]*)[^()=;]*$"
+        \ || (getline(l:top) =~ '=[^=;()]*[[:alnum:]]\+\s*([^=;()]*$'
+        \  && getline(l:top+1) =~ '^\s*[*[:alnum:]]')
+        \ ||  getline(l:top) =~ "=$"
         \ || (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
-        let top=search(pat,'W')
-        if !top | return 0 | endif
+        let l:top=search(l:pat,'W')
+        if !l:top | return 0 | endif
     endwhile
 
     " Find end of expression
-    let bottom=search(';','W')
-    if !bottom | return 0 | endif
+    let l:bottom=search(';','W')
+    if !l:bottom | return 0 | endif
     while (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
-        let bottom=search(';','W')
-        if !bottom | return 0 | endif
+        let l:bottom=search(';','W')
+        if !l:bottom | return 0 | endif
     endwhile
 
     " Tabularize
-    if getline(top) =~ '\(<<\|>>\)='
-        exec top.','.bottom.'Tabularize align_with_equals_after2char'
-    elseif getline(top) =~ '[+*/%&|^-]='
-        exec top.','.bottom.'Tabularize align_with_equals_after1char'
+    if getline(l:top) =~ '\(<<\|>>\)='
+        exec l:top.','.l:bottom.'Tabularize align_with_equals_after2char'
+    elseif getline(l:top) =~ '[+*/%&|^-]='
+        exec l:top.','.l:bottom.'Tabularize align_with_equals_after1char'
     else
-        exec top.','.bottom.'Tabularize align_with_equals'
+        exec l:top.','.l:bottom.'Tabularize align_with_equals'
     endif
-    call cursor(bottom, 1)
+    call cursor(l:bottom, 1)
     return 1
 endfunc
 
@@ -228,7 +228,7 @@ func! s:FormatC()
     if !hlexists('cComment') | return | endif
 
     " Save view to restore afterwards
-    let winSave=winsaveview()
+    let l:winSave=winsaveview()
 
     " Replace tabs with spaces or vice versa
     retab
@@ -251,28 +251,28 @@ func! s:FormatC()
                 norm! ==
             else
                 " First line of block comment
-                let top=line('.')
-                let indent=cindent(top)-match(getline('.'),'\S')
+                let l:top=line('.')
+                let l:indent=cindent(l:top)-match(getline('.'),'\S')
                 call search('^.*\*\/','W')
-                let bottom=line('.')
+                let l:bottom=line('.')
 
                 " Indent all lines of block comment by same amount
-                while indent
-                    if indent > 0
-                        exec 'keepj silent! '.top.','.bottom.'s/^.*$\|\v$t^/ &'
-                        let indent -= 1
+                while l:indent
+                    if l:indent > 0
+                        exec 'keepj silent! '.l:top.','.l:bottom.'s/^.*$\|\v$t^/ &'
+                        let l:indent -= 1
                     else
-                        let space=1
-                        for n in range(top,bottom)
+                        let l:space=1
+                        for n in range(l:top,l:bottom)
                             if match(getline(n),'\S') == 0
-                                let space=0
+                                let l:space=0
                             endif
                         endfor
-                        if space
-                            exec 'keepj silent! '.top.','.bottom.'s/^\( \)\(.*\)$\|\v$t^/\2'
-                            let indent += 1
+                        if l:space
+                            exec 'keepj silent! '.l:top.','.l:bottom.'s/^\( \)\(.*\)$\|\v$t^/\2'
+                            let l:indent += 1
                         else
-                            let indent=0
+                            let l:indent=0
                         endif
                     endif
                 endwhile
@@ -288,7 +288,7 @@ func! s:FormatC()
     call histdel('/','\V$t^')
 
     " Restore view
-    call winrestview(winSave)
+    call winrestview(l:winSave)
 endfunc
 
 com! StripComments call <SID>StripComments()

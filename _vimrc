@@ -92,15 +92,15 @@ runtime! macros/matchit.vim
 
 " {{{2 Switch to existing window if it exists or open in new tab
 func! s:SwitchToOrOpen(fname)
-    let bufnr=bufnr(expand(a:fname))
-    if bufnr > 0 && buflisted(bufnr)
-        for tab in range(1, tabpagenr('$'))
-            let buflist = tabpagebuflist(tab)
-            if index(buflist,bufnr) >= 0
-                for win in range(1,tabpagewinnr(tab,'$'))
-                    if buflist[win-1] == bufnr
-                        exec 'tabn '.tab
-                        exec win.'wincmd w'
+    let l:bufnr=bufnr(expand(a:fname))
+    if l:bufnr > 0 && buflisted(l:bufnr)
+        for l:tab in range(1, tabpagenr('$'))
+            let l:buflist = tabpagebuflist(l:tab)
+            if index(l:buflist,l:bufnr) >= 0
+                for l:win in range(1,tabpagewinnr(l:tab,'$'))
+                    if l:buflist[l:win-1] == l:bufnr
+                        exec 'tabn '.l:tab
+                        exec l:win.'wincmd w'
                         return
                     endif
                 endfor
@@ -113,10 +113,10 @@ endfunc
 " {{{2 Shortcuts to switch to last active tab/window
 let g:lastTab=1
 func! s:SetLastWindow()
-    for tab in range(1,tabpagenr('$'))
-        for win in range(1,tabpagewinnr(tab,'$'))
-            if gettabwinvar(tab,win,'last')
-                call settabwinvar(tab,win,'last',0)
+    for l:tab in range(1,tabpagenr('$'))
+        for l:win in range(1,tabpagewinnr(l:tab,'$'))
+            if gettabwinvar(l:tab,l:win,'last')
+                call settabwinvar(l:tab,l:win,'last',0)
             endif
         endfor
     endfor
@@ -124,11 +124,11 @@ func! s:SetLastWindow()
 endfunc
 func! s:LastActiveWindow()
     " Switch to last active window if it still exists
-    for tab in range(1,tabpagenr('$'))
-        for win in range(1,tabpagewinnr(tab,'$'))
-            if gettabwinvar(tab,win,'last')
-                exec 'tabn '.tab
-                exec win.'wincmd w'
+    for l:tab in range(1,tabpagenr('$'))
+        for l:win in range(1,tabpagewinnr(l:tab,'$'))
+            if gettabwinvar(l:tab,l:win,'last')
+                exec 'tabn '.l:tab
+                exec l:win.'wincmd w'
                 return
             endif
         endfor
@@ -399,13 +399,13 @@ func! s:OpenHelp(topic)
     " Open in same window if current tab is empty, or else open in new window
     if strlen(expand('%')) || line('$')!=1 || getline(1)!='' || winnr('$')>1
         " Open vertically if there's enough room
-        let split=0
-        for win in range(1,winnr('$'))
-            if winwidth(win) < &columns
-                let split=1
+        let l:split=0
+        for l:win in range(1,winnr('$'))
+            if winwidth(l:win) < &columns
+                let l:split=1
             endif
         endfor
-        if (&columns > 160) && !split
+        if (&columns > 160) && !l:split
             exe 'sil! vert help '.a:topic
         else
             exe 'sil! help '.a:topic
@@ -545,8 +545,8 @@ augroup END
 func! DeleteHiddenBuffers()
     let tpbl=[]
     call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
-    for buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
-        silent! execute 'bd' buf
+    for l:buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
+        silent! execute 'bd' l:buf
     endfor
 endfunc
 nnoremap <silent> <Leader>dh :call DeleteHiddenBuffers()<CR>
@@ -713,11 +713,11 @@ func! MyCtrlPMappings()
     nnoremap <buffer> <silent> <C-q> :call <SID>DeleteBuffer()<cr>
 endfunc
 func! s:DeleteBuffer()
-    let line=getline('.')
+    let l:line=getline('.')
     " Use substitute to remove status characters after filename
-    let bufid=line =~ '\[\d\+\*No Name\]\( [#-=+.]*\)\?$' ? str2nr(matchstr(line, '\d\+'))
-        \ : substitute(fnamemodify(line[2:], ':p'),'\m\(.*\) [#-=+.]*$','\1','')
-    exec "bd" bufid
+    let l:bufid=l:line =~ '\[\d\+\*No Name\]\( [#-=+.]*\)\?$' ? str2nr(matchstr(l:line, '\d\+'))
+        \ : substitute(fnamemodify(l:line[2:], ':p'),'\m\(.*\) [#-=+.]*$','\1','')
+    exec "bd" l:bufid
     exec "norm \<F5>"
 endfunc
 
