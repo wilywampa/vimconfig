@@ -400,12 +400,22 @@ func! s:OpenHelp(topic)
     if strlen(expand('%')) || line('$')!=1 || getline(1)!='' || winnr('$')>1
         " Open vertically if there's enough room
         let l:split=0
+        let l:helpWin=0
         for l:win in range(1,winnr('$'))
             if winwidth(l:win) < &columns
                 let l:split=1
+                let l:helpWin=l:win
             endif
         endfor
-        if (&columns > 160) && !l:split
+        if l:helpWin
+            " If help is already open in a window, use that window
+            if getwinvar(l:win,'&ft') == 'help'
+                exe l:win.'wincmd w'
+                setl bt=help
+                exe 'sil! help '.a:topic
+            endif
+        elseif (&columns > 160) && !l:split
+            " Open help in vertical split if window is not already split
             exe 'sil! vert help '.a:topic
         else
             exe 'sil! help '.a:topic
@@ -414,8 +424,8 @@ func! s:OpenHelp(topic)
         setl ft=help|setl bt=help|setl noma
         exe 'sil! keepjumps help '.a:topic
     endif
-    if errmsg != ""
-        echohl ErrorMsg | redraw | echo errmsg | echohl None
+    if v:errmsg != ""
+        echohl ErrorMsg | redraw | echo v:errmsg | echohl None
     endif
 endfunc
 com! -nargs=? -complete=help Help call <SID>OpenHelp(<q-args>)
@@ -621,7 +631,7 @@ augroup VimrcAutocmds
         \ <Leader>t :TagbarToggle<CR>" | endif
 augroup END
 let g:tagbar_iconchars=['+','-']
-let g:tagbar_sort=1
+let g:tagbar_sort=0
 
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
@@ -727,6 +737,7 @@ map! <S-Space> <Space>
 let g:EasyMotion_keys='ABCDEFGIMNOPQRSTUVWXYZLKJH'
 let g:EasyMotion_use_upper=1
 map <Space> <Plug>(easymotion-bd-f)
+map <Space>/ <Plug>(easymotion-sn)
 map <Space><Space>f <Plug>(easymotion-bd-f)
 map <Space><Space>F <Plug>(easymotion-bd-f)
 map <Space><Space>t <Plug>(easymotion-bd-t)
@@ -741,7 +752,6 @@ map <Space><Space>j <Plug>(easymotion-bd-jk)
 map <Space><Space>k <Plug>(easymotion-bd-jk)
 map <Space><Space>n <Plug>(easymotion-bd-n)
 map <Space><Space>N <Plug>(easymotion-bd-n)
-map <Space><Space>/ <Plug>(easymotion-sn)
 augroup VimrcAutocmds
     autocmd VimEnter * unmap <Leader><Leader>
 augroup END

@@ -196,7 +196,7 @@ func! s:AlignUnterminatedAssignment()
         \ ||  getline(l:top) =~ "'[^'=;]*=[^'=;]*'[^'=;]*$"
         \ ||  getline(l:top) =~ "([^()=;]*=[^()=;]*)[^()=;]*$"
         \ || (getline(l:top) =~ '=[^=;()]*[[:alnum:]]\+\s*([^=;()]*$'
-        \  && getline(l:top+1) =~ '^\s*[*[:alnum:]]')
+        \  && getline(l:top+1) =~ '^\s*[[:alnum:]]')
         \ ||  getline(l:top) =~ "=$"
         \ || (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         let l:top=search(l:pat,'W')
