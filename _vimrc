@@ -404,16 +404,16 @@ func! s:OpenHelp(topic)
         for l:win in range(1,winnr('$'))
             if winwidth(l:win) < &columns
                 let l:split=1
-                let l:helpWin=l:win
+                if getwinvar(l:win,'&ft') == 'help'
+                    let l:helpWin=l:win
+                endif
             endif
         endfor
         if l:helpWin
             " If help is already open in a window, use that window
-            if getwinvar(l:win,'&ft') == 'help'
-                exe l:win.'wincmd w'
-                setl bt=help
-                exe 'sil! help '.a:topic
-            endif
+            exe l:win.'wincmd w'
+            setl bt=help
+            exe 'sil! help '.a:topic
         elseif (&columns > 160) && !l:split
             " Open help in vertical split if window is not already split
             exe 'sil! vert help '.a:topic
