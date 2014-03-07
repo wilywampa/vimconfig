@@ -785,5 +785,4 @@ if exists('g:airline_symbols')
     let g:airline_symbols.whitespace='!'
 endif
 
-" vim: set fdm=marker:
-
+" vim: fdm=marker fdl=1:
