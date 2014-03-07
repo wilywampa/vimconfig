@@ -191,7 +191,7 @@ func! s:AlignUnterminatedAssignment()
 
     " Find start of expression
     " Can't be in string, in parens, after open paren, at EOL, in a comment,
-    " or in a preprocessor macro
+    " in a preprocessor macro, or after {
     let l:top=search(l:pat,'W')
     if !l:top | return 0 | endif
     while     getline(l:top) =~ "\"[^\"=;]*=[^\"]*\"[^\"=;]*$"
@@ -202,6 +202,7 @@ func! s:AlignUnterminatedAssignment()
         \ ||  getline(l:top) =~ "=$"
         \ || (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
         \ ||  getline(l:top) =~ "^\s*#"
+        \ ||  getline(l:top) =~ '=.*{'
         let l:top=search(l:pat,'W')
         if !l:top | return 0 | endif
     endwhile
