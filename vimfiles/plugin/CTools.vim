@@ -249,9 +249,11 @@ func! s:FormatC()
             let line1done=1
         endif
         if getline('.') != ""
-            if (getline('.') !~ '^\s*#\@!\/\*') || (getline('.') =~ '^\s*#\@!\/\*.*\*\/')
-                " Regular line of code or single-line comment
-                norm! ==
+            if (getline('.') !~ '^\s*\/\*') || (getline('.') =~ '^\s*\/\*.*\*\/')
+                if getline('.') !~ '^\s*#'
+                    " Regular line of code or single-line comment
+                    norm! ==
+                endif
             else
                 " First line of block comment
                 let l:top=line('.')
