@@ -190,7 +190,8 @@ func! s:AlignUnterminatedAssignment()
     let l:pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$\|^.*\zs\(<<\|>>\)=\ze[^;]*$'
 
     " Find start of expression
-    " Can't be in string, in parens, after open paren, at EOL, or in a comment
+    " Can't be in string, in parens, after open paren, at EOL, in a comment,
+    " or in a preprocessor macro
     let l:top=search(l:pat,'W')
     if !l:top | return 0 | endif
     while     getline(l:top) =~ "\"[^\"=;]*=[^\"]*\"[^\"=;]*$"
@@ -200,6 +201,7 @@ func! s:AlignUnterminatedAssignment()
         \  && getline(l:top+1) =~ '^\s*[[:alnum:]]')
         \ ||  getline(l:top) =~ "=$"
         \ || (synIDattr(synID(line("."), col("."), 1), "name")) =~? 'comment'
+        \ ||  getline(l:top) =~ "^\s*#"
         let l:top=search(l:pat,'W')
         if !l:top | return 0 | endif
     endwhile
@@ -247,7 +249,7 @@ func! s:FormatC()
             let line1done=1
         endif
         if getline('.') != ""
-            if (getline('.') !~ '^\s*\/\*') || (getline('.') =~ '^\s*\/\*.*\*\/')
+            if (getline('.') !~ '^\s*#\@!\/\*') || (getline('.') =~ '^\s*#\@!\/\*.*\*\/')
                 " Regular line of code or single-line comment
                 norm! ==
             else
