@@ -774,6 +774,7 @@ xmap S <Plug>VSurround
 
 " Choose SuperTab completion type based on context
 let g:SuperTabDefaultCompletionType="context"
+
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
 
