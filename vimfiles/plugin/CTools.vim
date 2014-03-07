@@ -149,7 +149,7 @@ func! s:ToggleFindInComments()
 endfunc
 
 " Tabular pipeline for aligning = with first non-blank of lines up until ;
-autocmd VimEnter * AddTabularPipeline! align_with_equals
+autocmd VimEnter * silent! AddTabularPipeline! align_with_equals
     \ /^[^=]*\zs=\([^;]*$\)\@=
     \\|^\s*\zs=\@<!\S[^=]*;.*$
     \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
@@ -160,7 +160,7 @@ autocmd VimEnter * AddTabularPipeline! align_with_equals
     \|^[^=]*\zs=\([^;]*$\)\@=.*$','l1')
 
 " Handle +=, -=, etc.
-autocmd VimEnter * AddTabularPipeline! align_with_equals_after1char
+autocmd VimEnter * silent! AddTabularPipeline! align_with_equals_after1char
     \ /^[^=]*\zs=\([^;]*$\)\@=
     \\|^\s*\zs=\@<!\S[^=]*;.*$
     \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
@@ -171,7 +171,7 @@ autocmd VimEnter * AddTabularPipeline! align_with_equals_after1char
     \|^[^=]*\zs[+*/%&|^-]=[^;=]*$','l1')
 
 " Handle <<= and >>=
-autocmd VimEnter * AddTabularPipeline! align_with_equals_after2char
+autocmd VimEnter * silent! AddTabularPipeline! align_with_equals_after2char
     \ /^[^=]*\zs=\([^;]*$\)\@=
     \\|^\s*\zs=\@<!\S[^=]*;.*$
     \\|^\s*\zs\([{}]\)\@!\(\/\/\)\@!\S[^;]*\(\*\/\)\@<!$/
@@ -184,6 +184,7 @@ autocmd VimEnter * AddTabularPipeline! align_with_equals_after2char
 " Function to find and align lines of a C assignment
 func! s:AlignUnterminatedAssignment()
     if !hlexists('cComment') | return 0 | endif
+    if !exists(':Tabularize') | return 0 | endif
 
     " Pattern to find an unterminated assignment
     let l:pat='^.*[=!<>]\@<!\zs=\ze=\@![^;]*$\|^.*\zs\(<<\|>>\)=\ze[^;]*$'
