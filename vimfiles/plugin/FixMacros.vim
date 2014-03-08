@@ -28,14 +28,14 @@ function! s:FixMacros()
     let l:regnum = filter( l:regnum, 'getreg(nr2char(v:val)) !~ "^\W\+$"' )
 
     for l:reg in l:regnum
-        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'ã','\\\\c','g'))
-        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'Ã','\\\\C','g'))
-        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'ä','\\\\d','g'))
-        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'Ä','\\\\D','g'))
-        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'ó','\\\\s','g'))
-        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'Ó','\\\\S','g'))
-        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'ø','\\\\x','g'))
-        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'Ø','\\\\X','g'))
+        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'\Cã','\\\\c','g'))
+        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'\CÃ','\\\\C','g'))
+        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'\Cä','\\\\d','g'))
+        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'\CÄ','\\\\D','g'))
+        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'\Có','\\\\s','g'))
+        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'\CÓ','\\\\S','g'))
+        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'\Cø','\\\\x','g'))
+        call setreg(nr2char(l:reg), substitute(getreg(nr2char(l:reg)),'\CØ','\\\\X','g'))
     endfor
 
     return '@'
