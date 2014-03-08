@@ -146,6 +146,8 @@ augroup VimrcAutocmds
 augroup END
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ` :call <SID>LastActiveWindow()<CR>
+nnoremap <silent> ' `
+nnoremap <silent> <M-'> `
 
 " {{{2 Platform-specific configuration
 
@@ -472,8 +474,9 @@ if has('gui_running')
     " Copy mouse modeless selection to clipboard
     set guioptions+=A
 
-    " Don't use second vertical scrollbar
+    " Don't use scrollbars
     set guioptions-=L
+    set guioptions-=r
 
     " Hide menu/toolbars
     set guioptions-=m
@@ -502,11 +505,11 @@ if has('gui_running')
 else
     " Make control + arrow keys work in PuTTY
     set <M-:>=[A " <C-Up>
-    set <M-'>=[B " <C-Down>
+    set <M-`>=[B " <C-Down>
     map <M-:> <C-Up>
-    map <M-'> <C-Down>
+    map <M-`> <C-Down>
     map! <M-:> <C-Up>
-    map! <M-'> <C-Down>
+    map! <M-`> <C-Down>
     set <C-Right>=[C
     set <C-Left> =[D
 
@@ -520,6 +523,7 @@ else
         exec "set <M-".nr2char(n).">=".nr2char(n)
     endfor
     set <M-\|>=\| " Bar needs special handling
+    set <M-'>='
 endif
 
 if hasSSH
