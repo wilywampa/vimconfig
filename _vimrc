@@ -147,7 +147,7 @@ augroup END
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ` :call <SID>LastActiveWindow()<CR>
 nnoremap <silent> ' `
-nnoremap <silent> <M-'> `
+nnoremap <silent> <M-'> '
 
 " {{{2 Platform-specific configuration
 
