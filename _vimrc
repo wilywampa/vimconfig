@@ -547,7 +547,7 @@ augroup VimrcAutocmds
     autocmd FileType help setl nowrap | setl nolinebreak
 
     " Highlight current line in active window
-    autocmd BufRead,BufNewFile * set cul
+    autocmd BufRead,BufNewFile,VimEnter * set cul
     autocmd WinEnter * set cul
     autocmd WinLeave * set nocul
 
