@@ -256,8 +256,9 @@ nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>:call histdel('/','\V$t^')<CR>
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
 
-" Make Ctrl-c function the same as Esc in insert mode
+" Make Ctrl-c function the same as Esc in insert and command mode
 ino <C-c> <Esc>
+cno <C-c> <Esc>
 
 " Shortcuts for switching tab, including closing command window if it's open
 augroup VimrcAutocmds
@@ -413,7 +414,7 @@ func! s:OpenHelp(topic)
         endfor
         if l:helpWin
             " If help is already open in a window, use that window
-            exe l:win.'wincmd w'
+            exe l:helpWin.'wincmd w'
             setl bt=help
             exe 'sil! help '.a:topic
         elseif (&columns > 160) && !l:split
@@ -554,6 +555,15 @@ augroup VimrcAutocmds
     " Disable paste mode after leaving insert mode
     autocmd InsertLeave * set nopaste
 augroup END
+
+" Make <C-d>/<C-d> scroll 1/4 page
+func! s:SetScroll(in)
+    set scroll=0
+    exec "set scroll=".&scroll/2
+    return a:in
+endfunc
+noremap <expr> <C-d> <SID>SetScroll('<C-d>')
+noremap <expr> <C-u> <SID>SetScroll('<C-u>')
 
 " Delete hidden buffers
 func! DeleteHiddenBuffers()
