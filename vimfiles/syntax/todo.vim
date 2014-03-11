@@ -9,12 +9,12 @@ endif
 let b:current_syntax = "todo"
 
 syn match todoStringIncomplete '.*$' contained
-syn match todoStringcomplete '.*$' contained
+syn match todoStringComplete '.*$' contained
 syn match todoCheckboxIncomplete '(O)' nextgroup=todoStringIncomplete
 syn match todoCheckboxComplete '([X\\])' nextgroup=todoStringComplete
 syn match todoIndent '\s*' nextgroup=todoCheckboxIncomplete,todoCheckboxComplete
-syn match todoComment '\([\*#@%]\).*$' contained
-syn match todoSectionTitle '^\s*\u\{2,}.*$' contained
+syn match todoComment '[#@].*$' contained
+syn match todoSectionTitle '--.*--' contained
 syn region todoLine start="^" end="$" fold transparent contains=ALL
 
 hi def link todoCheckboxComplete Identifier
