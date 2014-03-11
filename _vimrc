@@ -256,9 +256,8 @@ nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>:call histdel('/','\V$t^')<CR>
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
 
-" Make Ctrl-c function the same as Esc in insert and command mode
+" Make Ctrl-c function the same as Esc in insert mode
 ino <C-c> <Esc>
-cno <C-c> <Esc>
 
 " Shortcuts for switching tab, including closing command window if it's open
 augroup VimrcAutocmds
