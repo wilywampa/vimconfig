@@ -423,7 +423,7 @@ func! s:OpenHelp(topic)
             exe 'sil! help '.a:topic
         endif
     else
-        setl ft=help|setl bt=help|setl noma
+        setl ft=help bt=help noma
         exe 'sil! keepjumps help '.a:topic
     endif
     if v:errmsg != ""
@@ -543,8 +543,8 @@ augroup VimrcAutocmds
     autocmd FileType * set formatoptions-=o
 
     " Use line wrapping for plain text files (but not help files)
-    autocmd FileType text setl wrap | setl linebreak
-    autocmd FileType help setl nowrap | setl nolinebreak
+    autocmd FileType text setl wrap linebreak
+    autocmd FileType help setl nowrap nolinebreak
 
     " Highlight current line in active window
     autocmd BufRead,BufNewFile,VimEnter * set cul
@@ -698,7 +698,7 @@ let g:tagbar_type_processing=g:tagbar_type_arduino
 
 " Override some default settings for Processing files
 augroup VimrcAutocmds
-    autocmd FileType processing setl softtabstop=2|setl formatoptions-=o
+    autocmd FileType processing setl softtabstop=2 formatoptions-=o
     autocmd FileType processing nnoremap <buffer> <silent> <F5> :cd %:p:h<CR>:up<bar>call
         \ RunProcessing()<CR>:silent !ctags --language-force=c++ %<CR>:cd -<CR>
     autocmd FileType processing nnoremap <buffer> <silent> <S-F5> :silent

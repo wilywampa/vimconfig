@@ -44,10 +44,7 @@ func! s:FindNotInComment(direction)
 
     " Create scratch buffer
     enew
-    setlocal buftype=nofile
-    setlocal bufhidden=hide
-    setlocal noswapfile
-    setlocal buflisted
+    setlocal buftype=nofile bufhidden=hide noswapfile
     let l:scratch=bufnr('%')
 
     " Copy buffer contents to scratch buffer
