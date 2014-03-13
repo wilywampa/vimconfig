@@ -74,7 +74,7 @@ endfunction
 function! <SID>ParagBack()
 	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 	let l:notboundary=l:boundary.'\@!'
-	let l:res = search(l:notboundary, 'scWb')
+	let l:res = search(l:notboundary, 'cWb')
 	if l:res <= 0
 		call cursor(1,1)
 		return s:Unfold()
@@ -110,7 +110,7 @@ function! <SID>ParagFore()
 	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 	let l:notboundary=l:boundary.'\@!'
 	if getline('.') =~# l:boundary
-		let l:res = search(l:notboundary, 'sW')
+		let l:res = search(l:notboundary, 'W')
 		if l:res <= 0
 			call cursor(line('$'),1)
 			return s:Unfold()
