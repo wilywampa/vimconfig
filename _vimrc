@@ -486,9 +486,9 @@ if has('gui_running')
         " Set font for gVim
         if hostname() ==? 'Jake-Desktop'
             " Big font for big TV
-            set guifont=Consolas:h14
+            set guifont=Meslo_LG_S_for_Powerline:h13:cANSI
         else
-            set guifont=Consolas:h11
+            set guifont=Meslo_LG_S_for_Powerline:h10.8:cANSI
         endif
     elseif hasMac
         " Set font for MacVim
