@@ -395,6 +395,12 @@ ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|.\)
 no <expr> j &wrap?'gj':'j'
 no <expr> k &wrap?'gk':'k'
 
+" ZZ and ZQ close buffer if it's not open in another window
+nn <silent> ZQ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
+    \:norm! ZQ<CR>:sil! call setbufvar(b,'&bh','')<CR>
+nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
+    \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
+
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
     let v:errmsg=""
@@ -633,10 +639,6 @@ command! -nargs=* -bang B Bclose<bang><args>
 
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
-
-" ZZ and ZQ close buffer instead of just closing window
-nn <silent> ZZ :up<CR>:sil! Bclose<CR>:q<CR>
-nn <silent> ZQ :sil! Bclose!<CR>:q!<CR>
 
 " Tagbar configuration
 augroup VimrcAutocmds
