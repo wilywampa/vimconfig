@@ -107,9 +107,13 @@ function! Return_key ()
   let buftype = getbufvar(bufnr(''), '&buftype')
 
   if buftype != ""
-    unmap <CR>
-    execute "normal! \<CR>"
-    nnoremap <silent> <CR> :call Return_key()<CR>
+    if buftype == "quickfix"
+      execute "normal! \<CR>zv"
+    else
+      unmap <CR>
+      execute "normal! \<CR>"
+      nnoremap <silent> <CR> :call Return_key()<CR>
+    endif
   else
     if col('.') == strlen(getline('.'))
       execute "normal! a\<CR>\<ESC>k"
