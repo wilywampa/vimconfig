@@ -35,43 +35,67 @@ func! s:StripComments()
     let @/=l:search
 endfunc
 
+" Maintain a dictionary of scratch buffers
+let s:ScratchDict={}
+
+" Wipe out scratch buffer and remove it from the dictionary
+func! s:ScratchWipe(buf)
+    exec 'bwipe '.s:ScratchDict[a:buf]
+    call remove(s:ScratchDict, a:buf)
+endfunc
+
 " Use StripComments functions to search in non-commented text only
 func! s:FindNotInComment(direction)
     " Save some information to restore later
     let l:buf=bufnr('%')
     let l:winSave=winsaveview()
     let l:len=line('$')
+    let l:changeNr=changenr()
 
-    " Create scratch buffer
-    enew
-    setlocal buftype=nofile bufhidden=hide noswapfile
-    let l:scratch=bufnr('%')
+    " Delete old scratch buffer if a change occurred
+    if exists('b:CToolsScratchBufChangeNr') && l:changeNr != b:CToolsScratchBufChangeNr
+        call s:ScratchWipe(l:buf)
+        unlet b:CToolsScratchBufChangeNr
+    endif
 
-    " Copy buffer contents to scratch buffer
-    for n in range(1,l:len)
-        call setline(n, getbufline(l:buf, n))
-    endfor
+    " Make scratch buffer self-destruct when main buffer is closed
+    if !exists('b:CToolsAutocmdDone')
+        autocmd BufDelete <buffer> call s:ScratchWipe(expand('<abuf>'))
+        let b:CToolsAutocmdDone=1
+    endif
 
-    " Get rid of comments in scratch buffer
-    call s:StripComments()
+    if has_key(s:ScratchDict, l:buf)
+        exec 'silent b '.s:ScratchDict[l:buf]
+    else
+        " Create scratch buffer
+        enew
+        setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
+        call setbufvar(l:buf,'CToolsScratchBufChangeNr',l:changeNr)
+        call extend(s:ScratchDict, {l:buf : bufnr('%')})
+
+        " Copy buffer contents to scratch buffer
+        for n in range(1,l:len)
+            call setline(n, getbufline(l:buf, n))
+        endfor
+
+        " Get rid of comments in scratch buffer
+        call s:StripComments()
+    endif
 
     " Jump to next or previous match depending on search direction and n/N
     call winrestview(l:winSave)
     let v:errmsg=""
     let l:sfsave=getbufvar(l:buf,'sfsave')
     if (a:direction && l:sfsave) || (!a:direction && !l:sfsave)
-        silent! normal! /
+        exec "silent! normal! /\<CR>"
     else
-        silent! normal! ?
+        exec "silent! normal! ?\<CR>"
     endif
     let l:errmsg=v:errmsg
 
-    " Save view in scratch buffer
+    " Save view in scratch buffer and switch back to main buffer
     let l:winSave=winsaveview()
-
-    " Switch back to main buffer and wipe scratch buffer
     exec 'silent b '.l:buf
-    exec 'bwipe '.l:scratch
     call winrestview(l:winSave)
 
     " Print normal search text
