@@ -374,14 +374,14 @@ no <C-Left>  <C-w><
 no <C-Right> <C-w>>
 
 " Use ,n and ,N or ,p to cycle through quickfix results
-nn ,n :cn<CR>
-nn ,N :cp<CR>
-nn ,p :cp<CR>
+nn ,n :cn<CR>zv
+nn ,N :cp<CR>zv
+nn ,p :cp<CR>zv
 
 " Use ,,n and ,,N or ,,p to cycle through location list results
-nn ,,n :lne<CR>
-nn ,,N :lp<CR>
-nn ,,p :lp<CR>
+nn ,,n :lne<CR>zv
+nn ,,N :lp<CR>zv
+nn ,,p :lp<CR>zv
 
 " Stay in visual mode after indent change
 vn < <gv
@@ -400,6 +400,9 @@ nn <silent> ZQ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZQ<CR>:sil! call setbufvar(b,'&bh','')<CR>
 nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
+
+" Shortcut to search for first non-blank
+cno ^^ \(^\s*\)\@<=
 
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
@@ -492,13 +495,13 @@ if has('gui_running')
         " Set font for gVim
         if hostname() ==? 'Jake-Desktop'
             " Big font for big TV
-            set guifont=Meslo_LG_S_for_Powerline:h13:cANSI
+            set guifont=DejaVu_Sans_Mono_for_Powerline:h14:cANSI
         else
-            set guifont=Meslo_LG_S_for_Powerline:h10.8:cANSI
+            set guifont=DejaVu_Sans_Mono_for_Powerline:h10.5:cANSI
         endif
     elseif hasMac
         " Set font for MacVim
-        set guifont=Consolas:h17
+        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h15
 
         " Start in fullscreen mode
         augroup VimrcAutocmds
@@ -596,6 +599,25 @@ nnoremap <expr> v <SID>VisualEnter('v')
 nnoremap <expr> V <SID>VisualEnter('V')
 augroup VimrcAutocmds
     autocmd CursorHold * call RemoveClipboardNewline()
+augroup END
+
+" Kludge to make first quickfix result unfold
+func! s:ToggleFoldOpen()
+    if &fdo != 'all'
+        let s:fdoOld=&fdo
+        set ut=1 fdo=all
+        aug ToggleFoldOpen
+            au CursorHold * call s:ToggleFoldOpen()
+        aug END
+    else
+        exec 'set fdo='.s:fdoOld.' ut=4000'
+        aug ToggleFoldOpen
+            au!
+        aug END
+    endif
+endfunc
+augroup VimrcAutocmds
+    au QuickFixCmdPost * call s:ToggleFoldOpen()
 augroup END
 
 " Set color scheme
