@@ -574,6 +574,9 @@ augroup VimrcAutocmds
 
     " Open quickfix window automatically if not empty
     autocmd QuickFixCmdPost * cw
+
+    " Always make quickfix full-width on the bottom
+    autocmd FileType qf wincmd J
 augroup END
 
 " Make <C-d>/<C-d> scroll 1/4 page
