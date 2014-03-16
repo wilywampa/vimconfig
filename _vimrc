@@ -145,7 +145,10 @@ augroup VimrcAutocmds
     au WinLeave * call <SID>SetLastWindow()
 augroup END
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
-nnoremap <silent> ` :call <SID>LastActiveWindow()<CR>
+augroup VimrcAutocmds
+    au VimEnter,CmdwinLeave * nn <silent> ` :call <SID>LastActiveWindow()<CR>
+    au CmdwinEnter * nn <silent> ` <C-c><C-c>
+augroup END
 nnoremap <silent> ' `
 nnoremap <silent> <M-'> '
 
@@ -168,6 +171,11 @@ if hasWin
 
     " Shortcut to explore to current file
     nnoremap <silent> <F4> :silent execute "!start explorer /select,\"" . expand("%:p") . "\""<CR>
+
+    " Use zsh if it exists
+    if system('where zsh') =~? 'zsh'
+        set shell=zsh shellxquote=\" shellcmdflag=-c grepprg=grep\ -nH\ $*\ /dev/null
+    endif
 else
     " Change swap file location for unix
     if !isdirectory(expand("~/.tmp"))
@@ -404,6 +412,9 @@ nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
 " Shortcut to search for first non-blank
 cno ^^ \(^\s*\)\@<=
 
+" Execute line under cursor
+nn <silent> <Leader>x :exec getline('.')<CR>
+
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
     let v:errmsg=""
@@ -495,7 +506,7 @@ if has('gui_running')
         " Set font for gVim
         if hostname() ==? 'Jake-Desktop'
             " Big font for big TV
-            set guifont=DejaVu_Sans_Mono_for_Powerline:h14:cANSI
+            set guifont=DejaVu_Sans_Mono_for_Powerline:h13:cANSI
         else
             set guifont=DejaVu_Sans_Mono_for_Powerline:h10.5:cANSI
         endif
