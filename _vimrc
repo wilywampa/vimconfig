@@ -143,12 +143,10 @@ augroup VimrcAutocmds
     au TabLeave * let g:lastTab=tabpagenr()
     au WinEnter * let w:last=0
     au WinLeave * call <SID>SetLastWindow()
-augroup END
-nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
-augroup VimrcAutocmds
     au VimEnter,CmdwinLeave * nn <silent> ` :call <SID>LastActiveWindow()<CR>
     au CmdwinEnter * nn <silent> ` <C-c><C-c>
 augroup END
+nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ' `
 nnoremap <silent> <M-'> '
 
@@ -573,6 +571,9 @@ augroup VimrcAutocmds
 
     " Disable paste mode after leaving insert mode
     autocmd InsertLeave * set nopaste
+
+    " Open quickfix window automatically if not empty
+    autocmd QuickFixCmdPost * cw
 augroup END
 
 " Make <C-d>/<C-d> scroll 1/4 page
