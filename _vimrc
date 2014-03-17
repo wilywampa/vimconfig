@@ -449,9 +449,10 @@ func! s:OpenHelp(topic)
     endif
 endfunc
 com! -nargs=? -complete=help Help call <SID>OpenHelp(<q-args>)
-cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<= 3)? 'tab help':'ht')
-cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<= 2)? 'Help':'h')
-cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<= 2)? 'Help':'H')
+cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<=3)?'tab help':'ht')
+cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
+cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'H')
+cnoremap <expr> <Up> ((getcmdtype()==':'&&getcmdline()=='h')?'<BS>H<Up>':'<Up>')
 noremap <silent> K :exec 'Help '.expand('<cword>')<CR>
 
 " {{{2 Cscope configuration
@@ -463,17 +464,17 @@ set cscopequickfix=s-,c-,d-,i-,t-,e-
 set cscopetag
 
 " Abbreviations for diff commands
-cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<= 3)? 'windo diffthis':'dt')
-cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<= 3)? 'windo diffoff' :'do')
-cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<= 3)? 'diffupdate'    :'du')
+cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffthis':'dt')
+cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff' :'do')
+cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate'    :'du')
 
 " Abbreviations for cscope commands
-cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs add'  :'csa')
-cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs find' :'csf')
-cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs kill' :'csk')
-cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs reset':'csr')
-cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs show' :'css')
-cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<= 4)? 'cs help' :'csh')
+cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cs add'  :'csa')
+cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<=4)?'cs find' :'csf')
+cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<=4)?'cs kill' :'csk')
+cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<=4)?'cs reset':'csr')
+cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cs show' :'css')
+cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cs help' :'csh')
 
 " Mappings for cscope find commands
 no <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
