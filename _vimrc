@@ -341,7 +341,7 @@ nn <silent> <M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
 vn <BS> "_d
 
 " Ctrl-c copies visual selection to system clipboard
-vn <C-c> "*y<C-c>
+vn <C-c> "*y
 
 " File explorer at current buffer with -
 nn <silent> - :Explore<CR>
@@ -408,7 +408,7 @@ nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
 
 " Shortcut to search for first non-blank
-cno ^^ \(^\s*\)\@<=
+cno <expr> ^ ((getcmdtype()=='/'&&getcmdline()=='^')?'<BS>\(^\s*\)\@<=':'^')
 
 " Execute line under cursor
 nn <silent> <Leader>x :exec getline('.')<CR>
@@ -663,13 +663,9 @@ endif
 " Shortcut to toggle warnings in airline
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
 
-" Automatically close NERDTree after opening a buffer
+" NERDTree configuration
 let NERDTreeQuitOnOpen=1
-
-" Don't let NERDTree override netrw
 let NERDTreeHijackNetrw=0
-
-" Map Alt-- to navigate to current file in NERDTree
 nnoremap <silent> <M--> :NERDTreeFind<CR>
 
 " Make B an alias for Bclose
@@ -679,10 +675,7 @@ command! -nargs=* -bang B Bclose<bang><args>
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
 " Tagbar configuration
-augroup VimrcAutocmds
-    autocmd VimEnter * if exists(":TagbarToggle") | exe "nnoremap <silent>
-        \ <Leader>t :TagbarToggle<CR>" | endif
-augroup END
+nnoremap <silent> <Leader>t :TagbarToggle<CR>
 let g:tagbar_iconchars=['+','-']
 let g:tagbar_sort=0
 
@@ -694,9 +687,7 @@ augroup VimrcAutocmds
 augroup END
 
 " Set comment delimiters for Arduino
-let g:NERDCustomDelimiters={
-    \ 'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
-    \ }
+let g:NERDCustomDelimiters={'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' } }
 
 " Add Arduino support to Tagbar
 let g:tagbar_type_arduino={
@@ -735,18 +726,6 @@ let g:tagbar_type_arduino={
 " Add Processing support to Tagbar (Processing is not C++, but is close enough
 " for C++ tags to be useful)
 let g:tagbar_type_processing=g:tagbar_type_arduino
-
-" Override some default settings for Processing files
-augroup VimrcAutocmds
-    autocmd FileType processing setl softtabstop=2 formatoptions-=o
-    autocmd FileType processing nnoremap <buffer> <silent> <F5> :cd %:p:h<CR>:up<bar>call
-        \ RunProcessing()<CR>:silent !ctags --language-force=c++ %<CR>:cd -<CR>
-    autocmd FileType processing nnoremap <buffer> <silent> <S-F5> :silent
-        \ !ctags --language-force=c++ %<CR>
-augroup END
-
-" Make NERDCommenter work in select mode
-smap <Bslash> <C-g><Bslash>
 
 " Disable CSApprox if color palette is too small
 if !has('gui_running') && (&t_Co < 88)
