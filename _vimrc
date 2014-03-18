@@ -143,6 +143,8 @@ augroup VimrcAutocmds
     au TabLeave * let g:lastTab=tabpagenr()
     au WinEnter * let w:last=0
     au WinLeave * call <SID>SetLastWindow()
+    au VimEnter,CmdwinLeave * nn <silent> ` :call <SID>LastActiveWindow()<CR>
+    au CmdwinEnter * nn <silent> ` <C-c><C-c>
 augroup END
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ' `
@@ -198,7 +200,12 @@ endif
 " {{{2 Mappings
 
 " Shortcuts to save current file if modified or execute command if in command window
+no <silent> <C-s> :update<CR>
 vn <silent> <C-s> <C-c>:update<CR>
+augroup VimrcAutocmds
+    au VimEnter,CmdwinLeave * ino <silent> <C-s> <Esc>:update<CR>
+    au CmdwinEnter * ino <silent> <C-s> <CR>
+augroup END
 
 " <Ctrl-l> redraws the screen and removes any search highlighting.
 nn <silent> <C-l> :nohl<CR><C-l>
@@ -258,6 +265,23 @@ nn <M-]> <C-w><C-]><C-w>L
 " Make Ctrl-c function the same as Esc in insert mode
 ino <C-c> <Esc>
 
+" Shortcuts for switching tab, including closing command window if it's open
+augroup VimrcAutocmds
+    au VimEnter,CmdwinLeave * nn <silent> <C-Tab>    gt
+    au VimEnter,CmdwinLeave * nn <silent> <C-S-Tab>  gT
+    au VimEnter,CmdwinLeave * nn <silent> <M-l>      gt
+    au VimEnter,CmdwinLeave * nn <silent> <M-h>      gT
+    au VimEnter,CmdwinLeave * nn <M-(>               gt
+    au VimEnter,CmdwinLeave * nn <M-)>               gT
+
+    au CmdwinEnter * nn <silent> <C-Tab>   <C-c><C-c>gt
+    au CmdwinEnter * nn <silent> <C-S-Tab> <C-c><C-c>gT
+    au CmdwinEnter * nn <silent> <M-l>     <C-c><C-c>gt
+    au CmdwinEnter * nn <silent> <M-h>     <C-c><C-c>gT
+    au CmdwinEnter * nn <silent> <M-(>     <C-c><C-c>gt
+    au CmdwinEnter * nn <silent> <M-)>     <C-c><C-c>gT
+augroup END
+
 " Shortcut to open new tab
 nn <silent> <M-t> :tabnew<CR>
 
@@ -290,6 +314,18 @@ vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 
 " Make <C-c> cancel <C-w> instead of closing window
 no <C-w><C-c> <NOP>
+
+augroup VimrcAutocmds
+    " Don't let <C-w>q/<C-w><C-q> close last window
+    au VimEnter,CmdwinLeave * no <C-w><C-q> <C-w>c
+    au VimEnter,CmdwinLeave * no <C-w>q <C-w>c
+    au VimEnter,CmdwinLeave * sil! nun <C-w><C-w>
+
+    " Close command window with <C-w>q/<C-w><C-q>/<C-w><C-w>
+    au CmdwinEnter * no <C-w><C-q> <C-c><C-c>
+    au CmdwinEnter * no <C-w>q <C-c><C-c>
+    au CmdwinEnter * no <C-w><C-w> <C-c><C-c>
+augroup END
 
 " <C-k>/<C-j> inserts blank line above/below
 nn <silent> <C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
@@ -608,52 +644,6 @@ func! Redir(cmd)
     redir END
 endfunc
 com! -nargs=+ -complete=command Redir call Redir(<q-args>)
-
-" Command window mappings
-func! s:RegularMaps()
-    " Shortcuts to switch to last active tab/window
-    nn <silent> ` :call <SID>LastActiveWindow()<CR>
-
-    " Save or execute command
-    ino <silent> <C-s> <Esc>:update<CR>
-    nn  <silent> <C-s> :update<CR>
-
-    " Shortcuts for switching tab, including closing command window if it's open
-    nn <C-Tab>   gt
-    nn <C-S-Tab> gT
-    nn <M-l>     gt
-    nn <M-h>     gT
-    nn <M-(>     gt
-    nn <M-)>     gT
-
-    " Close command window with <C-w>q/<C-w><C-q>/<C-w><C-w>
-    no <C-w><C-q> <C-w>c
-    no <C-w>q <C-w>c
-    sil! nun <C-w><C-w>
-endfunc
-func! s:CmdwinMaps()
-    " Shortcuts to switch to last active tab/window
-    nn <silent> ` <C-c><C-c>
-
-    " Save or execute command
-    ino <C-s> <CR>
-    nn  <C-s> <CR>
-
-    " Shortcuts for switching tab, including closing command window if it's open
-    nn <C-Tab>   <C-c><C-c>gt
-    nn <C-S-Tab> <C-c><C-c>gT
-    nn <M-l>     <C-c><C-c>gt
-    nn <M-h>     <C-c><C-c>gT
-    nn <M-(>     <C-c><C-c>gt
-    nn <M-)>     <C-c><C-c>gT
-
-    " Don't let <C-w>q/<C-w><C-q> close last window
-    no <C-w><C-q> <C-c><C-c>
-    no <C-w>q     <C-c><C-c>
-    no <C-w><C-w> <C-c><C-c>
-endfunc
-au VimEnter,CmdwinLeave * call <SID>RegularMaps()
-au CmdwinEnter * call <SID>CmdwinMaps()
 
 " Set color scheme
 colorscheme desert
