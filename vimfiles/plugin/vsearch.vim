@@ -5,7 +5,7 @@ if !exists('g:VeryLiteral')
   let g:VeryLiteral = 0
 endif
 
-function! s:VSetSearch(cmd,word)
+function! s:VSetSearch(cmd)
   let old_reg = getreg('"')
   let old_regtype = getregtype('"')
   normal! gvy
@@ -22,17 +22,12 @@ function! s:VSetSearch(cmd,word)
     endif
     let @/ = '\V'.pat
   endif
-  if a:word
-      let @/ = '\<'.@/.'\>'
-  endif
   normal! gV
   call setreg('"', old_reg, old_regtype)
 endfunction
 
-vnoremap <silent>  * :<C-U>call <SID>VSetSearch('/',1)<CR>/<C-R>/<CR>
-vnoremap <silent>  # :<C-U>call <SID>VSetSearch('?',1)<CR>?<C-R>/<CR>
-vnoremap <silent> g* :<C-U>call <SID>VSetSearch('/',0)<CR>/<C-R>/<CR>
-vnoremap <silent> g# :<C-U>call <SID>VSetSearch('?',0)<CR>?<C-R>/<CR>
+vnoremap <silent> * :<C-U>call <SID>VSetSearch('/')<CR>/<C-R>/<CR>
+vnoremap <silent> # :<C-U>call <SID>VSetSearch('?')<CR>?<C-R>/<CR>
 vmap <kMultiply> *
 
 nmap <silent> <Plug>VLToggle :let g:VeryLiteral = !g:VeryLiteral

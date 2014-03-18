@@ -453,7 +453,8 @@ cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<=3)?'tab help':'ht')
 cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
 cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'H')
 cnoremap <expr> <Up> ((getcmdtype()==':'&&getcmdline()=='h')?'<BS>H<Up>':'<Up>')
-noremap <silent> K :exec 'Help '.expand('<cword>')<CR>
+nnoremap <silent> K :exec 'Help '.expand('<cword>')<CR>
+vnoremap <silent> K y:exec 'Help '.@"<CR>
 
 " {{{2 Cscope configuration
 
@@ -636,6 +637,14 @@ augroup VimrcAutocmds
     au QuickFixCmdPost * call s:ToggleFoldOpen()
 augroup END
 
+" Function to redirect output of ex command to clipboard
+func! Redir(cmd)
+    redir @*
+    silent execute a:cmd
+    redir END
+endfunc
+com! -nargs=+ -complete=command Redir call Redir(<q-args>)
+
 " Set color scheme
 colorscheme desert
 
@@ -649,7 +658,7 @@ let g:airline_theme='badwolf'
 let g:airline#extensions#ctrlp#color_template='normal'
 
 " Use powerline font unless in Mac SSH session or in old Vim
-if macSSH || v:version < 704
+if macSSH || v:version < 703
     let g:airline_powerline_fonts=0
     let g:airline_left_sep=''
     let g:airline_right_sep=''
@@ -676,7 +685,7 @@ nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
 " Tagbar configuration
 nnoremap <silent> <Leader>t :TagbarToggle<CR>
-let g:tagbar_iconchars=['+','-']
+let g:tagbar_iconchars=['▶','▼']
 let g:tagbar_sort=0
 
 " OmniCppComplete options
