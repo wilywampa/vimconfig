@@ -67,6 +67,10 @@ if !exists("syntax_on")
     syntax enable
 endif
 
+" Use to check if inside command window
+au VimEnter,CmdwinLeave * let g:inCmdwin=0
+au CmdwinEnter          * let g:inCmdwin=1
+
 " Use four spaces to indent vim file line continuation
 let g:vim_indent_cont=4
 
@@ -143,9 +147,8 @@ augroup VimrcAutocmds
     au TabLeave * let g:lastTab=tabpagenr()
     au WinEnter * let w:last=0
     au WinLeave * call <SID>SetLastWindow()
-    au VimEnter,CmdwinLeave * nn <silent> ` :call <SID>LastActiveWindow()<CR>
-    au CmdwinEnter * nn <silent> ` <C-c><C-c>
 augroup END
+nnoremap <silent> <expr> ` g:inCmdwin? '<C-c><C-c>' : ':call <SID>LastActiveWindow()<CR>'
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ' `
 nnoremap <silent> <M-'> '
@@ -200,12 +203,9 @@ endif
 " {{{2 Mappings
 
 " Shortcuts to save current file if modified or execute command if in command window
-no <silent> <C-s> :update<CR>
+nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':update<CR>'
+ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:update<CR>'
 vn <silent> <C-s> <C-c>:update<CR>
-augroup VimrcAutocmds
-    au VimEnter,CmdwinLeave * ino <silent> <C-s> <Esc>:update<CR>
-    au CmdwinEnter * ino <silent> <C-s> <CR>
-augroup END
 
 " <Ctrl-l> redraws the screen and removes any search highlighting.
 nn <silent> <C-l> :nohl<CR><C-l>
@@ -266,21 +266,12 @@ nn <M-]> <C-w><C-]><C-w>L
 ino <C-c> <Esc>
 
 " Shortcuts for switching tab, including closing command window if it's open
-augroup VimrcAutocmds
-    au VimEnter,CmdwinLeave * nn <silent> <C-Tab>    gt
-    au VimEnter,CmdwinLeave * nn <silent> <C-S-Tab>  gT
-    au VimEnter,CmdwinLeave * nn <silent> <M-l>      gt
-    au VimEnter,CmdwinLeave * nn <silent> <M-h>      gT
-    au VimEnter,CmdwinLeave * nn <M-(>               gt
-    au VimEnter,CmdwinLeave * nn <M-)>               gT
-
-    au CmdwinEnter * nn <silent> <C-Tab>   <C-c><C-c>gt
-    au CmdwinEnter * nn <silent> <C-S-Tab> <C-c><C-c>gT
-    au CmdwinEnter * nn <silent> <M-l>     <C-c><C-c>gt
-    au CmdwinEnter * nn <silent> <M-h>     <C-c><C-c>gT
-    au CmdwinEnter * nn <silent> <M-(>     <C-c><C-c>gt
-    au CmdwinEnter * nn <silent> <M-)>     <C-c><C-c>gT
-augroup END
+nn <expr> <C-Tab>   g:inCmdwin? '<C-c><C-c>gt' : 'gt'
+nn <expr> <C-S-Tab> g:inCmdwin? '<C-c><C-c>gT' : 'gT'
+nn <expr> <M-l>     g:inCmdwin? '<C-c><C-c>gt' : 'gt'
+nn <expr> <M-h>     g:inCmdwin? '<C-c><C-c>gT' : 'gT'
+nn <expr> <M-(>     g:inCmdwin? '<C-c><C-c>gt' : 'gt'
+nn <expr> <M-)>     g:inCmdwin? '<C-c><C-c>gT' : 'gT'
 
 " Shortcut to open new tab
 nn <silent> <M-t> :tabnew<CR>
@@ -315,17 +306,10 @@ vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 " Make <C-c> cancel <C-w> instead of closing window
 no <C-w><C-c> <NOP>
 
-augroup VimrcAutocmds
-    " Don't let <C-w>q/<C-w><C-q> close last window
-    au VimEnter,CmdwinLeave * no <C-w><C-q> <C-w>c
-    au VimEnter,CmdwinLeave * no <C-w>q <C-w>c
-    au VimEnter,CmdwinLeave * sil! nun <C-w><C-w>
-
-    " Close command window with <C-w>q/<C-w><C-q>/<C-w><C-w>
-    au CmdwinEnter * no <C-w><C-q> <C-c><C-c>
-    au CmdwinEnter * no <C-w>q <C-c><C-c>
-    au CmdwinEnter * no <C-w><C-w> <C-c><C-c>
-augroup END
+" Make <C-w><C-q>/<C-w>q close window except the last window
+nn <expr> <C-w><C-q> g:inCmdwin? '<C-c><C-c>' : '<C-w>c'
+nn <expr> <C-w>q     g:inCmdwin? '<C-c><C-c>' : '<C-w>c'
+nn <expr> <C-w><C-w> g:inCmdwin? '<C-c><C-c>' : '<C-w><C-w>'
 
 " <C-k>/<C-j> inserts blank line above/below
 nn <silent> <C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
@@ -640,7 +624,7 @@ augroup END
 " Function to redirect output of ex command to clipboard
 func! Redir(cmd)
     redir @*
-    silent execute a:cmd
+    execute a:cmd
     redir END
 endfunc
 com! -nargs=+ -complete=command Redir call Redir(<q-args>)
