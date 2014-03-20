@@ -148,7 +148,7 @@ augroup VimrcAutocmds
     au WinEnter * let w:last=0
     au WinLeave * call <SID>SetLastWindow()
 augroup END
-nnoremap <silent> <expr> ` g:inCmdwin? '<C-c><C-c>' : ':call <SID>LastActiveWindow()<CR>'
+nnoremap <silent> <expr> ` g:inCmdwin? ':q<CR>' : ':call <SID>LastActiveWindow()<CR>'
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ' `
 nnoremap <silent> <M-'> '
@@ -257,7 +257,8 @@ nn ,gn :vim // *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
 
 " Shortcut to delete trailing whitespace
-nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>:call histdel('/','\V$t^')<CR>
+nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
+    \:call histdel('/','\V$t^')<CR>:let @/=histget('/',-1)<CR>
 
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
@@ -266,12 +267,12 @@ nn <M-]> <C-w><C-]><C-w>L
 ino <C-c> <Esc>
 
 " Shortcuts for switching tab, including closing command window if it's open
-nn <expr> <C-Tab>   g:inCmdwin? '<C-c><C-c>gt' : 'gt'
-nn <expr> <C-S-Tab> g:inCmdwin? '<C-c><C-c>gT' : 'gT'
-nn <expr> <M-l>     g:inCmdwin? '<C-c><C-c>gt' : 'gt'
-nn <expr> <M-h>     g:inCmdwin? '<C-c><C-c>gT' : 'gT'
-nn <expr> <M-(>     g:inCmdwin? '<C-c><C-c>gt' : 'gt'
-nn <expr> <M-)>     g:inCmdwin? '<C-c><C-c>gT' : 'gT'
+nn <silent> <expr> <C-Tab>   g:inCmdwin? ':q<CR>gt' : 'gt'
+nn <silent> <expr> <C-S-Tab> g:inCmdwin? ':q<CR>gT' : 'gT'
+nn <silent> <expr> <M-l>     g:inCmdwin? ':q<CR>gt' : 'gt'
+nn <silent> <expr> <M-h>     g:inCmdwin? ':q<CR>gT' : 'gT'
+nn <silent> <expr> <xF3>     g:inCmdwin? ':q<CR>gt' : 'gt'
+nn <silent> <expr> <xF4>     g:inCmdwin? ':q<CR>gT' : 'gT'
 
 " Shortcut to open new tab
 nn <silent> <M-t> :tabnew<CR>
@@ -307,9 +308,9 @@ vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
 no <C-w><C-c> <NOP>
 
 " Make <C-w><C-q>/<C-w>q close window except the last window
-nn <expr> <C-w><C-q> g:inCmdwin? '<C-c><C-c>' : '<C-w>c'
-nn <expr> <C-w>q     g:inCmdwin? '<C-c><C-c>' : '<C-w>c'
-nn <expr> <C-w><C-w> g:inCmdwin? '<C-c><C-c>' : '<C-w><C-w>'
+nn <silent> <expr> <C-w><C-q> g:inCmdwin? ':q<CR>' : '<C-w>c'
+nn <silent> <expr> <C-w>q     g:inCmdwin? ':q<CR>' : '<C-w>c'
+nn <silent> <expr> <C-w><C-w> g:inCmdwin? ':q<CR>' : '<C-w><C-w>'
 
 " <C-k>/<C-j> inserts blank line above/below
 nn <silent> <C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
@@ -346,7 +347,7 @@ exe 'vnoremap <script> <C-V> '.paste#paste_cmd['v']
 noremap <C-q> <C-v>
 
 " Show current line of diff at bottom of tab
-nn <Leader>dl tsjJtlsjJt:res<CR>b
+nn <Leader>dl <C-w>t<C-w>s<C-w>j<C-w>J<C-w>t<C-w>l<C-w>s<C-w>j<C-w>J<C-w>t:res<CR><C-w>b
 
 " Make Y behave like other capital letters
 map Y y$
@@ -364,14 +365,14 @@ no <C-Left>  <C-w><
 no <C-Right> <C-w>>
 
 " Use ,n and ,N or ,p to cycle through quickfix results
-nn ,n :cn<CR>zv
-nn ,N :cp<CR>zv
-nn ,p :cp<CR>zv
+nn <silent> ,n :<C-u>exe v:count1.'cn'<CR>zv
+nn <silent> ,N :<C-u>exe v:count1.'cp'<CR>zv
+nn <silent> ,p :<C-u>exe v:count1.'cp'<CR>zv
 
 " Use ,,n and ,,N or ,,p to cycle through location list results
-nn ,,n :lne<CR>zv
-nn ,,N :lp<CR>zv
-nn ,,p :lp<CR>zv
+nn <silent> ,,n :<C-u>exe v:count1.'lne'<CR>zv
+nn <silent> ,,N :<C-u>exe v:count1.'lp'<CR>zv
+nn <silent> ,,p :<C-u>exe v:count1.'lp'<CR>zv
 
 " Stay in visual mode after indent change
 vn < <gv
@@ -396,6 +397,12 @@ cno <expr> ^ ((getcmdtype()=='/'&&getcmdline()=='^')?'<BS>\(^\s*\)\@<=':'^')
 
 " Execute line under cursor
 nn <silent> <Leader>x :exec getline('.')<CR>
+
+" Shortcut to close quickfix window/location list
+nn <silent> <Leader>w :ccl\|lcl<CR>
+
+" Shortcut to make current buffer a scratch buffer
+nn <silent> <Leader>s :set bt=nofile<CR>
 
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
@@ -437,8 +444,13 @@ cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<=3)?'tab help':'ht')
 cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
 cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'H')
 cnoremap <expr> <Up> ((getcmdtype()==':'&&getcmdline()=='h')?'<BS>H<Up>':'<Up>')
+func! s:OpenHelpVisual()
+    let g:oldreg=@"
+    let l:cmd=":call setreg('\"',g:oldreg) | Help \<C-r>\"\<CR>"
+    return g:inCmdwin? "y:quit\<CR>".l:cmd : 'y'.l:cmd
+endfunc
 nnoremap <silent> K :exec 'Help '.expand('<cword>')<CR>
-vnoremap <silent> K y:exec 'Help '.@"<CR>
+vnoremap <expr> <silent> K <SID>OpenHelpVisual()
 
 " {{{2 Cscope configuration
 
@@ -508,26 +520,22 @@ if has('gui_running')
     endif
 else
     " Make control + arrow keys work in PuTTY
-    set <M-:>=[A " <C-Up>
-    set <M-`>=[B " <C-Down>
-    map <M-:> <C-Up>
-    map <M-`> <C-Down>
-    map! <M-:> <C-Up>
-    map! <M-`> <C-Down>
-    set <C-Right>=[C
-    set <C-Left> =[D
+    exec "set <xF1>=\<Esc>[A <xF2>=\<Esc>[B <C-Right>=\<Esc>[C <C-Left>=\<Esc>[D"
+    map <xF1> <C-Up>
+    map <xF2> <C-Down>
+    map! <xF1> <C-Up>
+    map! <xF2> <C-Down>
 
     " Shortcuts to change tab in MinTTY
-    set <M-(>=[1;5I " <C-Tab>
-    set <M-)>=[1;6I " <C-S-Tab>
+    "         <C-Tab>           <C-S-Tab>
+    exec "set <xF3>=\<Esc>[1;5I <xF4>=\<Esc>[1;6I "
 
     " Set key codes to work as meta key combinations
     let ns=range(65,90)+range(92,123)+range(125,126)
     for n in ns
-        exec "set <M-".nr2char(n).">=".nr2char(n)
+        exec "set <M-".nr2char(n).">=\<Esc>".nr2char(n)
     endfor
-    set <M-\|>=\| " Bar needs special handling
-    set <M-'>='
+    exec "set <M-\\|>=\<Esc>\\| <M-'>=\<Esc>'"
 endif
 
 if hasSSH
@@ -626,8 +634,19 @@ func! Redir(cmd)
     redir @*
     execute a:cmd
     redir END
+    let @*=substitute(@*,"\<CR>",'','g')
 endfunc
 com! -nargs=+ -complete=command Redir call Redir(<q-args>)
+
+" Function to removing trailing carriage return from register
+func! FixReg(reg)
+    let l:str=getreg(a:reg)
+    while l:str =~ "\<CR>\<NL>"
+        let l:str=substitute(l:str,"\<CR>\<NL>","\<NL>",'')
+    endwhile
+    call setreg(a:reg, l:str)
+endfunc
+nnoremap <silent> <expr> <Leader>f ':call FixReg("'.nr2char(getchar()).'")<CR>'
 
 " Set color scheme
 colorscheme desert
