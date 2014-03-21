@@ -60,15 +60,19 @@ if !exists('g:ip_skipfold')
 	let g:ip_skipfold=0
 endif
 
-nnoremap <silent> { :<C-U>call <SID>ParagBack()<CR>
-nnoremap <silent> } :<C-U>call <SID>ParagFore()<CR>
-vnoremap <silent> { :<C-U>exe "normal! gv"<Bar>call <SID>ParagBack()<CR>
-vnoremap <silent> } :<C-U>exe "normal! gv"<Bar>call <SID>ParagFore()<CR>
+nnoremap <silent> { :<C-U>call <SID>SetCount()<Bar>call <SID>ParagBack()<CR>
+nnoremap <silent> } :<C-U>call <SID>SetCount()<Bar>call <SID>ParagFore()<CR>
+vnoremap <silent> { :<C-U>call <SID>SetCount()<Bar>exe "normal! gv"<Bar>call <SID>ParagBack()<CR>
+vnoremap <silent> } :<C-U>call <SID>SetCount()<Bar>exe "normal! gv"<Bar>call <SID>ParagFore()<CR>
 
 function! s:Unfold()
 	while foldclosed('.') > 0
 		normal za
 	endwhile
+endfunction
+
+function! s:SetCount()
+	let s:count1=v:count1
 endfunction
 
 function! <SID>ParagBack()
@@ -85,10 +89,10 @@ function! <SID>ParagBack()
 		return s:Unfold()
 	endif
 	if !g:ip_skipfold || foldclosed('.') < 0
-		let l:count = v:count1 - 1
+		let l:count = s:count1 - 1
 	else
 		call cursor(foldclosed('.'), 1)
-		let l:count = v:count1
+		let l:count = s:count1
 	endif
 	while l:count > 0
 		let l:res = search(l:notboundary, 'cWb')
@@ -122,10 +126,10 @@ function! <SID>ParagFore()
 		return s:Unfold()
 	endif
 	if !g:ip_skipfold || foldclosedend('.') < 0
-		let l:count = v:count1 - 1
+		let l:count = s:count1 - 1
 	else
 		call cursor(foldclosedend('.'), 1)
-		let l:count = v:count1
+		let l:count = s:count1
 	endif
 	while l:count > 0
 		let l:res = search(l:notboundary, 'cW')
