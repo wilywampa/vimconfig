@@ -106,7 +106,7 @@ function! Return_key ()
 
   let buftype = getbufvar(bufnr(''), '&buftype')
 
-  if buftype != ""
+  if !&modifiable
     if buftype == "quickfix"
       execute "normal! \<CR>zv"
     else
