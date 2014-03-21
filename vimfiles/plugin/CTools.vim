@@ -160,8 +160,8 @@ func! s:ToggleFindInComments()
 
         " Handle case where previous search was backwards
         if b:sfsave==0
-            nnoremap <buffer> <silent> n ?:unmap <buffer> n<CR>:unmap <buffer> N<CR>
-            nnoremap <buffer> <silent> N ?NN:unmap <buffer> n<CR>:unmap <buffer> N<CR>
+            nnoremap <buffer> <silent> n ?<CR>:unmap <buffer> n<CR>:unmap <buffer> N<CR>
+            nnoremap <buffer> <silent> N ?<CR>NN:unmap <buffer> n<CR>:unmap <buffer> N<CR>
         endif
         let b:findInComments=1
         redraw
