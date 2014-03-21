@@ -171,11 +171,20 @@ if hasWin
     sil! set undodir=C:\temp\vimtmp,.
 
     " Shortcut to explore to current file
-    nnoremap <silent> <F4> :silent execute "!start explorer /select,\"" . expand("%:p") . "\""<CR>
+    nnoremap <silent> <F4> :sil exec '!start explorer /select,"'.expand('%:p').'"'<CR>
 
-    " Use zsh if it exists
+    " Use Cygwin shell if present
     if system('where zsh') =~? 'zsh'
-        set shell=zsh shellxquote=\" shellcmdflag=-c grepprg=grep\ -nH\ $*\ /dev/null
+        set shell=zsh
+    elseif system('where bash') =~? 'bash'
+        set shell=bash
+    else
+        " Reset v:shell_error
+        call system('echo')
+    endif
+    if &shell !~ 'cmd'
+        set shellxquote=\" shellcmdflag=-c grepprg=grep\ -nH\ $*\ /dev/null
+        nnoremap <silent> <F4> :sil exec '!cygstart explorer /select,\"'.expand('%:p').'\"'<CR>
     endif
 else
     " Change swap file location for unix
@@ -271,8 +280,8 @@ nn <silent> <expr> <C-Tab>   g:inCmdwin? ':q<CR>gt' : 'gt'
 nn <silent> <expr> <C-S-Tab> g:inCmdwin? ':q<CR>gT' : 'gT'
 nn <silent> <expr> <M-l>     g:inCmdwin? ':q<CR>gt' : 'gt'
 nn <silent> <expr> <M-h>     g:inCmdwin? ':q<CR>gT' : 'gT'
-nn <silent> <expr> <xF3>     g:inCmdwin? ':q<CR>gt' : 'gt'
-nn <silent> <expr> <xF4>     g:inCmdwin? ':q<CR>gT' : 'gT'
+nn <silent> <expr> <F15>     g:inCmdwin? ':q<CR>gt' : 'gt'
+nn <silent> <expr> <F16>     g:inCmdwin? ':q<CR>gT' : 'gT'
 
 " Shortcut to open new tab
 nn <silent> <M-t> :tabnew<CR>
@@ -433,7 +442,7 @@ func! s:OpenHelp(topic)
         endif
     else
         setl ft=help bt=help noma
-        exe 'sil! keepjumps help '.a:topic
+        exe 'sil! help '.a:topic
     endif
     if v:errmsg != ""
         echohl ErrorMsg | redraw | echo v:errmsg | echohl None
@@ -449,7 +458,7 @@ func! s:OpenHelpVisual()
     let l:cmd=":call setreg('\"',g:oldreg) | Help \<C-r>\"\<CR>"
     return g:inCmdwin? "y:quit\<CR>".l:cmd : 'y'.l:cmd
 endfunc
-nnoremap <silent> K :exec 'Help '.expand('<cword>')<CR>
+nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec 'Help '.expand('<cword>')<CR>"
 vnoremap <expr> <silent> K <SID>OpenHelpVisual()
 
 " {{{2 Cscope configuration
@@ -516,19 +525,19 @@ if has('gui_running')
         augroup END
     else
         " Set font for gVim
-        set guifont=Inconsolata\ for\ Powerline\ Medium\ 15
+        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11
     endif
 else
     " Make control + arrow keys work in PuTTY
-    exec "set <xF1>=\<Esc>[A <xF2>=\<Esc>[B <C-Right>=\<Esc>[C <C-Left>=\<Esc>[D"
-    map <xF1> <C-Up>
-    map <xF2> <C-Down>
-    map! <xF1> <C-Up>
-    map! <xF2> <C-Down>
+    exec "set <F13>=\<Esc>[A <F14>=\<Esc>[B <C-Right>=\<Esc>[C <C-Left>=\<Esc>[D"
+    map <F13> <C-Up>
+    map <F14> <C-Down>
+    map! <F13> <C-Up>
+    map! <F14> <C-Down>
 
     " Shortcuts to change tab in MinTTY
     "         <C-Tab>           <C-S-Tab>
-    exec "set <xF3>=\<Esc>[1;5I <xF4>=\<Esc>[1;6I "
+    exec "set <F15>=\<Esc>[1;5I <F16>=\<Esc>[1;6I "
 
     " Set key codes to work as meta key combinations
     let ns=range(65,90)+range(92,123)+range(125,126)
