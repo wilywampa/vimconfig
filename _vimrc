@@ -537,7 +537,7 @@ else
 
     " Shortcuts to change tab in MinTTY
     "         <C-Tab>           <C-S-Tab>
-    exec "set <F15>=\<Esc>[1;5I <F16>=\<Esc>[1;6I "
+    exec "set <F15>=\<Esc>[1;5I <F16>=\<Esc>[1;6I"
 
     " Set key codes to work as meta key combinations
     let ns=range(65,90)+range(92,123)+range(125,126)
