@@ -171,7 +171,7 @@ if hasWin
     sil! set undodir=C:\temp\vimtmp,.
 
     " Shortcut to explore to current file
-    nnoremap <silent> <F4> :sil exec '!start explorer /select,"'.expand('%:p').'"'<CR>
+    nnoremap <silent> <F4> :call system('start explorer /select,\"'.expand('%:p').'\"')<CR>
 
     " Use Cygwin shell if present
     if system('where zsh') =~? 'zsh'
@@ -184,7 +184,7 @@ if hasWin
     endif
     if &shell !~ 'cmd'
         set shellxquote=\" shellcmdflag=-c grepprg=grep\ -nH\ $*\ /dev/null
-        nnoremap <silent> <F4> :sil exec '!cygstart explorer /select,\"'.expand('%:p').'\"'<CR>
+        nnoremap <silent> <F4> :call system('cygstart explorer /select,\"'.expand('%:p').'\"')<CR>
     endif
 else
     " Change swap file location for unix
@@ -197,7 +197,7 @@ else
 
     if hasMac
         " Shortcut to reveal current file in Finder
-        nnoremap <silent> <F4> :silent !reveal %:p > /dev/null<CR>:redraw!<CR>
+        nnoremap <silent> <F4> :call system('reveal '.expand('%:p').' > /dev/null')<CR>
 
         " Enable use of option key as meta key
         sil! set macmeta
@@ -304,7 +304,7 @@ nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
 nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 
 " Copy full file path to clipboard on Ctrl-g
-nn <C-g> :let @*=expand('%:p')<CR><C-g>
+nn <C-g> :let @+=expand('%:p')<CR><C-g>
 
 " Move current tab to last position
 nn <silent> <C-w><C-e> :tabm<CR>
@@ -604,7 +604,7 @@ nnoremap <silent> <Leader>dh :call DeleteHiddenBuffers()<CR>
 " Remove last newline after copying visual selection to clipboard
 func! RemoveClipboardNewline()
     if &updatetime==1
-        let @*=substitute(@*,'\n$','','g')
+        let @+=substitute(@+,'\n$','','g')
         set updatetime=4000
     endif
 endfunc
@@ -640,12 +640,13 @@ augroup END
 
 " Function to redirect output of ex command to clipboard
 func! Redir(cmd)
-    redir @*
+    redir @+
     execute a:cmd
     redir END
-    let @*=substitute(@*,"\<CR>",'','g')
+    let @+=substitute(@+,"\<CR>",'','g')
 endfunc
 com! -nargs=+ -complete=command Redir call Redir(<q-args>)
+nnoremap <Leader>r :<Up><Home>Redir <CR>
 
 " Function to removing trailing carriage return from register
 func! FixReg(reg)
