@@ -829,6 +829,18 @@ xmap S <Plug>VSurround
 " Choose SuperTab completion type based on context
 let g:SuperTabDefaultCompletionType="context"
 
+" Syntastic settings
+let g:syntastic_filetype_map={'arduino': 'cpp'}
+let g:syntastic_mode_map={'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
+let g:airline#extensions#syntastic#enabled=0
+
+" Indent Guides settings
+let g:indent_guides_auto_colors=0
+augroup VimrcAutocmds
+    autocmd VimEnter,Colorscheme * hi link IndentGuidesOdd Normal
+    autocmd VimEnter,Colorscheme * hi IndentGuidesEven ctermbg=237 guibg=#3d3d3d
+augroup END
+
 " Import scripts (e.g. NERDTree)
 execute pathogen#infect()
 
