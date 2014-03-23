@@ -711,7 +711,10 @@ augroup END
 
 " NERDCommenter configuration
 let g:NERDCustomDelimiters={'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' } }
-map <Leader>cc <Plug>NERDCommenterAlignLeft
+let g:NERDCreateDefaultMappings=0
+map <Leader>cc       <Plug>NERDCommenterAlignLeft
+map <Leader>cu       <Plug>NERDCommenterUncomment
+map <Leader>c<Space> <Plug>NERDCommenterToggle
 
 " Add Arduino support to Tagbar
 let g:tagbar_type_arduino={
