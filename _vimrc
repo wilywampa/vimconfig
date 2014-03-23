@@ -709,8 +709,9 @@ augroup VimrcAutocmds
     au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 augroup END
 
-" Set comment delimiters for Arduino
+" NERDCommenter configuration
 let g:NERDCustomDelimiters={'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' } }
+map <Leader>cc <Plug>NERDCommenterAlignLeft
 
 " Add Arduino support to Tagbar
 let g:tagbar_type_arduino={
