@@ -841,6 +841,7 @@ let g:airline#extensions#syntastic#enabled=0
 
 " Indent Guides settings
 let g:indent_guides_auto_colors=0
+nmap <silent> <Leader>i <Plug>IndentGuidesToggle
 augroup VimrcAutocmds
     autocmd VimEnter,Colorscheme * hi link IndentGuidesOdd Normal
     autocmd VimEnter,Colorscheme * hi IndentGuidesEven ctermbg=237 guibg=#3d3d3d
