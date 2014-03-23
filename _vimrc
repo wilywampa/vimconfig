@@ -649,14 +649,15 @@ com! -nargs=+ -complete=command Redir call Redir(<q-args>)
 nnoremap <Leader>r :<Up><Home>Redir <CR>
 
 " Function to removing trailing carriage return from register
-func! FixReg(reg)
-    let l:str=getreg(a:reg)
+func! s:FixReg()
+    let l:reg=nr2char(getchar())
+    let l:str=getreg(l:reg)
     while l:str =~ "\<CR>\<NL>"
         let l:str=substitute(l:str,"\<CR>\<NL>","\<NL>",'')
     endwhile
-    call setreg(a:reg, l:str)
+    call setreg(l:reg, l:str)
 endfunc
-nnoremap <silent> <expr> <Leader>f ':call FixReg("'.nr2char(getchar()).'")<CR>'
+nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 
 " Set color scheme
 colorscheme desert
