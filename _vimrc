@@ -388,8 +388,8 @@ vn < <gv
 vn > >gv
 
 " Copy WORD above/below cursor with <M-y>/<M-e>
-ino <expr> <M-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|.\)')
-ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|.\)')
+ino <expr> <M-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
+ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
 
 " Make j/k work as expected on wrapped lines using <expr> map to minimize side effects
 no <expr> j &wrap?'gj':'j'
