@@ -335,7 +335,7 @@ nn <silent> <M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
 vn <BS> "_d
 
 " Ctrl-c copies visual selection to system clipboard
-vn <C-c> "*y
+vn <C-c> "+y
 
 " File explorer at current buffer with -
 nn <silent> - :Explore<CR>
@@ -347,8 +347,8 @@ nn @! :<Up><Home><C-Right>!<CR>
 nn @~ :<Up><C-f>^~<CR>
 
 " <C-v> pastes from system clipboard
-map <C-V> "*gP
-cmap <C-V> <C-R>*
+map <C-V> "+gP
+cmap <C-V> <C-R>+
 exe 'inoremap <script> <C-V> <C-G>u'.paste#paste_cmd['i']
 exe 'vnoremap <script> <C-V> '.paste#paste_cmd['v']
 
@@ -524,8 +524,11 @@ if has('gui_running')
             autocmd VimEnter * sil! set fullscreen
         augroup END
     else
+        " Always show tabline (prevent resizing issues)
+        set showtabline=2
+
         " Set font for gVim
-        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11
+        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 10.5
     endif
 else
     " Make control + arrow keys work in PuTTY

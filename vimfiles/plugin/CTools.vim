@@ -65,10 +65,10 @@ func! s:FindNotInComment(direction)
     endif
 
     if has_key(s:ScratchDict, l:buf)
-        exec 'silent b '.s:ScratchDict[l:buf]
+        exec 'keepj silent b '.s:ScratchDict[l:buf]
     else
         " Create scratch buffer
-        enew
+        keepj enew
         setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
         call setbufvar(l:buf,'CToolsScratchBufChangeNr',l:changeNr)
         call extend(s:ScratchDict, {l:buf : bufnr('%')})
@@ -87,15 +87,15 @@ func! s:FindNotInComment(direction)
     let v:errmsg=""
     let l:sfsave=getbufvar(l:buf,'sfsave')
     if (a:direction && l:sfsave) || (!a:direction && !l:sfsave)
-        exec "silent! normal! /\<CR>"
+        exec "keepj silent! normal! /\<CR>"
     else
-        exec "silent! normal! ?\<CR>"
+        exec "keepj silent! normal! ?\<CR>"
     endif
     let l:errmsg=v:errmsg
 
     " Save view in scratch buffer and switch back to main buffer
     let l:winSave=winsaveview()
-    exec 'silent b '.l:buf
+    exec 'keepj silent b '.l:buf
     call winrestview(l:winSave)
 
     " Print normal search text
