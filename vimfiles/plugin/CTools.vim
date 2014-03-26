@@ -68,7 +68,7 @@ func! s:FindNotInComment(direction)
         exec 'keepj silent b '.s:ScratchDict[l:buf]
     else
         " Create scratch buffer
-        keepj enew
+        keepj enew | file CTools
         setlocal buftype=nofile bufhidden=hide noswapfile nobuflisted
         call setbufvar(l:buf,'CToolsScratchBufChangeNr',l:changeNr)
         call extend(s:ScratchDict, {l:buf : bufnr('%')})
