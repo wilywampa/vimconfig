@@ -529,8 +529,14 @@ if has('gui_running')
 
         " Set font for gVim
         set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 10.5
+
+        " Don't use clipboard for visual selection
+        set clipboard=
     endif
-else
+endif
+
+" Function to set key codes for terminals
+func! s:KeyCodes()
     " Make control + arrow keys work in PuTTY
     exec "set <F13>=\<Esc>[A <F14>=\<Esc>[B <C-Right>=\<Esc>[C <C-Left>=\<Esc>[D"
     map <F13> <C-Up>
@@ -548,7 +554,8 @@ else
         exec "set <M-".nr2char(n).">=\<Esc>".nr2char(n)
     endfor
     exec "set <M-\\|>=\<Esc>\\| <M-'>=\<Esc>'"
-endif
+endfunc
+nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
 
 if hasSSH
     " Increase time allowed for multi-key mappings
@@ -815,7 +822,7 @@ map <Space><Space>k <Plug>(easymotion-bd-jk)
 map <Space><Space>n <Plug>(easymotion-bd-n)
 map <Space><Space>N <Plug>(easymotion-bd-n)
 augroup VimrcAutocmds
-    autocmd VimEnter * unmap <Leader><Leader>
+    autocmd VimEnter * sil! unmap <Leader><Leader>
 augroup END
 " }}}2
 

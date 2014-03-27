@@ -2,7 +2,7 @@ if exists("did_load_filetypes")
     finish
 endif
 
-augroup FiletypeDetect
+augroup filetypedetect
     autocmd! BufRead,BufNewFile *.ino           setf arduino
     autocmd! BufRead,BufNewFile */arduino/*.cpp setf arduino
     autocmd! BufRead,BufNewFile */arduino/*.h   setf arduino
