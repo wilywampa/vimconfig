@@ -513,7 +513,7 @@ if has('gui_running')
             " Big font for big TV
             set guifont=DejaVu_Sans_Mono_for_Powerline:h13:cANSI
         else
-            set guifont=DejaVu_Sans_Mono_for_Powerline:h10.5:cANSI
+            set guifont=DejaVu_Sans_Mono_for_Powerline:h11:cANSI
         endif
     elseif hasMac
         " Set font for MacVim
