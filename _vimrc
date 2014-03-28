@@ -223,7 +223,8 @@ nn <silent> <C-l> :nohl<CR><C-l>
 nm Q @q
 
 " Execute q macro recursively
-nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>:set ws<CR>
+nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>
+    \:set ws<CR>:let @q=substitute(@q,'\(^.*\)@q','\1','')<CR>
 
 " Shortcut to toggle paste mode
 nn <silent> <Leader>p :set paste!<CR>
