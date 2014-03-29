@@ -42,7 +42,7 @@ set history=1000               " Remember more command history
 set tabpagemax=20              " Allow more tabs
 set hidden                     " Allow switching buffer without saving changes first
 set wildmenu                   " Turn on autocompletion
-set wildmode=full
+set wildmode=longest:full,full
 set visualbell                 " Use visual bell instead of sound
 sil! set undofile              " Enable persistent undo
 set undolevels=1000
@@ -305,7 +305,7 @@ nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
 nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 
 " Copy full file path to clipboard on Ctrl-g
-nn <C-g> :let @+=expand('%:p')<CR><C-g>
+nn <C-g> :let @+=expand('%:p')<CR>:let @*=@+<CR><C-g>
 
 " Move current tab to last position
 nn <silent> <C-w><C-e> :tabm<CR>
@@ -336,7 +336,7 @@ nn <silent> <M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
 vn <BS> "_d
 
 " Ctrl-c copies visual selection to system clipboard
-vn <C-c> "+y
+vn <silent> <C-c> "+y:let @*=@+<CR>
 
 " File explorer at current buffer with -
 nn <silent> - :Explore<CR>
@@ -348,8 +348,8 @@ nn @! :<Up><Home><C-Right>!<CR>
 nn @~ :<Up><C-f>^~<CR>
 
 " <C-v> pastes from system clipboard
-map <C-V> "+gP
-cmap <C-V> <C-R>+
+map <C-v> "+gP
+cmap <C-v> <C-R>+
 exe 'inoremap <script> <C-V> <C-G>u'.paste#paste_cmd['i']
 exe 'vnoremap <script> <C-V> '.paste#paste_cmd['v']
 
@@ -616,6 +616,7 @@ nnoremap <silent> <Leader>dh :call DeleteHiddenBuffers()<CR>
 func! RemoveClipboardNewline()
     if &updatetime==1
         let @+=substitute(@+,'\n$','','g')
+        let @*=@+
         set updatetime=4000
     endif
 endfunc
@@ -655,6 +656,7 @@ func! Redir(cmd)
     execute a:cmd
     redir END
     let @+=substitute(@+,"\<CR>",'','g')
+    let @*=@+
 endfunc
 com! -nargs=+ -complete=command Redir call Redir(<q-args>)
 nnoremap <Leader>r :<Up><Home>Redir <CR>
@@ -842,8 +844,38 @@ endif
 " Surround settings
 xmap S <Plug>VSurround
 
-" Choose SuperTab completion type based on context
-let g:SuperTabDefaultCompletionType="context"
+" Completion settings
+if has('lua')
+    call add(g:pathogen_disabled, 'supertab')
+
+    " NeoComplete settings
+    let g:neocomplete#enable_at_startup=1
+    let g:neocomplete#enable_smart_case=1
+    if !exists('g:neocomplete#same_filetypes')
+        let g:neocomplete#same_filetypes={}
+    endif
+    let g:neocomplete#same_filetypes.arduino='c,cpp'
+    let g:neocomplete#same_filetypes.c='arduino,cpp'
+    let g:neocomplete#same_filetypes.cpp='arduino,c'
+    if !exists('g:neocomplete#delimiter_patterns')
+        let g:neocomplete#delimiter_patterns= {}
+    endif
+    let g:neocomplete#delimiter_patterns.matlab=['.']
+    inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
+    inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    inoremap <expr> <C-d>   neocomplete#close_popup()
+    inoremap <expr> <C-f>   neocomplete#cancel_popup()
+    inoremap <expr> <C-l>   neocomplete#complete_common_string()
+    if !exists('g:neocomplete#sources')
+        let g:neocomplete#sources={}
+    endif
+    let g:neocomplete#sources._=['_']
+else
+    call add(g:pathogen_disabled, 'neocomplete.vim')
+
+    " Choose SuperTab completion type based on context
+    let g:SuperTabDefaultCompletionType="context"
+endif
 
 " Syntastic settings
 let g:syntastic_filetype_map={'arduino': 'cpp'}
