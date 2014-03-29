@@ -863,6 +863,7 @@ if has('lua')
     let g:neocomplete#delimiter_patterns.matlab=['.']
     inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
     inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    inoremap <expr> <CR>    pumvisible() ? neocomplete#close_popup() : "\<CR>"
     inoremap <expr> <C-d>   neocomplete#close_popup()
     inoremap <expr> <C-f>   neocomplete#cancel_popup()
     inoremap <expr> <C-l>   neocomplete#complete_common_string()
@@ -870,6 +871,12 @@ if has('lua')
         let g:neocomplete#sources={}
     endif
     let g:neocomplete#sources._=['_']
+    augroup VimrcAutocmds
+        autocmd CmdwinEnter * inoremap <buffer> <expr> <Tab>   pumvisible() ? "\<C-n>"
+            \ : neocomplete#start_manual_complete()
+        autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab> pumvisible() ? "\<C-p>"
+            \ : neocomplete#start_manual_complete()
+    augroup END
 else
     call add(g:pathogen_disabled, 'neocomplete.vim')
 
