@@ -9,4 +9,5 @@ augroup filetypedetect
     autocmd! BufRead,BufNewFile *.todo          setf todo
     autocmd! BufRead,BufNewFile *.applescript   setf applescript
     autocmd! BufRead,BufNewFile *.scpt          setf applescript
+    autocmd! BufRead,BufNewFile *.conf          setf conf
 augroup END

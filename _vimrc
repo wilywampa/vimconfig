@@ -518,7 +518,7 @@ if has('gui_running')
         endif
     elseif hasMac
         " Set font for MacVim
-        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h15
+        set guifont=Meslo\ LG\ S\ Regular\ for\ Powerline:h15
 
         " Start in fullscreen mode
         augroup VimrcAutocmds
