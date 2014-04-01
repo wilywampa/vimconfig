@@ -10,6 +10,11 @@ augroup VimrcAutocmds
     autocmd!
 augroup END
 
+" Check if in read-only mode to disable unnecessary plugins
+if !exists('s:readonly')
+    let s:readonly=&readonly
+endif
+
 set shiftwidth=4               " Number of spaces to indent
 set expandtab                  " Use spaces instead of tabs
 set tabstop=4                  " Length of indent
@@ -67,21 +72,19 @@ if !exists("syntax_on")
     syntax enable
 endif
 
-" Use to check if inside command window
-au VimEnter,CmdwinLeave * let g:inCmdwin=0
-au CmdwinEnter          * let g:inCmdwin=1
-
 " Use four spaces to indent vim file line continuation
 let g:vim_indent_cont=4
 
 " Session settings
-set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
-augroup VimrcAutocmds
-    au VimLeavePre * mks! ~/session.vis
-    au VimEnter * mks! ~/periodic_session.vis
-    au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * silent! mks! ~/periodic_session.vis"
-augroup END
-nnoremap <silent> ,l :source ~/session.vis<CR>
+if !s:readonly
+    set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
+    augroup VimrcAutocmds
+        au VimLeavePre * mks! ~/session.vis
+        au VimEnter * mks! ~/periodic_session.vis
+        au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * silent! mks! ~/periodic_session.vis"
+    augroup END
+    nnoremap <silent> ,l :source ~/session.vis<CR>
+endif
 
 " Like bufdo but return to starting buffer
 func! Bufdo(command)
@@ -93,6 +96,9 @@ com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Enable matchit plugin
 runtime! macros/matchit.vim
+
+" Use tree style for netrw
+let g:netrw_liststyle=3
 
 " {{{2 Switch to existing window if it exists or open in new tab
 func! s:SwitchToOrOpen(fname)
@@ -591,6 +597,10 @@ augroup VimrcAutocmds
 
     " Always make quickfix full-width on the bottom
     autocmd FileType qf wincmd J
+
+    " Use to check if inside command window
+    au VimEnter,CmdwinLeave * let g:inCmdwin=0
+    au CmdwinEnter          * let g:inCmdwin=1
 augroup END
 
 " Make <C-d>/<C-d> scroll 1/4 page
@@ -679,6 +689,14 @@ colorscheme desert
 
 " Make empty list of disabled plugins
 let g:pathogen_disabled=[]
+
+" Disable some plugins if in read-only mode
+if s:readonly
+    call add(g:pathogen_disabled, 'nerdcommenter')
+    call add(g:pathogen_disabled, 'nerdtree')
+    call add(g:pathogen_disabled, 'syntastic')
+    call add(g:pathogen_disabled, 'tabular')
+endif
 
 " Set airline color scheme
 let g:airline_theme='badwolf'
@@ -772,6 +790,55 @@ if !has('gui_running') && (&t_Co < 88)
     call add(g:pathogen_disabled, 'CSApprox')
 endif
 
+" {{{2 Completion settings
+if has('lua')
+    call add(g:pathogen_disabled, 'supertab')
+
+    " NeoComplete settings
+    let g:neocomplete#enable_at_startup=1
+    let g:neocomplete#enable_smart_case=1
+    if !exists('g:neocomplete#same_filetypes')
+        let g:neocomplete#same_filetypes={}
+    endif
+    let g:neocomplete#same_filetypes.arduino='c,cpp'
+    let g:neocomplete#same_filetypes.c='arduino,cpp'
+    let g:neocomplete#same_filetypes.cpp='arduino,c'
+    if !exists('g:neocomplete#delimiter_patterns')
+        let g:neocomplete#delimiter_patterns= {}
+    endif
+    let g:neocomplete#delimiter_patterns.matlab=['.']
+    func! s:StartManualComplete()
+        " Indent if only whitespace behind cursor
+        let l:match=match(getline('.'),'\S')
+        if l:match >= 0 && l:match < col('.')
+            return pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
+        else
+            return "\<Tab>"
+        endif
+    endfunc
+    inoremap <expr> <Tab>   <SID>StartManualComplete()
+    inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    inoremap <expr> <CR>    neocomplete#close_popup()."\<CR>"
+    inoremap <expr> <C-d>   neocomplete#close_popup()
+    inoremap <expr> <C-f>   neocomplete#cancel_popup()
+    inoremap <expr> <C-l>   neocomplete#complete_common_string()
+    if !exists('g:neocomplete#sources')
+        let g:neocomplete#sources={}
+    endif
+    let g:neocomplete#sources._=['_']
+    augroup VimrcAutocmds
+        autocmd CmdwinEnter * inoremap <buffer> <expr> <Tab>   pumvisible() ? "\<C-n>"
+            \ : neocomplete#start_manual_complete()
+        autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab> pumvisible() ? "\<C-p>"
+            \ : neocomplete#start_manual_complete()
+    augroup END
+else
+    call add(g:pathogen_disabled, 'neocomplete.vim')
+
+    " Choose SuperTab completion type based on context
+    let g:SuperTabDefaultCompletionType="context"
+endif
+
 " {{{2 CtrlP configuration
 let g:ctrlp_cmd='CtrlPMRU'
 let g:ctrlp_map='<M-p>'
@@ -844,46 +911,6 @@ endif
 " Surround settings
 xmap S <Plug>VSurround
 
-" Completion settings
-if has('lua')
-    call add(g:pathogen_disabled, 'supertab')
-
-    " NeoComplete settings
-    let g:neocomplete#enable_at_startup=1
-    let g:neocomplete#enable_smart_case=1
-    if !exists('g:neocomplete#same_filetypes')
-        let g:neocomplete#same_filetypes={}
-    endif
-    let g:neocomplete#same_filetypes.arduino='c,cpp'
-    let g:neocomplete#same_filetypes.c='arduino,cpp'
-    let g:neocomplete#same_filetypes.cpp='arduino,c'
-    if !exists('g:neocomplete#delimiter_patterns')
-        let g:neocomplete#delimiter_patterns= {}
-    endif
-    let g:neocomplete#delimiter_patterns.matlab=['.']
-    inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
-    inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-    inoremap <expr> <CR>    pumvisible() ? neocomplete#close_popup() : "\<CR>"
-    inoremap <expr> <C-d>   neocomplete#close_popup()
-    inoremap <expr> <C-f>   neocomplete#cancel_popup()
-    inoremap <expr> <C-l>   neocomplete#complete_common_string()
-    if !exists('g:neocomplete#sources')
-        let g:neocomplete#sources={}
-    endif
-    let g:neocomplete#sources._=['_']
-    augroup VimrcAutocmds
-        autocmd CmdwinEnter * inoremap <buffer> <expr> <Tab>   pumvisible() ? "\<C-n>"
-            \ : neocomplete#start_manual_complete()
-        autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab> pumvisible() ? "\<C-p>"
-            \ : neocomplete#start_manual_complete()
-    augroup END
-else
-    call add(g:pathogen_disabled, 'neocomplete.vim')
-
-    " Choose SuperTab completion type based on context
-    let g:SuperTabDefaultCompletionType="context"
-endif
-
 " Syntastic settings
 let g:syntastic_filetype_map={'arduino': 'cpp'}
 let g:syntastic_mode_map={'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
@@ -901,7 +928,7 @@ augroup END
 execute pathogen#infect()
 
 " Add current directory to status line
-let g:airline_section_b=airline#section#create(['%{ShortCWD()}'])
+sil! let g:airline_section_b=airline#section#create(['%{ShortCWD()}'])
 
 " Default whitespace symbol not available everywhere
 if exists('g:airline_symbols')
