@@ -540,17 +540,17 @@ if has('gui_running')
         " Don't use clipboard for visual selection
         set clipboard=
     endif
-endif
-
-" Function to set key codes for terminals
-func! s:KeyCodes()
-    " Make control + arrow keys work in PuTTY
+else
+    " Make control + arrow keys work in terminal
     exec "set <F13>=\<Esc>[A <F14>=\<Esc>[B <C-Right>=\<Esc>[C <C-Left>=\<Esc>[D"
     map <F13> <C-Up>
     map <F14> <C-Down>
     map! <F13> <C-Up>
     map! <F14> <C-Down>
+endif
 
+" Function to set key codes for terminals
+func! s:KeyCodes()
     " Shortcuts to change tab in MinTTY
     "         <C-Tab>           <C-S-Tab>
     exec "set <F15>=\<Esc>[1;5I <F16>=\<Esc>[1;6I"
@@ -785,9 +785,22 @@ let g:tagbar_type_arduino={
 " for C++ tags to be useful)
 let g:tagbar_type_processing=g:tagbar_type_arduino
 
-" Disable CSApprox if color palette is too small
-if !has('gui_running') && (&t_Co < 88)
-    call add(g:pathogen_disabled, 'CSApprox')
+if !has('gui_running')
+    " Disable CSApprox if color palette is too small
+    if &t_Co < 88
+        call add(g:pathogen_disabled, 'CSApprox')
+    endif
+
+    " Use a snapshot if available or else make one
+    if filereadable(expand('~/.CSApproxSnapshot'))
+        call add(g:pathogen_disabled, 'CSApprox')
+        source ~/.CSApproxSnapshot
+    else
+        augroup VimrcAutocmds
+            autocmd VimEnter * sil! CSApproxSnapshot ~/.CSApproxSnapshot
+                \| sil! AirlineTheme badwolf
+        augroup END
+    endif
 endif
 
 " {{{2 Completion settings
@@ -803,10 +816,10 @@ if has('lua')
     let g:neocomplete#same_filetypes.arduino='c,cpp'
     let g:neocomplete#same_filetypes.c='arduino,cpp'
     let g:neocomplete#same_filetypes.cpp='arduino,c'
-    if !exists('g:neocomplete#delimiter_patterns')
-        let g:neocomplete#delimiter_patterns= {}
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns={}
     endif
-    let g:neocomplete#delimiter_patterns.matlab=['.']
+    let g:neocomplete#force_omni_input_patterns.matlab='\h\w*\.\w*'
     func! s:StartManualComplete()
         " Indent if only whitespace behind cursor
         let l:match=match(getline('.'),'\S')
