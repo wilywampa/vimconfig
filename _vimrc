@@ -267,10 +267,12 @@ nn <silent> ,sv :so $MYVIMRC<CR>
 nn <silent> <C-p> :bp<CR>
 nn <silent> <C-n> :bn<CR>
 
-" Shortcuts to use vim grep recursively or non-recursively
+" Shortcuts to search recursively or non-recursively
 nn ,gr :vim // **/*<C-Left><C-Left><Right>
 nn ,gn :vim // *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
+nn <Leader>gr :grep `find . -type f` -e ''<Left>
+nn <Leader>gn :grep `ls` -e ''<Left>
 
 " Shortcut to delete trailing whitespace
 nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
@@ -355,9 +357,9 @@ nn @~ :<Up><C-f>^~<CR>
 
 " <C-v> pastes from system clipboard
 map <C-v> "+gP
-cmap <C-v> <C-R>+
-exe 'inoremap <script> <C-V> <C-G>u'.paste#paste_cmd['i']
-exe 'vnoremap <script> <C-V> '.paste#paste_cmd['v']
+cmap <C-v> <C-r>+
+exe 'inoremap <script> <C-v> <C-g>u'.paste#paste_cmd['i']
+exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
 
 " Use <C-q> to do what <C-v> used to do
 noremap <C-q> <C-v>
@@ -490,14 +492,14 @@ cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cs show' :'css')
 cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cs help' :'csh')
 
 " Mappings for cscope find commands
-no <C-\>s :cs find s <C-R>=expand("<cword>")<CR><CR>
-no <C-\>g :cs find g <C-R>=expand("<cword>")<CR><CR>
-no <C-\>c :cs find c <C-R>=expand("<cword>")<CR><CR>
-no <C-\>t :cs find t <C-R>=expand("<cword>")<CR><CR>
-no <C-\>e :cs find e <C-R>=expand("<cword>")<CR><CR>
-no <C-\>f :cs find f <C-R>=expand("<cfile>")<CR><CR>
-no <C-\>i :cs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
-no <C-\>d :cs find d <C-R>=expand("<cword>")<CR><CR>
+no <C-\>s :cs find s <C-r>=expand("<cword>")<CR><CR>
+no <C-\>g :cs find g <C-r>=expand("<cword>")<CR><CR>
+no <C-\>c :cs find c <C-r>=expand("<cword>")<CR><CR>
+no <C-\>t :cs find t <C-r>=expand("<cword>")<CR><CR>
+no <C-\>e :cs find e <C-r>=expand("<cword>")<CR><CR>
+no <C-\>f :cs find f <C-r>=expand("<cfile>")<CR><CR>
+no <C-\>i :cs find i ^<C-r>=expand("<cfile>")<CR>$<CR>
+no <C-\>d :cs find d <C-r>=expand("<cword>")<CR><CR>
 vm <C-\> <Esc><C-\>
 
 " }}}2
@@ -547,6 +549,9 @@ else
     map <F14> <C-Down>
     map! <F13> <C-Up>
     map! <F14> <C-Down>
+
+    " Use correct background color
+    set t_ut=
 endif
 
 " Function to set key codes for terminals
@@ -844,6 +849,8 @@ if has('lua')
             \ : neocomplete#start_manual_complete()
         autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab> pumvisible() ? "\<C-p>"
             \ : neocomplete#start_manual_complete()
+        autocmd InsertEnter * let g:neo_ignorecase_save=&ignorecase
+        autocmd InsertLeave * let &ignorecase=g:neo_ignorecase_save
     augroup END
 else
     call add(g:pathogen_disabled, 'neocomplete.vim')
