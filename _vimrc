@@ -852,6 +852,7 @@ if has('lua')
         autocmd InsertEnter * let g:neo_ignorecase_save=&ignorecase
         autocmd InsertLeave * let &ignorecase=g:neo_ignorecase_save
         autocmd VimEnter * sil! call neocomplete#init#enable()
+        autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
     augroup END
 else
     call add(g:pathogen_disabled, 'neocomplete.vim')
