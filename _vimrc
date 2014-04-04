@@ -207,6 +207,9 @@ else
 
         " Enable use of option key as meta key
         sil! set macmeta
+    else
+        " Shortcut to explore to current file from Cygwin vim
+        nnoremap <silent> <F4> :call system('cygstart explorer /select,`cygpath -w "'.expand('%:p').'"`')<CR>
     endif
 endif
 
