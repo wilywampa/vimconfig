@@ -52,8 +52,7 @@ set visualbell                 " Use visual bell instead of sound
 sil! set undofile              " Enable persistent undo
 set undolevels=1000
 sil! set undoreload=10000
-set timeoutlen=500             " Shorter timeout length for multi-key mappings
-set ttimeout                   " Even shorter delay for keycode mappings
+set ttimeout                   " Make keycodes time out after a short delay
 set ttimeoutlen=50
 set laststatus=2               " Always show statusline
 set listchars=tab:>\           " Configure display of whitespace
@@ -731,7 +730,13 @@ command! -nargs=* -bang B Bclose<bang><args>
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
 " Tagbar configuration
-nnoremap <silent> <Leader>t :TagbarToggle<CR>
+func! s:TagbarToggle()
+    if !exists('s:tagbar_init')
+        call TagbarInit()
+    endif
+    TagbarToggle
+endfunc
+nnoremap <silent> <Leader>t :call <SID>TagbarToggle()<CR>
 let g:tagbar_iconchars=['▶','▼']
 let g:tagbar_sort=0
 
