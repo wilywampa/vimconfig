@@ -701,7 +701,6 @@ let g:pathogen_disabled=[]
 " Disable some plugins if in read-only mode
 if s:readonly
     call add(g:pathogen_disabled, 'nerdcommenter')
-    call add(g:pathogen_disabled, 'nerdtree')
     call add(g:pathogen_disabled, 'syntastic')
     call add(g:pathogen_disabled, 'tabular')
 endif
@@ -724,11 +723,6 @@ endif
 
 " Shortcut to toggle warnings in airline
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
-
-" NERDTree configuration
-let NERDTreeQuitOnOpen=1
-let NERDTreeHijackNetrw=0
-nnoremap <silent> <M--> :NERDTreeFind<CR>
 
 " Make B an alias for Bclose
 command! -nargs=* -bang B Bclose<bang><args>
@@ -797,17 +791,17 @@ if !has('gui_running')
     " Disable CSApprox if color palette is too small
     if &t_Co < 88
         call add(g:pathogen_disabled, 'CSApprox')
-    endif
-
-    " Use a snapshot if available or else make one
-    if filereadable(expand('~/.CSApproxSnapshot'))
-        call add(g:pathogen_disabled, 'CSApprox')
-        source ~/.CSApproxSnapshot
     else
-        augroup VimrcAutocmds
-            autocmd VimEnter * sil! CSApproxSnapshot ~/.CSApproxSnapshot
-                \| sil! AirlineTheme badwolf
-        augroup END
+        " Use a snapshot if available or else make one
+        if filereadable(expand('~/.CSApproxSnapshot'))
+            call add(g:pathogen_disabled, 'CSApprox')
+            source ~/.CSApproxSnapshot
+        else
+            augroup VimrcAutocmds
+                autocmd VimEnter * sil! CSApproxSnapshot ~/.CSApproxSnapshot
+                    \| sil! AirlineTheme badwolf
+            augroup END
+        endif
     endif
 endif
 
@@ -949,7 +943,7 @@ augroup VimrcAutocmds
     autocmd VimEnter,Colorscheme * hi IndentGuidesEven ctermbg=237 guibg=#3d3d3d
 augroup END
 
-" Import scripts (e.g. NERDTree)
+" Import scripts
 execute pathogen#infect()
 
 " Add current directory to status line
