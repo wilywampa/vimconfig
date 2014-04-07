@@ -62,6 +62,7 @@ set listchars+=precedes:<
 set listchars+=nbsp:+
 set keywordprg=:help           " Use Vim help instead of man to look up keywords
 set splitright                 " Vertical splits open on the right
+set fileformats=unix,dos       " Always prefer unix format
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -552,8 +553,10 @@ else
     map! <F13> <C-Up>
     map! <F14> <C-Down>
 
-    " Use correct background color
-    set t_ut=
+    augroup VimrcAutocmds
+        " Use correct background color
+        autocmd VimEnter * set t_ut=|redraw!
+    augroup END
 endif
 
 " Function to set key codes for terminals
@@ -801,6 +804,7 @@ if !has('gui_running')
         if filereadable(expand('~/.CSApproxSnapshot'))
             call add(g:pathogen_disabled, 'CSApprox')
             source ~/.CSApproxSnapshot
+            sil! AirlineTheme badwolf
         else
             augroup VimrcAutocmds
                 autocmd VimEnter * sil! CSApproxSnapshot ~/.CSApproxSnapshot
