@@ -733,7 +733,17 @@ command! -nargs=* -bang B Bclose<bang><args>
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
 " Tagbar configuration
-nnoremap <silent> <Leader>t :TagbarToggle<CR>
+" Don't use Tagbar integration in airline until needed
+sil! let g:airline_section_x='%{&ft}'
+func! s:TagbarToggle()
+    if !exists('g:initialized_tagbar')
+        call TagbarInit()
+        let g:airline_section_x=airline#section#create_right(['tagbar', 'filetype'])
+        exe 'AirlineToggle' | exe 'AirlineToggle'
+    endif
+    TagbarToggle
+endfunc
+nnoremap <silent> <Leader>t :sil! call <SID>TagbarToggle()<CR>
 let g:tagbar_iconchars=['▶','▼']
 let g:tagbar_sort=0
 

@@ -24,7 +24,7 @@ let s:bufModPrev=0
 
 function! ShortCWD()
     if (getcwd() ==# s:cwdPrev) && (@% == s:bufNamePrev) && (winwidth(0) == s:winWidthPrev) && (&mod == s:bufModPrev)
-        if exists(':TagbarToggle')
+        if g:airline_section_x =~? 'tagbar'
             if (tagbar#currenttag('%s','','') ==# s:tagPrev)
                 return s:cwd
             endif
@@ -38,7 +38,7 @@ function! ShortCWD()
     let s:winWidthPrev=winwidth(0)
     let s:bufModPrev=&modified
     let s:cwd=substitute(s:cwdPrev,substitute(expand('~'),s:pathSep,'\\'.s:pathSep,'g'),'~','')
-    if exists(':TagbarToggle')
+    if g:airline_section_x =~? 'tagbar'
         let s:tagPrev=tagbar#currenttag('%s','','')
     endif
 
