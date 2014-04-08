@@ -733,13 +733,7 @@ command! -nargs=* -bang B Bclose<bang><args>
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
 " Tagbar configuration
-func! s:TagbarToggle()
-    if !exists('s:tagbar_init')
-        call TagbarInit()
-    endif
-    TagbarToggle
-endfunc
-nnoremap <silent> <Leader>t :call <SID>TagbarToggle()<CR>
+nnoremap <silent> <Leader>t :TagbarToggle<CR>
 let g:tagbar_iconchars=['▶','▼']
 let g:tagbar_sort=0
 
