@@ -85,14 +85,6 @@ if !s:readonly
         au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * silent! mks! ~/periodic_session.vis"
     augroup END
 endif
-" Function to create a more complete session
-func! s:Mksession(file)
-    let l:ssop=&ssop
-    set ssop=blank,buffers,curdir,folds,globals,help,localoptions,options,tabpages,unix
-    exe 'mksession '.a:file
-    let &ssop=l:ssop
-endfunc
-com! -nargs=1 -complete=file Mksession call <SID>Mksession(<q-args>)
 
 " Like bufdo but return to starting buffer
 func! Bufdo(command)
