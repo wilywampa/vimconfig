@@ -123,7 +123,7 @@ endfunc
 
 func! s:MapCR()
     cnoremap <buffer> <silent> <CR> <CR>``:call <SID>FindNotInComment(1)<CR>:call
-        \<SID>MapN()<CR>:call <SID>UnmapCR()<CR>
+        \<SID>MapN()<CR>:call <SID>UnmapCR()<CR>:call histadd('/',@/)<CR>
     cnoremap <buffer> <silent> <Esc> <C-c>:call <SID>UnmapCR()<CR>
     cnoremap <buffer> <silent> <C-c> <C-c>:call <SID>UnmapCR()<CR>
 endfunc

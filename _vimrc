@@ -76,15 +76,23 @@ endif
 let g:vim_indent_cont=4
 
 " Session settings
+set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
+nnoremap <silent> ,l :source ~/session.vis<CR>
 if !s:readonly
-    set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
     augroup VimrcAutocmds
         au VimLeavePre * mks! ~/session.vis
         au VimEnter * mks! ~/periodic_session.vis
         au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * silent! mks! ~/periodic_session.vis"
     augroup END
-    nnoremap <silent> ,l :source ~/session.vis<CR>
 endif
+" Function to create a more complete session
+func! s:Mksession(file)
+    let l:ssop=&ssop
+    set ssop=blank,buffers,curdir,folds,globals,help,localoptions,options,tabpages,unix
+    exe 'mksession '.a:file
+    let &ssop=l:ssop
+endfunc
+com! -nargs=1 -complete=file Mksession call <SID>Mksession(<q-args>)
 
 " Like bufdo but return to starting buffer
 func! Bufdo(command)
@@ -824,7 +832,7 @@ if has('lua')
 
     " NeoComplete settings
     let g:neocomplete#enable_at_startup=1
-    let g:neocomplete#enable_smart_case=1
+    let g:neocomplete#enable_smart_case=0
     if !exists('g:neocomplete#same_filetypes')
         let g:neocomplete#same_filetypes={}
     endif
@@ -859,8 +867,6 @@ if has('lua')
             \ : neocomplete#start_manual_complete()
         autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab> pumvisible() ? "\<C-p>"
             \ : neocomplete#start_manual_complete()
-        autocmd InsertEnter * let g:neo_ignorecase_save=&ignorecase
-        autocmd InsertLeave * let &ignorecase=g:neo_ignorecase_save
         autocmd VimEnter * sil! call neocomplete#init#enable()
         autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
     augroup END
