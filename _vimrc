@@ -297,6 +297,7 @@ nn <silent> <expr> <F16>     g:inCmdwin? ':q<CR>gT' : 'gT'
 
 " Shortcut to open new tab
 nn <silent> <M-t> :tabnew<CR>
+nn <silent> <M-T> :tab split<CR>
 
 " Shortcut to print number of occurences of last search
 nn <silent> <M-n> :%s///gn<CR>
