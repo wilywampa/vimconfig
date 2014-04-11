@@ -64,6 +64,8 @@ nnoremap <silent> { :<C-U>call <SID>SetCount()<Bar>call <SID>ParagBack()<CR>
 nnoremap <silent> } :<C-U>call <SID>SetCount()<Bar>call <SID>ParagFore()<CR>
 vnoremap <silent> { :<C-U>call <SID>SetCount()<Bar>exe "normal! gv"<Bar>call <SID>ParagBack()<CR>
 vnoremap <silent> } :<C-U>call <SID>SetCount()<Bar>exe "normal! gv"<Bar>call <SID>ParagFore()<CR>
+onoremap <silent> { :<C-U>call <SID>SetCount()<Bar>call <SID>ParagBack()<CR>
+onoremap <silent> } :<C-U>call <SID>SetCount()<Bar>call <SID>ParagFore()<CR>
 
 function! s:Unfold()
 	while foldclosed('.') > 0
