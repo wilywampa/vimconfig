@@ -759,6 +759,8 @@ augroup END
 let g:tcomment#blank_lines=0
 let g:tcommentMapLeader1=''
 let g:tcommentMapLeader2=''
+let g:tcommentMapLeaderOp1='<Leader>c'
+let g:tcommentMapLeaderOp2='<Leader>C'
 
 " Add Arduino support to Tagbar
 let g:tagbar_type_arduino={
