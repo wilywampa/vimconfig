@@ -595,6 +595,9 @@ augroup VimrcAutocmds
     autocmd FileType text setl wrap linebreak
     autocmd FileType help setl nowrap nolinebreak
 
+    " Prefer single-line style comments
+    autocmd FileType cpp,arduino setl commentstring=//\ %s
+
     " Highlight current line in active window
     autocmd BufRead,BufNewFile,VimEnter * set cul
     autocmd WinEnter * set cul
@@ -755,12 +758,14 @@ augroup VimrcAutocmds
     au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 augroup END
 
-" tComment configuration
-let g:tcomment#blank_lines=0
-let g:tcommentMapLeader1=''
-let g:tcommentMapLeader2=''
-let g:tcommentMapLeaderOp1='<Leader>c'
-let g:tcommentMapLeaderOp2='<Leader>C'
+" Commentary configuration
+xmap <Leader>c  <Plug>Commentary
+nmap <Leader>c  <Plug>Commentary
+omap <Leader>c  <Plug>Commentary
+nmap <Leader>cc <Plug>CommentaryLine
+nmap c<Leader>c <Plug>ChangeCommentary
+nmap <Leader>cu <Plug>Commentary<Plug>Commentary
+let g:commentary_map_backslash=0
 
 " Add Arduino support to Tagbar
 let g:tagbar_type_arduino={
