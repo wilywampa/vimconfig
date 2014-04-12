@@ -703,7 +703,7 @@ let g:pathogen_disabled=[]
 
 " Disable some plugins if in read-only mode
 if s:readonly
-    call add(g:pathogen_disabled, 'nerdcommenter')
+    call add(g:pathogen_disabled, 'tcomment_vim')
     call add(g:pathogen_disabled, 'syntastic')
     call add(g:pathogen_disabled, 'tabular')
 endif
@@ -755,12 +755,10 @@ augroup VimrcAutocmds
     au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 augroup END
 
-" NERDCommenter configuration
-let g:NERDCustomDelimiters={'arduino': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' } }
-let g:NERDCreateDefaultMappings=0
-map <Leader>cc       <Plug>NERDCommenterAlignLeft
-map <Leader>cu       <Plug>NERDCommenterUncomment
-map <Leader>c<Space> <Plug>NERDCommenterToggle
+" tComment configuration
+let g:tcomment#blank_lines=0
+let g:tcommentMapLeader1=''
+let g:tcommentMapLeader2=''
 
 " Add Arduino support to Tagbar
 let g:tagbar_type_arduino={
