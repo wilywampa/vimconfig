@@ -937,6 +937,7 @@ if has('python')
     call add(g:pathogen_disabled, 'undotree')
     nnoremap <silent> <Leader>u :GundoToggle<CR>
     let g:gundo_help=0
+    let g:gundo_preview_bottom=1
 else
     call add(g:pathogen_disabled, 'Gundo')
     nnoremap <silent> <Leader>u :UndotreeToggle<CR>
