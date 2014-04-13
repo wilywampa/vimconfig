@@ -120,7 +120,7 @@ func! s:SwitchToOrOpen(fname)
     exec 'tabedit '.a:fname
 endfunc
 
-" {{{2 Shortcuts to switch to last active tab/window
+" {{{2 Switch to last active tab/window
 let g:lastTab=1
 func! s:SetLastWindow()
     for l:tab in range(1,tabpagenr('$'))
@@ -176,7 +176,7 @@ if hasWin
     set directory=C:\temp\vimtmp,.
     sil! set undodir=C:\temp\vimtmp,.
 
-    " Shortcut to explore to current file
+    " Explore to current file
     nnoremap <silent> <F4> :call system('start explorer /select,\"'.expand('%:p').'\"')<CR>
 
     " Use Cygwin shell if present
@@ -202,13 +202,13 @@ else
     sil! set undodir=~/.tmp
 
     if hasMac
-        " Shortcut to reveal current file in Finder
+        " Reveal current file in Finder
         nnoremap <silent> <F4> :call system('reveal '.expand('%:p').' > /dev/null')<CR>
 
         " Enable use of option key as meta key
         sil! set macmeta
     else
-        " Shortcut to explore to current file from Cygwin vim
+        " Explore to current file from Cygwin vim
         nnoremap <silent> <F4> :call system('cygstart explorer /select,`cygpath -w "'.expand('%:p').'"`')<CR>
     endif
 endif
@@ -220,7 +220,7 @@ endif
 
 " {{{2 Mappings
 
-" Shortcuts to save current file if modified or execute command if in command window
+" Save current file if modified or execute command if in command window
 nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':update<CR>'
 ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:update<CR>'
 vn <silent> <C-s> <C-c>:update<CR>
@@ -235,10 +235,10 @@ nm Q @q
 nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>
     \:set ws<CR>:let @q=substitute(@q,'\(^.*\)@q','\1','')<CR>
 
-" Shortcut to toggle paste mode
+" Toggle paste mode
 nn <silent> <Leader>p :set paste!<CR>
 
-" Shortcut to select all
+" Select all
 nn <Leader>a ggVG
 vn <Leader>a <C-c>ggVG
 
@@ -270,14 +270,14 @@ nn <silent> ,sv :so $MYVIMRC<CR>
 nn <silent> <C-p> :bp<CR>
 nn <silent> <C-n> :bn<CR>
 
-" Shortcuts to search recursively or non-recursively
+" Search recursively or non-recursively
 nn ,gr :vim // **/*<C-Left><C-Left><Right>
 nn ,gn :vim // *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
 nn <Leader>gr :grep `find . -type f` -e ''<Left>
 nn <Leader>gn :grep `ls` -e ''<Left>
 
-" Shortcut to delete trailing whitespace
+" Delete trailing whitespace
 nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
     \:call histdel('/','\V$t^')<CR>:let @/=histget('/',-1)<CR>
 
@@ -295,14 +295,14 @@ nn <silent> <expr> <M-h>     g:inCmdwin? ':q<CR>gT' : 'gT'
 nn <silent> <expr> <F15>     g:inCmdwin? ':q<CR>gt' : 'gt'
 nn <silent> <expr> <F16>     g:inCmdwin? ':q<CR>gT' : 'gT'
 
-" Shortcut to open new tab
+" Open new tab
 nn <silent> <M-t> :tabnew<CR>
 nn <silent> <M-T> :tab split<CR>
 
-" Shortcut to print number of occurences of last search
+" Print number of occurences of last search
 nn <silent> <M-n> :%s///gn<CR>
 
-" Shortcut to make last search a whole word
+" Make last search a whole word
 nn <silent> <Leader>n :let @/='\<'.@/.'\>'<CR>n
 nn <silent> <Leader>N :let @/='\<'.@/.'\>'<CR>N
 
@@ -414,17 +414,20 @@ nn <silent> ZQ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
 nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
 
-" Shortcut to search for first non-blank
+" Search for first non-blank
 cno <expr> ^ ((getcmdtype()=='/'&&getcmdline()=='^')?'<BS>\(^\s*\)\@<=':'^')
 
 " Execute line under cursor
 nn <silent> <Leader>x :exec getline('.')<CR>
 
-" Shortcut to close quickfix window/location list
+" Close quickfix window/location list
 nn <silent> <Leader>w :ccl\|lcl<CR>
 
-" Shortcut to make current buffer a scratch buffer
+" Make current buffer a scratch buffer
 nn <silent> <Leader>s :set bt=nofile<CR>
+
+" Echo syntax name under cursor
+nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
@@ -562,7 +565,7 @@ endif
 
 " Function to set key codes for terminals
 func! s:KeyCodes()
-    " Shortcuts to change tab in MinTTY
+    " Change tab in MinTTY
     "         <C-Tab>           <C-S-Tab>
     exec "set <F15>=\<Esc>[1;5I <F16>=\<Esc>[1;6I"
 
@@ -706,7 +709,7 @@ let g:pathogen_disabled=[]
 
 " Disable some plugins if in read-only mode
 if s:readonly
-    call add(g:pathogen_disabled, 'tcomment_vim')
+    call add(g:pathogen_disabled, 'neocomplete.vim')
     call add(g:pathogen_disabled, 'syntastic')
     call add(g:pathogen_disabled, 'tabular')
 endif
@@ -727,7 +730,7 @@ else
     let g:airline_powerline_fonts=1
 endif
 
-" Shortcut to toggle warnings in airline
+" Toggle warnings in airline
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
 
 " Make B an alias for Bclose
@@ -892,7 +895,7 @@ augroup VimrcAutocmds
 augroup END
 nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
 
-" Map <C-q> to delete buffer in CtrlP
+" <C-q> deletes buffer in CtrlP
 let g:ctrlp_buffer_func={ 'enter': 'MyCtrlPMappings' }
 func! MyCtrlPMappings()
     nnoremap <buffer> <silent> <C-q> :call <SID>DeleteBuffer()<cr>
