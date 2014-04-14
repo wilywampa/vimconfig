@@ -117,7 +117,14 @@ func! s:SwitchToOrOpen(fname)
             endif
         endfor
     endif
-    exec 'tabedit '.a:fname
+    if <SID>TabUsed()
+        exec 'tabedit '.a:fname
+    else
+        exec 'edit '.a:fname
+    endif
+endfunc
+func! s:TabUsed()
+    return strlen(expand('%')) || line('$')!=1 || getline(1)!='' || winnr('$')>1
 endfunc
 
 " {{{2 Switch to last active tab/window
@@ -246,24 +253,16 @@ vn <Leader>a <C-c>ggVG
 nn <silent> <F2> :se nu!<bar>if &nu<bar>sil! se rnu<bar>el<bar>sil! se nornu<bar>en<CR>
 vm <silent> <F2> <Esc><F2>gv
 
-" Make it easy to edit this file (, 'e'dit 'v'imrc)
-" Open in new tab if current window is not empty
-nn <silent> ,ev :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
-    \\|call <SID>SwitchToOrOpen($MYVIMRC)\|el\|e $MYVIMRC\|en<CR>
+" Edit configuration files
+nn <silent> ,eb :call <SID>SwitchToOrOpen('~/.bashrc')<CR>
+nn <silent> ,ec :call <SID>SwitchToOrOpen('~/.cshrc')<CR>
+nn <silent> ,es :call <SID>SwitchToOrOpen('~/.screenrc')<CR>
+nn <silent> ,et :call <SID>SwitchToOrOpen('~/.tmux.conf')<CR>
+nn <silent> ,ev :call <SID>SwitchToOrOpen($MYVIMRC)<CR>
+nn <silent> ,ex :call <SID>SwitchToOrOpen('~/.Xdefaults')<CR>
+nn <silent> ,ez :call <SID>SwitchToOrOpen('~/.zshrc')<CR>
 
-" Make it easy to edit bashrc
-nn <silent> ,eb :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
-    \\|call <SID>SwitchToOrOpen('~/.bashrc')\|el\|e ~/.bashrc\|en<CR>
-
-" Make it easy to edit cshrc
-nn <silent> ,ec :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
-    \\|call <SID>SwitchToOrOpen('~/.cshrc')\|el\|e ~/.cshrc\|en<CR>
-
-" Make it easy to edit zshrc
-nn <silent> ,ez :if strlen(expand('%'))\|\|line('$')!=1\|\|getline(1)!=''
-    \\|call <SID>SwitchToOrOpen('~/.zshrc')\|el\|e ~/.zshrc\|en<CR>
-
-" Make it easy to source this file (, 's'ource 'v'imrc)
+" Source vimrc
 nn <silent> ,sv :so $MYVIMRC<CR>
 
 " Shortcuts for switching buffer
@@ -433,7 +432,7 @@ nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 func! s:OpenHelp(topic)
     let v:errmsg=""
     " Open in same window if current tab is empty, or else open in new window
-    if strlen(expand('%')) || line('$')!=1 || getline(1)!='' || winnr('$')>1
+    if <SID>TabUsed()
         " Open vertically if there's enough room
         let l:split=0
         let l:helpWin=0
