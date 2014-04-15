@@ -740,7 +740,9 @@ nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
 " Tagbar configuration
 " Don't use Tagbar integration in airline until needed
-sil! let g:airline_section_x='%{&ft}'
+if !exists('g:initialized_tagbar')
+    sil! let g:airline_section_x='%{&ft}'
+endif
 func! s:TagbarToggle()
     if !exists('g:initialized_tagbar')
         call TagbarInit()
