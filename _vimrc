@@ -700,8 +700,8 @@ nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 
 " Set color scheme
 colorscheme desert
-hi! link Pmenu    DiffAdd
-hi! link PmenuSel MatchParen
+hi Pmenu term=bold ctermbg=18 guibg=DarkBlue
+hi PmenuSel term=reverse ctermbg=30 guibg=DarkCyan
 
 " {{{1 Plugin configuration
 
