@@ -6,9 +6,7 @@ if &compatible
 endif
 
 " Reset autocommands when vimrc is re-sourced
-augroup VimrcAutocmds
-    autocmd!
-augroup END
+silent! autocmd! VimrcAutocmds
 
 " Check if in read-only mode to disable unnecessary plugins
 if !exists('s:readonly')
@@ -64,6 +62,8 @@ set keywordprg=:help           " Use Vim help instead of man to look up keywords
 set splitright                 " Vertical splits open on the right
 set fileformats=unix,dos       " Always prefer unix format
 set fileformat=unix
+set csqf=s-,c-,d-,i-,t-,e-     " Use quickfix list for cscope results
+set cscopetag                  " Use cscope instead of ctags when possible
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -97,9 +97,6 @@ com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Enable matchit plugin
 runtime! macros/matchit.vim
-
-" Use tree style for netrw
-let g:netrw_liststyle=3
 
 " {{{2 Switch to existing window if it exists or open in new tab
 func! s:SwitchToOrOpen(fname)
@@ -171,7 +168,6 @@ nnoremap <silent> <M-'> '
 
 let hasMac=has("mac")
 let hasWin=has("win16") || has("win32") || has("win64")
-let hasUnix=has("unix")
 let hasSSH=!empty($SSH_CLIENT)
 let macSSH=hasMac && hasSSH
 
@@ -219,11 +215,6 @@ else
         " Explore to current file from Cygwin vim
         nnoremap <silent> <F4> :call system('cygstart explorer /select,`cygpath -w "'.expand('%:p').'"`')<CR>
     endif
-endif
-
-if hasUnix
-    " Enable mouse
-    set mouse=a
 endif
 
 " {{{2 Mappings
@@ -276,6 +267,7 @@ nn ,gn :vim // *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
 nn <Leader>gr :grep `find . -type f` -e ''<Left>
 nn <Leader>gn :grep `ls` -e ''<Left>
+nn <Leader>go :call setqflist([])<CR>:silent! Bufdo grepa '' %<C-Left><C-Left><Right>
 
 " Delete trailing whitespace
 nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
@@ -386,16 +378,6 @@ no <C-Up>    <C-w>+
 no <C-Left>  <C-w><
 no <C-Right> <C-w>>
 
-" Use ,n and ,N or ,p to cycle through quickfix results
-nn <silent> ,n :<C-u>exe v:count1.'cn'<CR>zv
-nn <silent> ,N :<C-u>exe v:count1.'cp'<CR>zv
-nn <silent> ,p :<C-u>exe v:count1.'cp'<CR>zv
-
-" Use ,,n and ,,N or ,,p to cycle through location list results
-nn <silent> ,,n :<C-u>exe v:count1.'lne'<CR>zv
-nn <silent> ,,N :<C-u>exe v:count1.'lp'<CR>zv
-nn <silent> ,,p :<C-u>exe v:count1.'lp'<CR>zv
-
 " Stay in visual mode after indent change
 vn < <gv
 vn > >gv
@@ -415,7 +397,7 @@ nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
 
 " Search for first non-blank
-cno <expr> ^ ((getcmdtype()=='/'&&getcmdline()=='^')?'<BS>\(^\s*\)\@<=':'^')
+cno <expr> ^ ((getcmdtype()=~'[/?]'&&getcmdline()=='^')?'<BS>\(^\s*\)\@<=':'^')
 
 " Execute line under cursor
 nn <silent> <Leader>x :exec getline('.')<CR>
@@ -440,6 +422,10 @@ ino <M-p> <C-r>"
 
 " Go to older position in jump list
 nn <S-Tab> <C-o>
+
+" Make <C-d>/<C-d> scroll 1/4 page
+no <expr> <C-d> winheight('.')/4."\<C-e>"
+no <expr> <C-u> winheight('.')/4."\<C-y>"
 
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
@@ -491,12 +477,6 @@ vnoremap <expr> <silent> K <SID>OpenHelpVisual()
 
 " {{{2 Cscope configuration
 
-" Use quickfix list for cscope results
-set cscopequickfix=s-,c-,d-,i-,t-,e-
-
-" Use cscope instead of ctags when possible
-set cscopetag
-
 " Abbreviations for diff commands
 cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffthis':'dt')
 cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff' :'do')
@@ -524,15 +504,10 @@ vm <C-\> <Esc><C-\>
 " }}}2
 
 if has('gui_running')
-    " Copy mouse modeless selection to clipboard
-    set guioptions+=A
-
-    " Don't use scrollbars
-    set guioptions-=L
+    set guioptions+=A " Copy mouse modeless selection to clipboard
+    set guioptions-=L " Don't use scrollbars
     set guioptions-=r
-
-    " Hide menu/toolbars
-    set guioptions-=m
+    set guioptions-=m " Hide menu/toolbars
     set guioptions-=T
 
     if hasWin
@@ -548,9 +523,7 @@ if has('gui_running')
         set guifont=Meslo\ LG\ S\ Regular\ for\ Powerline:h15
 
         " Start in fullscreen mode
-        augroup VimrcAutocmds
-            autocmd VimEnter * sil! set fullscreen
-        augroup END
+        autocmd VimrcAutocmds VimEnter * sil! set fullscreen
     else
         " Always show tabline (prevent resizing issues)
         set showtabline=2
@@ -569,10 +542,8 @@ else
     map! <F13> <C-Up>
     map! <F14> <C-Down>
 
-    augroup VimrcAutocmds
-        " Use correct background color
-        autocmd VimEnter * set t_ut=|redraw!
-    augroup END
+    " Use correct background color
+    autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
 endif
 
 " Function to set key codes for terminals
@@ -590,16 +561,11 @@ func! s:KeyCodes()
 endfunc
 nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
 
-if hasSSH
-    " Increase time allowed for multi-key mappings
-    set timeoutlen=1000
-
-    " Increase time allowed for keycode mappings
-    if macSSH
-        set ttimeoutlen=250
-    else
-        set ttimeoutlen=100
-    endif
+" Increase time allowed for keycode mappings over SSH
+if macSSH
+    set ttimeoutlen=250
+elseif hasSSH
+    set ttimeoutlen=100
 endif
 
 augroup VimrcAutocmds
@@ -632,15 +598,6 @@ augroup VimrcAutocmds
     au CmdwinEnter          * let g:inCmdwin=1
 augroup END
 
-" Make <C-d>/<C-d> scroll 1/4 page
-func! s:SetScroll(in)
-    set scroll=0
-    exec "set scroll=".&scroll/2
-    return a:in
-endfunc
-noremap <expr> <C-d> <SID>SetScroll('<C-d>')
-noremap <expr> <C-u> <SID>SetScroll('<C-u>')
-
 " Delete hidden buffers
 func! DeleteHiddenBuffers()
     let tpbl=[]
@@ -666,9 +623,7 @@ endfunc
 vnoremap <expr> <SID>VisualEnter VisualEnter()
 nnoremap <expr> v <SID>VisualEnter('v')
 nnoremap <expr> V <SID>VisualEnter('V')
-augroup VimrcAutocmds
-    autocmd CursorHold * call RemoveClipboardNewline()
-augroup END
+autocmd VimrcAutocmds CursorHold * call RemoveClipboardNewline()
 
 " Kludge to make first quickfix result unfold
 func! s:ToggleFoldOpen()
@@ -685,15 +640,11 @@ func! s:ToggleFoldOpen()
         aug END
     endif
 endfunc
-augroup VimrcAutocmds
-    au QuickFixCmdPost * call s:ToggleFoldOpen()
-augroup END
+autocmd VimrcAutocmds QuickFixCmdPost * call s:ToggleFoldOpen()
 
 " Function to redirect output of ex command to clipboard
 func! Redir(cmd)
-    redir @+
-    execute a:cmd
-    redir END
+    redir @+ | execute a:cmd | redir END
     let @+=substitute(@+,"\<CR>",'','g')
     let @*=@+
 endfunc
@@ -721,9 +672,12 @@ hi PmenuSel term=reverse ctermbg=30 guibg=DarkCyan
 " Make empty list of disabled plugins
 let g:pathogen_disabled=[]
 
+" Only enable Syntastic if environment variable is set
+if !($ENABLE_SYNTASTIC==1) | call add(g:pathogen_disabled, 'syntastic') | endif
+
 " Disable some plugins if in read-only mode
 if s:readonly
-    call add(g:pathogen_disabled, 'neocomplete.vim')
+    call add(g:pathogen_disabled, 'neocomplete')
     call add(g:pathogen_disabled, 'syntastic')
     call add(g:pathogen_disabled, 'tabular')
 endif
@@ -737,18 +691,12 @@ if macSSH || v:version < 703
     let g:airline_powerline_fonts=0
     let g:airline_left_sep=''
     let g:airline_right_sep=''
-
-    " Disable background color erase
-    set t_ut=
 else
     let g:airline_powerline_fonts=1
 endif
 
 " Toggle warnings in airline
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
-
-" Make B an alias for Bclose
-command! -nargs=* -bang B Bclose<bang><args>
 
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
@@ -773,9 +721,7 @@ let g:tagbar_sort=0
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
 let OmniCpp_MayCompleteScope=1
-augroup VimrcAutocmds
-    au CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
-augroup END
+autocmd VimrcAutocmds CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
 " Commentary configuration
 xmap <Leader>c  <Plug>Commentary
@@ -786,60 +732,18 @@ nmap c<Leader>c <Plug>ChangeCommentary
 nmap <Leader>cu <Plug>Commentary<Plug>Commentary
 let g:commentary_map_backslash=0
 
-" Add Arduino support to Tagbar
-let g:tagbar_type_arduino={
-    \   'ctagstype' : 'c++',
-    \   'kinds'     : [
-    \     'd:macros:1:0',
-    \     'p:prototypes:1:0',
-    \     'g:enums',
-    \     'e:enumerators:0:0',
-    \     't:typedefs:0:0',
-    \     'n:namespaces',
-    \     'c:classes',
-    \     's:structs',
-    \     'u:unions',
-    \     'f:functions',
-    \     'm:members:0:0',
-    \     'v:variables:0:0'
-    \   ],
-    \   'sro'        : '::',
-    \   'kind2scope' : {
-    \     'g' : 'enum',
-    \     'n' : 'namespace',
-    \     'c' : 'class',
-    \     's' : 'struct',
-    \     'u' : 'union'
-    \   },
-    \   'scope2kind' : {
-    \     'enum'      : 'g',
-    \     'namespace' : 'n',
-    \     'class'     : 'c',
-    \     'struct'    : 's',
-    \     'union'     : 'u'
-    \   }
-    \ }
-
-" Add Processing support to Tagbar (Processing is not C++, but is close enough
-" for C++ tags to be useful)
-let g:tagbar_type_processing=g:tagbar_type_arduino
-
-if !has('gui_running')
-    " Disable CSApprox if color palette is too small
-    if &t_Co < 88
+" CSApprox configuration
+if has('gui_running') || &t_Co < 88
+    call add(g:pathogen_disabled, 'CSApprox')
+else
+    " Use a snapshot if available or else make one
+    if filereadable(expand('~/.CSApproxSnapshot'))
         call add(g:pathogen_disabled, 'CSApprox')
+        source ~/.CSApproxSnapshot
+        sil! AirlineTheme badwolf
     else
-        " Use a snapshot if available or else make one
-        if filereadable(expand('~/.CSApproxSnapshot'))
-            call add(g:pathogen_disabled, 'CSApprox')
-            source ~/.CSApproxSnapshot
-            sil! AirlineTheme badwolf
-        else
-            augroup VimrcAutocmds
-                autocmd VimEnter * sil! CSApproxSnapshot ~/.CSApproxSnapshot
-                    \| sil! AirlineTheme badwolf
-            augroup END
-        endif
+        autocmd VimrcAutocmds VimEnter * sil! CSApproxSnapshot ~/.CSApproxSnapshot
+            \| sil! AirlineTheme badwolf
     endif
 endif
 
@@ -876,7 +780,9 @@ if has('lua')
     inoremap <expr> <Tab>   <SID>StartManualComplete()
     inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
     inoremap <expr> <CR>    neocomplete#close_popup()."\<C-g>u\<CR>"
-    inoremap <expr> <C-d>   neocomplete#close_popup()
+    imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
+        \"\<Plug>(neosnippet_expand_or_jump)":
+        \neocomplete#close_popup()
     inoremap <expr> <C-f>   neocomplete#cancel_popup()
     inoremap <expr> <C-l>   neocomplete#complete_common_string()
     if !exists('g:neocomplete#sources')
@@ -892,9 +798,7 @@ if has('lua')
         autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
     augroup END
 else
-    call add(g:pathogen_disabled, 'neocomplete.vim')
-
-    " Choose SuperTab completion type based on context
+    call add(g:pathogen_disabled, 'neocomplete')
     let g:SuperTabDefaultCompletionType="context"
 endif
 
@@ -910,9 +814,7 @@ let g:ctrlp_by_filename=1
 let g:ctrlp_working_path_mode='rw'
 let g:ctrlp_regexp=1
 let g:ctrlp_match_window='max:20'
-augroup VimrcAutocmds
-    autocmd VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
-augroup END
+autocmd VimrcAutocmds VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
 nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
 
 " <C-q> deletes buffer in CtrlP
@@ -934,25 +836,40 @@ map <S-Space> <Space>
 map! <S-Space> <Space>
 let g:EasyMotion_keys='ABCDEFGIMNOPQRSTUVWXYZLKJH'
 let g:EasyMotion_use_upper=1
+let g:EasyMotion_add_search_history=0
 map <Space> <Plug>(easymotion-bd-f)
 map <Space>/ <Plug>(easymotion-sn)
 map <Space><Space>f <Plug>(easymotion-bd-f)
-map <Space><Space>F <Plug>(easymotion-bd-f)
 map <Space><Space>t <Plug>(easymotion-bd-t)
-map <Space><Space>T <Plug>(easymotion-bd-t)
 map <Space><Space>w <Plug>(easymotion-bd-w)
-map <Space><Space>W <Plug>(easymotion-bd-W)
-map <Space><Space>b <Plug>(easymotion-bd-w)
-map <Space><Space>B <Plug>(easymotion-bd-W)
 map <Space><Space>e <Plug>(easymotion-bd-e)
-map <Space><Space>E <Plug>(easymotion-bd-E)
-map <Space><Space>j <Plug>(easymotion-bd-jk)
-map <Space><Space>k <Plug>(easymotion-bd-jk)
 map <Space><Space>n <Plug>(easymotion-bd-n)
-map <Space><Space>N <Plug>(easymotion-bd-n)
-augroup VimrcAutocmds
-    autocmd VimEnter * sil! unmap <Leader><Leader>
-augroup END
+autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
+
+" {{{2 VimFiler settings
+nnoremap <expr> - exists(':VimFiler')?
+    \":VimFilerBufferDir -find -quit\<CR>":
+    \":Explore\<CR>"
+let g:vimfiler_as_default_explorer=1
+let g:vimfiler_tree_leaf_icon=' '
+let g:vimfiler_file_icon='-'
+let g:vimfiler_tree_opened_icon='▼'
+let g:vimfiler_tree_closed_icon='▶'
+let g:vimfiler_marked_file_icon='✓'
+let g:vimfiler_ignore_pattern=''
+autocmd VimrcAutocmds FileType vimfiler call s:vimfiler_settings()
+func! s:vimfiler_settings()
+    nmap <buffer> m    <Plug>(vimfiler_toggle_mark_current_line)
+    nmap <buffer> M    <Plug>(vimfiler_move_file)
+    nmap <buffer> e    <Plug>(vimfiler_execute)
+    nmap <buffer> <BS> <Plug>(vimfiler_close)
+    nmap <buffer> -    <Plug>(vimfiler_switch_to_parent_directory)
+    nmap <buffer> <expr> <CR> vimfiler#smart_cursor_map(
+        \"\<PLUG>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
+    exe "nunmap <buffer> H" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
+    exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> <S-Space>"
+endfunc
+
 " }}}2
 
 " Undotree/Gundo settings

@@ -32,3 +32,5 @@ let b:undo_ftplugin = "setlocal suffixesadd< suffixes< "
       \ . "| unlet! b:match_words"
 
 let &cpo = s:save_cpo
+
+setlocal commentstring=%%s
