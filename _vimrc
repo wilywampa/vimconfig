@@ -63,6 +63,7 @@ set listchars+=nbsp:+
 set keywordprg=:help           " Use Vim help instead of man to look up keywords
 set splitright                 " Vertical splits open on the right
 set fileformats=unix,dos       " Always prefer unix format
+set fileformat=unix
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -196,7 +197,7 @@ if hasWin
         call system('echo')
     endif
     if &shell !~ 'cmd'
-        set shellxquote=\" shellcmdflag=-c grepprg=grep\ -nH\ $*\ /dev/null
+        set shellxquote=\" shellcmdflag=-c shellslash grepprg=grep\ -nH\ $*\ /dev/null
         nnoremap <silent> <F4> :call system('cygstart explorer /select,\"'.expand('%:p').'\"')<CR>
     endif
 else
@@ -428,6 +429,18 @@ nn <silent> <Leader>s :set bt=nofile<CR>
 " Echo syntax name under cursor
 nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 
+" Change directory to current buffer's path
+nnoremap <silent> <Leader>cd :cd %:p:h<CR>
+
+" <CR> in insert mode creates undo point
+ino <CR> <C-g>u<CR>
+
+" Put from " register in insert mode
+ino <M-p> <C-r>"
+
+" Go to older position in jump list
+nn <S-Tab> <C-o>
+
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
     let v:errmsg=""
@@ -598,7 +611,7 @@ augroup VimrcAutocmds
     autocmd FileType help setl nowrap nolinebreak
 
     " Prefer single-line style comments
-    autocmd FileType cpp,arduino setl commentstring=//\ %s
+    autocmd FileType cpp,arduino setl commentstring=//%s
 
     " Highlight current line in active window
     autocmd BufRead,BufNewFile,VimEnter * set cul
@@ -837,6 +850,10 @@ if has('lua')
     " NeoComplete settings
     let g:neocomplete#enable_at_startup=1
     let g:neocomplete#enable_smart_case=0
+    let g:neocomplete#max_list=200
+    let g:neocomplete#min_keyword_length=3
+    let g:neocomplete#enable_refresh_always=1
+    let g:neocomplete#sources#buffer#cache_limit_size=3000000
     if !exists('g:neocomplete#same_filetypes')
         let g:neocomplete#same_filetypes={}
     endif
@@ -858,7 +875,7 @@ if has('lua')
     endfunc
     inoremap <expr> <Tab>   <SID>StartManualComplete()
     inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-    inoremap <expr> <CR>    neocomplete#close_popup()."\<CR>"
+    inoremap <expr> <CR>    neocomplete#close_popup()."\<C-g>u\<CR>"
     inoremap <expr> <C-d>   neocomplete#close_popup()
     inoremap <expr> <C-f>   neocomplete#cancel_popup()
     inoremap <expr> <C-l>   neocomplete#complete_common_string()
