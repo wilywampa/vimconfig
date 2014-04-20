@@ -797,7 +797,6 @@ if has('lua')
             \ : neocomplete#start_manual_complete()
         autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab> pumvisible() ? "\<C-p>"
             \ : neocomplete#start_manual_complete()
-        autocmd VimEnter * sil! call neocomplete#init#enable()
         autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
     augroup END
 else
@@ -854,7 +853,8 @@ autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
 nnoremap <expr> - exists(':VimFiler')?
     \":VimFilerBufferDir -find -quit\<CR>":
     \":Explore\<CR>"
-let g:vimfiler_as_default_explorer=1
+autocmd VimrcAutocmds VimEnter * let g:vimfiler_as_default_explorer=1
+let g:loaded_netrwPlugin=1
 let g:vimfiler_tree_leaf_icon=' '
 let g:vimfiler_file_icon='-'
 let g:vimfiler_tree_opened_icon='▼'
@@ -897,6 +897,9 @@ xmap S <Plug>VSurround
 let g:syntastic_filetype_map={'arduino': 'cpp'}
 let g:syntastic_mode_map={'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
 let g:airline#extensions#syntastic#enabled=0
+
+" Tabular settings
+let g:no_default_tabular_maps=1
 
 " Indent Guides settings
 let g:indent_guides_auto_colors=0
