@@ -674,13 +674,16 @@ hi PmenuSel term=reverse ctermbg=30 guibg=DarkCyan
 let g:pathogen_disabled=[]
 
 " Only enable Syntastic if environment variable is set
-if !($ENABLE_SYNTASTIC==1) | call add(g:pathogen_disabled, 'syntastic') | endif
+if !($SYNTASTIC_ENABLE==1) | call add(g:pathogen_disabled, 'syntastic') | endif
 
 " Disable some plugins if in read-only mode
 if s:readonly
     call add(g:pathogen_disabled, 'neocomplete')
+    call add(g:pathogen_disabled, 'neosnippet-snippets')
     call add(g:pathogen_disabled, 'syntastic')
     call add(g:pathogen_disabled, 'tabular')
+    call add(g:pathogen_disabled, 'unite')
+    call add(g:pathogen_disabled, 'vimfiler')
 endif
 
 " Set airline color scheme
@@ -860,15 +863,16 @@ let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_ignore_pattern=''
 autocmd VimrcAutocmds FileType vimfiler call s:vimfiler_settings()
 func! s:vimfiler_settings()
-    nmap <buffer> m    <Plug>(vimfiler_toggle_mark_current_line)
-    nmap <buffer> M    <Plug>(vimfiler_move_file)
-    nmap <buffer> e    <Plug>(vimfiler_execute)
-    nmap <buffer> <BS> <Plug>(vimfiler_close)
-    nmap <buffer> -    <Plug>(vimfiler_switch_to_parent_directory)
+    nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
+    nmap <buffer> <C-m> <Plug>(vimfiler_move_file)
+    nmap <buffer> e     <Plug>(vimfiler_execute)
+    nmap <buffer> <BS>  <Plug>(vimfiler_close)
+    nmap <buffer> -     <Plug>(vimfiler_switch_to_parent_directory)
+    nmap <buffer> <F1>  <Plug>(vimfiler_help)
     nmap <buffer> <expr> <CR> vimfiler#smart_cursor_map(
         \"\<PLUG>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
-    exe "nunmap <buffer> H" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
-    exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> <S-Space>"
+    exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
+    exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
 endfunc
 
 " }}}2
