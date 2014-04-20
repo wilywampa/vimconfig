@@ -576,8 +576,9 @@ augroup VimrcAutocmds
     autocmd FileType text setl wrap linebreak
     autocmd FileType help setl nowrap nolinebreak
 
-    " Prefer single-line style comments
+    " Prefer single-line style comments and fix shell script comments
     autocmd FileType cpp,arduino setl commentstring=//%s
+    autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
 
     " Highlight current line in active window
     autocmd BufRead,BufNewFile,VimEnter * set cul
