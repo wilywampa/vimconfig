@@ -352,6 +352,7 @@ if version >= 508 || !exists("did_matlab_syntax_inits")
   delcommand HiLink
 endif
 
+let b:current_syntax = "matlab"
 let b:current_syntax_new = "matlab"
 
 "EOF	vim: ts=8 noet tw=100 sw=8 sts=0
