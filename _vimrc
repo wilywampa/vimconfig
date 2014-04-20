@@ -246,6 +246,7 @@ nn <silent> <F2> :se nu!<bar>if &nu<bar>sil! se rnu<bar>el<bar>sil! se nornu<bar
 vm <silent> <F2> <Esc><F2>gv
 
 " Edit configuration files
+nn <silent> ,ea :call <SID>SwitchToOrOpen('~/.ackrc')<CR>
 nn <silent> ,eb :call <SID>SwitchToOrOpen('~/.bashrc')<CR>
 nn <silent> ,ec :call <SID>SwitchToOrOpen('~/.cshrc')<CR>
 nn <silent> ,es :call <SID>SwitchToOrOpen('~/.screenrc')<CR>
@@ -765,9 +766,7 @@ if has('lua')
     if !exists('g:neocomplete#same_filetypes')
         let g:neocomplete#same_filetypes={}
     endif
-    let g:neocomplete#same_filetypes.arduino='c,cpp'
-    let g:neocomplete#same_filetypes.c='arduino,cpp'
-    let g:neocomplete#same_filetypes.cpp='arduino,c'
+    let g:neocomplete#same_filetypes._='_'
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns={}
     endif
@@ -818,6 +817,7 @@ let g:ctrlp_by_filename=1
 let g:ctrlp_working_path_mode='rw'
 let g:ctrlp_regexp=1
 let g:ctrlp_match_window='max:20'
+let g:ctrlp_mruf_max=500
 autocmd VimrcAutocmds VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
 nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
 

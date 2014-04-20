@@ -78,6 +78,7 @@ function! s:SetCount()
 endfunction
 
 function! <SID>ParagBack()
+	let l:magic = &magic | set magic
 	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 	let l:notboundary=l:boundary.'\@!'
 	let l:res = search(l:notboundary, 'cWb')
@@ -110,9 +111,11 @@ function! <SID>ParagBack()
 		endif
 	endwhile
 	return s:Unfold()
+	let &magic = l:magic
 endfunction
 
 function! <SID>ParagFore()
+	let l:magic = &magic | set magic
 	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 	let l:notboundary=l:boundary.'\@!'
 	if getline('.') =~# l:boundary
@@ -147,4 +150,5 @@ function! <SID>ParagFore()
 		endif
 	endwhile
 	return s:Unfold()
+	let &magic = l:magic
 endfunction
