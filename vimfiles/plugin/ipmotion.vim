@@ -57,7 +57,7 @@ if !exists('g:ip_boundary')
 	let g:ip_boundary='\s*$'
 endif
 if !exists('g:ip_skipfold')
-	let g:ip_skipfold=0
+	let g:ip_skipfold=1
 endif
 
 nnoremap <silent> { :<C-U>call <SID>SetCount()<Bar>call <SID>ParagBack()<CR>

@@ -413,7 +413,7 @@ nn <silent> <Leader>s :set bt=nofile<CR>
 nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 
 " Change directory to current buffer's path
-nnoremap <silent> <Leader>cd :cd %:p:h<CR>
+nnoremap <silent> <Leader>cd :cd %:p:h<CR>:pwd<CR>
 
 " <CR> in insert mode creates undo point
 ino <CR> <C-g>u<CR>
