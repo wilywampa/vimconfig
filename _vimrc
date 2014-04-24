@@ -918,8 +918,8 @@ let g:ack_autofold_results=0
 " Import scripts
 execute pathogen#infect()
 
-" Add current directory to status line
-sil! let g:airline_section_b='%#__accent_red#%{!&ic?"↑":""}%#__restore__#%{ShortCWD()}'
+" Add current directory and red arrow if noignorecase is set to status line
+sil! let g:airline_section_b='%#__accent_red#%{!&ic?"'.nr2char(8593).'":""}%#__restore__#%{ShortCWD()}'
 
 " Default whitespace symbol not available everywhere
 if exists('g:airline_symbols')
