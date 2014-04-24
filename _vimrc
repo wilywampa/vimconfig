@@ -266,8 +266,8 @@ nn <silent> <C-n> :bn<CR>
 nn ,gr :vim // **/*<C-Left><C-Left><Right>
 nn ,gn :vim // *<C-Left><C-Left><Right>
 nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
-nn <Leader>gr :grep `find . -type f` -e ''<Left>
-nn <Leader>gn :grep `ls` -e ''<Left>
+nn <Leader>gr :grep **/*(D.) -e ''<Left>
+nn <Leader>gn :grep *(D.) -e ''<Left>
 nn <Leader>go :call setqflist([])<CR>:silent! Bufdo grepa '' %<C-Left><C-Left><Right>
 
 " Delete trailing whitespace
@@ -850,7 +850,7 @@ map <Space><Space>n <Plug>(easymotion-bd-n)
 autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
 
 " {{{2 VimFiler settings
-nnoremap <expr> - exists(':VimFiler')?
+nnoremap <silent> <expr> - exists(':VimFiler')?
     \":VimFilerBufferDir -find -quit\<CR>":
     \":Explore\<CR>"
 autocmd VimrcAutocmds VimEnter * let g:vimfiler_as_default_explorer=1
@@ -908,6 +908,11 @@ augroup VimrcAutocmds
     autocmd VimEnter,Colorscheme * hi link IndentGuidesOdd Normal
     autocmd VimEnter,Colorscheme * hi IndentGuidesEven ctermbg=237 guibg=#3d3d3d
 augroup END
+
+" Ack settings
+if executable('ag')
+    let g:ackprg='ag --nogroup --nocolor --column'
+endif
 
 " Import scripts
 execute pathogen#infect()
