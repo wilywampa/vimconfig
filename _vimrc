@@ -758,7 +758,7 @@ if has('lua')
 
     " NeoComplete settings
     let g:neocomplete#enable_at_startup=1
-    let g:neocomplete#enable_smart_case=0
+    let g:neocomplete#enable_smart_case=1
     let g:neocomplete#max_list=200
     let g:neocomplete#min_keyword_length=3
     let g:neocomplete#enable_refresh_always=1
@@ -913,12 +913,13 @@ augroup END
 if executable('ag')
     let g:ackprg='ag --nogroup --nocolor --column'
 endif
+let g:ack_autofold_results=0
 
 " Import scripts
 execute pathogen#infect()
 
 " Add current directory to status line
-sil! let g:airline_section_b=airline#section#create(['%{ShortCWD()}'])
+sil! let g:airline_section_b='%#__accent_red#%{!&ic?"↑":""}%#__restore__#%{ShortCWD()}'
 
 " Default whitespace symbol not available everywhere
 if exists('g:airline_symbols')
