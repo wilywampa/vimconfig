@@ -699,6 +699,9 @@ endif
 " Toggle warnings in airline
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
 
+" Add current directory and red arrow if noignorecase is set to status line
+sil! let g:airline_section_b='%#__accent_red#%{!&ic?"'.nr2char(8593).'":""}%#__restore__#%{ShortCWD()}'
+
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
@@ -799,13 +802,6 @@ else
     call add(g:pathogen_disabled, 'neocomplete')
     let g:SuperTabDefaultCompletionType="context"
 endif
-
-" Add current directory and red arrow if noignorecase is set to status line
-sil! let g:airline_section_b='%#__accent_red#%{!&ic?"'.nr2char(8593).'":""}%#__restore__#%{ShortCWD()}'
-
-" Default whitespace symbol not available everywhere
-if !exists('g:airline_symbols') | let g:airline_symbols={} | endif
-let g:airline_symbols.whitespace='!'
 
 " {{{2 CtrlP configuration
 let g:ctrlp_cmd='CtrlPMRU'
