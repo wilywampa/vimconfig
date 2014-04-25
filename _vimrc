@@ -9,9 +9,7 @@ endif
 silent! autocmd! VimrcAutocmds
 
 " Check if in read-only mode to disable unnecessary plugins
-if !exists('s:readonly')
-    let s:readonly=&readonly
-endif
+if !exists('s:readonly') | let s:readonly=&readonly | endif
 
 set shiftwidth=4               " Number of spaces to indent
 set expandtab                  " Use spaces instead of tabs
@@ -69,9 +67,7 @@ set cscopetag                  " Use cscope instead of ctags when possible
 filetype plugin indent on
 
 " Turn on syntax highlighting
-if !exists("syntax_on")
-    syntax enable
-endif
+if !exists("syntax_on") | syntax enable | endif
 
 " Use four spaces to indent vim file line continuation
 let g:vim_indent_cont=4
@@ -804,6 +800,13 @@ else
     let g:SuperTabDefaultCompletionType="context"
 endif
 
+" Add current directory and red arrow if noignorecase is set to status line
+sil! let g:airline_section_b='%#__accent_red#%{!&ic?"'.nr2char(8593).'":""}%#__restore__#%{ShortCWD()}'
+
+" Default whitespace symbol not available everywhere
+if !exists('g:airline_symbols') | let g:airline_symbols={} | endif
+let g:airline_symbols.whitespace='!'
+
 " {{{2 CtrlP configuration
 let g:ctrlp_cmd='CtrlPMRU'
 let g:ctrlp_map='<M-p>'
@@ -917,13 +920,5 @@ let g:ack_autofold_results=0
 
 " Import scripts
 execute pathogen#infect()
-
-" Add current directory and red arrow if noignorecase is set to status line
-sil! let g:airline_section_b='%#__accent_red#%{!&ic?"'.nr2char(8593).'":""}%#__restore__#%{ShortCWD()}'
-
-" Default whitespace symbol not available everywhere
-if exists('g:airline_symbols')
-    let g:airline_symbols.whitespace='!'
-endif
 
 " vim: fdm=marker fdl=1:
