@@ -40,4 +40,7 @@ nnoremap <silent> <buffer> \xx :<C-u>call <SID>SetC('X')<Bar>set opfunc=<SID>DoI
 nnoremap <silent> <buffer> \x  :<C-u>call <SID>SetC('X')<Bar>set opfunc=<SID>DoIt<CR>g@
 xnoremap <silent> <buffer> \x  :<C-u>call <SID>SetC('X')<Bar>set opfunc=<SID>DoIt(line("'<"),line("'>"))<CR>g@
 
+nnoremap <buffer> ,o o<CR>(O)<Space>
+nnoremap <buffer> ,O O(O)<CR><Esc>kA<Space><Esc>
+
 setlocal wrap linebreak
