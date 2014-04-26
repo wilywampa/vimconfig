@@ -8,6 +8,7 @@ endif
 
 let ShortCWDloaded=1
 
+let s:hasWin = has("win16") || has("win32") || has("win64")
 let s:cwdPrev=''
 let s:bufNamePrev=''
 let s:winWidthPrev=-1
@@ -25,7 +26,7 @@ function! ShortCWD()
         endif
     endif
 
-    if (has("win16") || has("win32") || has("win64")) && noshellslash
+    if s:hasWin && !&shellslash
         let pathSep='\'
     else
         let pathSep='/'
@@ -45,10 +46,15 @@ function! ShortCWD()
 
     if strlen(s:cwd) > s:cwdMaxLen
         let parts=split(s:cwd,pathSep)
-        let partNum=0
+        if s:hasWin
+            let partNum=1
+        else
+            let partNum=0
+        endif
         while (strlen(s:cwd) >= s:cwdMaxLen) && (partNum < len(parts)-1)
             let parts[partNum]=parts[partNum][0]
             let s:cwd=join(parts,pathSep)
+            if !s:hasWin && parts[0] != '~' | let s:cwd='/'.s:cwd | endif
             let partNum=partNum+1
         endwhile
     endif
