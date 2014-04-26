@@ -60,6 +60,7 @@ set fileformats=unix,dos       " Always prefer unix format
 set fileformat=unix
 set csqf=s-,c-,d-,i-,t-,e-     " Use quickfix list for cscope results
 set cscopetag                  " Use cscope instead of ctags when possible
+set foldopen+=jump             " Jumps open folds
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -306,9 +307,13 @@ nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 " Copy full file path to clipboard on Ctrl-g
 nn <C-g> :let @+=expand('%:p')<CR>:let @*=@+<CR><C-g>
 
-" Move current tab to last position
-nn <silent> <C-w><C-e> :tabm<CR>
-nn <silent> <C-w>e     :tabm<CR>
+" Change tab position
+nn <silent> <C-w><C-e>     :tabm<CR>
+nn <silent> <C-w>e         :tabm<CR>
+nn <silent> <C-w><C-Left>  :<C-u>exe 'tabm-'.v:count1<CR>
+nn <silent> <C-w><Left>    :<C-u>exe 'tabm-'.v:count1<CR>
+nn <silent> <C-w><C-Right> :<C-u>exe 'tabm+'.v:count1<CR>
+nn <silent> <C-w><Right>   :<C-u>exe 'tabm+'.v:count1<CR>
 
 " Insert result of visually selected expression
 vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
@@ -361,11 +366,11 @@ nn <Leader>dl <C-w>t<C-w>s<C-w>j<C-w>J<C-w>t<C-w>l<C-w>s<C-w>j<C-w>J<C-w>t:res<C
 " Make Y behave like other capital letters
 map Y y$
 
-" Navigate windows with arrow keys
+" Navigate windows/tabs with arrow keys
 no <Down>  <C-w>j
 no <Up>    <C-w>k
-no <Left>  <C-w>h
-no <Right> <C-w>l
+no <silent> <Left>  :let w=winnr()<CR><C-w>h:if w==winnr()\|exe "norm! gT"\|en<CR>
+no <silent> <Right> :let w=winnr()<CR><C-w>l:if w==winnr()\|exe "norm! gt"\|en<CR>
 
 " Change window size with control + arrow keys
 no <C-Down>  <C-w>-
@@ -571,6 +576,9 @@ augroup VimrcAutocmds
     autocmd FileType text setl wrap linebreak
     autocmd FileType help setl nowrap nolinebreak
 
+    " Indent line continuation for conf files
+    autocmd FileType conf setl indentexpr=getline(v:lnum-1)=~'\\\\$'?&sw:0
+
     " Prefer single-line style comments and fix shell script comments
     autocmd FileType cpp,arduino setl commentstring=//%s
     autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
@@ -591,14 +599,24 @@ augroup VimrcAutocmds
 
     " Use to check if inside command window
     au VimEnter,CmdwinLeave * let g:inCmdwin=0
-    au CmdwinEnter          * let g:inCmdwin=1
-
-    " Make 'gf' work in command window
-    au CmdwinEnter * nnoremap <silent> <buffer> gf :let cfile
-        \=expand('<cfile>')<CR>:q<CR>:exe 'e '.cfile<CR>
-    au CmdwinEnter * nnoremap <silent> <buffer> <C-w>gf :let cfile
-        \=expand('<cfile>')<CR>:q<CR>:exe 'tabe '.cfile<CR>
+    au CmdwinEnter * let g:inCmdwin=1
+    au CmdwinEnter / let g:cmdwinType='/'
+    au CmdwinEnter ? let g:cmdwinType='?'
+    au CmdwinEnter : let g:cmdwinType=':'
+    au CmdwinEnter * call s:CmdwinMappings()
 augroup END
+
+func! <SID>CmdwinMappings()
+    " Make 'gf' work in command window
+    nnoremap <silent> <buffer> gf :let cfile=expand('<cfile>')<CR>:q<CR>
+        \:exe 'e '.cfile<CR>
+    nnoremap <silent> <buffer> <C-w>gf :let cfile=expand('<cfile>')<CR>:q<CR>
+        \:exe 'tabe '.cfile<CR>
+
+    " Delete item under cursor from history
+    nnoremap <silent> <buffer> DD :call histdel(g:cmdwinType,'\V\^'.
+        \escape(getline('.'),'\').'\$')<CR>:norm! "_dd<CR>
+endfunc
 
 " Delete hidden buffers
 func! DeleteHiddenBuffers()
@@ -853,6 +871,7 @@ autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
 nnoremap <silent> <expr> - exists(':VimFiler')?
     \":VimFilerBufferDir -find -quit\<CR>":
     \":Explore\<CR>"
+nnoremap <silent> <C--> :VimFilerCurrentDir -find -quit<CR>
 autocmd VimrcAutocmds VimEnter * let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
 let g:vimfiler_tree_leaf_icon=' '
@@ -912,6 +931,8 @@ augroup END
 " Ack settings
 if executable('ag')
     let g:ackprg='ag --nogroup --nocolor --column'
+elseif hasWin
+    let g:ackprg='~/bin/ag --nogroup --nocolor --column'
 endif
 let g:ack_autofold_results=0
 

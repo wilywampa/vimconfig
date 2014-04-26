@@ -58,6 +58,7 @@ function! ShortCWD()
             let partNum=partNum+1
         endwhile
     endif
+    if s:cwd=='~/' | let s:cwd='~' | endif
 
     if strlen(s:cwd) > s:cwdMaxLen
         let s:cwd=''
