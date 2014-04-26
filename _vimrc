@@ -486,15 +486,15 @@ cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cs show' :'css')
 cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cs help' :'csh')
 
 " Mappings for cscope find commands
-no <C-\>s :cs find s <C-r>=expand("<cword>")<CR><CR>
-no <C-\>g :cs find g <C-r>=expand("<cword>")<CR><CR>
-no <C-\>c :cs find c <C-r>=expand("<cword>")<CR><CR>
-no <C-\>t :cs find t <C-r>=expand("<cword>")<CR><CR>
-no <C-\>e :cs find e <C-r>=expand("<cword>")<CR><CR>
-no <C-\>f :cs find f <C-r>=expand("<cfile>")<CR><CR>
-no <C-\>i :cs find i ^<C-r>=expand("<cfile>")<CR>$<CR>
-no <C-\>d :cs find d <C-r>=expand("<cword>")<CR><CR>
-vm <C-\> <Esc><C-\>
+no <M-\>s :cs find s <C-r>=expand("<cword>")<CR><CR>
+no <M-\>g :cs find g <C-r>=expand("<cword>")<CR><CR>
+no <M-\>c :cs find c <C-r>=expand("<cword>")<CR><CR>
+no <M-\>t :cs find t <C-r>=expand("<cword>")<CR><CR>
+no <M-\>e :cs find e <C-r>=expand("<cword>")<CR><CR>
+no <M-\>f :cs find f <C-r>=expand("<cfile>")<CR><CR>
+no <M-\>i :cs find i ^<C-r>=expand("<cfile>")<CR>$<CR>
+no <M-\>d :cs find d <C-r>=expand("<cword>")<CR><CR>
+vm <M-\> <Esc><M-\>
 
 " }}}2
 
@@ -592,6 +592,12 @@ augroup VimrcAutocmds
     " Use to check if inside command window
     au VimEnter,CmdwinLeave * let g:inCmdwin=0
     au CmdwinEnter          * let g:inCmdwin=1
+
+    " Make 'gf' work in command window
+    au CmdwinEnter * nnoremap <silent> <buffer> gf :let cfile
+        \=expand('<cfile>')<CR>:q<CR>:exe 'e '.cfile<CR>
+    au CmdwinEnter * nnoremap <silent> <buffer> <C-w>gf :let cfile
+        \=expand('<cfile>')<CR>:q<CR>:exe 'tabe '.cfile<CR>
 augroup END
 
 " Delete hidden buffers
@@ -915,6 +921,8 @@ execute pathogen#infect()
 " Add current directory and red arrow if ignorecase is not set to status line
 sil! call airline#parts#define('ic',{'condition': '!\&ic',
     \'text': nr2char(8593),'accent': 'red'})
-sil! let g:airline_section_b = airline#section#create(['ic', '%{ShortCWD()}'])
+sil! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
+sil! let g:airline_section_c = airline#section#create(['ic', '%<', 'file',
+    \g:airline_symbols.space, 'readonly'])
 
 " vim: fdm=marker fdl=1:
