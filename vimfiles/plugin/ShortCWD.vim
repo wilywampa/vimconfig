@@ -8,14 +8,6 @@ endif
 
 let ShortCWDloaded=1
 
-if has("win16") || has("win32") || has("win64")
-    let s:pathSep='\\'
-    let s:charSet='[^\\]'
-else
-    let s:pathSep='\/'
-    let s:charSet='[^\/]'
-endif
-
 let s:cwdPrev=''
 let s:bufNamePrev=''
 let s:winWidthPrev=-1
@@ -23,9 +15,9 @@ let s:tagPrev=''
 let s:bufModPrev=0
 
 function! ShortCWD()
-    if (getcwd() ==# s:cwdPrev) && (@% == s:bufNamePrev) && (winwidth(0) == s:winWidthPrev) && (&mod == s:bufModPrev)
+    if (getcwd() == s:cwdPrev) && (@% == s:bufNamePrev) && (winwidth(0) == s:winWidthPrev) && (&mod == s:bufModPrev)
         if g:airline_section_x =~? 'tagbar'
-            if (tagbar#currenttag('%s','','') ==# s:tagPrev)
+            if (tagbar#currenttag('%s','','') == s:tagPrev)
                 return s:cwd
             endif
         else
@@ -33,26 +25,31 @@ function! ShortCWD()
         endif
     endif
 
+    if (has("win16") || has("win32") || has("win64")) && noshellslash
+        let pathSep='\'
+    else
+        let pathSep='/'
+    endif
+
     let s:cwdPrev=getcwd()
     let s:bufNamePrev=@%
     let s:winWidthPrev=winwidth(0)
     let s:bufModPrev=&modified
-    let s:cwd=substitute(s:cwdPrev,substitute(expand('~'),s:pathSep,'\\'.s:pathSep,'g'),'~','')
+    let s:cwd=fnamemodify(s:cwdPrev,':~')
     if g:airline_section_x =~? 'tagbar'
         let s:tagPrev=tagbar#currenttag('%s','','')
     endif
 
-    if strlen(s:tagPrev)
-        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-3*&mod-&ro-53
-    else
-        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)-strlen(s:tagPrev)-3*&mod-&ro-50
-    endif
+    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)
+        \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-50
 
     if strlen(s:cwd) > s:cwdMaxLen
-        let s:shortCWDprev=''
-        while (strlen(s:cwd) >= s:cwdMaxLen) && !(s:cwd ==# s:shortCWDprev)
-            let s:shortCWDprev=s:cwd
-            let s:cwd=substitute(s:cwd,'\('.s:pathSep.'\)\('.s:charSet.'\)\('.s:charSet.'\+\)\ze\.*'.s:pathSep.'\@=','\1\2','')
+        let parts=split(s:cwd,pathSep)
+        let partNum=0
+        while (strlen(s:cwd) >= s:cwdMaxLen) && (partNum < len(parts)-1)
+            let parts[partNum]=parts[partNum][0]
+            let s:cwd=join(parts,pathSep)
+            let partNum=partNum+1
         endwhile
     endif
 
