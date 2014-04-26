@@ -1,9 +1,7 @@
 " {{{1 Vim built-in configuration
 
 " Allow settings that are not vi-compatible
-if &compatible
-    set nocompatible
-endif
+if &compatible | set nocompatible | endif
 
 " Reset autocommands when vimrc is re-sourced
 silent! autocmd! VimrcAutocmds
@@ -699,9 +697,6 @@ endif
 " Toggle warnings in airline
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
 
-" Add current directory and red arrow if noignorecase is set to status line
-sil! let g:airline_section_b='%#__accent_red#%{!&ic?"'.nr2char(8593).'":""}%#__restore__#%{ShortCWD()}'
-
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
@@ -916,5 +911,10 @@ let g:ack_autofold_results=0
 
 " Import scripts
 execute pathogen#infect()
+
+" Add current directory and red arrow if ignorecase is not set to status line
+sil! call airline#parts#define('ic',{'condition': '!\&ic',
+    \'text': nr2char(8593),'accent': 'red'})
+sil! let g:airline_section_b = airline#section#create(['ic', '%{ShortCWD()}'])
 
 " vim: fdm=marker fdl=1:
