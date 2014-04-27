@@ -61,6 +61,8 @@ set fileformat=unix
 set csqf=s-,c-,d-,i-,t-,e-     " Use quickfix list for cscope results
 set cscopetag                  " Use cscope instead of ctags when possible
 set foldopen+=jump             " Jumps open folds
+set clipboard=                 " Disable clipboard and mouse integration
+set mouse=
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -529,9 +531,6 @@ if has('gui_running')
 
         " Set font for gVim
         set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 10.5
-
-        " Don't use clipboard for visual selection
-        set clipboard=
     endif
 else
     " Make control + arrow keys work in terminal
