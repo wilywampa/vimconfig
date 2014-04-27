@@ -173,7 +173,6 @@ if hasWin
     endif
     set backupdir=C:\temp\vimtmp,.
     set directory=C:\temp\vimtmp,.
-    sil! set undodir=C:\temp\vimtmp,.
 
     " Explore to current file
     nnoremap <silent> <F4> :call system('start explorer /select,\"'.expand('%:p').'\"')<CR>
@@ -198,7 +197,7 @@ else
     endif
     set backupdir=~/.tmp
     set directory=~/.tmp
-    sil! set undodir=~/.tmp
+    if hasMac | sil! set undodir=~/.tmp | endif
 
     if hasMac
         " Reveal current file in Finder
@@ -423,9 +422,9 @@ ino <M-p> <C-r>"
 " Go to older position in jump list
 nn <S-Tab> <C-o>
 
-" Make <C-d>/<C-d> scroll 1/4 page
-no <expr> <C-d> winheight('.')/4."\<C-e>"
-no <expr> <C-u> winheight('.')/4."\<C-y>"
+" Make <C-d>/<C-u> scroll 1/4 page
+nn <silent> <C-d> :exe 'set scr='.(winheight('.')+1)/4<CR><C-d>
+nn <silent> <C-u> :exe 'set scr='.(winheight('.')+1)/4<CR><C-u>
 
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
@@ -686,6 +685,8 @@ nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 colorscheme desert
 hi Pmenu term=bold ctermbg=18 guibg=DarkBlue
 hi PmenuSel term=reverse ctermbg=30 guibg=DarkCyan
+hi LineNr guifg=grey60 guibg=grey20
+hi CursorLineNr guifg=darkkhaki guibg=grey20
 
 " {{{1 Plugin configuration
 
@@ -935,6 +936,15 @@ elseif hasWin
     let g:ackprg='~/bin/ag --nogroup --nocolor --column'
 endif
 let g:ack_autofold_results=0
+
+" Unite settings
+let g:unite_source_history_yank_enable=1
+let g:unite_split_rule='botright'
+autocmd VimrcAutocmds FileType unite imap <buffer> <C-q> <Plug>(unite_exit)
+autocmd VimrcAutocmds FileType unite imap <buffer> <C-j> <Plug>(unite_select_next_line)
+autocmd VimrcAutocmds FileType unite imap <buffer> <C-k> <Plug>(unite_select_previous_line)
+nnoremap <silent> "" :<C-u>Unite history/yank<CR>
+nnoremap <silent> <M-o> :<C-u>Unite -buffer-name=files -start-insert file_rec<CR>
 
 " Import scripts
 execute pathogen#infect()
