@@ -682,10 +682,10 @@ nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 
 " Set color scheme
 colorscheme desert
-hi Pmenu term=bold ctermbg=18 guibg=DarkBlue
-hi PmenuSel term=reverse ctermbg=30 guibg=DarkCyan
-hi LineNr guifg=grey60 guibg=grey20
-hi CursorLineNr guifg=darkkhaki guibg=grey20
+hi Pmenu term=bold ctermfg=231 ctermbg=18 guifg=fg guibg=DarkBlue
+hi PmenuSel term=reverse ctermfg=231 ctermbg=30 guifg=fg guibg=DarkCyan
+hi LineNr term=underline ctermfg=246 ctermbg=236 guifg=grey60 guibg=grey20
+hi CursorLineNr term=bold ctermfg=143 ctermbg=236 guifg=darkkhaki guibg=grey20
 
 " {{{1 Plugin configuration
 
@@ -858,7 +858,7 @@ map! <S-Space> <Space>
 let g:EasyMotion_keys='ABCDEFGIMNOPQRSTUVWXYZLKJH'
 let g:EasyMotion_use_upper=1
 let g:EasyMotion_add_search_history=0
-map <Space> <Plug>(easymotion-bd-f)
+map <Space> <Plug>(easymotion-s2)
 map <Space>/ <Plug>(easymotion-sn)
 map <Space><Space>f <Plug>(easymotion-bd-f)
 map <Space><Space>t <Plug>(easymotion-bd-t)
@@ -935,6 +935,7 @@ elseif hasWin
     let g:ackprg='~/bin/ag --nogroup --nocolor --column'
 endif
 let g:ack_autofold_results=0
+com! -nargs=* -bang A Ack<bang><args>
 
 " Unite settings
 let g:unite_source_history_yank_enable=1
