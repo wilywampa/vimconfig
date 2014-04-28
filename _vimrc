@@ -682,10 +682,7 @@ nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 
 " Set color scheme
 colorscheme desert
-hi Pmenu term=bold ctermfg=231 ctermbg=18 guifg=fg guibg=DarkBlue
-hi PmenuSel term=reverse ctermfg=231 ctermbg=30 guifg=fg guibg=DarkCyan
-hi LineNr term=underline ctermfg=246 ctermbg=236 guifg=grey60 guibg=grey20
-hi CursorLineNr term=bold ctermfg=143 ctermbg=236 guifg=darkkhaki guibg=grey20
+sil! colorscheme jellybeans
 
 " {{{1 Plugin configuration
 
@@ -706,7 +703,7 @@ if s:readonly
 endif
 
 " Set airline color scheme
-let g:airline_theme='badwolf'
+let g:airline_theme='jellybeans'
 let g:airline#extensions#ctrlp#color_template='normal'
 
 " Use powerline font unless in Mac SSH session or in old Vim
@@ -754,21 +751,6 @@ nmap <Leader>cc <Plug>CommentaryLine
 nmap c<Leader>c <Plug>ChangeCommentary
 nmap <Leader>cu <Plug>Commentary<Plug>Commentary
 let g:commentary_map_backslash=0
-
-" CSApprox configuration
-if has('gui_running') || &t_Co < 88
-    call add(g:pathogen_disabled, 'CSApprox')
-else
-    " Use a snapshot if available or else make one
-    if filereadable(expand('~/.CSApproxSnapshot'))
-        call add(g:pathogen_disabled, 'CSApprox')
-        source ~/.CSApproxSnapshot
-        sil! AirlineTheme badwolf
-    else
-        autocmd VimrcAutocmds VimEnter * sil! CSApproxSnapshot ~/.CSApproxSnapshot
-            \| sil! AirlineTheme badwolf
-    endif
-endif
 
 " {{{2 Completion settings
 if has('lua')
@@ -935,7 +917,7 @@ elseif hasWin
     let g:ackprg='~/bin/ag --nogroup --nocolor --column'
 endif
 let g:ack_autofold_results=0
-com! -nargs=* -bang A Ack<bang><args>
+com! -nargs=* -bang A Ack<bang> <args>
 
 " Unite settings
 let g:unite_source_history_yank_enable=1

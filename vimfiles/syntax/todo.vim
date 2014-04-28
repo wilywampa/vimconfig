@@ -2,9 +2,9 @@
 " Language: Todo List
 " Author: Jacob Niehus
 
-if exists("b:current_syntax")
-    finish
-endif
+" if exists("b:current_syntax")
+"     finish
+" endif
 
 let b:current_syntax = "todo"
 
@@ -19,11 +19,11 @@ syn match todoComment '[#@].*$' contained
 syn match todoSectionTitle '--.*--' contained
 syn region todoLine start="^" end="$" fold transparent contains=ALL
 
-hi def link todoCheckboxIncomplete PreProc
-hi def link todoCheckboxComplete Identifier
-hi def link todoCheckboxCancelled MoreMsg
-hi def link todoStringIncomplete Special
-hi def link todoStringComplete Identifier
-hi def link todoStringCancelled MoreMsg
-hi def link todoSectionTitle Statement
+hi def link todoCheckboxIncomplete Constant
+hi def link todoCheckboxComplete Title
+hi def link todoCheckboxCancelled StringDelimiter
+hi def link todoStringIncomplete Constant
+hi def link todoStringComplete Title
+hi def link todoStringCancelled StringDelimiter
+hi def link todoSectionTitle Type
 hi def link todoComment Comment
