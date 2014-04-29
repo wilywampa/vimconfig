@@ -521,7 +521,7 @@ if has('gui_running')
         endif
     elseif hasMac
         " Set font for MacVim
-        set guifont=Meslo\ LG\ S\ Regular\ for\ Powerline:h15
+        set guifont=Consolas:h17
 
         " Start in fullscreen mode
         autocmd VimrcAutocmds VimEnter * sil! set fullscreen
@@ -824,6 +824,7 @@ nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
 let g:ctrlp_buffer_func={ 'enter': 'MyCtrlPMappings' }
 func! MyCtrlPMappings()
     nnoremap <buffer> <silent> <C-q> :call <SID>DeleteBuffer()<cr>
+    map <buffer> <silent> ` <Esc>
 endfunc
 func! s:DeleteBuffer()
     let l:line=getline('.')
