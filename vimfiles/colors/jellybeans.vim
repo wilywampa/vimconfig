@@ -507,7 +507,7 @@ if !s:low_color
   hi CursorColumn ctermbg=234
   hi CursorLine ctermbg=235
   hi SpecialKey ctermbg=234
-  exec "hi NonText ctermbg=".g:jellybeans_background_color_256
+  hi NonText ctermbg=234
   hi LineNr ctermbg=235
   hi DiffText ctermfg=81
   exec "hi Normal ctermbg=".g:jellybeans_background_color_256
