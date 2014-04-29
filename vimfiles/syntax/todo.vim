@@ -19,10 +19,10 @@ syn match todoComment '[#@].*$' contained
 syn match todoSectionTitle '--.*--' contained
 syn region todoLine start="^" end="$" fold transparent contains=ALL
 
-hi def link todoCheckboxIncomplete Constant
+hi def link todoCheckboxIncomplete PreProc
 hi def link todoCheckboxComplete Title
 hi def link todoCheckboxCancelled StringDelimiter
-hi def link todoStringIncomplete Constant
+hi def link todoStringIncomplete PreProc
 hi def link todoStringComplete Title
 hi def link todoStringCancelled StringDelimiter
 hi def link todoSectionTitle Type
