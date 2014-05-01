@@ -923,9 +923,13 @@ com! -nargs=* -bang A Ack<bang> <args>
 " Unite settings
 let g:unite_source_history_yank_enable=1
 let g:unite_split_rule='botright'
-autocmd VimrcAutocmds FileType unite imap <buffer> <C-q> <Plug>(unite_exit)
-autocmd VimrcAutocmds FileType unite imap <buffer> <C-j> <Plug>(unite_select_next_line)
-autocmd VimrcAutocmds FileType unite imap <buffer> <C-k> <Plug>(unite_select_previous_line)
+autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
+func! s:UniteMaps()
+    imap <buffer> <C-q> <Plug>(unite_exit)
+    imap <buffer> <C-j> <Plug>(unite_select_next_line)
+    imap <buffer> <C-k> <Plug>(unite_select_previous_line)
+    nmap <buffer> ` <Plug>(unite_exit)
+endfunc
 nnoremap <silent> "" :<C-u>Unite history/yank<CR>
 nnoremap <silent> <M-o> :<C-u>Unite -buffer-name=files -start-insert file_rec<CR>
 

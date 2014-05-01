@@ -57,6 +57,9 @@ function! ShortCWD()
             if !s:hasWin && parts[0] != '~' | let s:cwd='/'.s:cwd | endif
             let partNum=partNum+1
         endwhile
+        if strlen(s:cwd) > s:cwdMaxLen
+            let s:cwd=parts[-1]
+        endif
     endif
     if s:cwd=='~/' | let s:cwd='~' | endif
 

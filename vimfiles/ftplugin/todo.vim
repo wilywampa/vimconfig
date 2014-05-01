@@ -3,7 +3,7 @@
 " Author: Jacob Niehus
 
 if (exists("b:did_ftplugin"))
-  finish
+    finish
 endif
 
 let b:did_ftplugin = 1
@@ -30,17 +30,17 @@ endfunc
 
 nnoremap <silent> <buffer> \// :<C-u>call <SID>SetC('✓')<Bar>set opfunc=<SID>DoIt<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 nnoremap <silent> <buffer> \/  :<C-u>call <SID>SetC('✓')<Bar>set opfunc=<SID>DoIt<CR>g@
-xnoremap <silent> <buffer> \/  :<C-u>call <SID>SetC('✓')<Bar>set opfunc=<SID>DoIt(line("'<"),line("'>"))<CR>g@
+xnoremap <silent> <buffer> \/  :<C-u>call <SID>SetC('✓')<Bar>call <SID>DoIt(line("'<"),line("'>"))<CR>
 
 nnoremap <silent> <buffer> \oo :<C-u>call <SID>SetC('O')<Bar>set opfunc=<SID>DoIt<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 nnoremap <silent> <buffer> \o  :<C-u>call <SID>SetC('O')<Bar>set opfunc=<SID>DoIt<CR>g@
-xnoremap <silent> <buffer> \o  :<C-u>call <SID>SetC('O')<Bar>set opfunc=<SID>DoIt(line("'<"),line("'>"))<CR>g@
+xnoremap <silent> <buffer> \o  :<C-u>call <SID>SetC('O')<Bar>call <SID>DoIt(line("'<"),line("'>"))<CR>
 
 nnoremap <silent> <buffer> \xx :<C-u>call <SID>SetC('X')<Bar>set opfunc=<SID>DoIt<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 nnoremap <silent> <buffer> \x  :<C-u>call <SID>SetC('X')<Bar>set opfunc=<SID>DoIt<CR>g@
-xnoremap <silent> <buffer> \x  :<C-u>call <SID>SetC('X')<Bar>set opfunc=<SID>DoIt(line("'<"),line("'>"))<CR>g@
+xnoremap <silent> <buffer> \x  :<C-u>call <SID>SetC('X')<Bar>call <SID>DoIt(line("'<"),line("'>"))<CR>
 
-nnoremap <buffer> ,o o<CR>(O)<Space>
-nnoremap <buffer> ,O O(O)<CR><Esc>kA<Space><Esc>
+nnoremap <buffer> ,o o(O)<Space>
+nnoremap <buffer> ,O O(O)<Space>
 
 setlocal wrap linebreak
