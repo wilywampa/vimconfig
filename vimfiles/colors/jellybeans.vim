@@ -324,7 +324,7 @@ if version >= 700
   call s:X("PmenuSel","101010","eeeeee","",s:termBlack,"White")
 endif
 
-call s:X("Visual","","500000","","",s:termBlack)
+call s:X("Visual","","660000","","",s:termBlack)
 call s:X("Cursor",g:jellybeans_background_color,"b0d0f0","","","")
 
 call s:X("LineNr","605958",g:jellybeans_background_color,"none",s:termBlack,"")
