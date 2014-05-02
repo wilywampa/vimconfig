@@ -482,6 +482,14 @@ hi! link vimOper Normal
 call s:X("DbgCurrent","DEEBFE","345FA8","","White","DarkBlue")
 call s:X("DbgBreakPt","","4F0037","","","DarkMagenta")
 
+" vim-indent-guides
+
+if !exists("g:indent_guides_auto_colors")
+  let g:indent_guides_auto_colors = 0
+endif
+call s:X("IndentGuidesOdd","",g:jellybeans_background_color,"","","")
+call s:X("IndentGuidesEven","","202020","","","")
+
 " Plugins, etc.
 
 hi! link TagListFileName Directory
@@ -500,10 +508,13 @@ if !s:low_color
   hi CursorLine ctermbg=235
   hi SpecialKey ctermbg=234
   hi NonText ctermbg=234
-  hi LineNr ctermbg=235
+  hi VertSplit ctermbg=237
+  hi LineNr ctermbg=234 guibg=#1c1c1c
   hi DiffText ctermfg=81
   exec "hi Normal ctermbg=".g:jellybeans_background_color_256
   hi DbgBreakPt ctermbg=53
+  hi link IndentGuidesOdd Normal
+  hi IndentGuidesEven ctermbg=234 guibg=#202020
 endif
 
 if exists("g:jellybeans_overrides")

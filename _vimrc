@@ -61,8 +61,9 @@ set fileformat=unix
 set csqf=s-,c-,d-,i-,t-,e-     " Use quickfix list for cscope results
 set cscopetag                  " Use cscope instead of ctags when possible
 set foldopen+=jump             " Jumps open folds
-set clipboard=                 " Disable clipboard and mouse integration
-set mouse=
+set clipboard=unnamed          " Yank to system clipboard
+set clipboard+=unnamedplus
+set mouse=                     " Disable mouse integration
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -340,8 +341,8 @@ nn <silent> <M-k> m`:sil -g/\m^\s*$/d<CR>``:noh<CR>:call
 " Backspace deletes visual selection
 vn <BS> "_d
 
-" Ctrl-c copies visual selection to system clipboard
-vn <silent> <C-c> "+y:let @*=@+<CR>
+" Ctrl-c copies visual characterwise
+vn <C-c> <Esc>'<0v'>g_y
 
 " File explorer at current buffer with -
 nn <silent> - :Explore<CR>
@@ -427,6 +428,8 @@ nn <S-Tab> <C-o>
 " Make <C-d>/<C-u> scroll 1/4 page
 nn <silent> <C-d> :exe 'set scr='.(winheight('.')+1)/4<CR><C-d>
 nn <silent> <C-u> :exe 'set scr='.(winheight('.')+1)/4<CR><C-u>
+vn <silent> <C-d> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-d>
+vn <silent> <C-u> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-u>
 
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
@@ -625,23 +628,6 @@ func! DeleteHiddenBuffers()
     endfor
 endfunc
 nnoremap <silent> <Leader>dh :call DeleteHiddenBuffers()<CR>
-
-" Remove last newline after copying visual selection to clipboard
-func! RemoveClipboardNewline()
-    if &updatetime==1
-        let @+=substitute(@+,'\n$','','g')
-        let @*=@+
-        set updatetime=4000
-    endif
-endfunc
-func! s:VisualEnter(arg)
-    set updatetime=1
-    return a:arg
-endfunc
-vnoremap <expr> <SID>VisualEnter VisualEnter()
-nnoremap <expr> v <SID>VisualEnter('v')
-nnoremap <expr> V <SID>VisualEnter('V')
-autocmd VimrcAutocmds CursorHold * call RemoveClipboardNewline()
 
 " Kludge to make first quickfix result unfold
 func! s:ToggleFoldOpen()
@@ -904,12 +890,7 @@ let g:airline#extensions#syntastic#enabled=0
 let g:no_default_tabular_maps=1
 
 " Indent Guides settings
-let g:indent_guides_auto_colors=0
 nmap <silent> <Leader>i <Plug>IndentGuidesToggle
-augroup VimrcAutocmds
-    autocmd VimEnter,Colorscheme * hi link IndentGuidesOdd Normal
-    autocmd VimEnter,Colorscheme * hi IndentGuidesEven ctermbg=234 guibg=#202020
-augroup END
 
 " Ack settings
 if executable('ag')
