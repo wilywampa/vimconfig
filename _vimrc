@@ -513,6 +513,7 @@ if has('gui_running')
     set guioptions-=r
     set guioptions-=m " Hide menu/toolbars
     set guioptions-=T
+    set guioptions+=c " Don't use popup dialogs
 
     if hasWin
         " Set font for gVim
@@ -533,7 +534,7 @@ if has('gui_running')
         set showtabline=2
 
         " Set font for gVim
-        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 10.5
+        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 12
     endif
 else
     " Make control + arrow keys work in terminal
@@ -648,9 +649,10 @@ autocmd VimrcAutocmds QuickFixCmdPost * call s:ToggleFoldOpen()
 
 " Function to redirect output of ex command to clipboard
 func! Redir(cmd)
-    redir @+ | execute a:cmd | redir END
-    let @+=substitute(@+,"\<CR>",'','g')
-    let @*=@+
+    redir @" | execute a:cmd | redir END
+    let @"=substitute(@","^\<NL>*",'','g')
+    let @*=@"
+    let @+=@"
 endfunc
 com! -nargs=+ -complete=command Redir call Redir(<q-args>)
 nnoremap <Leader>r :<Up><Home>Redir <CR>
@@ -723,6 +725,7 @@ endfunc
 nnoremap <silent> <Leader>t :sil! call <SID>TagbarToggle()<CR>
 let g:tagbar_iconchars=['▶','▼']
 let g:tagbar_sort=0
+let g:tagbar_autofocus=1
 
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
@@ -827,6 +830,8 @@ map! <S-Space> <Space>
 let g:EasyMotion_keys='ABCDEFGIMNOPQRSTUVWXYZLKJH'
 let g:EasyMotion_use_upper=1
 let g:EasyMotion_add_search_history=0
+let g:EasyMotion_smartcase=1
+let g:EasyMotion_enter_jump_first=1
 map <Space> <Plug>(easymotion-s2)
 map <Space>/ <Plug>(easymotion-sn)
 map <Space><Space>f <Plug>(easymotion-bd-f)
@@ -840,7 +845,7 @@ autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
 nnoremap <silent> <expr> - exists(':VimFiler')?
     \":VimFilerBufferDir -find -quit\<CR>":
     \":Explore\<CR>"
-nnoremap <silent> <C--> :VimFilerCurrentDir -find -quit<CR>
+nnoremap <silent> <C-_> :VimFilerCurrentDir -find -quit<CR>
 autocmd VimrcAutocmds VimEnter * let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
 let g:vimfiler_tree_leaf_icon=' '

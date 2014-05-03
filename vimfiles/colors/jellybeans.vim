@@ -375,7 +375,8 @@ call s:X("Question","65C254","","","Green","")
 
 " Spell Checking
 
-call s:X("SpellBad","","902020","underline","","DarkRed")
+call s:X("SpellBad","","902020","undercurl","","DarkRed")
+execute "hi SpellBad guibg=#".g:jellybeans_background_color
 call s:X("SpellCap","","0000df","underline","","Blue")
 call s:X("SpellRare","","540063","underline","","DarkMagenta")
 call s:X("SpellLocal","","2D7067","underline","","Green")
