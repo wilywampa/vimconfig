@@ -191,7 +191,8 @@ if hasWin
     endif
     if &shell !~ 'cmd'
         set shellxquote=\" shellcmdflag=-c shellslash grepprg=grep\ -nH\ $*\ /dev/null
-        nnoremap <silent> <F4> :call system('cygstart explorer /select,\"'.expand('%:p').'\"')<CR>
+        nnoremap <silent> <F4> :call system('cygstart explorer /select,\"'
+            \.substitute(expand('%:p'),'\/','\\','g').'\"')<CR>
     endif
 else
     " Change swap file location for unix
@@ -239,7 +240,7 @@ nn <Leader>a ggVG
 vn <Leader>a <C-c>ggVG
 
 " Make F2 toggle line numbers
-nn <silent> <F2> :se nu!<bar>if &nu<bar>sil! se rnu<bar>el<bar>sil! se nornu<bar>en<CR>
+nn <silent> <F2> :se nu!<bar>sil! let &rnu=&nu<CR>
 vm <silent> <F2> <Esc><F2>gv
 
 " Edit configuration files
@@ -772,6 +773,7 @@ if has('lua')
     inoremap <expr> <Tab>   <SID>StartManualComplete()
     inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
     inoremap <expr> <CR>    neocomplete#close_popup()."\<C-g>u\<CR>"
+    inoremap <expr> <C-e>   neocomplete#close_popup()
     imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
         \"\<Plug>(neosnippet_expand_or_jump)":
         \neocomplete#close_popup()
@@ -848,6 +850,7 @@ nnoremap <silent> <expr> - exists(':VimFiler')?
 nnoremap <silent> <C-_> :VimFilerCurrentDir -find -quit<CR>
 autocmd VimrcAutocmds VimEnter * let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
+nn <silent> gx :call netrw#NetrwBrowseX(expand("<cfile>"),0)<CR>
 let g:vimfiler_tree_leaf_icon=' '
 let g:vimfiler_file_icon='-'
 let g:vimfiler_tree_opened_icon='▼'
@@ -909,15 +912,25 @@ com! -nargs=* -bang A Ack<bang> <args>
 " Unite settings
 let g:unite_source_history_yank_enable=1
 let g:unite_split_rule='botright'
+let g:unite_enable_start_insert=1
+hi UniteCursor ctermbg=236 guibg=#333333
+let g:unite_cursor_line_highlight='UniteCursor'
 autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
 func! s:UniteMaps()
-    imap <buffer> <C-q> <Plug>(unite_exit)
-    imap <buffer> <C-j> <Plug>(unite_select_next_line)
-    imap <buffer> <C-k> <Plug>(unite_select_previous_line)
-    nmap <buffer> ` <Plug>(unite_exit)
+    ino   <silent> <buffer> <expr> <C-q> unite#do_action('delete')
+    nn    <silent> <buffer> <expr> <C-q> unite#do_action('delete')
+    imap  <silent> <buffer> <C-o> <Plug>(unite_choose_action)
+    nmap  <silent> <buffer> <C-o> <Plug>(unite_choose_action)
+    imap           <buffer> <C-j> <Plug>(unite_select_next_line)
+    imap           <buffer> <C-k> <Plug>(unite_select_previous_line)
+    nmap           <buffer> `     <Plug>(unite_exit)
+    imap           <buffer> `     <Plug>(unite_exit)
+    nmap           <buffer> <Esc> <Plug>(unite_exit)
+    nmap           <buffer> <C-c> <Plug>(unite_exit)
 endfunc
 nnoremap <silent> "" :<C-u>Unite history/yank<CR>
-nnoremap <silent> <M-o> :<C-u>Unite -buffer-name=files -start-insert file_rec<CR>
+nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async:!<CR>
+nnoremap <silent> <C-p> :<C-u>Unite -buffer-name=Buffers/MRU buffer neomru/file<CR>
 
 " Import scripts
 execute pathogen#infect()
