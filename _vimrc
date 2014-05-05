@@ -930,7 +930,9 @@ func! s:UniteMaps()
 endfunc
 nnoremap <silent> "" :<C-u>Unite history/yank<CR>
 nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async:!<CR>
-nnoremap <silent> <C-p> :<C-u>Unite -buffer-name=Buffers/MRU buffer neomru/file<CR>
+nnoremap <expr> <silent> <C-p> ":\<C-u>Unite -buffer-name=Buffers/MRU -select=1 "
+    \.(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1 ? "buffer" : "")
+    \." neomru/file\<CR>"
 
 " Import scripts
 execute pathogen#infect()
