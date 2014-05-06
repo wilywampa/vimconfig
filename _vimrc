@@ -301,7 +301,7 @@ nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
 nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 
 " Copy full file path to clipboard on Ctrl-g
-nn <C-g> :let @+=expand('%:p')<CR>:let @*=@+<CR><C-g>
+nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>
 
 " Change tab position
 nn <silent> <C-w><C-e>     :tabm<CR>
@@ -408,7 +408,7 @@ nn <silent> <Leader>s :set bt=nofile<CR>
 nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 
 " Change directory to current buffer's path
-nnoremap <silent> <Leader>cd :cd %:p:h<CR>:pwd<CR>
+nnoremap <silent> <Leader>cd :cd! %:p:h<CR>:pwd<CR>
 nnoremap <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
 
 " <CR> in insert mode creates undo point
@@ -451,7 +451,10 @@ func! s:OpenHelp(topic)
             " Open help in vertical split if window is not already split
             exe 'sil! vert help '.a:topic
         else
+            let l:sb = &splitbelow
+            set nosplitbelow
             exe 'sil! help '.a:topic
+            let &splitbelow = l:sb
         endif
     else
         setl ft=help bt=help noma
@@ -478,8 +481,9 @@ vnoremap <expr> <silent> K <SID>OpenHelpVisual()
 
 " Abbreviations for diff commands
 cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffthis':'dt')
-cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff' :'do')
-cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate'    :'du')
+cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff \|
+    \ windo set nowrap':'do')
+cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate':'du')
 
 " Abbreviations for cscope commands
 cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cs add'  :'csa')
@@ -844,7 +848,9 @@ map <Space>/ <Plug>(easymotion-sn)
 map <Space><Space>f <Plug>(easymotion-bd-f)
 map <Space><Space>t <Plug>(easymotion-bd-t)
 map <Space><Space>w <Plug>(easymotion-bd-w)
+map <Space><Space>W <Plug>(easymotion-bd-W)
 map <Space><Space>e <Plug>(easymotion-bd-e)
+map <Space><Space>E <Plug>(easymotion-bd-E)
 map <Space><Space>n <Plug>(easymotion-bd-n)
 autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
 
@@ -893,6 +899,7 @@ func! s:UniteMaps()
     nnor <silent> <buffer> <expr> <C-s> unite#do_action('split')
     inor <silent> <buffer> <expr> <C-v> unite#do_action('vsplit')
     nnor <silent> <buffer> <expr> <C-v> unite#do_action('vsplit')
+    inor <buffer> <C-d> <C-o><C-d>
     inor <buffer> <C-f> <C-o><C-d>
     inor <buffer> <C-b> <C-o><C-u>
     imap <buffer> <C-o> <Plug>(unite_choose_action)
