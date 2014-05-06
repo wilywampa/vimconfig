@@ -56,6 +56,7 @@ set listchars+=precedes:<
 set listchars+=nbsp:+
 set keywordprg=:help           " Use Vim help instead of man to look up keywords
 set splitright                 " Vertical splits open on the right
+set splitbelow                 " Horizontal splits open on the bottom
 set fileformats=unix,dos       " Always prefer unix format
 set fileformat=unix
 set csqf=s-,c-,d-,i-,t-,e-     " Use quickfix list for cscope results
@@ -84,14 +85,6 @@ if !s:readonly
         au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * silent! mks! ~/periodic_session.vis"
     augroup END
 endif
-
-" Like bufdo but return to starting buffer
-func! Bufdo(command)
-    let currBuff=bufnr("%")
-    execute 'bufdo ' . a:command
-    execute 'buffer ' . currBuff
-endfunc
-com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Enable matchit plugin
 runtime! macros/matchit.vim
@@ -416,6 +409,7 @@ nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 
 " Change directory to current buffer's path
 nnoremap <silent> <Leader>cd :cd %:p:h<CR>:pwd<CR>
+nnoremap <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
 
 " <CR> in insert mode creates undo point
 ino <CR> <C-g>u<CR>
@@ -506,48 +500,15 @@ no <M-\>i :cs find i ^<C-r>=expand("<cfile>")<CR>$<CR>
 no <M-\>d :cs find d <C-r>=expand("<cword>")<CR><CR>
 vm <M-\> <Esc><M-\>
 
-" }}}2
+" {{{2 Functions
 
-if has('gui_running')
-    set guioptions+=A " Copy mouse modeless selection to clipboard
-    set guioptions-=L " Don't use scrollbars
-    set guioptions-=r
-    set guioptions-=m " Hide menu/toolbars
-    set guioptions-=T
-    set guioptions+=c " Don't use popup dialogs
-
-    if hasWin
-        " Set font for gVim
-        if hostname() ==? 'Jake-Desktop'
-            " Big font for big TV
-            set guifont=DejaVu_Sans_Mono_for_Powerline:h13:cANSI
-        else
-            set guifont=DejaVu_Sans_Mono_for_Powerline:h11:cANSI
-        endif
-    elseif hasMac
-        " Set font for MacVim
-        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h15
-
-        " Start in fullscreen mode
-        autocmd VimrcAutocmds VimEnter * sil! set fullscreen
-    else
-        " Always show tabline (prevent resizing issues)
-        set showtabline=2
-
-        " Set font for gVim
-        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 12
-    endif
-else
-    " Make control + arrow keys work in terminal
-    exec "set <F13>=\<Esc>[A <F14>=\<Esc>[B <C-Right>=\<Esc>[C <C-Left>=\<Esc>[D"
-    map <F13> <C-Up>
-    map <F14> <C-Down>
-    map! <F13> <C-Up>
-    map! <F14> <C-Down>
-
-    " Use correct background color
-    autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
-endif
+" Like bufdo but return to starting buffer
+func! Bufdo(command)
+    let currBuff=bufnr("%")
+    execute 'bufdo ' . a:command
+    execute 'buffer ' . currBuff
+endfunc
+com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Function to set key codes for terminals
 func! s:KeyCodes()
@@ -563,51 +524,6 @@ func! s:KeyCodes()
     exec "set <M-\\|>=\<Esc>\\| <M-'>=\<Esc>'"
 endfunc
 nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
-
-" Increase time allowed for keycode mappings over SSH
-if macSSH
-    set ttimeoutlen=250
-elseif hasSSH
-    set ttimeoutlen=100
-endif
-
-augroup VimrcAutocmds
-    " Don't auto comment new line made with 'o' or 'O'
-    autocmd FileType * set formatoptions-=o
-
-    " Use line wrapping for plain text files (but not help files)
-    autocmd FileType text setl wrap linebreak
-    autocmd FileType help setl nowrap nolinebreak
-
-    " Indent line continuation for conf files
-    autocmd FileType conf setl indentexpr=getline(v:lnum-1)=~'\\\\$'?&sw:0
-
-    " Prefer single-line style comments and fix shell script comments
-    autocmd FileType cpp,arduino setl commentstring=//%s
-    autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
-
-    " Highlight current line in active window
-    autocmd BufRead,BufNewFile,VimEnter * set cul
-    autocmd WinEnter * set cul
-    autocmd WinLeave * set nocul
-
-    " Disable paste mode after leaving insert mode
-    autocmd InsertLeave * set nopaste
-
-    " Open quickfix window automatically if not empty
-    autocmd QuickFixCmdPost * cw
-
-    " Always make quickfix full-width on the bottom
-    autocmd FileType qf wincmd J
-
-    " Use to check if inside command window
-    au VimEnter,CmdwinLeave * let g:inCmdwin=0
-    au CmdwinEnter * let g:inCmdwin=1
-    au CmdwinEnter / let g:cmdwinType='/'
-    au CmdwinEnter ? let g:cmdwinType='?'
-    au CmdwinEnter : let g:cmdwinType=':'
-    au CmdwinEnter * call s:CmdwinMappings()
-augroup END
 
 func! <SID>CmdwinMappings()
     " Make 'gf' work in command window
@@ -668,6 +584,95 @@ func! s:FixReg()
     call setreg(l:reg, l:str)
 endfunc
 nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
+
+" }}}2
+
+if has('gui_running')
+    set guioptions+=A " Copy mouse modeless selection to clipboard
+    set guioptions-=L " Don't use scrollbars
+    set guioptions-=r
+    set guioptions-=m " Hide menu/toolbars
+    set guioptions-=T
+    set guioptions+=c " Don't use popup dialogs
+
+    if hasWin
+        " Set font for gVim
+        if hostname() ==? 'Jake-Desktop'
+            " Big font for big TV
+            set guifont=DejaVu_Sans_Mono_for_Powerline:h13:cANSI
+        else
+            set guifont=DejaVu_Sans_Mono_for_Powerline:h11:cANSI
+        endif
+    elseif hasMac
+        " Set font for MacVim
+        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h15
+
+        " Start in fullscreen mode
+        autocmd VimrcAutocmds VimEnter * sil! set fullscreen
+    else
+        " Always show tabline (prevent resizing issues)
+        set showtabline=2
+
+        " Set font for gVim
+        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 12
+    endif
+else
+    " Make control + arrow keys work in terminal
+    exec "set <F13>=\<Esc>[A <F14>=\<Esc>[B <C-Right>=\<Esc>[C <C-Left>=\<Esc>[D"
+    map <F13> <C-Up>
+    map <F14> <C-Down>
+    map! <F13> <C-Up>
+    map! <F14> <C-Down>
+
+    " Use correct background color
+    autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
+endif
+
+" Increase time allowed for keycode mappings over SSH
+if macSSH
+    set ttimeoutlen=250
+elseif hasSSH
+    set ttimeoutlen=100
+endif
+
+augroup VimrcAutocmds
+    " Don't auto comment new line made with 'o', 'O', or <CR>
+    autocmd FileType * set formatoptions-=o
+    autocmd FileType * set formatoptions-=r
+
+    " Use line wrapping for plain text files (but not help files)
+    autocmd FileType text setl wrap linebreak
+    autocmd FileType help setl nowrap nolinebreak
+
+    " Indent line continuation for conf files
+    autocmd FileType conf setl indentexpr=getline(v:lnum-1)=~'\\\\$'?&sw:0
+
+    " Prefer single-line style comments and fix shell script comments
+    autocmd FileType cpp,arduino setl commentstring=//%s
+    autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
+
+    " Highlight current line in active window
+    autocmd BufRead,BufNewFile,VimEnter * set cul
+    autocmd WinEnter * set cul
+    autocmd WinLeave * set nocul
+
+    " Disable paste mode after leaving insert mode
+    autocmd InsertLeave * set nopaste
+
+    " Open quickfix window automatically if not empty
+    autocmd QuickFixCmdPost * cw
+
+    " Always make quickfix full-width on the bottom
+    autocmd FileType qf wincmd J
+
+    " Use to check if inside command window
+    au VimEnter,CmdwinLeave * let g:inCmdwin=0
+    au CmdwinEnter * let g:inCmdwin=1
+    au CmdwinEnter / let g:cmdwinType='/'
+    au CmdwinEnter ? let g:cmdwinType='?'
+    au CmdwinEnter : let g:cmdwinType=':'
+    au CmdwinEnter * call s:CmdwinMappings()
+augroup END
 
 " Set color scheme
 colorscheme desert
@@ -871,6 +876,45 @@ func! s:vimfiler_settings()
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
 endfunc
 
+" {{{2 Unite settings
+let g:unite_source_history_yank_enable=1
+let g:unite_split_rule='botright'
+let g:unite_enable_start_insert=1
+hi UniteCursor ctermbg=236 guibg=#333333
+let g:unite_cursor_line_highlight='UniteCursor'
+let g:unite_source_grep_command='ack'
+let g:unite_source_grep_default_opts='-s -H --nocolor --nogroup --column'
+let g:unite_source_grep_recursive_opt=''
+autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
+func! s:UniteMaps()
+    inor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
+    nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
+    inor <silent> <buffer> <expr> <C-s> unite#do_action('split')
+    nnor <silent> <buffer> <expr> <C-s> unite#do_action('split')
+    inor <silent> <buffer> <expr> <C-v> unite#do_action('vsplit')
+    nnor <silent> <buffer> <expr> <C-v> unite#do_action('vsplit')
+    inor <buffer> <C-f> <C-o><C-d>
+    inor <buffer> <C-b> <C-o><C-u>
+    imap <buffer> <C-o> <Plug>(unite_choose_action)
+    nmap <buffer> <C-o> <Plug>(unite_choose_action)
+    nmap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
+    imap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
+    imap <buffer> <C-j> <Plug>(unite_select_next_line)
+    imap <buffer> <C-k> <Plug>(unite_select_previous_line)
+    nmap <buffer> ` <Plug>(unite_exit)
+    imap <buffer> ` <Plug>(unite_exit)
+    nmap <buffer> <Esc> <Plug>(unite_exit)
+    nmap <buffer> <C-c> <Plug>(unite_exit)
+    imap <buffer> <C-c> <Plug>(unite_exit)
+endfunc
+nnoremap <silent> "" :<C-u>Unite history/yank<CR>
+nnoremap <silent> "' :<C-u>Unite register<CR>
+nnoremap <silent> <expr> ,a ":\<C-u>Unite grep:".getcwd()."\<CR>"
+nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
+nnoremap <expr> <silent> <C-p> ":\<C-u>Unite -buffer-name=Buffers/MRU "
+    \.(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1 ?
+    \"buffer" : "")." -unique neomru/file\<CR>"
+
 " }}}2
 
 " Undotree/Gundo settings
@@ -908,31 +952,6 @@ elseif hasWin
 endif
 let g:ack_autofold_results=0
 com! -nargs=* -bang A Ack<bang> <args>
-
-" Unite settings
-let g:unite_source_history_yank_enable=1
-let g:unite_split_rule='botright'
-let g:unite_enable_start_insert=1
-hi UniteCursor ctermbg=236 guibg=#333333
-let g:unite_cursor_line_highlight='UniteCursor'
-autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
-func! s:UniteMaps()
-    ino   <silent> <buffer> <expr> <C-q> unite#do_action('delete')
-    nn    <silent> <buffer> <expr> <C-q> unite#do_action('delete')
-    imap  <silent> <buffer> <C-o> <Plug>(unite_choose_action)
-    nmap  <silent> <buffer> <C-o> <Plug>(unite_choose_action)
-    imap           <buffer> <C-j> <Plug>(unite_select_next_line)
-    imap           <buffer> <C-k> <Plug>(unite_select_previous_line)
-    nmap           <buffer> `     <Plug>(unite_exit)
-    imap           <buffer> `     <Plug>(unite_exit)
-    nmap           <buffer> <Esc> <Plug>(unite_exit)
-    nmap           <buffer> <C-c> <Plug>(unite_exit)
-endfunc
-nnoremap <silent> "" :<C-u>Unite history/yank<CR>
-nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async:!<CR>
-nnoremap <expr> <silent> <C-p> ":\<C-u>Unite -buffer-name=Buffers/MRU "
-    \.(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1 ?
-    \"-select=1 buffer" : "")." neomru/file\<CR>"
 
 " Import scripts
 execute pathogen#infect()
