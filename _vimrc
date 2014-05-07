@@ -215,10 +215,10 @@ nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':update<CR>'
 ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:update<CR>'
 vn <silent> <C-s> <C-c>:update<CR>
 
-" <Ctrl-l> redraws the screen and removes any search highlighting.
+" Redraw the screen and remove search highlighting
 nn <silent> <C-l> :nohl<CR><C-l>
 
-" Execute q macro with Q
+" Execute q macro
 nm Q @q
 
 " Execute q macro recursively
@@ -232,9 +232,10 @@ nn <silent> <Leader>p :set paste!<CR>
 nn <Leader>a ggVG
 vn <Leader>a <C-c>ggVG
 
-" Make F2 toggle line numbers
+" Toggle line numbers
 nn <silent> <F2> :se nu!<bar>sil! let &rnu=&nu<CR>
 vm <silent> <F2> <Esc><F2>gv
+im <F2> <C-o><F2>
 
 " Edit configuration files
 nn <silent> ,ea :call <SID>SwitchToOrOpen('~/.ackrc')<CR>
