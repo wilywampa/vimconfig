@@ -287,8 +287,8 @@ nn <silent> <M-T> :tab split<CR>
 nn <silent> <M-n> :%s///gn<CR>
 
 " Make last search a whole word
-nn <silent> <Leader>n :let @/='\<'.@/.'\>'<CR>n
-nn <silent> <Leader>N :let @/='\<'.@/.'\>'<CR>N
+nn <silent> <Leader>n :let @/='\<\('.@/.'\)\>'<CR>n
+nn <silent> <Leader>N :let @/='\<\('.@/.'\)\>'<CR>N
 
 " Delete without yank by default, and <M-d> for delete with yank
 nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
@@ -598,6 +598,7 @@ if has('gui_running')
     set guioptions-=m " Hide menu/toolbars
     set guioptions-=T
     set guioptions+=c " Don't use popup dialogs
+    set guioptions-=a " Don't auto-copy visual selection to clipboard
 
     if hasWin
         " Set font for gVim
@@ -891,6 +892,7 @@ let g:unite_cursor_line_highlight='UniteCursor'
 let g:unite_source_grep_command='ack'
 let g:unite_source_grep_default_opts='-s -H --nocolor --nogroup --column'
 let g:unite_source_grep_recursive_opt=''
+let g:unite_source_grep_search_word_highlight='WarningMsg'
 autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
 func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
@@ -918,9 +920,8 @@ nnoremap <silent> "" :<C-u>Unite history/yank<CR>
 nnoremap <silent> "' :<C-u>Unite register<CR>
 nnoremap <silent> <expr> ,a ":\<C-u>Unite grep:".getcwd()."\<CR>"
 nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
-nnoremap <expr> <silent> <C-p> ":\<C-u>Unite -buffer-name=Buffers/MRU "
-    \.(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1 ?
-    \"buffer" : "")." -unique neomru/file\<CR>"
+nnoremap <silent> <C-p> :<C-u>Unite -buffer-name=Buffers/NeoMRU
+    \ -unique buffer neomru/file<CR>
 
 " }}}2
 
