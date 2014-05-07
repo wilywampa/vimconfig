@@ -897,10 +897,10 @@ autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
 func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
-    inor <silent> <buffer> <expr> <C-s> unite#do_action('split')
-    nnor <silent> <buffer> <expr> <C-s> unite#do_action('split')
-    inor <silent> <buffer> <expr> <C-v> unite#do_action('vsplit')
-    nnor <silent> <buffer> <expr> <C-v> unite#do_action('vsplit')
+    inor <silent> <buffer> <expr> <C-s>= unite#do_action('split')
+    nnor <silent> <buffer> <expr> <C-s>= unite#do_action('split')
+    inor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
+    nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     inor <buffer> <C-d> <C-o><C-d>
     inor <buffer> <C-f> <C-o><C-d>
     inor <buffer> <C-b> <C-o><C-u>
