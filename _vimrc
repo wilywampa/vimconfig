@@ -269,8 +269,13 @@ nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
 
-" Make Ctrl-c function the same as Esc in insert mode
-ino <C-c> <Esc>
+" <Esc> alternatives - <Nul> is <C-Space> in terminal
+ino <C-c> <Esc>:echohl ErrorMsg \| echo "Don't use <C-c\>!" \| echohl None<CR>
+ino <C-z> <Esc>
+ino <C-Space> <Esc>
+nn <C-Space> <Esc>
+ino <Nul> <Esc>
+nn <Nul> <Esc>
 
 " Shortcuts for switching tab, including closing command window if it's open
 nn <silent> <expr> <C-Tab>   g:inCmdwin? ':q<CR>gt' : 'gt'
@@ -426,6 +431,9 @@ nn <silent> <C-d> :exe 'set scr='.(winheight('.')+1)/4<CR><C-d>
 nn <silent> <C-u> :exe 'set scr='.(winheight('.')+1)/4<CR><C-u>
 vn <silent> <C-d> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-d>
 vn <silent> <C-u> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-u>
+
+" Highlight word without moving cursor
+nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
 
 " {{{2 Abbreviations to open help
 func! s:OpenHelp(topic)
@@ -620,7 +628,7 @@ if has('gui_running')
         set showtabline=2
 
         " Set font for gVim
-        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 12
+        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11
     endif
 else
     " Make control + arrow keys work in terminal
@@ -894,6 +902,7 @@ let g:unite_source_grep_command='ack'
 let g:unite_source_grep_default_opts='-s -H --nocolor --nogroup --column'
 let g:unite_source_grep_recursive_opt=''
 let g:unite_source_grep_search_word_highlight='WarningMsg'
+let g:unite_source_history_yank_save_clipboard=1
 autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
 func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
