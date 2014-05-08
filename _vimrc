@@ -911,7 +911,8 @@ func! s:UniteMaps()
     nnor <silent> <buffer> <expr> <C-s>= unite#do_action('split')
     inor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
-    inor <buffer> <C-d> <C-o><C-d>
+    imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()
+    nmap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()
     inor <buffer> <C-f> <C-o><C-d>
     inor <buffer> <C-b> <C-o><C-u>
     imap <buffer> <C-o> <Plug>(unite_choose_action)
@@ -932,6 +933,23 @@ nnoremap <silent> <expr> ,a ":\<C-u>Unite grep:".getcwd()."\<CR>"
 nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
 nnoremap <silent> <C-p> :<C-u>Unite -buffer-name=Buffers/NeoMRU
     \ -unique buffer neomru/file<CR>
+if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
+func! s:UniteTogglePathSearch()
+    if s:UnitePathSearchMode
+        call unite#custom#source('buffer,neomru/file','matchers',
+            \ ['matcher_default'])
+        call unite#custom#source('buffer,neomru/file','converters',
+            \ ['converter_default'])
+        let s:UnitePathSearchMode=0
+    else
+        call unite#custom#source('buffer,neomru/file','matchers',
+            \ ['converter_tail','matcher_default'])
+        call unite#custom#source('buffer,neomru/file','converters',
+            \ ['converter_file_directory'])
+        let s:UnitePathSearchMode=1
+    endif
+    return "\<C-c>\<C-p>"
+endfunc
 
 " }}}2
 
