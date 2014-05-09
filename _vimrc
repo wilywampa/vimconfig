@@ -845,7 +845,7 @@ func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()."\<Esc>"
-        \.'ggw"+yg_ZQ'.":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
+        \.'gg3\|"+YZQ'.":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
         \."-unique buffer neomru/file\<CR>"."\<C-r>+"
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
     inor <buffer> <C-f> <C-o><C-d>
