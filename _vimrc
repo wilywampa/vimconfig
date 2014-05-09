@@ -89,34 +89,8 @@ endif
 " Enable matchit plugin
 runtime! macros/matchit.vim
 
-" {{{2 Switch to existing window if it exists or open in new tab
-func! s:SwitchToOrOpen(fname)
-    let l:bufnr=bufnr(expand(a:fname))
-    if l:bufnr > 0 && buflisted(l:bufnr)
-        for l:tab in range(1, tabpagenr('$'))
-            let l:buflist = tabpagebuflist(l:tab)
-            if index(l:buflist,l:bufnr) >= 0
-                for l:win in range(1,tabpagewinnr(l:tab,'$'))
-                    if l:buflist[l:win-1] == l:bufnr
-                        exec 'tabn '.l:tab
-                        exec l:win.'wincmd w'
-                        return
-                    endif
-                endfor
-            endif
-        endfor
-    endif
-    if <SID>TabUsed()
-        exec 'tabedit '.a:fname
-    else
-        exec 'edit '.a:fname
-    endif
-endfunc
-func! s:TabUsed()
-    return strlen(expand('%')) || line('$')!=1 || getline(1)!='' || winnr('$')>1
-endfunc
-
 " {{{2 Switch to last active tab/window
+
 let g:lastTab=1
 func! s:SetLastWindow()
     for l:tab in range(1,tabpagenr('$'))
@@ -238,14 +212,14 @@ vm <silent> <F2> <Esc><F2>gv
 im <F2> <C-o><F2>
 
 " Edit configuration files
-nn <silent> ,ea :call <SID>SwitchToOrOpen('~/.ackrc')<CR>
-nn <silent> ,eb :call <SID>SwitchToOrOpen('~/.bashrc')<CR>
-nn <silent> ,ec :call <SID>SwitchToOrOpen('~/.cshrc')<CR>
-nn <silent> ,es :call <SID>SwitchToOrOpen('~/.screenrc')<CR>
-nn <silent> ,et :call <SID>SwitchToOrOpen('~/.tmux.conf')<CR>
-nn <silent> ,ev :call <SID>SwitchToOrOpen($MYVIMRC)<CR>
-nn <silent> ,ex :call <SID>SwitchToOrOpen('~/.Xdefaults')<CR>
-nn <silent> ,ez :call <SID>SwitchToOrOpen('~/.zshrc')<CR>
+nn <silent> ,ea :call vimtools#SwitchToOrOpen('~/.ackrc')<CR>
+nn <silent> ,eb :call vimtools#SwitchToOrOpen('~/.bashrc')<CR>
+nn <silent> ,ec :call vimtools#SwitchToOrOpen('~/.cshrc')<CR>
+nn <silent> ,es :call vimtools#SwitchToOrOpen('~/.screenrc')<CR>
+nn <silent> ,et :call vimtools#SwitchToOrOpen('~/.tmux.conf')<CR>
+nn <silent> ,ev :call vimtools#SwitchToOrOpen($MYVIMRC)<CR>
+nn <silent> ,ex :call vimtools#SwitchToOrOpen('~/.Xdefaults')<CR>
+nn <silent> ,ez :call vimtools#SwitchToOrOpen('~/.zshrc')<CR>
 
 " Source vimrc
 nn <silent> ,sv :so $MYVIMRC<CR>
@@ -356,7 +330,7 @@ nn @~ :<Up><C-f>^~<CR>
 " <C-v> pastes from system clipboard
 map <C-v> "+gP
 cmap <C-v> <C-r>+
-exe 'inoremap <script> <C-v> <C-g>u'.paste#paste_cmd['i']
+imap <C-v> <C-r>+
 exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
 
 " Use <C-q> to do what <C-v> used to do
@@ -436,55 +410,14 @@ vn <silent> <C-u> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-u>
 nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
 
 " {{{2 Abbreviations to open help
-func! s:OpenHelp(topic)
-    let v:errmsg=""
-    " Open in same window if current tab is empty, or else open in new window
-    if <SID>TabUsed()
-        " Open vertically if there's enough room
-        let l:split=0
-        let l:helpWin=0
-        for l:win in range(1,winnr('$'))
-            if winwidth(l:win) < &columns
-                let l:split=1
-                if getwinvar(l:win,'&ft') == 'help'
-                    let l:helpWin=l:win
-                endif
-            endif
-        endfor
-        if l:helpWin
-            " If help is already open in a window, use that window
-            exe l:helpWin.'wincmd w'
-            setl bt=help
-            exe 'sil! help '.a:topic
-        elseif (&columns > 160) && !l:split
-            " Open help in vertical split if window is not already split
-            exe 'sil! vert help '.a:topic
-        else
-            let l:sb = &splitbelow
-            set nosplitbelow
-            exe 'sil! help '.a:topic
-            let &splitbelow = l:sb
-        endif
-    else
-        setl ft=help bt=help noma
-        exe 'sil! help '.a:topic
-    endif
-    if v:errmsg != ""
-        echohl ErrorMsg | redraw | echo v:errmsg | echohl None
-    endif
-endfunc
-com! -nargs=? -complete=help Help call <SID>OpenHelp(<q-args>)
+
+com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
 cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<=3)?'tab help':'ht')
 cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
 cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'H')
 cnoremap <expr> <Up> ((getcmdtype()==':'&&getcmdline()=='h')?'<BS>H<Up>':'<Up>')
-func! s:OpenHelpVisual()
-    let g:oldreg=@"
-    let l:cmd=":call setreg('\"',g:oldreg) | Help \<C-r>\"\<CR>"
-    return g:inCmdwin? "y:quit\<CR>".l:cmd : 'y'.l:cmd
-endfunc
-nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec 'Help '.expand('<cword>')<CR>"
-vnoremap <expr> <silent> K <SID>OpenHelpVisual()
+nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec 'Help '.vimtools#HelpTopic()<CR>"
+vnoremap <expr> <silent> K vimtools#OpenHelpVisual()
 
 " {{{2 Cscope configuration
 
@@ -912,7 +845,6 @@ func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()
-    nmap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()
     inor <buffer> <C-f> <C-o><C-d>
     inor <buffer> <C-b> <C-o><C-u>
     imap <buffer> <C-o> <Plug>(unite_choose_action)
@@ -927,9 +859,9 @@ func! s:UniteMaps()
     nmap <buffer> <C-c> <Plug>(unite_exit)
     imap <buffer> <C-c> <Plug>(unite_exit)
 endfunc
-nnoremap <silent> "" :<C-u>Unite history/yank<CR>
-nnoremap <silent> "' :<C-u>Unite register<CR>
-nnoremap <silent> <expr> ,a ":\<C-u>Unite grep:".getcwd()."\<CR>"
+nnoremap <silent> "" :<C-u>Unite -no-start-insert history/yank<CR>
+nnoremap <silent> "' :<C-u>Unite -no-start-insert register<CR>
+nnoremap <silent> <expr> ,a ":\<C-u>Unite -no-start-insert grep:".getcwd()."\<CR>"
 nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
 nnoremap <silent> <C-p> :<C-u>Unite -buffer-name=Buffers/NeoMRU
     \ -unique buffer neomru/file<CR>
