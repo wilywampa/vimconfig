@@ -408,6 +408,7 @@ vn <silent> <C-u> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-u>
 
 " Highlight word without moving cursor
 nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
+nn <silent> <Leader>8 :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
 
 " {{{2 Abbreviations to open help
 
@@ -484,14 +485,23 @@ func! <SID>CmdwinMappings()
 endfunc
 
 " Delete hidden buffers
-func! DeleteHiddenBuffers()
+func! s:DeleteHiddenBuffers()
     let tpbl=[]
     call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
     for l:buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
         silent! execute 'bd' l:buf
     endfor
 endfunc
-nnoremap <silent> <Leader>dh :call DeleteHiddenBuffers()<CR>
+nnoremap <silent> <Leader>dh :call <SID>DeleteHiddenBuffers()<CR>
+
+func! s:CleanEmptyBuffers()
+    let buffers = filter(range(0, bufnr('$')), 'buflisted(v:val) && '
+        \.'empty(bufname(v:val)) && bufwinnr(v:val)<0 && getbufvar(v:val,"&buftype")==""')
+    if !empty(buffers)
+        exe 'bw '.join(buffers, ' ')
+    endif
+endfunc
+nnoremap <silent> <Leader>de :call <SID>CleanEmptyBuffers()<CR>
 
 " Kludge to make first quickfix result unfold
 func! s:ToggleFoldOpen()
@@ -848,10 +858,12 @@ func! s:UniteMaps()
         \.'gg3\|"+YZQ'.":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
         \."-unique buffer neomru/file\<CR>"."\<C-r>+"
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
-    inor <buffer> <C-f> <C-o><C-d>
-    inor <buffer> <C-b> <C-o><C-u>
+    imap <buffer> <expr> <C-o>v unite#do_action('vsplit')
+    imap <buffer> <expr> <C-o>s unite#do_action('split')
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
+    inor <buffer> <C-f> <C-o><C-d>
+    inor <buffer> <C-b> <C-o><C-u>
     nmap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
     imap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
     imap <buffer> <C-j> <Plug>(unite_select_next_line)
