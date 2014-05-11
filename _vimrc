@@ -90,7 +90,6 @@ endif
 runtime! macros/matchit.vim
 
 " {{{2 Switch to last active tab/window
-
 let g:lastTab=1
 func! s:SetLastWindow()
     for l:tab in range(1,tabpagenr('$'))
@@ -130,7 +129,6 @@ nnoremap <silent> ' `
 nnoremap <silent> <M-'> '
 
 " {{{2 Platform-specific configuration
-
 let hasMac=has("mac")
 let hasWin=has("win16") || has("win32") || has("win64")
 let hasSSH=!empty($SSH_CLIENT)
@@ -183,7 +181,6 @@ else
 endif
 
 " {{{2 Mappings
-
 " Save current file if modified or execute command if in command window
 nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':update<CR>'
 ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:update<CR>'
@@ -411,7 +408,6 @@ nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
 nn <silent> <Leader>8 :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
 
 " {{{2 Abbreviations to open help
-
 com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
 cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<=3)?'tab help':'ht')
 cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
@@ -421,7 +417,6 @@ nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec 'Help '.vimtools#HelpTopic()<
 vnoremap <expr> <silent> K vimtools#OpenHelpVisual()
 
 " {{{2 Cscope configuration
-
 " Abbreviations for diff commands
 cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffthis':'dt')
 cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff \|
@@ -448,7 +443,6 @@ no <M-\>d :cs find d <C-r>=expand("<cword>")<CR><CR>
 vm <M-\> <Esc><M-\>
 
 " {{{2 Functions
-
 " Like bufdo but return to starting buffer
 func! Bufdo(command)
     let currBuff=bufnr("%")
@@ -540,6 +534,15 @@ func! s:FixReg()
     call setreg(l:reg, l:str)
 endfunc
 nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
+
+" Make dot repeat ignore InsertEnter event
+func! s:DotRepeat(count)
+    let l:ei_save=&eventignore
+    set eventignore=InsertEnter
+    exec "norm! ".a:count."."
+    let &eventignore=l:ei_save
+endfunc
+nnoremap <silent> . :call <SID>DotRepeat(v:count1)<CR>
 
 " }}}2
 
