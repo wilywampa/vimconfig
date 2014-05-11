@@ -610,6 +610,8 @@ augroup VimrcAutocmds
     " Prefer single-line style comments and fix shell script comments
     autocmd FileType cpp,arduino setl commentstring=//%s
     autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
+    autocmd FileType dosbatch setl commentstring=REM%s
+    autocmd FileType autohotkey setl commentstring=;%s
 
     " Highlight current line in active window
     autocmd BufRead,BufNewFile,VimEnter * set cul
@@ -812,9 +814,9 @@ autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
 
 " {{{2 VimFiler settings
 nnoremap <silent> <expr> - exists(':VimFiler')?
-    \":VimFilerBufferDir -find -quit\<CR>":
+    \":VimFilerBufferDir -find\<CR>":
     \":Explore\<CR>"
-nnoremap <silent> <C-_> :VimFilerCurrentDir -find -quit<CR>
+nnoremap <silent> <C-_> :VimFilerCurrentDir -find<CR>
 autocmd VimrcAutocmds VimEnter * let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
 nn <silent> gx :call netrw#NetrwBrowseX(expand("<cfile>"),0)<CR>
@@ -823,7 +825,6 @@ let g:vimfiler_file_icon='-'
 let g:vimfiler_tree_opened_icon='▼'
 let g:vimfiler_tree_closed_icon='▶'
 let g:vimfiler_marked_file_icon='✓'
-let g:vimfiler_ignore_pattern=''
 autocmd VimrcAutocmds FileType vimfiler call s:vimfiler_settings()
 func! s:vimfiler_settings()
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
@@ -881,8 +882,9 @@ nnoremap <silent> "" :<C-u>Unite -no-start-insert history/yank<CR>
 nnoremap <silent> "' :<C-u>Unite -no-start-insert register<CR>
 nnoremap <silent> <expr> ,a ":\<C-u>Unite -no-start-insert grep:".getcwd()."\<CR>"
 nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
-nnoremap <silent> <C-p> :<C-u>Unite -buffer-name=Buffers/NeoMRU
-    \ -unique buffer neomru/file<CR>
+nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
+    \.(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1 ?
+    \"buffer" : "")." -unique neomru/file\<CR>"
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch()
     if s:UnitePathSearchMode
