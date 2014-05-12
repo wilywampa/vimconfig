@@ -544,6 +544,15 @@ func! s:DotRepeat(count)
 endfunc
 nnoremap <silent> . :call <SID>DotRepeat(v:count1)<CR>
 
+" Make q macro ignore InsertEnter event
+func! s:QMacro(count)
+    let l:ei_save=&eventignore
+    set eventignore=InsertEnter
+    exec "norm ".a:count."@q"
+    let &eventignore=l:ei_save
+endfunc
+nnoremap <silent> Q :call <SID>QMacro(v:count1)<CR>
+
 " }}}2
 
 if has('gui_running')
