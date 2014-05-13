@@ -859,6 +859,7 @@ let g:unite_source_grep_default_opts='-s -H --nocolor --nogroup --column'
 let g:unite_source_grep_recursive_opt=''
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
+autocmd VimrcAutocmds FileType unite setl conceallevel=0
 autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
 func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
@@ -890,6 +891,8 @@ endfunc
 nnoremap <silent> "" :<C-u>Unite -no-start-insert history/yank<CR>
 nnoremap <silent> "' :<C-u>Unite -no-start-insert register<CR>
 nnoremap <silent> <expr> ,a ":\<C-u>Unite -no-start-insert -no-quit grep:".getcwd()."\<CR>"
+nnoremap <silent> ,vr :Unite -no-start-insert -no-quit vimgrep:**/*<CR>
+nnoremap <silent> ,vn :Unite -no-start-insert -no-quit vimgrep:**<CR>
 nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
 nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
     \.(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1 ?
