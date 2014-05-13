@@ -241,7 +241,7 @@ nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
 nn <M-]> <C-w><C-]><C-w>L
 
 " <Esc> alternatives - <Nul> is <C-Space> in terminal
-ino <C-c> <Esc>:echohl ErrorMsg \| echo "Don't use <C-c\>!" \| echohl None<CR>
+ino <C-c> <NOP>
 ino <C-z> <Esc>
 ino <C-Space> <Esc>
 nn <C-Space> <Esc>
