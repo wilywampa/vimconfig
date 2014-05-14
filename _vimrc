@@ -537,19 +537,25 @@ nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 
 " Make dot repeat ignore InsertEnter event
 func! s:DotRepeat(count)
-    let l:ei_save=&eventignore
-    set eventignore=InsertEnter
-    exec "norm! ".a:count."."
-    let &eventignore=l:ei_save
+    let eventignore_save = &eventignore
+    let &eventignore = 'InsertEnter'
+    try
+        exec "norm! ".a:count."."
+    finally
+        let &eventignore = eventignore_save
+    endtry
 endfunc
 nnoremap <silent> . :call <SID>DotRepeat(v:count1)<CR>
 
 " Make q macro ignore InsertEnter event
 func! s:QMacro(count)
-    let l:ei_save=&eventignore
-    set eventignore=InsertEnter
-    exec "norm ".a:count."@q"
-    let &eventignore=l:ei_save
+    let eventignore_save = &eventignore
+    let &eventignore = 'InsertEnter'
+    try
+        exec "norm ".a:count."@q"
+    finally
+        let &eventignore = eventignore_save
+    endtry
 endfunc
 nnoremap <silent> Q :call <SID>QMacro(v:count1)<CR>
 

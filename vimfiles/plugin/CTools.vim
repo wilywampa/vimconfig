@@ -324,5 +324,5 @@ com! ToggleFindInComments call <SID>ToggleFindInComments()
 com! AlignUnterminatedAssignment call <SID>AlignUnterminatedAssignment()
 com! FormatC call <SID>FormatC()
 
-nnoremap ,c :ToggleFindInComments<CR>
+nnoremap ,cc :ToggleFindInComments<CR>
 

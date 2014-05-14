@@ -76,10 +76,14 @@ function! vimtools#OpenHelp(topic)
             " Open help in vertical split if window is not already split
             exe 'sil! vert help '.a:topic
         else
-            let l:sb = &splitbelow
+            let splitbelow_save = &splitbelow
             set nosplitbelow
-            exe 'sil! help '.a:topic
-            let &splitbelow = l:sb
+            try
+                set nosplitbelow
+                exe 'sil! help '.a:topic
+            finally
+                let &splitbelow = splitbelow_save
+            endtry
         endif
     else
         setl ft=help bt=help noma
