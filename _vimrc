@@ -78,7 +78,7 @@ let g:vim_indent_cont=4
 " Session settings
 set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
 nnoremap <silent> ,l :source ~/session.vis<CR>
-if !s:readonly
+if !s:readonly && !exists('g:no_session')
     augroup VimrcAutocmds
         au VimLeavePre * mks! ~/session.vis
         au VimEnter * mks! ~/periodic_session.vis
@@ -453,10 +453,6 @@ com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
 
 " Function to set key codes for terminals
 func! s:KeyCodes()
-    " Change tab in MinTTY
-    "         <C-Tab>           <C-S-Tab>
-    exec "set <F15>=\<Esc>[1;5I <F16>=\<Esc>[1;6I"
-
     " Set key codes to work as meta key combinations
     let ns=range(65,90)+range(92,123)+range(125,126)
     for n in ns
@@ -557,7 +553,7 @@ func! s:QMacro(count)
         let &eventignore = eventignore_save
     endtry
 endfunc
-nnoremap <silent> Q :call <SID>QMacro(v:count1)<CR>
+nnoremap <silent> Q :<C-u>call <SID>QMacro(v:count1)<CR>
 
 " }}}2
 
@@ -598,6 +594,10 @@ else
     map <F14> <C-Down>
     map! <F13> <C-Up>
     map! <F14> <C-Down>
+
+    " Change tab in MinTTY/XTerm
+    "         <C-Tab>           <C-S-Tab>
+    exec "set <F15>=\<Esc>[1;5I <F16>=\<Esc>[1;6I"
 
     " Use correct background color
     autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
@@ -832,7 +832,7 @@ nnoremap <silent> <expr> - exists(':VimFiler')?
     \":VimFilerBufferDir -find\<CR>":
     \":Explore\<CR>"
 nnoremap <silent> <C-_> :VimFilerCurrentDir -find<CR>
-autocmd VimrcAutocmds VimEnter * let g:vimfiler_as_default_explorer=1
+let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
 nn <silent> gx :call netrw#NetrwBrowseX(expand("<cfile>"),0)<CR>
 let g:vimfiler_tree_leaf_icon=' '
@@ -893,6 +893,8 @@ func! s:UniteMaps()
     nmap <buffer> <Esc> <Plug>(unite_exit)
     nmap <buffer> <C-c> <Plug>(unite_exit)
     imap <buffer> <C-c> <Plug>(unite_exit)
+    nmap <buffer> m <Plug>(unite_toggle_mark_current_candidate)
+    nmap <buffer> M <Plug>(unite_toggle_mark_current_candidate_up)
 endfunc
 nnoremap <silent> "" :<C-u>Unite -no-start-insert history/yank<CR>
 nnoremap <silent> "' :<C-u>Unite -no-start-insert register<CR>

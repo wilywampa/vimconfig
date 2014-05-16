@@ -105,7 +105,7 @@ function! vimtools#TabUsed()
 endfunction
 
 function! vimtools#SwitchToOrOpen(fname)
-    let l:bufnr=bufnr(expand(a:fname))
+    let l:bufnr=bufnr(expand(a:fname).'$')
     if l:bufnr > 0 && buflisted(l:bufnr)
         for l:tab in range(1, tabpagenr('$'))
             let l:buflist = tabpagebuflist(l:tab)

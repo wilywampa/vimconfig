@@ -44,3 +44,4 @@ nnoremap <buffer> ,o o(O)<Space>
 nnoremap <buffer> ,O O(O)<Space>
 
 setlocal wrap linebreak
+setlocal commentstring=#%s
