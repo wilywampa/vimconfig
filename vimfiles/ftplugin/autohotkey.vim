@@ -11,3 +11,5 @@ if hasWin
 else
     map <silent> <buffer> <F5> :update<CR>:call system('cygstart `cygpath -w "'.expand('%:p').'"`')<CR>
 endif
+
+setlocal smartindent
