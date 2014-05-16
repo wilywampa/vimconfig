@@ -1,0 +1,19 @@
+#!/bin/zsh
+fname=""
+if [ -e /cygdrive/c/temp/tempfname ]; then
+    sed -i 's/[ \t]*$//' /cygdrive/c/temp/tempfname
+    sed -i 's/^"//' /cygdrive/c/temp/tempfname
+    sed -i 's/"$//' /cygdrive/c/temp/tempfname
+    fname=`cat /cygdrive/c/temp/tempfname`
+    rm /cygdrive/c/temp/tempfname
+    fname=$(cygpath -u "$fname")
+fi
+source /home/Jake/.zshrc
+if [ "$fname" = "ECHO is on." -o "$fname" = "" ]; then
+    ps cax | fgrep `which gvim` >& /dev/null
+    if [ ! $? -eq 0 ]; then
+        gvim &
+    fi
+else
+    gvim --remote-tab-silent "$fname" &
+fi
