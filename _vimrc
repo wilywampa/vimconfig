@@ -65,6 +65,7 @@ set foldopen+=jump             " Jumps open folds
 set clipboard=unnamed          " Yank to system clipboard
 set clipboard+=unnamedplus
 set mouse=                     " Disable mouse integration
+set cmdwinheight=15            " Increase command window height
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -379,7 +380,10 @@ nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
 
 " Search for first non-blank
-cno <expr> ^ ((getcmdtype()=~'[/?]'&&getcmdline()=='^')?'<BS>\(^\s*\)\@<=':'^')
+cno <expr> ^ (getcmdtype()=~'[/?]'&&getcmdline()=='^')?'<BS>\(^\s*\)\@<=':'^'
+
+" Go up directory tree easily
+cno <expr> . (getcmdtype()==':'&&getcmdline()=~'[/ ]\.\.$')?'/..':'.'
 
 " Execute line under cursor
 nn <silent> <Leader>x :exec getline('.')<CR>
@@ -901,7 +905,6 @@ func! s:UniteMaps()
     imap <buffer> <C-k> <Plug>(unite_select_previous_line)
     nmap <buffer> ` <Plug>(unite_exit)
     imap <buffer> ` <Plug>(unite_exit)
-    nmap <buffer> <Esc> <Plug>(unite_exit)
     nmap <buffer> <C-c> <Plug>(unite_exit)
     imap <buffer> <C-c> <Plug>(unite_exit)
     nmap <buffer> m <Plug>(unite_toggle_mark_current_candidate)
