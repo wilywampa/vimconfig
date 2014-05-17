@@ -10,6 +10,9 @@ endfunction
 
 " From tpope's scriptease: https://github.com/tpope/vim-scriptease
 function! vimtools#HelpTopic()
+    if &syntax != 'vim'
+        return expand('<cword>')
+    endif
     let col = col('.') - 1
     while col && getline('.')[col] =~# '\k'
         let col -= 1

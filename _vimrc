@@ -209,14 +209,15 @@ vm <silent> <F2> <Esc><F2>gv
 im <F2> <C-o><F2>
 
 " Edit configuration files
-nn <silent> ,ea :call vimtools#SwitchToOrOpen('~/.ackrc')<CR>
-nn <silent> ,eb :call vimtools#SwitchToOrOpen('~/.bashrc')<CR>
-nn <silent> ,ec :call vimtools#SwitchToOrOpen('~/.cshrc')<CR>
-nn <silent> ,es :call vimtools#SwitchToOrOpen('~/.screenrc')<CR>
-nn <silent> ,et :call vimtools#SwitchToOrOpen('~/.tmux.conf')<CR>
-nn <silent> ,ev :call vimtools#SwitchToOrOpen($MYVIMRC)<CR>
-nn <silent> ,ex :call vimtools#SwitchToOrOpen('~/.Xdefaults')<CR>
-nn <silent> ,ez :call vimtools#SwitchToOrOpen('~/.zshrc')<CR>
+com! -nargs=1 SwitchToOrOpen call vimtools#SwitchToOrOpen(<f-args>)
+nn <silent> ,ea :<C-u>SwitchToOrOpen ~/.ackrc<CR>
+nn <silent> ,eb :<C-u>SwitchToOrOpen ~/.bashrc<CR>
+nn <silent> ,ec :<C-u>SwitchToOrOpen ~/.cshrc<CR>
+nn <silent> ,es :<C-u>SwitchToOrOpen ~/.screenrc<CR>
+nn <silent> ,et :<C-u>SwitchToOrOpen ~/.tmux.conf<CR>
+nn <silent> ,ev :<C-u>SwitchToOrOpen $MYVIMRC<CR>
+nn <silent> ,ex :<C-u>SwitchToOrOpen ~/.Xdefaults<CR>
+nn <silent> ,ez :<C-u>SwitchToOrOpen ~/.zshrc<CR>
 
 " Source vimrc
 nn <silent> ,sv :so $MYVIMRC<CR>
@@ -319,15 +320,23 @@ vn <C-c> <Esc>'<0v'>g_y
 nn <silent> - :Explore<CR>
 
 " Repeat last command with a bang
-nn @! :<Up><Home><C-Right>!<CR>
+nn @! :<C-r>:<Home><C-Right>!<CR>
 
 " Repeat last command with case of first character switched
-nn @~ :<Up><C-f>^~<CR>
+nn @~ :<C-r>:<C-f>^~<CR>
 
 " <C-v> pastes from system clipboard
+func! s:Paste()
+    if @+ =~ "\<NL>"
+        set paste
+        set pastetoggle=<F10>
+        return "\<C-r>+\<F10>"
+    endif
+    return "\<C-r>+"
+endfunc
 map <C-v> "+gP
 cmap <C-v> <C-r>+
-imap <C-v> <C-r>+
+imap <expr> <C-v> <SID>Paste()
 exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
 
 " Use <C-q> to do what <C-v> used to do
@@ -541,7 +550,7 @@ func! s:DotRepeat(count)
         let &eventignore = eventignore_save
     endtry
 endfunc
-nnoremap <silent> . :call <SID>DotRepeat(v:count1)<CR>
+nnoremap <silent> . :<C-u>call <SID>DotRepeat(v:count1)<CR>
 
 " Make q macro ignore InsertEnter event
 func! s:QMacro(count)
@@ -880,6 +889,8 @@ func! s:UniteMaps()
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
     imap <buffer> <expr> <C-o>v unite#do_action('vsplit')
     imap <buffer> <expr> <C-o>s unite#do_action('split')
+    imap <buffer> <expr> <C-o>t unite#do_action('tabopen')
+    imap <buffer> <expr> <C-o>d unite#do_action('tabdrop')
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
     inor <buffer> <C-f> <C-o><C-d>
