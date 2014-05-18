@@ -878,8 +878,11 @@ let g:unite_source_grep_default_opts='-s -H --nocolor --nogroup --column'
 let g:unite_source_grep_recursive_opt=''
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
-autocmd VimrcAutocmds FileType unite setl conceallevel=0
-autocmd VimrcAutocmds FileType unite call <SID>UniteMaps()
+augroup VimrcAutocmds
+    autocmd VimEnter * sil! call unite#filters#matcher_default#use(['matcher_regexp'])
+    autocmd FileType unite setl conceallevel=0
+    autocmd FileType unite call <SID>UniteMaps()
+augroup END
 func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
@@ -923,13 +926,13 @@ if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch()
     if s:UnitePathSearchMode
         call unite#custom#source('buffer,neomru/file','matchers',
-            \ ['matcher_default'])
+            \ ['matcher_regexp'])
         call unite#custom#source('buffer,neomru/file','converters',
             \ ['converter_default'])
         let s:UnitePathSearchMode=0
     else
         call unite#custom#source('buffer,neomru/file','matchers',
-            \ ['converter_tail','matcher_default'])
+            \ ['converter_tail','matcher_regexp'])
         call unite#custom#source('buffer,neomru/file','converters',
             \ ['converter_file_directory'])
         let s:UnitePathSearchMode=1
