@@ -160,6 +160,8 @@ if hasWin
         nnoremap <silent> <F4> :call system('cygstart explorer /select,\"'
             \.substitute(expand('%:p'),'\/','\\','g').'\"')<CR>
     endif
+
+    let s:hasvimtools=filereadable(expand("$VIM/vimfiles/autoload/vimtools.vim"))
 else
     " Change swap file location for unix
     if !isdirectory(expand("~/.tmp"))
@@ -179,6 +181,8 @@ else
         " Explore to current file from Cygwin vim
         nnoremap <silent> <F4> :call system('cygstart explorer /select,`cygpath -w "'.expand('%:p').'"`')<CR>
     endif
+
+    let s:hasvimtools=filereadable(expand("$HOME/.vim/autoload/vimtools.vim"))
 endif
 
 " {{{2 Mappings
@@ -210,7 +214,11 @@ vm <silent> <F2> <Esc><F2>gv
 im <F2> <C-o><F2>
 
 " Edit configuration files
-com! -nargs=1 SwitchToOrOpen call vimtools#SwitchToOrOpen(<f-args>)
+if s:hasvimtools
+    com! -nargs=1 SwitchToOrOpen call vimtools#SwitchToOrOpen(<f-args>)
+else
+    com! -nargs=1 SwitchToOrOpen tab drop <args>
+endif
 nn <silent> ,ea :<C-u>SwitchToOrOpen ~/.ackrc<CR>
 nn <silent> ,eb :<C-u>SwitchToOrOpen ~/.bashrc<CR>
 nn <silent> ,ec :<C-u>SwitchToOrOpen ~/.cshrc<CR>
@@ -264,6 +272,7 @@ nn <silent> <M-T> :tab split<CR>
 
 " Print number of occurences of last search
 nn <silent> <M-n> :%s///gn<CR>
+vn <silent> <M-n> :s///gn<CR>
 
 " Make last search a whole word
 nn <silent> <Leader>n :let @/='\<\('.@/.'\)\>'<CR>n
@@ -421,13 +430,16 @@ nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
 nn <silent> <Leader>8 :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
 
 " {{{2 Abbreviations to open help
-com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
-cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<=3)?'tab help':'ht')
-cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
-cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'H')
-cnoremap <expr> <Up> ((getcmdtype()==':'&&getcmdline()=='h')?'<BS>H<Up>':'<Up>')
-nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec 'Help '.vimtools#HelpTopic()<CR>"
-vnoremap <silent> <expr> K vimtools#OpenHelpVisual()
+if s:hasvimtools
+    com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
+    cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<=3)?'tab help':'ht')
+    cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
+    cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'H')
+    cnoremap <expr> <Up> ((getcmdtype()==':'&&getcmdline()=='h')?'<BS>H<Up>':'<Up>')
+    nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec
+        \ 'Help '.vimtools#HelpTopic()<CR>"
+    vnoremap <silent> <expr> K vimtools#OpenHelpVisual()
+endif
 
 " {{{2 Cscope configuration
 " Abbreviations for diff commands
@@ -475,7 +487,7 @@ func! s:KeyCodes()
 endfunc
 nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
 
-func! <SID>CmdwinMappings()
+func! s:CmdwinMappings()
     " Make 'gf' work in command window
     nnoremap <silent> <buffer> gf :let cfile=expand('<cfile>')<CR>:q<CR>
         \:exe 'e '.cfile<CR>
@@ -585,6 +597,18 @@ func! s:CycleSearchMode()
 endfunc
 cnoremap <C-x> <C-\>e<SID>CycleSearchMode()<CR>
 
+" Close other windows or close other tabs
+func! s:CloseWinsOrTabs()
+    wincmd t
+    if winnr() == winnr('$')
+        tabonly
+    else
+        wincmd o
+    endif
+endfunc
+nnoremap <silent> <C-w>o :call <SID>CloseWinsOrTabs()<CR>
+nnoremap <silent> <C-w><C-o> :call <SID>CloseWinsOrTabs()<CR>
+
 " }}}2
 
 if has('gui_running')
@@ -678,14 +702,13 @@ augroup VimrcAutocmds
     au CmdwinEnter / let g:cmdwinType='/'
     au CmdwinEnter ? let g:cmdwinType='?'
     au CmdwinEnter : let g:cmdwinType=':'
-    au CmdwinEnter * call s:CmdwinMappings()
+    au CmdwinEnter * call <SID>CmdwinMappings()
 augroup END
 
-" Set color scheme
-colorscheme desert
-sil! colorscheme jellybeans
-
 " {{{1 Plugin configuration
+
+" Set color scheme
+sil! colorscheme jellybeans
 
 " Make empty list of disabled plugins
 let g:pathogen_disabled=[]
