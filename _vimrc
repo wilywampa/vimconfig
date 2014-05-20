@@ -427,7 +427,7 @@ cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
 cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'H')
 cnoremap <expr> <Up> ((getcmdtype()==':'&&getcmdline()=='h')?'<BS>H<Up>':'<Up>')
 nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec 'Help '.vimtools#HelpTopic()<CR>"
-vnoremap <expr> <silent> K vimtools#OpenHelpVisual()
+vnoremap <silent> <expr> K vimtools#OpenHelpVisual()
 
 " {{{2 Cscope configuration
 " Abbreviations for diff commands
@@ -568,6 +568,23 @@ func! s:QMacro(count)
 endfunc
 nnoremap <silent> Q :<C-u>call <SID>QMacro(v:count1)<CR>
 
+" Cycle search mode between regular, very magic, and very nomagic
+func! s:CycleSearchMode()
+    let l:cmd = getcmdline()
+    let l:pos = getcmdpos()
+    if l:cmd =~# '^\\v'
+        let l:cmd = substitute(l:cmd,'^\\v','\\V','')
+    elseif l:cmd =~# '^\\V'
+        let l:cmd = substitute(l:cmd,'^\\V','','')
+        call setcmdpos(l:pos - 2)
+    else
+        let l:cmd = '\v'.l:cmd
+        call setcmdpos(l:pos + 2)
+    endif
+    return l:cmd
+endfunc
+cnoremap <C-x> <C-\>e<SID>CycleSearchMode()<CR>
+
 " }}}2
 
 if has('gui_running')
@@ -673,8 +690,8 @@ sil! colorscheme jellybeans
 " Make empty list of disabled plugins
 let g:pathogen_disabled=[]
 
-" Only enable Syntastic if environment variable is set
-if !($SYNTASTIC_ENABLE==1) | call add(g:pathogen_disabled, 'syntastic') | endif
+" Only enable misc/shell in Windows
+if !hasWin | call extend(g:pathogen_disabled, ['misc','shell']) | endif
 
 " Disable some plugins if in read-only mode
 if s:readonly
@@ -689,6 +706,7 @@ endif
 " Set airline color scheme
 let g:airline_theme='jellybeans'
 let g:airline#extensions#ctrlp#color_template='normal'
+au VimrcAutocmds TabEnter * sil! call airline#highlighter#highlight(['normal',&mod?'modified':''])
 
 " Use powerline font unless in Mac SSH session or in old Vim
 if macSSH || v:version < 703
