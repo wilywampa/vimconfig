@@ -635,8 +635,8 @@ if has('gui_running')
         " Start in fullscreen mode
         autocmd VimrcAutocmds VimEnter * sil! set fullscreen
     else
-        " Always show tabline (prevent resizing issues)
-        set showtabline=2
+        " Use text-only tabline (prevent resizing issues)
+        set guioptions-=e
 
         " Set font for gVim
         set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11

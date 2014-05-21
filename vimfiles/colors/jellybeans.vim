@@ -311,12 +311,12 @@ else
 endif
 
 if version >= 700
-  call s:X("CursorLine","","222222","","",s:termBlack)
+  call s:X("CursorLine","","252525","","",s:termBlack)
   call s:X("CursorColumn","","1c1c1c","","",s:termBlack)
   call s:X("MatchParen","ffffff","556779","bold","","DarkCyan")
 
   call s:X("TabLine","000000","b0b8c0","","",s:termBlack)
-  call s:X("TabLineFill","9098a0","","","",s:termBlack)
+  call s:X("TabLineFill","606060","1d1d1d","","234","")
   call s:X("TabLineSel","000000","f0f0f0","bold",s:termBlack,"White")
 
   " Auto-completion
@@ -360,7 +360,7 @@ call s:X("PreProc","cf6a4c","","","Red","")
 hi! link Operator Structure
 
 call s:X("Type","ffb964","","","Yellow","")
-call s:X("NonText","606060","202020","","234","")
+call s:X("NonText","606060","1d1d1d","","234","")
 
 call s:X("SpecialKey","557755","1c1c1c","",s:termBlack,"")
 
@@ -489,7 +489,7 @@ if !exists("g:indent_guides_auto_colors")
   let g:indent_guides_auto_colors = 0
 endif
 call s:X("IndentGuidesOdd","",g:jellybeans_background_color,"","","")
-call s:X("IndentGuidesEven","","202020","","","")
+call s:X("IndentGuidesEven","","1d1d1d","","","")
 
 " Plugins, etc.
 
@@ -508,6 +508,7 @@ if !s:low_color
   hi CursorColumn ctermbg=234
   hi CursorLine ctermbg=235
   hi SpecialKey ctermbg=234
+  hi TabLineFill ctermbg=234
   hi NonText ctermbg=234
   hi VertSplit ctermbg=237
   hi LineNr ctermbg=234 guibg=#1c1c1c
