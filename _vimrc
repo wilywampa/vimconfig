@@ -49,16 +49,11 @@ sil! set undoreload=10000
 set ttimeout                   " Make keycodes time out after a short delay
 set ttimeoutlen=50
 set laststatus=2               " Always show statusline
-set listchars=tab:>\           " Configure display of whitespace
-set listchars+=trail:-
-set listchars+=extends:>
-set listchars+=precedes:<
-set listchars+=nbsp:+
 set keywordprg=:help           " Use Vim help instead of man to look up keywords
 set splitright                 " Vertical splits open on the right
 set splitbelow                 " Horizontal splits open on the bottom
 set fileformats=unix,dos       " Always prefer unix format
-set fileformat=unix
+sil! set fileformat=unix
 set csqf=s-,c-,d-,i-,t-,e-     " Use quickfix list for cscope results
 set cscopetag                  " Use cscope instead of ctags when possible
 set foldopen+=jump             " Jumps open folds
@@ -66,6 +61,10 @@ set clipboard=unnamed          " Yank to system clipboard
 set clipboard+=unnamedplus
 set mouse=                     " Disable mouse integration
 set cmdwinheight=15            " Increase command window height
+set showbreak=↪                " Show character at start of wrapped lines
+
+" Configure display of whitespace
+set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -257,6 +256,8 @@ ino <C-Space> <Esc>
 nn <C-Space> <Esc>
 ino <Nul> <Esc>
 nn <Nul> <Esc>
+ino jk <Esc>
+ino kj <Esc>
 
 " Shortcuts for switching tab, including closing command window if it's open
 nn <silent> <expr> <C-Tab>   g:inCmdwin? ':q<CR>gt' : 'gt'
@@ -332,24 +333,10 @@ vn <C-c> <Esc>'<0v'>g_y
 nn <silent> - :Explore<CR>
 
 " Repeat last command with a bang
-nn @! :<C-r>:<Home><C-Right>!<CR>
+nn @! :<C-u><C-r>:<Home><C-Right>!<CR>
 
 " Repeat last command with case of first character switched
-nn @~ :<C-r>:<C-f>^~<CR>
-
-" <C-v> pastes from system clipboard
-func! s:Paste()
-    if @+ =~ "\<NL>"
-        set paste
-        set pastetoggle=<F10>
-        return "\<C-r>+\<F10>"
-    endif
-    return "\<C-r>+"
-endfunc
-map <C-v> "+gP
-cmap <C-v> <C-r>+
-imap <expr> <C-v> <SID>Paste()
-exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
+nn @~ :<C-u><C-r>:<C-f>^~<CR>
 
 " Use <C-q> to do what <C-v> used to do
 noremap <C-q> <C-v>
@@ -430,6 +417,17 @@ vn <silent> <C-u> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-u>
 " Highlight word without moving cursor
 nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
 nn <silent> <Leader>8 :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
+nn <silent> <Leader>g* :let @/=expand('<cword>')<CR>:set hls<CR>
+nn <silent> <Leader>g8 :let @/=expand('<cword>')<CR>:set hls<CR>
+
+" Use 'very magic' regex by default
+nn / /\v
+vn / /\v
+nn ? ?\v
+vn ? ?\v
+
+" Toggle showing listchars
+nn <silent> <Leader>L :set list!<CR>
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -611,6 +609,20 @@ endfunc
 nnoremap <silent> <C-w>o :call <SID>CloseWinsOrTabs()<CR>
 nnoremap <silent> <C-w><C-o> :call <SID>CloseWinsOrTabs()<CR>
 
+" <C-v> pastes from system clipboard
+func! s:Paste()
+    if @+ =~ "\<NL>"
+        set paste
+        set pastetoggle=<F10>
+        return "\<C-r>+\<F10>"
+    endif
+    return "\<C-r>+"
+endfunc
+map <C-v> "+gP
+cmap <C-v> <C-r>+
+imap <expr> <C-v> <SID>Paste()
+exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
+
 " }}}2
 
 if has('gui_running')
@@ -679,10 +691,10 @@ augroup VimrcAutocmds
     autocmd FileType dosbatch setl commentstring=REM%s
     autocmd FileType autohotkey setl commentstring=;%s
 
-    " Highlight current line in active window
+    " Highlight current line in active window but not in insert mode
     autocmd BufRead,BufNewFile,VimEnter * set cul
-    autocmd WinEnter * set cul
-    autocmd WinLeave * set nocul
+    autocmd InsertLeave,WinEnter * set cul
+    autocmd InsertEnter,WinLeave * set nocul
 
     " Disable paste mode after leaving insert mode
     autocmd InsertLeave * set nopaste
@@ -936,6 +948,7 @@ func! s:UniteMaps()
     imap <buffer> <expr> <C-o>s unite#do_action('split')
     imap <buffer> <expr> <C-o>t unite#do_action('tabopen')
     imap <buffer> <expr> <C-o>d unite#do_action('tabdrop')
+    imap <buffer> <expr> <C-o>r unite#do_action('view')
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
     inor <buffer> <C-f> <C-o><C-d>
