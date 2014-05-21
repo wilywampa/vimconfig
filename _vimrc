@@ -671,7 +671,7 @@ augroup VimrcAutocmds
 
     " Use line wrapping for plain text files (but not help files)
     autocmd FileType text setl wrap linebreak
-    autocmd FileType help setl nowrap nolinebreak
+    autocmd FileType help setl nowrap nolinebreak concealcursor=
 
     " Indent line continuation for conf files
     autocmd FileType conf setl indentexpr=getline(v:lnum-1)=~'\\\\$'?&sw:0
