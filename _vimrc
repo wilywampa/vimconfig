@@ -294,6 +294,8 @@ nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>
 " Change tab position
 nn <silent> <C-w><C-e>     :tabm<CR>
 nn <silent> <C-w>e         :tabm<CR>
+nn <silent> <C-w><C-a>     :tabm0<CR>
+nn <silent> <C-w>a         :tabm0<CR>
 nn <silent> <C-w><C-Left>  :<C-u>exe 'tabm-'.v:count1<CR>
 nn <silent> <C-w><Left>    :<C-u>exe 'tabm-'.v:count1<CR>
 nn <silent> <C-w><C-Right> :<C-u>exe 'tabm+'.v:count1<CR>
@@ -612,13 +614,8 @@ nnoremap <silent> <C-w><C-o> :call <SID>CloseWinsOrTabs()<CR>
 " }}}2
 
 if has('gui_running')
-    set guioptions+=A " Copy mouse modeless selection to clipboard
-    set guioptions-=L " Don't use scrollbars
-    set guioptions-=r
-    set guioptions-=m " Hide menu/toolbars
-    set guioptions-=T
-    set guioptions+=c " Don't use popup dialogs
-    set guioptions-=a " Don't auto-copy visual selection to clipboard
+    " Disable most visible GUI features
+    set guioptions=eAc
 
     if hasWin
         " Set font for gVim
@@ -1011,11 +1008,7 @@ let g:no_default_tabular_maps=1
 nmap <silent> <Leader>i <Plug>IndentGuidesToggle
 
 " Ack settings
-if executable('ag')
-    let g:ackprg='ag --nogroup --nocolor --column'
-elseif hasWin
-    let g:ackprg='~/bin/ag --nogroup --nocolor --column'
-endif
+if executable('ag') | let g:ackprg='ag --nogroup --nocolor --column' | endif
 let g:ack_autofold_results=0
 com! -nargs=* -bang A Ack<bang> <args>
 
