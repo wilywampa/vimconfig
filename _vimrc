@@ -603,7 +603,7 @@ func! s:CloseWinsOrTabs()
     if winnr() == winnr('$')
         tabonly
     else
-        wincmd o
+        wincmd p | wincmd o
     endif
 endfunc
 nnoremap <silent> <C-w>o :call <SID>CloseWinsOrTabs()<CR>
