@@ -275,10 +275,6 @@ nn <silent> <M-T> :tab split<CR>
 nn <silent> <M-n> :%s///gn<CR>
 vn <silent> <M-n> :s///gn<CR>
 
-" Make last search a whole word
-nn <silent> <Leader>n :let @/='\<\('.@/.'\)\>'<CR>n
-nn <silent> <Leader>N :let @/='\<\('.@/.'\)\>'<CR>N
-
 " Delete without yank by default, and <M-d> for delete with yank
 nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
 nn C "_C|nn <M-C> C|nn \\C C|vn C "_C|vn <M-C> C|vn \\C C
@@ -622,6 +618,20 @@ map <C-v> "+gP
 cmap <C-v> <C-r>+
 imap <expr> <C-v> <SID>Paste()
 exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
+
+" Make last search a whole word
+func! s:SearchWholeWord(dir)
+    if @/[0:1] ==# '\v'
+        let @/ = '\v<('.@/[2:].')>'
+    elseif @/[0:1] ==# '\V'
+        let @/ = '\V\<\('.@/[2:].'\)\>'
+    else
+        let @/='\<\('.@/.'\)\>'
+    endif
+    echo a:dir.@/
+endfunc
+nn <silent> <Leader>n :call <SID>SearchWholeWord('/')<CR>n
+nn <silent> <Leader>N :call <SID>SearchWholeWord('?')<CR>N
 
 " }}}2
 
