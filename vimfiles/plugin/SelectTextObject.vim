@@ -109,9 +109,9 @@ func! s:SelectTextObjectQuote(obj,motion)
   if !search(a:obj,'cn',line('.'))
     call search(a:obj,'b',line('.'))
   endif
-  execute "normal! v".a:motion.a:obj."\<Esc>'<"
+  execute "normal! v".a:motion.a:obj."\<Esc>`<"
   if getline('.')[col('.')] == a:obj && a:motion == 'i'
-    execute "normal! vl"
+    execute "normal! ax\<Esc>v"
   else
     execute "normal! v".a:motion.a:obj
   endif
