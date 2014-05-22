@@ -748,7 +748,6 @@ endif
 
 " Set airline color scheme
 let g:airline_theme='jellybeans'
-let g:airline#extensions#ctrlp#color_template='normal'
 au VimrcAutocmds TabEnter * sil! call airline#highlighter#highlight(['normal',&mod?'modified':''])
 
 " Use powerline font unless in Mac SSH session or in old Vim
@@ -850,37 +849,6 @@ else
     call add(g:pathogen_disabled, 'neocomplete')
     let g:SuperTabDefaultCompletionType="context"
 endif
-
-" {{{2 CtrlP configuration
-let g:ctrlp_cmd='CtrlPMRU'
-let g:ctrlp_map='<M-p>'
-let g:ctrlp_clear_cache_on_exit=0
-let g:ctrlp_tabpage_position='al'
-let g:ctrlp_show_hidden=1
-let g:ctrlp_custom_ignore='\v[\/]\.(git|hg|svn)$'
-let g:ctrlp_follow_symlinks=1
-let g:ctrlp_by_filename=1
-let g:ctrlp_working_path_mode='rw'
-let g:ctrlp_regexp=1
-let g:ctrlp_match_window='max:20'
-let g:ctrlp_mruf_max=500
-autocmd VimrcAutocmds VimEnter * nnoremap <silent> <M-p> :let v:errmsg=""<CR>:CtrlPMRU<CR>
-nnoremap <silent> <M-f> :let v:errmsg=""<CR>:CtrlPBuffer<CR>
-
-" <C-q> deletes buffer in CtrlP
-let g:ctrlp_buffer_func={ 'enter': 'MyCtrlPMappings' }
-func! MyCtrlPMappings()
-    nnoremap <buffer> <silent> <C-q> :call <SID>DeleteBuffer()<cr>
-    map <buffer> <silent> ` <Esc>
-endfunc
-func! s:DeleteBuffer()
-    let l:line=getline('.')
-    " Use substitute to remove status characters after filename
-    let l:bufid=l:line =~ '\[\d\+\*No Name\]\( [#-=+.]*\)\?$' ? str2nr(matchstr(l:line, '\d\+'))
-        \ : substitute(fnamemodify(l:line[2:], ':p'),'\m\(.*\) [#-=+.]*$','\1','')
-    exec "bd" l:bufid
-    exec "norm \<F5>"
-endfunc
 
 " {{{2 EasyMotion settings
 map <S-Space> <Space>
