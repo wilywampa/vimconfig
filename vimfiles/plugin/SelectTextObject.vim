@@ -26,29 +26,30 @@ func! s:SelectTextObject(obj,motion)
   let curline = getline('.')
   let curchar = curline[col('.')-1]
 
-  if curline =~ escape(left,'[]').'.*'.escape(right,'[]')
-    if !searchpair(left,'',right,'n')
-      if curchar == left
-        if curline[col('.')] == right
-          execute "normal! ax\<Esc>h"
-        endif
-      elseif curchar == right
-        if curline[col('.')-2] == left
-          execute "normal! ix\<Esc>h"
-        endif
-      elseif curline[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
-        call search(right,'',line('.'))
-        if curline[col('.')-2] == left
-          execute "normal! ix\<Esc>h"
-        endif
-      elseif curline[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
-        call search(left,'b',line('.'))
-        if curline[col('.')] == left
-          execute "normal! ax\<Esc>h"
-        endif
+  if searchpair(left,'',right,'n')
+    execute "normal! v".a:motion.a:obj
+  elseif curline =~ escape(left,'[]').'.*'.escape(right,'[]')
+    if curchar == left
+      if curline[col('.')] == right
+        execute "normal! ax\<Esc>h"
+      endif
+    elseif curchar == right
+      if curline[col('.')-2] == left
+        execute "normal! ix\<Esc>h"
+      endif
+    elseif curline[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
+      call search(right,'',line('.'))
+      if curline[col('.')-2] == left
+        execute "normal! ix\<Esc>h"
+      endif
+    elseif curline[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
+      call search(left,'b',line('.'))
+      if curline[col('.')] == left
+        execute "normal! ax\<Esc>h"
       endif
     endif
-    execute "normal! v".a:motion.a:obj
+  else
+    return
   endif
 endfunc
 
@@ -101,6 +102,10 @@ xnoremap <silent> a< :<C-u>call <SID>SelectTextObject('<','a')<CR>
 xnoremap <silent> a> :<C-u>call <SID>SelectTextObject('<','a')<CR>
 
 func! s:SelectTextObjectQuote(obj,motion)
+  if getline('.') !~ a:obj
+    return
+  endif
+
   if !search(a:obj,'cn',line('.'))
     call search(a:obj,'b',line('.'))
   endif
