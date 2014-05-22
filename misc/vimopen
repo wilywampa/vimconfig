@@ -2,7 +2,7 @@
 fname=""
 fnamefile=/cygdrive/c/temp/tempfname
 if [ -e $fnamefile ]; then
-    sed -i 's/^"|[" \t]*$//' $fnamefile
+    sed -i 's/^"\|[" \t]*$//g' $fnamefile
     fname=`cat $fnamefile`
     rm $fnamefile
     fname=$(cygpath -u "$fname")
