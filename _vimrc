@@ -251,11 +251,12 @@ nn <M-]> <C-w><C-]><C-w>L
 
 " <Esc> alternatives - <Nul> is <C-Space> in terminal
 ino <C-c> <NOP>
-ino <C-z> <Esc>
 ino <C-Space> <Esc>
-nn <C-Space> <Esc>
+nno <C-Space> <Esc>
+cno <C-Space> <Esc>
 ino <Nul> <Esc>
-nn <Nul> <Esc>
+nno <Nul> <Esc>
+cno <Nul> <Esc>
 ino jk <Esc>
 ino kj <Esc>
 
