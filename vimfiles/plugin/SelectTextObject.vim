@@ -102,7 +102,7 @@ xnoremap <silent> a< :<C-u>call <SID>SelectTextObject('<','a')<CR>
 xnoremap <silent> a> :<C-u>call <SID>SelectTextObject('<','a')<CR>
 
 func! s:SelectTextObjectQuote(obj,motion)
-  if getline('.') !~ a:obj
+  if getline('.') !~ a:obj.".*".a:obj
     return
   endif
 
