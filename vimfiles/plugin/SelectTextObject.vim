@@ -27,9 +27,9 @@ func! s:SelectTextObject(obj,motion)
 
   while !<SID>CursorInPair(left,right)
     if getline('.')[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
-      execute "normal! f".right
+      execute "normal! f".left
     elseif getline('.')[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
-      execute "normal! F".left
+      execute "normal! F".right
     else
       call setpos('.',curpos)
       execute "normal! v\<Esc>"
@@ -37,11 +37,13 @@ func! s:SelectTextObject(obj,motion)
     endif
   endwhile
 
-  let curchar = getline('.')[col('.')-1]
-  if curchar == right && getline('.')[col('.')-2] == left
-    execute "normal! i\<Space>\<Esc>"
-  elseif curchar == left && getline('.')[col('.')] == right
-    execute "normal! a\<Space>\<Esc>"
+  if a:motion == 'i'
+    let curchar = getline('.')[col('.')-1]
+    if curchar == right && getline('.')[col('.')-2] == left
+      execute "normal! i\<Space>\<Esc>"
+    elseif curchar == left && getline('.')[col('.')] == right
+      execute "normal! a\<Space>\<Esc>"
+    endif
   endif
 
   execute "normal! v".a:motion.a:obj
