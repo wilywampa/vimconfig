@@ -960,9 +960,10 @@ nnoremap <silent> <expr> ,a ":\<C-u>Unite -no-start-insert -no-quit grep:".getcw
 nnoremap <silent> ,vr :Unite -no-start-insert -no-quit vimgrep:**/*<CR>
 nnoremap <silent> ,vn :Unite -no-start-insert -no-quit vimgrep:**<CR>
 nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
-nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
-    \.(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1 ?
-    \"buffer" : "")." -unique neomru/file\<CR>"
+nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name="
+    \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
+    \ ? "Buffers/" : "")."NeoMRU ".(len(filter(range(1,bufnr('$')),
+    \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch()
     if s:UnitePathSearchMode
