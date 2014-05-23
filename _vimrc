@@ -374,9 +374,6 @@ nn <silent> ZQ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
 nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
 
-" Search for first non-blank
-cno <expr> ^ (getcmdtype()=~'[/?]'&&getcmdline()=='^')?'<BS>\(^\s*\)\@<=':'^'
-
 " Go up directory tree easily
 cno <expr> . (getcmdtype()==':'&&getcmdline()=~'[/ ]\.\.$')?'/..':'.'
 
@@ -633,6 +630,20 @@ func! s:SearchWholeWord(dir)
 endfunc
 nn <silent> <Leader>n :call <SID>SearchWholeWord('/')<CR>n
 nn <silent> <Leader>N :call <SID>SearchWholeWord('?')<CR>N
+
+" Search for first non-blank
+func! s:FirstNonBlank()
+    if getcmdline() == '^'
+        return "\<BS>".'\(^\s*\)\@<='
+    elseif getcmdline() ==# '\v^'
+        return "\<BS>".'(^\s*)@<='
+    elseif getcmdline() ==# '\V^'
+        return "\<BS>".'\(\^\s\*\)\@\<\='
+    else
+        return '^'
+    endif
+endfunc
+cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 
 " }}}2
 
