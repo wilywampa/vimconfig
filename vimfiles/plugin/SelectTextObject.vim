@@ -23,33 +23,40 @@ func! s:SelectTextObject(obj,motion)
     let right = '>'
   endif
 
-  let curline = getline('.')
-  let curchar = curline[col('.')-1]
+  let curpos = getpos('.')
 
-  if searchpair(left,'',right,'n')
-    execute "normal! v".a:motion.a:obj
-  elseif curline =~ escape(left,'[]').'.*'.escape(right,'[]')
-    if curchar == left
-      if curline[col('.')] == right
-        execute "normal! ax\<Esc>h"
-      endif
-    elseif curchar == right
-      if curline[col('.')-2] == left
-        execute "normal! ix\<Esc>h"
-      endif
-    elseif curline[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
-      call search(right,'',line('.'))
-      if curline[col('.')-2] == left
-        execute "normal! ix\<Esc>h"
-      endif
-    elseif curline[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
-      call search(left,'b',line('.'))
-      if curline[col('.')] == left
-        execute "normal! ax\<Esc>h"
-      endif
+  while !<SID>CursorInPair(left,right)
+    if getline('.')[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
+      execute "normal! f".right
+    elseif getline('.')[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
+      execute "normal! F".left
+    else
+      call setpos('.',curpos)
+      execute "normal! v\<Esc>"
+      return
     endif
+  endwhile
+
+  let curchar = getline('.')[col('.')-1]
+  if curchar == right && getline('.')[col('.')-2] == left
+    execute "normal! i\<Space>\<Esc>"
+  elseif curchar == left && getline('.')[col('.')] == right
+    execute "normal! a\<Space>\<Esc>"
+  endif
+
+  execute "normal! v".a:motion.a:obj
+endfunc
+
+func! s:CursorInPair(left,right)
+  let curpos = getpos('.')
+  execute "normal! v\<Esc>va".a:right."\<Esc>"
+  call setpos('.',curpos)
+
+  " Left or right char must be on cursor line
+  if getpos("'<")[1] == line('.') || getpos("'>")[1] == line('.')
+    return getpos("'<") != getpos("'>")
   else
-    return
+    return 0
   endif
 endfunc
 
@@ -106,15 +113,20 @@ func! s:SelectTextObjectQuote(obj,motion)
     return
   endif
 
-  if !search(a:obj,'cn',line('.'))
-    call search(a:obj,'b',line('.'))
+  if getline('.')[col('.')-1:-1] !~ a:obj
+    execute "normal! F".a:obj
+  elseif getline('.')[0:col('.')-1] !~ a:obj
+    execute "normal! f".a:obj
   endif
-  execute "normal! v".a:motion.a:obj."\<Esc>`<"
-  if getline('.')[col('.')] == a:obj && a:motion == 'i'
-    execute "normal! ax\<Esc>v"
-  else
-    execute "normal! v".a:motion.a:obj
+
+  let curchar = getline('.')[col('.')-1]
+  if curchar == a:obj && getline('.')[col('.')-2] == a:obj
+    execute "normal! i\<Space>\<Esc>"
+  elseif curchar == a:obj && getline('.')[col('.')] == a:obj
+    execute "normal! a\<Space>\<Esc>"
   endif
+
+  execute "normal! v".a:motion.a:obj
 endfunc
 
 onoremap <silent> i" :<C-u>call <SID>SelectTextObjectQuote('"','i')<CR>
