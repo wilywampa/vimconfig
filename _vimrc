@@ -893,10 +893,24 @@ map <Space><Space>n <Plug>(easymotion-bd-n)
 autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
 
 " {{{2 VimFiler settings
-nnoremap <silent> <expr> - exists(':VimFiler')?
-    \":VimFilerBufferDir -find\<CR>":
-    \":Explore\<CR>"
-nnoremap <silent> <C-_> :VimFilerCurrentDir -find<CR>
+func! s:OpenVimFiler(bufdir)
+    let g:vimfiler_alt_buf = bufnr('%')
+    if a:bufdir
+        return ":VimFilerBufferDir -find\<CR>"
+    else
+        return ":VimFilerCurrentDir -find\<CR>"
+    endif
+endfunc
+func! s:VimFilerAlternateBuffer()
+    if expand('#') == 'vimfiler:default'
+        execute "buffer ".g:vimfiler_alt_buf
+    else
+        execute "normal \<C-^>"
+    endif
+endfunc
+nnoremap <silent> <expr> - <SID>OpenVimFiler(1)
+nnoremap <silent> <expr> <C-_> <SID>OpenVimFiler(0)
+nnoremap <silent> <C-^> :call <SID>VimFilerAlternateBuffer()<CR>
 let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
 nn <silent> gx :call netrw#NetrwBrowseX(expand("<cfile>"),0)<CR>
