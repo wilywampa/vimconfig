@@ -55,7 +55,6 @@ set splitbelow                 " Horizontal splits open on the bottom
 set fileformats=unix,dos       " Always prefer unix format
 sil! set fileformat=unix
 set csqf=s-,c-,d-,i-,t-,e-     " Use quickfix list for cscope results
-set cscopetag                  " Use cscope instead of ctags when possible
 set foldopen+=jump             " Jumps open folds
 set clipboard=unnamed          " Yank to system clipboard
 set clipboard+=unnamedplus
@@ -436,19 +435,13 @@ if s:hasvimtools
 endif
 
 " {{{2 Cscope configuration
-" Abbreviations for diff commands
-cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffthis':'dt')
-cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff \|
-    \ windo set nowrap':'do')
-cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate':'du')
-
 " Abbreviations for cscope commands
-cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cs add'  :'csa')
-cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<=4)?'cs find' :'csf')
-cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<=4)?'cs kill' :'csk')
-cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<=4)?'cs reset':'csr')
-cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cs show' :'css')
-cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cs help' :'csh')
+cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cs add'   :'csa')
+cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<=4)?'cs find'  :'csf')
+cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<=4)?'cs kill *':'csk')
+cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<=4)?'cs reset' :'csr')
+cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cs show'  :'css')
+cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cs help'  :'csh')
 
 " Mappings for cscope find commands
 no <M-\>s :cs find s <C-r>=expand("<cword>")<CR><CR>
@@ -593,11 +586,13 @@ cnoremap <C-x> <C-\>e<SID>CycleSearchMode()<CR>
 
 " Close other windows or close other tabs
 func! s:CloseWinsOrTabs()
+    let startwin = winnr()
     wincmd t
     if winnr() == winnr('$')
         tabonly
     else
-        wincmd p | wincmd o
+        if winnr() != startwin | wincmd p | endif
+        wincmd o
     endif
 endfunc
 nnoremap <silent> <C-w>o :call <SID>CloseWinsOrTabs()<CR>
@@ -645,8 +640,7 @@ func! s:FirstNonBlank()
 endfunc
 cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 
-" }}}2
-
+" {{{2 GUI configration
 if has('gui_running')
     " Disable most visible GUI features
     set guioptions=eAc
@@ -680,13 +674,21 @@ else
     map! <F13> <C-Up>
     map! <F14> <C-Down>
 
-    " Change tab in MinTTY/XTerm
-    "         <C-Tab>           <C-S-Tab>
-    exec "set <F15>=\<Esc>[1;5I <F16>=\<Esc>[1;6I"
+    " Change tab in XTerm
+    "         <C-Tab>              <C-S-Tab>
+    exec "set <F15>=\<Esc>[27;5;9~ <F16>=\<Esc>[27;6;9~"
 
     " Use correct background color
     autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
 endif
+
+" }}}2
+
+" Abbreviations for diff commands
+cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffthis':'dt')
+cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff \|
+    \ windo set nowrap':'do')
+cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate':'du')
 
 " Increase time allowed for keycode mappings over SSH
 if macSSH
@@ -734,6 +736,14 @@ augroup VimrcAutocmds
     au CmdwinEnter ? let g:cmdwinType='?'
     au CmdwinEnter : let g:cmdwinType=':'
     au CmdwinEnter * call <SID>CmdwinMappings()
+
+    " Load files with mixed line endings as DOS format
+    autocmd BufReadPost * nested
+        \ if !exists('b:reload_dos') && !&binary && &ff == 'unix'
+        \       && (0 < search('\r$', 'nc')) |
+        \     let b:reload_dos = 1 |
+        \     e ++ff=dos |
+        \ endif
 augroup END
 
 " {{{1 Plugin configuration
@@ -913,9 +923,11 @@ let g:unite_split_rule='botright'
 let g:unite_enable_start_insert=1
 hi UniteCursor ctermbg=236 guibg=#333333
 let g:unite_cursor_line_highlight='UniteCursor'
-let g:unite_source_grep_command='ack'
-let g:unite_source_grep_default_opts='-s -H --nocolor --nogroup --column'
-let g:unite_source_grep_recursive_opt=''
+if executable('ag')
+    let g:unite_source_grep_command='ag'
+    let g:unite_source_grep_default_opts='--nogroup --nocolor --column'
+    let g:unite_source_grep_recursive_opt=''
+endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
 augroup VimrcAutocmds
