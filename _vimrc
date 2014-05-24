@@ -968,6 +968,8 @@ func! s:UniteMaps()
     imap <buffer> <C-c> <Plug>(unite_exit)
     nmap <buffer> m <Plug>(unite_toggle_mark_current_candidate)
     nmap <buffer> M <Plug>(unite_toggle_mark_current_candidate_up)
+    nmap <buffer> <F1>  <Plug>(unite_quick_help)
+    nunm <buffer> ?
 endfunc
 nnoremap <silent> "" :<C-u>Unite -no-start-insert history/yank<CR>
 nnoremap <silent> "' :<C-u>Unite -no-start-insert register<CR>
