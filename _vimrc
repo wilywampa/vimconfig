@@ -905,7 +905,7 @@ func! s:VimFilerAlternateBuffer()
     if expand('#') == 'vimfiler:default'
         execute "buffer ".g:vimfiler_alt_buf
     else
-        execute "normal \<C-^>"
+        execute "normal! \<C-^>"
     endif
 endfunc
 nnoremap <silent> <expr> - <SID>OpenVimFiler(1)
