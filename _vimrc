@@ -749,7 +749,9 @@ augroup END
 " {{{1 Plugin configuration
 
 " Set color scheme
-sil! colorscheme jellybeans
+if !exists('colors_name') || colors_name != 'jellybeans'
+    sil! colorscheme jellybeans
+endif
 
 " Make empty list of disabled plugins
 let g:pathogen_disabled=[]
@@ -906,13 +908,13 @@ let g:vimfiler_marked_file_icon='✓'
 autocmd VimrcAutocmds FileType vimfiler call s:vimfiler_settings()
 func! s:vimfiler_settings()
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
-    nmap <buffer> <C-m> <Plug>(vimfiler_move_file)
+    nmap <buffer> <M-m> <Plug>(vimfiler_move_file)
     nmap <buffer> e     <Plug>(vimfiler_execute)
     nmap <buffer> <BS>  <Plug>(vimfiler_close)
     nmap <buffer> -     <Plug>(vimfiler_switch_to_parent_directory)
     nmap <buffer> <F1>  <Plug>(vimfiler_help)
     nmap <buffer> <expr> <CR> vimfiler#smart_cursor_map(
-        \"\<PLUG>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
+        \"\<Plug>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
 endfunc
@@ -921,6 +923,7 @@ endfunc
 let g:unite_source_history_yank_enable=1
 let g:unite_split_rule='botright'
 let g:unite_enable_start_insert=1
+let g:unite_marked_icon='✓'
 hi UniteCursor ctermbg=236 guibg=#333333
 let g:unite_cursor_line_highlight='UniteCursor'
 if executable('ag')

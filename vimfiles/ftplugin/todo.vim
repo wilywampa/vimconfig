@@ -43,5 +43,8 @@ xnoremap <silent> <buffer> \x  :<C-u>call <SID>SetC('X')<Bar>call <SID>DoIt(line
 nnoremap <buffer> ,o o(O)<Space>
 nnoremap <buffer> ,O O(O)<Space>
 
+nnoremap <buffer> ]] zj
+nnoremap <buffer> [[ zk
+
 setlocal wrap linebreak
 setlocal commentstring=#%s
