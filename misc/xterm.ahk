@@ -1,34 +1,6 @@
 ; Reload automatically if already running
 #SingleInstance force
 
-; Make <C-Tab> work in XTerm
-$^Tab::
-WinGet, Active_ID, ID, A
-WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
-if ( Active_Process ="XWin.exe" )
-{
-    Send gt
-}
-else
-{
-    Send ^{Tab}
-}
-return
-
-; Make <C-S-Tab> work in XTerm
-$^+Tab::
-WinGet, Active_ID, ID, A
-WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
-if ( Active_Process ="XWin.exe" )
-{
-    Send gT
-}
-else
-{
-    Send ^+{Tab}
-}
-return
-
 ; Make <C-_> work without shift key
 $^-::
 WinGet, Active_ID, ID, A
