@@ -983,7 +983,7 @@ func! s:UniteMaps()
     nmap <buffer> m <Plug>(unite_toggle_mark_current_candidate)
     nmap <buffer> M <Plug>(unite_toggle_mark_current_candidate_up)
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
-    nunm <buffer> ?
+    sil! nunmap <buffer> ?
 endfunc
 nnoremap <silent> "" :<C-u>Unite -no-start-insert history/yank<CR>
 nnoremap <silent> "' :<C-u>Unite -no-start-insert register<CR>
@@ -1046,6 +1046,13 @@ nmap <silent> <Leader>i <Plug>IndentGuidesToggle
 if executable('ag') | let g:ackprg='ag --nogroup --nocolor --column' | endif
 let g:ack_autofold_results=0
 com! -nargs=* -bang A Ack<bang> <args>
+
+" tmux navigator settings
+let g:tmux_navigator_no_mappings=1
+nnoremap <silent> <M-Left>  :TmuxNavigateLeft<CR>
+nnoremap <silent> <M-Down>  :TmuxNavigateDown<CR>
+nnoremap <silent> <M-Up>    :TmuxNavigateUp<CR>
+nnoremap <silent> <M-Right> :TmuxNavigateRight<CR>
 
 " Import scripts
 execute pathogen#infect()
