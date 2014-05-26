@@ -422,6 +422,10 @@ vn ? ?\v
 " Toggle showing listchars
 nn <silent> <Leader>L :set list!<CR>
 
+" Move current line to 1/5 down from top or up from bottom
+nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
+nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
+
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
