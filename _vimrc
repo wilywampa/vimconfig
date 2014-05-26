@@ -843,17 +843,18 @@ if has('lua')
         let g:neocomplete#force_omni_input_patterns={}
     endif
     let g:neocomplete#force_omni_input_patterns.matlab='\h\w*\.\w*'
-    func! s:StartManualComplete()
+    func! s:StartManualComplete(dir)
         " Indent if only whitespace behind cursor
         let l:match=match(getline('.'),'\S')
-        if l:match >= 0 && l:match < col('.')
-            return pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
+        if l:match >= 0 && l:match < col('.')-1
+            return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
+                \: neocomplete#start_manual_complete()
         else
-            return "\<Tab>"
+            return a:dir ? "\<Tab>" : "\<BS>"
         endif
     endfunc
-    inoremap <expr> <Tab>   <SID>StartManualComplete()
-    inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+    inoremap <expr> <Tab>   <SID>StartManualComplete(1)
+    inoremap <expr> <S-Tab> <SID>StartManualComplete(0)
     inoremap <expr> <CR>    neocomplete#close_popup()."\<C-g>u\<CR>"
     inoremap <expr> <C-e>   neocomplete#close_popup()
     imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
@@ -897,24 +898,8 @@ map <Space><Space>n <Plug>(easymotion-bd-n)
 autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
 
 " {{{2 VimFiler settings
-func! s:OpenVimFiler(bufdir)
-    let g:vimfiler_alt_buf = bufnr('%')
-    if a:bufdir
-        return ":VimFilerBufferDir -find\<CR>"
-    else
-        return ":VimFilerCurrentDir -find\<CR>"
-    endif
-endfunc
-func! s:VimFilerAlternateBuffer()
-    if expand('#') == 'vimfiler:default'
-        execute "buffer ".g:vimfiler_alt_buf
-    else
-        execute "normal! \<C-^>"
-    endif
-endfunc
-nnoremap <silent> <expr> - <SID>OpenVimFiler(1)
-nnoremap <silent> <expr> <C-_> <SID>OpenVimFiler(0)
-nnoremap <silent> <C-^> :call <SID>VimFilerAlternateBuffer()<CR>
+nnoremap <silent> - :VimFilerBufferDir -find<CR>
+nnoremap <silent> <C-_> :VimFilerCurrentDir -find<CR>
 let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
 nn <silent> gx :call netrw#NetrwBrowseX(expand("<cfile>"),0)<CR>

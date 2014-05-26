@@ -43,6 +43,8 @@ func! s:SelectTextObject(obj,motion)
       execute "normal! i\<Space>\<Esc>"
     elseif curchar == left && getline('.')[col('.')] == right
       execute "normal! a\<Space>\<Esc>"
+    else
+      execute "normal! F".left
     endif
   endif
 
