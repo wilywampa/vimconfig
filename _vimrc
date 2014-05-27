@@ -644,6 +644,28 @@ func! s:FirstNonBlank()
 endfunc
 cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 
+" Don't delete the v/V at the start of a search
+func! s:SearchCmdDelWord()
+    if getcmdtype() =~ '[/?]' && getcmdline() =~? '^\\v\k*$'
+        if getcmdline()[1] ==# 'v'
+            return "\<C-w>v"
+        else
+            return "\<C-w>V"
+        endif
+    endif
+    return "\<C-w>"
+endfunc
+cnoremap <expr> <C-w> <SID>SearchCmdDelWord()
+
+" Fix up arrow in seach history when search starts with \v
+func! s:OlderHistory()
+    if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
+        return "\<C-u>\<Up>"
+    endif
+    return "\<Up>"
+endfunc
+cnoremap <expr> <Up> <SID>OlderHistory()
+
 " {{{2 GUI configration
 if has('gui_running')
     " Disable most visible GUI features
