@@ -1,0 +1,28 @@
+[user]
+	name = Jacob Niehus
+	email = jacob.niehus@gmail.com
+[core]
+	excludesfile = /Users/jniehus/.gitignore_global
+	editor = /usr/bin/vim
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[alias]
+	st = status
+	ci = commit -v
+	di = difftool -y
+	co = checkout
+	new = log HEAD..origin
+	pu = pull origin master
+	up = pull origin master
+[color]
+	diff = auto
+	status = auto
+	branch = auto
+[diff]
+	tool = bc3
+[difftool]
+	bc3 = trustExitCode

@@ -1,0 +1,61 @@
+term screen-256color
+defscrollback 10000
+startup_message off
+msgwait 1.5
+maptimeout 50
+altscreen on
+
+# Use C-\ as prefix
+escape ^||
+bind \ meta
+
+# Terminfo and termcap for nice 256 color terminal
+# allow bold colors - necessary for some reason
+attrcolor b ".I"
+
+# Tell screen how to set colors. AB = background, AF=foreground
+termcapinfo xterm "Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm"
+termcapinfo xterm-color "Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm"
+
+# Erase background with current bg color
+defbce "on"
+
+# Enable status line
+hardstatus on
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %d%M%y %{W}%c %{g}]'
+
+# Copy to Cygwin clipboard
+bufferfile /dev/clipboard
+bind ^c writebuf
+bind ^v eval "readreg p /dev/clipboard" "paste p"
+
+# Start numbering at 1
+bind c screen 1
+bind ^c screen 1
+screen 1
+
+# Be like tmux
+bind = eval "split" "focus" "screen" "bind ^| focus"
+bind '"' eval "split -v" "focus" "screen" "bind ^| focus"
+bind , title
+bind w windowlist -b
+bind & kill
+bind ~ lastmsg
+bind o eval "only" "bind ^| other"
+bind ` focus
+bind l other
+bind x kill
+bind Q quit
+bind ^[ eval "bindkey -m v eval 'stuff \" \"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m V eval 'stuff \"0 $\"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m y eval 'stuff \" \"' 'writebuf' 'bindkey -m y'" 'copy'
+bind [ eval "bindkey -m v eval 'stuff \" \"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m V eval 'stuff \"0 $\"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m y eval 'stuff \" \"' 'writebuf' 'bindkey -m y'" 'copy'
+bindkey -t ^_ eval "bindkey -m v eval 'stuff \" \"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m V eval 'stuff \"0 $\"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m y eval 'stuff \" \"' 'writebuf' 'bindkey -m y'" 'copy'
+bindkey -t ^I eval 'bindkey -m v' 'bindkey -m V' 'bindkey -m y' 'stuff "^I"'
+bindkey -t ^c eval 'bindkey -m v' 'bindkey -m V' 'bindkey -m y' 'stuff "^c"'
+bindkey -t ^[ eval 'bindkey -m v' 'bindkey -m V' 'bindkey -m y' 'stuff "^["'
+bindkey -m W stuff "/ \015w"
+bindkey -m B stuff "b? \015w"
+bindkey -m E stuff "e/ \015h"
+bindkey -m -t "\W" stuff "W"
+bindkey -m -t "\B" stuff "B"
+bindkey -m -t "\E" stuff "E"

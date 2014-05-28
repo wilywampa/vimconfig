@@ -1,0 +1,4 @@
+let g:no_session=1
+source ~/.vimrc
+inoremap <C-s> <Esc>ZZ
+nnoremap <C-s> ZZ

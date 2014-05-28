@@ -1,0 +1,47 @@
+XTerm*termName: screen-256color
+XTerm*faceName: DejaVu Sans Mono for Powerline
+XTerm*faceSize: 11
+XTerm*metaSendsEscape: false
+XTerm*altSendsEscape: false
+XTerm*reverseVideo: false
+XTerm*toolBar: false
+XTerm*VT100.cutNewLine: false
+XTerm*VT100.cutToBeginningOfLine: false
+XTerm*VT100.charClass: 33:48,35:48,37:48,42:48,45-47:48,64:48,95:48,126:48
+XTerm*cursorBlink: true
+XTerm*visualBell: true
+
+XTerm*color0:      #000000
+XTerm*color1:      #b81511
+XTerm*color2:      #00c13e
+XTerm*color3:      #ffd255
+XTerm*color4:      #43aedd
+XTerm*color5:      #cb37c0
+XTerm*color6:      #00c6c6
+XTerm*color7:      #c7c7c7
+XTerm*color8:      #686868
+XTerm*color9:      #ff221c
+XTerm*color10:     #a1ce82
+XTerm*color11:     #fff597
+XTerm*color12:     #84cafa
+XTerm*color13:     #ff7af7
+XTerm*color14:     #5afdfe
+XTerm*color15:     #ffffff
+XTerm*borderColor: #d6d6d6
+XTerm*background:  #1a1a1a
+XTerm*foreground:  #d6d6d6
+
+*VT100.translations:  #override \n\
+Meta <Key>1: string(0x1b) string("1") \n\
+Meta <Key>2: string(0x1b) string("2") \n\
+Meta <Key>3: string(0x1b) string("3") \n\
+Meta <Key>4: string(0x1b) string("4") \n\
+Meta <Key>5: string(0x1b) string("5") \n\
+Ctrl ~Shift <Key>Tab: string(0x1b) string("[27;5;9~") \n\
+Ctrl Shift <Key>Tab: string(0x1b) string("[27;6;9~") \n\
+Ctrl ~Shift <Key>`: string(0x1e) \n\
+Ctrl Shift <Key>`: string(0x1e) \n\
+Ctrl ~Shift <Key>-: string(0x1f) \n\
+Ctrl Shift <Key>-: string(0x1f) \n
+
+! vim: cms=!%s
