@@ -557,7 +557,7 @@ func! s:DotRepeat(count)
         let &eventignore = eventignore_save
     endtry
 endfunc
-nnoremap <silent> . :<C-u>call <SID>DotRepeat(v:count1)<CR>
+nnoremap <silent> . :<C-u>call <SID>DotRepeat(v:count)<CR>
 
 " Make q macro ignore InsertEnter event
 func! s:QMacro(count)
@@ -569,7 +569,7 @@ func! s:QMacro(count)
         let &eventignore = eventignore_save
     endtry
 endfunc
-nnoremap <silent> Q :<C-u>call <SID>QMacro(v:count1)<CR>
+nnoremap <silent> Q :<C-u>call <SID>QMacro(v:count)<CR>
 
 " Cycle search mode between regular, very magic, and very nomagic
 func! s:CycleSearchMode()
@@ -930,6 +930,7 @@ let g:vimfiler_file_icon='-'
 let g:vimfiler_tree_opened_icon='▼'
 let g:vimfiler_tree_closed_icon='▶'
 let g:vimfiler_marked_file_icon='✓'
+let g:vimfiler_restore_alternate_file=1
 autocmd VimrcAutocmds FileType vimfiler call s:vimfiler_settings()
 func! s:vimfiler_settings()
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
