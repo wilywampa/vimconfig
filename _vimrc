@@ -131,7 +131,7 @@ nnoremap <silent> <M-'> '
 let hasMac=has("mac")
 let hasWin=has("win16") || has("win32") || has("win64")
 let hasSSH=!empty($SSH_CLIENT)
-let macSSH=hasMac && hasSSH
+let iPadSSH=hasMac && hasSSH && $SSH_CLIENT =~ '154'
 
 if hasWin
     " Change where backups are saved
@@ -338,7 +338,7 @@ nn @~ :<C-u><C-r>:<C-f>^~<CR>
 noremap <C-q> <C-v>
 
 " Show current line of diff at bottom of tab
-nn <Leader>dl <C-w>t<C-w>s<C-w>j<C-w>J<C-w>t<C-w>l<C-w>s<C-w>j<C-w>J<C-w>t:res<CR><C-w>b
+nn <Leader>dl <C-w>t<C-w>s<C-w>J<C-w>t<C-w>l<C-w>s<C-w>J<C-w>t:res<CR><C-w>b
 
 " Make Y behave like other capital letters
 map Y y$
@@ -706,6 +706,9 @@ else
 
     " Use correct background color
     autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
+
+    " Enable mouse for scrolling
+    set mouse=a
 endif
 
 " }}}2
@@ -717,7 +720,7 @@ cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff \|
 cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate':'du')
 
 " Increase time allowed for keycode mappings over SSH
-if macSSH
+if iPadSSH
     set ttimeoutlen=250
 elseif hasSSH
     set ttimeoutlen=100
@@ -774,11 +777,6 @@ augroup END
 
 " {{{1 Plugin configuration
 
-" Set color scheme
-if !exists('colors_name') || colors_name != 'jellybeans'
-    sil! colorscheme jellybeans
-endif
-
 " Make empty list of disabled plugins
 let g:pathogen_disabled=[]
 
@@ -796,11 +794,11 @@ if s:readonly
 endif
 
 " Set airline color scheme
-let g:airline_theme='jellybeans'
+let g:airline_theme='tomorrow'
 au VimrcAutocmds TabEnter * sil! call airline#highlighter#highlight(['normal',&mod?'modified':''])
 
 " Use powerline font unless in Mac SSH session or in old Vim
-if macSSH || v:version < 703
+if iPadSSH || v:version < 703
     let g:airline_powerline_fonts=0
     let g:airline_left_sep=''
     let g:airline_right_sep=''
@@ -950,8 +948,7 @@ let g:unite_source_history_yank_enable=1
 let g:unite_split_rule='botright'
 let g:unite_enable_start_insert=1
 let g:unite_marked_icon='✓'
-hi UniteCursor ctermbg=236 guibg=#333333
-let g:unite_cursor_line_highlight='UniteCursor'
+let g:unite_cursor_line_highlight='CursorLine'
 if executable('ag')
     let g:unite_source_grep_command='ag'
     let g:unite_source_grep_default_opts='--nogroup --nocolor --column'
@@ -1052,6 +1049,7 @@ let g:airline#extensions#syntastic#enabled=0
 let g:no_default_tabular_maps=1
 
 " Indent Guides settings
+let g:indent_guides_auto_colors=0
 nmap <silent> <Leader>i <Plug>IndentGuidesToggle
 
 " Ack settings
@@ -1075,5 +1073,12 @@ sil! call airline#parts#define('ic',{'condition': '!\&ic',
 sil! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
 sil! let g:airline_section_c = airline#section#create(['ic', '%<', 'file',
     \g:airline_symbols.space, 'readonly'])
+
+" Solarized settings
+set background=dark
+if iPadSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
+if !exists('colors_name') || colors_name != 'solarized'
+    sil! colorscheme solarized
+endif
 
 " vim: fdm=marker fdl=1:
