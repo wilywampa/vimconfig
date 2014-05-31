@@ -552,7 +552,7 @@ func! s:DotRepeat(count)
     let eventignore_save = &eventignore
     let &eventignore = 'InsertEnter'
     try
-        exec "norm! ".a:count."."
+        exec "norm! ".(a:count ? a:count : "")."."
     finally
         let &eventignore = eventignore_save
     endtry
@@ -566,7 +566,7 @@ func! s:QMacro(count)
     " Prevent creating undo points during macro execution
     inoremap <buffer> <CR> <CR>
     try
-        exec "norm ".a:count."@q"
+        exec "norm ".(a:count ? a:count : "")."@q"
     finally
         let &eventignore = eventignore_save
         iunmap <buffer> <CR>
@@ -593,10 +593,14 @@ cnoremap <C-x> <C-\>e<SID>CycleSearchMode()<CR>
 
 " Make /<CR> and ?<CR> work when \v is added automatically
 func! s:SearchCR()
-    if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
-        return "\<End>\<C-u>\<CR>"
+    if getcmdtype() =~ '[/?]'
+        if getcmdline() ==? '\v'
+            return "\<End>\<C-u>\<CR>zv"
+        else
+            return "\<C-]>\<CR>zv"
+        endif
     endif
-    return "\<CR>"
+    return "\<C-]>\<CR>"
 endfunc
 cnoremap <expr> <CR> <SID>SearchCR()
 
