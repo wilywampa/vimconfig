@@ -382,6 +382,9 @@ nn <silent> <Leader>x :exec getline('.')<CR>
 " Close quickfix window/location list
 nn <silent> <Leader>w :ccl\|lcl<CR>
 
+" Switch to quickfix window
+nn <silent> <C-w><Space> :copen<CR>
+
 " Make current buffer a scratch buffer
 nn <silent> <Leader>s :set bt=nofile<CR>
 
@@ -418,9 +421,6 @@ nn / /\v
 vn / /\v
 nn ? ?\v
 vn ? ?\v
-
-" Toggle showing listchars
-nn <silent> <Leader>L :set list!<CR>
 
 " Move current line to 1/5 down from top or up from bottom
 nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
@@ -677,10 +677,40 @@ cnoremap <expr> <C-w> <SID>SearchCmdDelWord()
 func! s:OlderHistory()
     if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
         return "\<C-u>\<Up>"
+    elseif s:hasvimtools
+        return ((getcmdtype()==':'&&getcmdline()=='h')?"\<BS>H\<Up>":"\<Up>")
     endif
     return "\<Up>"
 endfunc
 cnoremap <expr> <Up> <SID>OlderHistory()
+
+" Make [[, ]], [], and ][ work when { is not in first column
+func! s:SectionJump(type)
+    let l:count = v:count1
+    while l:count
+        if a:type == '[['
+            call search('{','b',1)
+            normal! w99[{
+        elseif a:type == ']['
+            call search('}','',line('$'))
+            normal! b99]}
+        elseif a:type == ']]'
+            normal j0[[%
+            call search('{','',line('$'))
+        elseif a:type == '[]'
+            normal k$][%
+            call search('}','b',1)
+        endif
+        let l:count -= 1
+    endwhile
+endfunc
+func! s:SectionJumpMaps()
+    noremap <silent> [[ :<C-u>call <SID>SectionJump('[[')<CR>
+    noremap <silent> ][ :<C-u>call <SID>SectionJump('][')<CR>
+    noremap <silent> ]] :<C-u>call <SID>SectionJump(']]')<CR>
+    noremap <silent> [] :<C-u>call <SID>SectionJump('[]')<CR>
+endfunc
+autocmd VimrcAutocmds FileType c,cpp call <SID>SectionJumpMaps()
 
 " {{{2 GUI configration
 if has('gui_running')
@@ -793,7 +823,7 @@ augroup VimrcAutocmds
     " Restore cursor position after loading a file
     autocmd BufReadPost *
         \ if line("'\"") > 1 && line("'\"") <= line("$") |
-        \   exe "normal! g`\"" |
+        \     exe "normal! g`\"" |
         \ endif
 augroup END
 
@@ -887,8 +917,7 @@ if has('lua')
     let g:neocomplete#force_omni_input_patterns.matlab='\h\w*\.\w*'
     func! s:StartManualComplete(dir)
         " Indent if only whitespace behind cursor
-        let l:match=match(getline('.'),'\S')
-        if l:match >= 0 && l:match < col('.')-1
+        if getline('.')[col('.')-2] =~ '\S'
             return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
                 \: neocomplete#start_manual_complete()
         else
