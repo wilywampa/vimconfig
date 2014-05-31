@@ -286,7 +286,7 @@ nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
 nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 
 " Copy full file path to clipboard on Ctrl-g
-nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>
+nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>:let @*=@+<CR>:let @"=@+<CR>
 
 " Change tab position
 nn <silent> <C-w><C-e>     :tabm<CR>
@@ -563,10 +563,13 @@ nnoremap <silent> . :<C-u>call <SID>DotRepeat(v:count)<CR>
 func! s:QMacro(count)
     let eventignore_save = &eventignore
     let &eventignore = 'InsertEnter'
+    " Prevent creating undo points during macro execution
+    inoremap <buffer> <CR> <CR>
     try
         exec "norm ".a:count."@q"
     finally
         let &eventignore = eventignore_save
+        iunmap <buffer> <CR>
     endtry
 endfunc
 nnoremap <silent> Q :<C-u>call <SID>QMacro(v:count)<CR>
@@ -587,6 +590,15 @@ func! s:CycleSearchMode()
     return l:cmd
 endfunc
 cnoremap <C-x> <C-\>e<SID>CycleSearchMode()<CR>
+
+" Make /<CR> and ?<CR> work when \v is added automatically
+func! s:SearchCR()
+    if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
+        return "\<End>\<C-u>\<CR>"
+    endif
+    return "\<CR>"
+endfunc
+cnoremap <expr> <CR> <SID>SearchCR()
 
 " Close other windows or close other tabs
 func! s:CloseWinsOrTabs()
@@ -772,6 +784,12 @@ augroup VimrcAutocmds
         \       && (0 < search('\r$', 'nc')) |
         \     let b:reload_dos = 1 |
         \     e ++ff=dos |
+        \ endif
+
+    " Restore cursor position after loading a file
+    autocmd BufReadPost *
+        \ if line("'\"") > 1 && line("'\"") <= line("$") |
+        \   exe "normal! g`\"" |
         \ endif
 augroup END
 
@@ -976,7 +994,8 @@ func! s:UniteMaps()
     imap <buffer> <expr> <C-o>s unite#do_action('split')
     imap <buffer> <expr> <C-o>t unite#do_action('tabopen')
     imap <buffer> <expr> <C-o>d unite#do_action('tabdrop')
-    imap <buffer> <expr> <C-o>r unite#do_action('view')
+    imap <buffer> <expr> <C-o>o unite#do_action('view')
+    imap <buffer> <expr> <C-o>r unite#do_action('open')
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
     inor <buffer> <C-f> <C-o><C-d>
