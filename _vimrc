@@ -373,6 +373,9 @@ nn <silent> ZQ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
 nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
 
+" Save and quit all
+nn <silent> ZA :while 1 \| exe "norm ZZ" \| endwhile<CR>
+
 " Go up directory tree easily
 cno <expr> . (getcmdtype()==':'&&getcmdline()=~'[/ ]\.\.$')?'/..':'.'
 
@@ -391,9 +394,11 @@ nn <silent> <Leader>s :set bt=nofile<CR>
 " Echo syntax name under cursor
 nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 
-" Change directory to current buffer's path
-nnoremap <silent> <Leader>cd :cd! %:p:h<CR>:pwd<CR>
-nnoremap <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
+" Change directory
+nn <silent> <Leader>cd :cd! %:p:h<CR>:pwd<CR>
+nn <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
+nn <silent> <Leader>.. :cd ..<CR>:pwd<CR>
+nn <silent> ,.. :lcd ..<CR>:pwd<CR>
 
 " <CR> in insert mode creates undo point
 ino <CR> <C-g>u<CR>
@@ -820,11 +825,13 @@ augroup VimrcAutocmds
         \     e ++ff=dos |
         \ endif
 
-    " Restore cursor position after loading a file
+    " Restore cursor position and open fold after loading a file
     autocmd BufReadPost *
         \ if line("'\"") > 1 && line("'\"") <= line("$") |
-        \     exe "normal! g`\"" |
+        \     exe "normal! g`\"" | let b:do_unfold = 1 |
         \ endif
+    autocmd BufWinEnter * if exists('b:do_unfold') |
+        \ exe "normal! zv" | unlet b:do_unfold | endif
 augroup END
 
 " {{{1 Plugin configuration
@@ -1049,6 +1056,8 @@ endfunc
 nnoremap <silent> "" :<C-u>Unite -no-start-insert history/yank<CR>
 nnoremap <silent> "' :<C-u>Unite -no-start-insert register<CR>
 nnoremap <silent> <expr> ,a ":\<C-u>Unite -no-start-insert -no-quit grep:".getcwd()."\<CR>"
+com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
+nnoremap <silent> ,b :<C-u>Unite bookmark<CR>
 nnoremap <silent> ,vr :Unite -no-start-insert -no-quit vimgrep:**/*<CR>
 nnoremap <silent> ,vn :Unite -no-start-insert -no-quit vimgrep:**<CR>
 nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
