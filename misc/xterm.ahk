@@ -53,15 +53,16 @@ if !ErrorLevel = 0
 else
 {
     Send #4
-    Loop
+    Loop, 50
     {
         WinActivate, GVIM
         IfWinActive, GVIM
         {
             Break
         }
+        Sleep, 100
     }
-    Loop
+    Loop, 50
     {
         WinGet MMX, MinMax, GVIM
         If MMX = 1
@@ -72,6 +73,7 @@ else
         {
             WinMaximize
         }
+        Sleep, 100
     }
 }
 Return
@@ -104,15 +106,16 @@ if !ErrorLevel = 0
 else
 {
     Send #2
-    Loop
+    Loop, 50
     {
         WinActivate, xterm
         IfWinActive, xterm
         {
             Break
         }
+        Sleep, 100
     }
-    Loop
+    Loop, 50
     {
         WinGet MMX, MinMax, xterm
         If MMX = 1
@@ -123,6 +126,7 @@ else
         {
             WinMaximize
         }
+        Sleep, 100
     }
     Send tmx{Enter}
 }
@@ -137,3 +141,7 @@ Loop
     Sleep, 2000
 }
 
+; Adjust mouse sensitivity
+#F1::DllCall("SystemParametersInfo", Int,113, Int,0, UInt,4, Int,2)
+#F2::DllCall("SystemParametersInfo", Int,113, Int,0, UInt,6, Int,2)
+#F3::DllCall("SystemParametersInfo", Int,113, Int,0, UInt,8, Int,2)
