@@ -690,8 +690,9 @@ endfunc
 cnoremap <expr> <Up> <SID>OlderHistory()
 
 " Make [[, ]], [], and ][ work when { is not in first column
-func! s:SectionJump(type)
+func! s:SectionJump(type, v)
     let l:count = v:count1
+    if a:v | exe "norm! gv" | endif
     while l:count
         if a:type == '[['
             call search('{','b',1)
@@ -710,10 +711,14 @@ func! s:SectionJump(type)
     endwhile
 endfunc
 func! s:SectionJumpMaps()
-    noremap <silent> [[ :<C-u>call <SID>SectionJump('[[')<CR>
-    noremap <silent> ][ :<C-u>call <SID>SectionJump('][')<CR>
-    noremap <silent> ]] :<C-u>call <SID>SectionJump(']]')<CR>
-    noremap <silent> [] :<C-u>call <SID>SectionJump('[]')<CR>
+    noremap  <silent> [[ :<C-u>call <SID>SectionJump('[[',0)<CR>
+    noremap  <silent> ][ :<C-u>call <SID>SectionJump('][',0)<CR>
+    noremap  <silent> ]] :<C-u>call <SID>SectionJump(']]',0)<CR>
+    noremap  <silent> [] :<C-u>call <SID>SectionJump('[]',0)<CR>
+    xnoremap <silent> [[ :<C-u>call <SID>SectionJump('[[',1)<CR>
+    xnoremap <silent> ][ :<C-u>call <SID>SectionJump('][',1)<CR>
+    xnoremap <silent> ]] :<C-u>call <SID>SectionJump(']]',1)<CR>
+    xnoremap <silent> [] :<C-u>call <SID>SectionJump('[]',1)<CR>
 endfunc
 autocmd VimrcAutocmds FileType c,cpp call <SID>SectionJumpMaps()
 
