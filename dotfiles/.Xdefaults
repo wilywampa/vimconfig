@@ -1,6 +1,6 @@
-XTerm*termName: screen-256color
-XTerm*faceName: DejaVu Sans Mono for Powerline
-XTerm*faceSize: 11
+XTerm*termName: xterm-256color
+XTerm*faceName: Meslo LG S for Powerline
+XTerm*faceSize: 11.5
 XTerm*metaSendsEscape: false
 XTerm*altSendsEscape: false
 XTerm*reverseVideo: false
@@ -11,25 +11,34 @@ XTerm*VT100.charClass: 33:48,35:48,37:48,42:48,45-47:48,64:48,95:48,126:48
 XTerm*cursorBlink: true
 XTerm*visualBell: true
 
-XTerm*color0:      #000000
-XTerm*color1:      #b81511
-XTerm*color2:      #00c13e
-XTerm*color3:      #ffd255
-XTerm*color4:      #43aedd
-XTerm*color5:      #cb37c0
-XTerm*color6:      #00c6c6
-XTerm*color7:      #c7c7c7
-XTerm*color8:      #686868
-XTerm*color9:      #ff221c
-XTerm*color10:     #a1ce82
-XTerm*color11:     #fff597
-XTerm*color12:     #84cafa
-XTerm*color13:     #ff7af7
-XTerm*color14:     #5afdfe
-XTerm*color15:     #ffffff
-XTerm*borderColor: #d6d6d6
-XTerm*background:  #1a1a1a
-XTerm*foreground:  #d6d6d6
+*VT100.allowWindowOps: true
+*VT100.allowTitleOps: true
+*VT100.allowFontOps: true
+
+XTerm*background:             #002b36
+XTerm*foreground:             #839496
+XTerm*fading:                 40
+XTerm*fadeColor:              #002b36
+XTerm*cursorColor:            #93a1a1
+XTerm*pointerColorBackground: #586e75
+XTerm*pointerColorForeground: #93a1a1
+
+XTerm*color0:                 #073642
+XTerm*color1:                 #dc322f
+XTerm*color2:                 #859900
+XTerm*color3:                 #b58900
+XTerm*color4:                 #268bd2
+XTerm*color5:                 #d33682
+XTerm*color6:                 #2aa198
+XTerm*color7:                 #eee8d5
+XTerm*color8:                 #002b36
+XTerm*color9:                 #cb4b16
+XTerm*color10:                #586e75
+XTerm*color11:                #657b83
+XTerm*color12:                #839496
+XTerm*color13:                #6c71c4
+XTerm*color14:                #93a1a1
+XTerm*color15:                #fdf6e3
 
 *VT100.translations:  #override \n\
 Meta <Key>1: string(0x1b) string("1") \n\

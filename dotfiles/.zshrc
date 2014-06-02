@@ -44,6 +44,7 @@ alias fsxa='fs | xargs ag'
 alias d='dirs -v'
 alias view='vim -R'
 alias e='vim'
+alias vims='vim -S ~/session.vis'
 alias h='head'
 alias t='tail'
 alias svnadd="svn st | \grep '^?' | awk '{print \$2}' | s | xargs svn add"
@@ -69,6 +70,7 @@ alias psg='ps aux | grep -i'
 hash ack >& /dev/null && alias a='ack'
 hash ag >& /dev/null && alias a='ag'
 alias awkp2="awk '{print \$2}'"
+alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .'
 
 #{{{1 Global aliases
 alias -g LL='ls -lshrtA'
@@ -76,9 +78,57 @@ alias -g GG='grep --color=auto'
 alias -g GI='grep --color=auto -i'
 alias -g FFR='**/*(D.)'
 alias -g FF='*(D.)'
+alias -g TEST='&& echo "yes" || echo "no"'
 
 #{{{1 Suffix aliases
 alias -s vim='vi'
+
+#{{{1 Key bindings
+bindkey -v
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^?" backward-delete-char
+bindkey          '^[[3~' delete-char
+bindkey          '^[[A' up-line-or-beginning-search
+bindkey -M viins '^[[A' up-line-or-beginning-search
+bindkey -M vicmd '^[[A' up-line-or-beginning-search
+bindkey          '^[[B' down-line-or-beginning-search
+bindkey -M viins '^[[B' down-line-or-beginning-search
+bindkey -M vicmd '^[[B' down-line-or-beginning-search
+bindkey          '^[OA' up-line-or-beginning-search
+bindkey -M viins '^[OA' up-line-or-beginning-search
+bindkey -M vicmd '^[OA' up-line-or-beginning-search
+bindkey          '^[OB' down-line-or-beginning-search
+bindkey -M viins '^[OB' down-line-or-beginning-search
+bindkey -M vicmd '^[OB' down-line-or-beginning-search
+bindkey -M vicmd 'gg' beginning-of-buffer-or-history
+bindkey '^R' history-incremental-search-backward
+bindkey '^N' history-incremental-search-backward
+bindkey '^S' history-incremental-search-forward
+bindkey '^P' history-incremental-search-forward
+bindkey -M isearch '^E' accept-search
+# Ctrl + arrow keys
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+
+function vi-last-line()
+{
+    zle end-of-buffer-or-history
+    zle vi-first-non-blank
+}
+zle -N vi-last-line
+bindkey -M vicmd 'G' vi-last-line
+
+function self-insert-no-autoremove()
+{
+    LBUFFER="$LBUFFER$KEYS"
+}
+zle -N self-insert-no-autoremove
+bindkey '|' self-insert-no-autoremove
+
+function fg-job(){ fg }; zle -N fg-job; bindkey '^Z' fg-job
 
 #{{{1 Functions
 function kb2h()
@@ -108,6 +158,29 @@ function bigdirs()
         | tail -n ${1:-$(echo $(tput lines)-4 | bc)} | kb2h
 }
 
+function cygyank()
+{
+    CUTBUFFER=$(cat /dev/clipboard | sed 's/\x0//g')
+    zle yank
+}
+zle -N cygyank
+
+function xclipyank()
+{
+    CUTBUFFER=$(xclip -o | sed 's/\x0//g')
+    if [ -z $CUTBUFFER ]; then
+        CUTBUFFER=$(xclip -o -sel b | sed 's/\x0//g')
+    fi
+    zle yank
+}
+zle -N xclipyank
+
+if type xclip >& /dev/null ; then
+    bindkey '^V' xclipyank
+else
+    bindkey '^V' cygyank
+fi
+
 function bigfiles()
 {
     find . -type f -exec du -ak {} + | sort -n \
@@ -119,15 +192,7 @@ function md()
     mkdir -p "$@" && cd "$@";
 }
 
-cygyank()
-{
-    CUTBUFFER=$(cat /dev/clipboard | sed 's/\x0//g')
-    zle yank
-}
-zle -N cygyank
-bindkey '^V' cygyank
-
-rationalise-dot()
+function rationalise-dot()
 {
     if [[ $LBUFFER = *.. ]]; then
         LBUFFER+=/..
@@ -139,54 +204,15 @@ zle -N rationalise-dot
 bindkey -M viins . rationalise-dot
 bindkey -M isearch . self-insert
 
-fg-job() { fg }; zle -N fg-job; bindkey '^Z' fg-job
-
 function force-logout()
 {
-    vi-kill-line
-    logout
+    zle vi-kill-line
+    if [[ -o login ]]; then; logout; else; exit; fi
 }
 zle -N force-logout
 bindkey '^D' force-logout
 bindkey -M viins '^D' force-logout
 bindkey -M vicmd '^D' force-logout
-
-#{{{1 Key bindings
-bindkey -v
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey "^?" backward-delete-char
-bindkey          '^[[3~' delete-char
-bindkey          '^[[A' up-line-or-beginning-search
-bindkey -M viins '^[[A' up-line-or-beginning-search
-bindkey -M vicmd '^[[A' up-line-or-beginning-search
-bindkey          '^[[B' down-line-or-beginning-search
-bindkey -M viins '^[[B' down-line-or-beginning-search
-bindkey -M vicmd '^[[B' down-line-or-beginning-search
-bindkey          '^[OA' up-line-or-beginning-search
-bindkey -M viins '^[OA' up-line-or-beginning-search
-bindkey -M vicmd '^[OA' up-line-or-beginning-search
-bindkey          '^[OB' down-line-or-beginning-search
-bindkey -M viins '^[OB' down-line-or-beginning-search
-bindkey -M vicmd '^[OB' down-line-or-beginning-search
-bindkey '^R' history-incremental-search-backward
-bindkey '^N' history-incremental-search-backward
-bindkey '^S' history-incremental-search-forward
-bindkey '^P' history-incremental-search-forward
-bindkey -M isearch '^E' accept-search
-# Ctrl + arrow keys
-bindkey '^[[1;5C' forward-word
-bindkey '^[[1;5D' backward-word
-
-function self-insert-no-autoremove
-{
-    LBUFFER="$LBUFFER$KEYS"
-}
-
-zle -N self-insert-no-autoremove
-bindkey '|' self-insert-no-autoremove
 
 #{{{1 Environment variables
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
@@ -194,7 +220,10 @@ export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
-export VIMBLACKLIST="syntastic,vimshell,processing,scriptease"
+export VIMBLACKLIST="syntastic,vimshell,processing,scriptease,over,flake8"
+if [ -e ~/.dircolors ]; then
+    eval $(dircolors ~/.dircolors)
+fi
 
 #{{{1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
@@ -288,14 +317,14 @@ vim_ins_mode="%{$fg[black]%}%{$bg[cyan]%}i%{$reset_color%}"
 vim_cmd_mode="%{$fg[black]%}%{$bg[yellow]%}n%{$reset_color%}"
 vim_mode=$vim_ins_mode
 
-function zle-keymap-select
+function zle-keymap-select()
 {
     vim_mode="${${KEYMAP/(vicmd|opp)/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
     zle reset-prompt
 }
 zle -N zle-keymap-select
 
-function zle-line-finish
+function zle-line-finish()
 {
     vim_mode=$vim_ins_mode
 }
@@ -318,8 +347,8 @@ _lineup=$'\e[1A'
 _linedown=$'\e[1B'
 
 PROMPT='
-%{$fg[cyan]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg_bold[blue]%}%d%{$reset_color%}
-[zsh %{$fg_bold[blue]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}${vim_mode}]%# '
+%{$fg[blue]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg[cyan]%}%d%{$reset_color%}
+[zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}${vim_mode}]%# '
 RPROMPT='%{${_lineup}%}%{$fg_bold[green]%}%T%{$reset_color%} !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}'
 
 #{{{1 Machine-specific settings

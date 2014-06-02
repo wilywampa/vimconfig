@@ -26,3 +26,5 @@
 	tool = bc3
 [difftool]
 	bc3 = trustExitCode
+[push]
+	default = simple
