@@ -1,14 +1,15 @@
 ; Maximize gVim
 SetTitleMatchMode, 2
-Loop
+lOop, 50
 {
 	WinActivate, GVIM
 	IfWinActive, GVIM
 	{
 		Break
 	}
+	Sleep, 100
 }
-Loop
+lOop, 50
 {
 	WinGet MMX, MinMax, GVIM
 	If MMX = 1
@@ -19,4 +20,5 @@ Loop
 	{
 		WinMaximize
 	}
+	Sleep, 100
 }
