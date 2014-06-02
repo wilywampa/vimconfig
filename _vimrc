@@ -764,7 +764,10 @@ else
     autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
 
     " Enable mouse for scrolling
-    set mouse=a
+    set mouse=nir
+    for b in ["Left","Middle","Right"] | for m in ["","2","C","S","A"]
+        execute 'map <'.m.(strlen(m)?'-':'').b.'Mouse> <NOP>'
+    endfor | endfor
 endif
 
 " }}}2
