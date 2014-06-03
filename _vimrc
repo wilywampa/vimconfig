@@ -922,6 +922,7 @@ if has('lua')
     let g:neocomplete#min_keyword_length=3
     let g:neocomplete#enable_refresh_always=1
     let g:neocomplete#sources#buffer#cache_limit_size=3000000
+    let g:tmuxcomplete#trigger=''
     if !exists('g:neocomplete#same_filetypes')
         let g:neocomplete#same_filetypes={}
     endif
