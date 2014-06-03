@@ -159,7 +159,7 @@ FILE 00
 # directory
 DIR 34
 # 777 directory
-OTHER_WRITABLE 34;40
+OTHER_WRITABLE 36
 # symbolic link
 LINK 35
 
