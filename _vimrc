@@ -431,6 +431,10 @@ vn ? ?\v
 nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
 nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
 
+" Make /<CR> and ?<CR> work when \v is added automatically
+cnoremap <expr> <CR> getcmdtype()=~'[/?]'?(getcmdline()==?'\v'?
+    \("\<End>\<C-u>\<CR>zv"):("\<C-]>\<CR>zv")):"\<C-]>\<CR>"
+
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
@@ -595,19 +599,6 @@ func! s:CycleSearchMode()
     return l:cmd
 endfunc
 cnoremap <C-x> <C-\>e<SID>CycleSearchMode()<CR>
-
-" Make /<CR> and ?<CR> work when \v is added automatically
-func! s:SearchCR()
-    if getcmdtype() =~ '[/?]'
-        if getcmdline() ==? '\v'
-            return "\<End>\<C-u>\<CR>zv"
-        else
-            return "\<C-]>\<CR>zv"
-        endif
-    endif
-    return "\<C-]>\<CR>"
-endfunc
-cnoremap <expr> <CR> <SID>SearchCR()
 
 " Close other windows or close other tabs
 func! s:CloseWinsOrTabs()
@@ -1018,7 +1009,7 @@ let g:unite_marked_icon='✓'
 let g:unite_cursor_line_highlight='CursorLine'
 if executable('ag')
     let g:unite_source_grep_command='ag'
-    let g:unite_source_grep_default_opts='--nogroup --nocolor --column'
+    let g:unite_source_grep_default_opts='--nogroup --nocolor --column -S'
     let g:unite_source_grep_recursive_opt=''
 endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
