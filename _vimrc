@@ -374,7 +374,7 @@ nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
     \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
 
 " Save and quit all
-nn <silent> ZA :while 1 \| exe "norm ZZ" \| endwhile<CR>
+nn <silent> ZA :wqall<CR>
 
 " Go up directory tree easily
 cno <expr> . (getcmdtype()==':'&&getcmdline()=~'[/ ]\.\.$')?'/..':'.'
@@ -397,8 +397,8 @@ nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
 " Change directory
 nn <silent> <Leader>cd :cd! %:p:h<CR>:pwd<CR>
 nn <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
-nn <silent> <Leader>.. :cd ..<CR>:pwd<CR>
-nn <silent> ,.. :lcd ..<CR>:pwd<CR>
+nn <silent> <Leader>.. :cd ..<CR>:pwd<CR>:sil! call repeat#set("\<Leader>..")<CR>
+nn <silent> ,.. :lcd ..<CR>:pwd<CR>:sil! call repeat#set(",..")<CR>
 
 " <CR> in insert mode creates undo point
 ino <CR> <C-g>u<CR>
@@ -1029,7 +1029,8 @@ augroup VimrcAutocmds
     autocmd FileType unite call <SID>UniteMaps()
 augroup END
 func! s:UniteMaps()
-    inor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
+    imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
+        \."\<Plug>(unite_append_enter)"
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
     inor <silent> <buffer> <expr> <C-s>= unite#do_action('split')
     nnor <silent> <buffer> <expr> <C-s>= unite#do_action('split')
