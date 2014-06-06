@@ -56,6 +56,7 @@ function! vimtools#EchoSyntax(count)
 endfunction
 
 function! vimtools#OpenHelp(topic)
+    let v:errmsg=""
     " Open in same window if current tab is empty, or else open in new window
     if vimtools#TabUsed()
         " Open vertically if there's enough room
@@ -90,6 +91,9 @@ function! vimtools#OpenHelp(topic)
     else
         setl ft=help bt=help noma
         exe 'sil! help '.a:topic
+    endif
+    if v:errmsg != ""
+        echohl ErrorMsg | redraw | echo v:errmsg | echohl None
     endif
 endfunction
 
