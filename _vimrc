@@ -432,8 +432,11 @@ nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
 nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
 
 " Make /<CR> and ?<CR> work when \v is added automatically
-cnoremap <expr> <CR> getcmdtype()=~'[/?]'?(getcmdline()==?'\v'?
+cno <expr> <CR> getcmdtype()=~'[/?]'?(getcmdline()==?'\v'?
     \("\<End>\<C-u>\<CR>zv"):("\<C-]>\<CR>zv")):"\<C-]>\<CR>"
+
+" Open cursor file in vertical split
+nn <C-w>f :execute "vsplit ".expand('<cfile>')<CR>
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -702,16 +705,23 @@ func! s:SectionJump(type, v)
     endwhile
 endfunc
 func! s:SectionJumpMaps()
-    noremap  <silent> [[ :<C-u>call <SID>SectionJump('[[',0)<CR>
-    noremap  <silent> ][ :<C-u>call <SID>SectionJump('][',0)<CR>
-    noremap  <silent> ]] :<C-u>call <SID>SectionJump(']]',0)<CR>
-    noremap  <silent> [] :<C-u>call <SID>SectionJump('[]',0)<CR>
-    xnoremap <silent> [[ :<C-u>call <SID>SectionJump('[[',1)<CR>
-    xnoremap <silent> ][ :<C-u>call <SID>SectionJump('][',1)<CR>
-    xnoremap <silent> ]] :<C-u>call <SID>SectionJump(']]',1)<CR>
-    xnoremap <silent> [] :<C-u>call <SID>SectionJump('[]',1)<CR>
+    for key in ['[[', '][', ']]', '[]']
+        exe "noremap  <silent> ".key." :<C-u>call <SID>SectionJump('".key."',0)<CR>"
+        exe "xnoremap <silent> ".key." :<C-u>call <SID>SectionJump('".key."',1)<CR>"
+    endfor
 endfunc
 autocmd VimrcAutocmds FileType c,cpp call <SID>SectionJumpMaps()
+
+" Add wildcards to path in command line for zsh-like expansion
+func! s:StarifyPath()
+    set wildcharm=<C-t>
+    let cmdline = getcmdline()
+    let space = match(cmdline, '\m^.*\zs\s\ze\S\+$')
+    let start = cmdline[0:space]
+    let finish = substitute(cmdline[space+1:-1],'/','*/','g')
+    return start.finish
+endfunc
+cnoremap <C-s> <C-\>e<SID>StarifyPath()<CR><C-t>
 
 " {{{2 GUI configration
 if has('gui_running')
@@ -987,8 +997,8 @@ let g:vimfiler_tree_opened_icon='▼'
 let g:vimfiler_tree_closed_icon='▶'
 let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_restore_alternate_file=1
-autocmd VimrcAutocmds FileType vimfiler call s:vimfiler_settings()
-func! s:vimfiler_settings()
+autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
+func! s:VimfilerSettings()
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
     nmap <buffer> <M-m> <Plug>(vimfiler_move_file)
     nmap <buffer> e     <Plug>(vimfiler_execute)
