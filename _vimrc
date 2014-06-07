@@ -350,10 +350,10 @@ no <silent> <Left>  :let w=winnr()<CR><C-w>h:if w==winnr()\|exe "norm! gT"\|en<C
 no <silent> <Right> :let w=winnr()<CR><C-w>l:if w==winnr()\|exe "norm! gt"\|en<CR>
 
 " Change window size with control + arrow keys
-no <C-Down>  <C-w>-
-no <C-Up>    <C-w>+
-no <C-Left>  <C-w><
-no <C-Right> <C-w>>
+noremap <silent> <C-Down>  :<C-u>call vimtools#ResizeWindow('down')<CR>
+noremap <silent> <C-Up>    :<C-u>call vimtools#ResizeWindow('up')<CR>
+noremap <silent> <C-Left>  :<C-u>call vimtools#ResizeWindow('left')<CR>
+noremap <silent> <C-Right> :<C-u>call vimtools#ResizeWindow('right')<CR>
 
 " Stay in visual mode after indent change
 vn < <gv
@@ -392,7 +392,7 @@ nn <silent> <C-w><Space> :copen<CR>
 nn <silent> <Leader>s :set bt=nofile<CR>
 
 " Echo syntax name under cursor
-nn <silent> <Leader>y :echo synIDattr(synID(line("."), col("."), 1), "name")<CR>
+nn <silent> <Leader>y :<C-U>exe vimtools#EchoSyntax(v:count)<CR>
 
 " Change directory
 nn <silent> <Leader>cd :cd! %:p:h<CR>:pwd<CR>
