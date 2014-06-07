@@ -53,7 +53,7 @@ if !ErrorLevel = 0
 else
 {
     Send #4
-    Loop, 50
+    Loop, 100
     {
         WinActivate, GVIM
         IfWinActive, GVIM
@@ -62,7 +62,7 @@ else
         }
         Sleep, 100
     }
-    Loop, 50
+    Loop, 100
     {
         WinGet MMX, MinMax, GVIM
         If MMX = 1
@@ -106,7 +106,7 @@ if !ErrorLevel = 0
 else
 {
     Send #2
-    Loop, 50
+    Loop, 100
     {
         WinActivate, xterm
         IfWinActive, xterm
@@ -115,7 +115,7 @@ else
         }
         Sleep, 100
     }
-    Loop, 50
+    Loop, 100
     {
         WinGet MMX, MinMax, xterm
         If MMX = 1
