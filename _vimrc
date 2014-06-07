@@ -747,7 +747,7 @@ if has('gui_running')
         set guioptions-=e
 
         " Set font for gVim
-        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline\ 11
+        set guifont=Source\ Code\ Pro\ for\ Powerline\ Medium\ 11.5
     endif
 else
     " Make control + arrow keys work in terminal
