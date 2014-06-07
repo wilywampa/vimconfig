@@ -24,6 +24,8 @@ function! s:VSetSearch(cmd)
   endif
   normal! gV
   call setreg('"', old_reg, old_regtype)
+  call setreg('+', old_reg, old_regtype)
+  call setreg('*', old_reg, old_regtype)
 endfunction
 
 vnoremap <silent> * :<C-U>call <SID>VSetSearch('/')<CR>/<C-R>/<CR>

@@ -1041,12 +1041,18 @@ func! s:UniteMaps()
         \.'gg3\|"+YZQ'.":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
         \."-unique buffer neomru/file\<CR>"."\<C-r>+"
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
-    imap <buffer> <expr> <C-o>v unite#do_action('vsplit')
-    imap <buffer> <expr> <C-o>s unite#do_action('split')
-    imap <buffer> <expr> <C-o>t unite#do_action('tabopen')
-    imap <buffer> <expr> <C-o>d unite#do_action('tabdrop')
-    imap <buffer> <expr> <C-o>o unite#do_action('view')
-    imap <buffer> <expr> <C-o>r unite#do_action('open')
+    imap <buffer> <expr> <C-o>v     unite#do_action('vsplit')
+    imap <buffer> <expr> <C-o><C-v> unite#do_action('vsplit')
+    imap <buffer> <expr> <C-o>s     unite#do_action('split')
+    imap <buffer> <expr> <C-o><C-s> unite#do_action('split')
+    imap <buffer> <expr> <C-o>t     unite#do_action('tabopen')
+    imap <buffer> <expr> <C-o><C-t> unite#do_action('tabopen')
+    imap <buffer> <expr> <C-o>d     unite#do_action('tabdrop')
+    imap <buffer> <expr> <C-o><C-d> unite#do_action('tabdrop')
+    imap <buffer> <expr> <C-o>o     unite#do_action('view')
+    imap <buffer> <expr> <C-o><C-o> unite#do_action('view')
+    imap <buffer> <expr> <C-o>r     unite#do_action('open')
+    imap <buffer> <expr> <C-o><C-r> unite#do_action('open')
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
     inor <buffer> <C-f> <C-o><C-d>
@@ -1125,7 +1131,7 @@ let g:indent_guides_auto_colors=0
 nmap <silent> <Leader>i <Plug>IndentGuidesToggle
 
 " Ack settings
-if executable('ag') | let g:ackprg='ag --nogroup --nocolor --column' | endif
+if executable('ag') | let g:ackprg='ag --nogroup --nocolor --column -S' | endif
 let g:ack_autofold_results=0
 com! -nargs=* -bang A Ack<bang> <args>
 
@@ -1135,6 +1141,10 @@ nnoremap <silent> <M-Left>  :TmuxNavigateLeft<CR>
 nnoremap <silent> <M-Down>  :TmuxNavigateDown<CR>
 nnoremap <silent> <M-Up>    :TmuxNavigateUp<CR>
 nnoremap <silent> <M-Right> :TmuxNavigateRight<CR>
+
+" Vimux settings
+nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
+nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
 
 " Import scripts
 execute pathogen#infect()
@@ -1147,9 +1157,9 @@ sil! let g:airline_section_c = airline#section#create(['ic', '%<', 'file',
     \g:airline_symbols.space, 'readonly'])
 
 " Solarized settings
-set background=dark
 if iPadSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
 if !exists('colors_name') || colors_name != 'solarized'
+    set background=dark
     sil! colorscheme solarized
 endif
 

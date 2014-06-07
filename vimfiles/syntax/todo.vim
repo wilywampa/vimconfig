@@ -19,11 +19,19 @@ syn match todoComment '[#@].*$' contained
 syn match todoSectionTitle '--.*--' contained
 syn region todoLine start="^" end="$" fold transparent contains=ALL
 
-hi def todoStringIncomplete ctermfg=167 guifg=#cf6a4c
-hi def todoStringComplete ctermfg=34 guifg=#00cc33
-hi def todoStringCancelled ctermfg=22 guifg=#006633
-hi def link todoCheckboxIncomplete todoStringIncomplete
-hi def link todoCheckboxComplete todoStringComplete
-hi def link todoCheckboxCancelled todoStringCancelled
-hi def link todoSectionTitle Type
-hi def link todoComment Comment
+augroup todoSyntax
+    autocmd!
+    autocmd ColorScheme * call <SID>SetHighlights()
+augroup END
+
+func! s:SetHighlights()
+    hi def todoStringIncomplete ctermfg=167 guifg=#cf6a4c
+    hi def todoStringComplete ctermfg=34 guifg=#00cc33
+    hi def todoStringCancelled ctermfg=22 guifg=#006633
+    hi def link todoCheckboxIncomplete todoStringIncomplete
+    hi def link todoCheckboxComplete todoStringComplete
+    hi def link todoCheckboxCancelled todoStringCancelled
+    hi def link todoSectionTitle Type
+    hi def link todoComment Comment
+endfunc
+call <SID>SetHighlights()
