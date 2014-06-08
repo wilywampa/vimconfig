@@ -931,7 +931,11 @@ if has('lua')
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns={}
     endif
-    let g:neocomplete#force_omni_input_patterns.matlab='\h\w*\.\w*'
+    let g:neocomplete#force_omni_input_patterns.matlab='\h\w*\(\.\((''\)\?\w*\)\+'
+    if !exists('g:neocomplete#keyword_patterns')
+        let g:neocomplete#keyword_patterns = {}
+    endif
+    let g:neocomplete#keyword_patterns.matlab = '\h\(\w\|\.\|(''\)*'
     func! s:StartManualComplete(dir)
         " Indent if only whitespace behind cursor
         if getline('.')[col('.')-2] =~ '\S'

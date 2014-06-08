@@ -9,7 +9,7 @@ func! CompleteMATLAB(findstart, base)
     if a:findstart
         let l:line=getline('.')
         let l:start=col('.')-1
-        while l:start > 0 && l:line[l:start-1] =~ '\w\|\.'
+        while l:start > 0 && l:line[l:start-1] =~ '\w\|\.\|''\|('
             let l:start -= 1
         endwhile
         exec 'set iskeyword='.l:iskeyword
@@ -20,7 +20,7 @@ func! CompleteMATLAB(findstart, base)
         if l:dictionaries != [] && filereadable(l:dictionaries[0])
             let l:words=readfile(l:dictionaries[0])
             for l:word in l:words
-                if l:word =~ '^'.a:base && l:word =~ '\.'
+                if l:word =~ '^'.a:base && l:word =~ '\.\((''\)\?'
                     call add(l:results, l:word)
                 endif
             endfor
