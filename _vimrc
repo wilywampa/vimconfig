@@ -9,61 +9,61 @@ silent! autocmd! VimrcAutocmds
 " Check if in read-only mode to disable unnecessary plugins
 if !exists('s:readonly') | let s:readonly=&readonly | endif
 
-set shiftwidth=4               " Number of spaces to indent
-set expandtab                  " Use spaces instead of tabs
-set tabstop=4                  " Length of indent
+set shiftwidth=4                " Number of spaces to indent
+set expandtab                   " Use spaces instead of tabs
+set tabstop=4                   " Length of indent
 set softtabstop=4
-set autoindent                 " Automatic indentation
-set cinoptions+=N-s            " Don't indent namespaces in C++
-set cinoptions+=(0             " Line up function arguments
-set nowrap                     " Don't wrap lines
-set lazyredraw                 " Don't update display during macro execution
-set encoding=utf-8             " Set default file encoding
-set backspace=indent,eol,start " Backspace through everything in insert mode
-set whichwrap+=<,>,[,]         " Cursor keys wrap to previous/next line
-set hlsearch                   " Highlight search terms
-set incsearch                  " Incremental searching
-set ignorecase                 " Make search case-insensitive and smart
+set autoindent                  " Automatic indentation
+set cinoptions+=N-s             " Don't indent namespaces in C++
+set cinoptions+=(0              " Line up function arguments
+set nowrap                      " Don't wrap lines
+set lazyredraw                  " Don't update display during macro execution
+set encoding=utf-8              " Set default file encoding
+set backspace=indent,eol,start  " Backspace through everything in insert mode
+set whichwrap+=<,>,[,]          " Cursor keys wrap to previous/next line
+set hlsearch                    " Highlight search terms
+set incsearch                   " Incremental searching
+set ignorecase                  " Make search case-insensitive and smart
 set smartcase
-set showcmd                    " Show information about running command
-set showmode                   " Show current mode
-set nrformats-=octal           " Don't treat numbers as octal when incrementing/decrementing
-set shortmess+=t               " Truncate filenames in messages when necessary
-set showmatch                  " Show matching brace after inserting
-set shiftround                 " Round indent to multiple of shiftwidth
-set scrolloff=2                " Pad lines/columns with context around cursor
+set showcmd                     " Show information about running command
+set showmode                    " Show current mode
+set nrformats-=octal            " Don't treat numbers as octal when incrementing/decrementing
+set shortmess+=t                " Truncate filenames in messages when necessary
+set showmatch                   " Show matching brace after inserting
+set shiftround                  " Round indent to multiple of shiftwidth
+set scrolloff=2                 " Pad lines/columns with context around cursor
 set sidescrolloff=5
-set display+=lastline          " Show as much as possible of the last line in a window
-set autoread                   " Automatically load file if changed outside of vim
-set number                     " Turn on hybrid line numbers
+set display+=lastline           " Show as much as possible of the last line in a window
+set autoread                    " Automatically load file if changed outside of vim
+set number                      " Turn on hybrid line numbers
 sil! set relativenumber
-set history=1000               " Remember more command history
-set tabpagemax=20              " Allow more tabs
-set hidden                     " Allow switching buffer without saving changes first
-set wildmenu                   " Turn on autocompletion
+set history=1000                " Remember more command history
+set tabpagemax=20               " Allow more tabs
+set hidden                      " Allow switching buffer without saving changes first
+set wildmenu                    " Turn on autocompletion
 set wildmode=longest:full,full
-set visualbell                 " Use visual bell instead of sound
-sil! set undofile              " Enable persistent undo
+set visualbell                  " Use visual bell instead of sound
+sil! set undofile               " Enable persistent undo
 set undolevels=1000
 sil! set undoreload=10000
-set ttimeout                   " Make keycodes time out after a short delay
+set ttimeout                    " Make keycodes time out after a short delay
 set ttimeoutlen=50
-set laststatus=2               " Always show statusline
-set keywordprg=:help           " Use Vim help instead of man to look up keywords
-set splitright                 " Vertical splits open on the right
-set splitbelow                 " Horizontal splits open on the bottom
-set fileformats=unix,dos       " Always prefer unix format
+set laststatus=2                " Always show statusline
+set keywordprg=:help            " Use Vim help instead of man to look up keywords
+set splitright                  " Vertical splits open on the right
+set splitbelow                  " Horizontal splits open on the bottom
+set fileformats=unix,dos        " Always prefer unix format
 sil! set fileformat=unix
-set csqf=s-,c-,d-,i-,t-,e-     " Use quickfix list for cscope results
-set foldopen+=jump             " Jumps open folds
-set clipboard=unnamed          " Yank to system clipboard
-set clipboard+=unnamedplus
-set mouse=                     " Disable mouse integration
-set cmdwinheight=15            " Increase command window height
-set showbreak=↪                " Show character at start of wrapped lines
+set csqf=s-,c-,d-,i-,t-,e-      " Use quickfix list for cscope results
+set foldopen+=jump              " Jumps open folds
+set clipboard=unnamed           " Yank to system clipboard
+sil! set clipboard+=unnamedplus
+set mouse=                      " Disable mouse integration
+set cmdwinheight=15             " Increase command window height
+sil! set showbreak=↪            " Show character at start of wrapped lines
 
 " Configure display of whitespace
-set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
+sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -432,8 +432,13 @@ nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
 nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
 
 " Make /<CR> and ?<CR> work when \v is added automatically
-cno <expr> <CR> getcmdtype()=~'[/?]'?(getcmdline()==?'\v'?
-    \("\<End>\<C-u>\<CR>zv"):("\<C-]>\<CR>zv")):"\<C-]>\<CR>"
+if v:version >= 704
+    cno <expr> <CR> getcmdtype()=~'[/?]'?(getcmdline()==?'\v'?
+        \("\<End>\<C-u>\<CR>zv"):("\<C-]>\<CR>zv")):"\<C-]>\<CR>"
+else
+    cno <expr> <CR> getcmdtype()=~'[/?]'?(getcmdline()==?'\v'?
+        \("\<End>\<C-u>\<CR>zv"):(" \<BS>\<CR>zv")):" \<BS>\<CR>"
+endif
 
 " Open cursor file in vertical split
 nn <C-w>f :execute "vsplit ".expand('<cfile>')<CR>
