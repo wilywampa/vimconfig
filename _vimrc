@@ -131,7 +131,7 @@ nnoremap <silent> <M-'> '
 let hasMac=has("mac")
 let hasWin=has("win16") || has("win32") || has("win64")
 let hasSSH=!empty($SSH_CLIENT)
-let iPadSSH=hasMac && hasSSH && $SSH_CLIENT =~ '154'
+let mobileSSH=hasMac && hasSSH && $MOBILE == 1
 
 if hasWin
     " Change where backups are saved
@@ -786,7 +786,7 @@ cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff \|
 cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate':'du')
 
 " Increase time allowed for keycode mappings over SSH
-if iPadSSH
+if mobileSSH
     set ttimeoutlen=250
 elseif hasSSH
     set ttimeoutlen=100
@@ -852,7 +852,9 @@ augroup END
 " {{{1 Plugin configuration
 
 " Make empty list of disabled plugins
-let g:pathogen_disabled=[]
+if !exists('g:pathogen_disabled')
+    let g:pathogen_disabled=[]
+endif
 
 " Only enable misc/shell in Windows
 if !hasWin | call extend(g:pathogen_disabled, ['misc','shell']) | endif
@@ -872,7 +874,7 @@ let g:airline_theme='tomorrow'
 au VimrcAutocmds TabEnter * sil! call airline#highlighter#highlight(['normal',&mod?'modified':''])
 
 " Use powerline font unless in Mac SSH session or in old Vim
-if iPadSSH || v:version < 703
+if mobileSSH || v:version < 703
     let g:airline_powerline_fonts=0
     let g:airline_left_sep=''
     let g:airline_right_sep=''
@@ -1156,6 +1158,7 @@ nnoremap <silent> <M-Right> :TmuxNavigateRight<CR>
 " Vimux settings
 nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
 nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
+nnoremap <silent> @\ :<C-u>VimuxRunLastCommand<CR>
 
 " Import scripts
 execute pathogen#infect()
@@ -1168,7 +1171,7 @@ sil! let g:airline_section_c = airline#section#create(['ic', '%<', 'file',
     \g:airline_symbols.space, 'readonly'])
 
 " Solarized settings
-if iPadSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
+if mobileSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
 if !exists('colors_name') || colors_name != 'solarized'
     set background=dark
     sil! colorscheme solarized
