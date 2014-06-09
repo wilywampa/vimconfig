@@ -442,6 +442,7 @@ endif
 
 " Open cursor file in vertical split
 nn <C-w>f :execute "vsplit ".expand('<cfile>')<CR>
+nn <C-w><C-f> :execute "vsplit ".expand('<cfile>')<CR>
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -1048,7 +1049,7 @@ func! s:UniteMaps()
     nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()."\<Esc>"
         \.'gg3\|"+YZQ'.":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
-        \."-unique buffer neomru/file\<CR>"."\<C-r>+"
+        \."-prompt-direction=top -unique buffer neomru/file\<CR>"."\<C-r>+"
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
     imap <buffer> <expr> <C-o>v     unite#do_action('vsplit')
     imap <buffer> <expr> <C-o><C-v> unite#do_action('vsplit')
@@ -1079,15 +1080,16 @@ func! s:UniteMaps()
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
     sil! nunmap <buffer> ?
 endfunc
-nnoremap <silent> "" :<C-u>Unite -no-start-insert history/yank<CR>
-nnoremap <silent> "' :<C-u>Unite -no-start-insert register<CR>
-nnoremap <silent> <expr> ,a ":\<C-u>Unite -no-start-insert -no-quit grep:".getcwd()."\<CR>"
+nnoremap <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>
+nnoremap <silent> "' :<C-u>Unite -prompt-direction=top -no-start-insert register<CR>
+nnoremap <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
+    \."-no-start-insert -no-quit grep:".getcwd()."\<CR>"
 com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
-nnoremap <silent> ,b :<C-u>Unite bookmark<CR>
-nnoremap <silent> ,vr :Unite -no-start-insert -no-quit vimgrep:**/*<CR>
-nnoremap <silent> ,vn :Unite -no-start-insert -no-quit vimgrep:**<CR>
-nnoremap <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
-nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name="
+nnoremap <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
+nnoremap <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
+nnoremap <silent> ,vn :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**<CR>
+nnoremap <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async<CR>
+nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
     \ ? "Buffers/" : "")."NeoMRU ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
