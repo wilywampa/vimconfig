@@ -260,12 +260,14 @@ ino jk <Esc>
 ino kj <Esc>
 
 " Shortcuts for switching tab, including closing command window if it's open
-nn <silent> <expr> <C-Tab>   g:inCmdwin? ':q<CR>gt' : 'gt'
-nn <silent> <expr> <C-S-Tab> g:inCmdwin? ':q<CR>gT' : 'gT'
-nn <silent> <expr> <M-l>     g:inCmdwin? ':q<CR>gt' : 'gt'
-nn <silent> <expr> <M-h>     g:inCmdwin? ':q<CR>gT' : 'gT'
-nn <silent> <expr> <F15>     g:inCmdwin? ':q<CR>gt' : 'gt'
-nn <silent> <expr> <F16>     g:inCmdwin? ':q<CR>gT' : 'gT'
+nn <silent> <expr> <C-Tab>   tabpagenr('$')==1 ?
+    \":sil! call system('tmux next')\<CR>" : (g:inCmdwin? ':q<CR>gt' : 'gt')
+nn <silent> <expr> <C-S-Tab> tabpagenr('$')==1 ?
+    \":sil! call system('tmux prev')\<CR>" : (g:inCmdwin? ':q<CR>gT' : 'gT')
+nm <M-l> <C-Tab>
+nm <M-h> <C-S-Tab>
+nm <F15> <C-Tab>
+nm <F16> <C-S-Tab>
 
 " Open new tab
 nn <silent> <M-t> :tabnew<CR>

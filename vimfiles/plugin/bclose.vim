@@ -49,7 +49,7 @@ function! s:Bclose(bang, buffer)
     if prevbuf > 0 && buflisted(prevbuf) && prevbuf != w
       buffer #
     else
-      bprevious
+      silent! bprevious
     endif
     if btarget == bufnr('%')
       " Numbers of listed buffers which are not the target to be deleted.
