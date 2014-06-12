@@ -217,7 +217,6 @@ if s:hasvimtools
 else
     com! -nargs=1 SwitchToOrOpen tab drop <args>
 endif
-com! -nargs=1 SwitchToOrOpen edit <args>
 nn <silent> ,ea :<C-u>SwitchToOrOpen ~/.ackrc<CR>
 nn <silent> ,eb :<C-u>SwitchToOrOpen ~/.bashrc<CR>
 nn <silent> ,ec :<C-u>SwitchToOrOpen ~/.cshrc<CR>
