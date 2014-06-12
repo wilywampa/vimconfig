@@ -217,6 +217,7 @@ if s:hasvimtools
 else
     com! -nargs=1 SwitchToOrOpen tab drop <args>
 endif
+com! -nargs=1 SwitchToOrOpen edit <args>
 nn <silent> ,ea :<C-u>SwitchToOrOpen ~/.ackrc<CR>
 nn <silent> ,eb :<C-u>SwitchToOrOpen ~/.bashrc<CR>
 nn <silent> ,ec :<C-u>SwitchToOrOpen ~/.cshrc<CR>
@@ -227,7 +228,7 @@ nn <silent> ,ex :<C-u>SwitchToOrOpen ~/.Xdefaults<CR>
 nn <silent> ,ez :<C-u>SwitchToOrOpen ~/.zshrc<CR>
 
 " Source vimrc
-nn <silent> ,sv :so $MYVIMRC<CR>
+nn <silent> ,sv :so $MYVIMRC<CR>:runtime after/plugin/after.vim<CR>
 
 " Shortcuts for switching buffer
 nn <silent> <C-p> :bp<CR>
@@ -726,7 +727,7 @@ func! s:StarifyPath()
     let cmdline = getcmdline()
     let space = match(cmdline, '\m^.*\zs\s\ze\S\+$')
     let start = cmdline[0:space]
-    let finish = substitute(cmdline[space+1:-1],'/','*/','g')
+    let finish = substitute(cmdline[space+1:-1],'\S\zs/','*/','g')
     return start.finish
 endfunc
 cnoremap <C-s> <C-\>e<SID>StarifyPath()<CR><C-t>
@@ -1093,10 +1094,12 @@ nnoremap <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
 nnoremap <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
 nnoremap <silent> ,vn :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**<CR>
 nnoremap <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async<CR>
+nnoremap <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=Buffers buffer<CR>
 nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
     \ ? "Buffers/" : "")."NeoMRU ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
+nnoremap <silent> <Leader>w :ccl\|lcl\|sil! UniteClose<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch()
     if s:UnitePathSearchMode
