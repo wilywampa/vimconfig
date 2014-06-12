@@ -980,24 +980,48 @@ else
     let g:SuperTabDefaultCompletionType="context"
 endif
 
-" {{{2 EasyMotion settings
-map <S-Space> <Space>
-map! <S-Space> <Space>
-let g:EasyMotion_keys='ABCDEFGIMNOPQRSTUVWXYZLKJH'
-let g:EasyMotion_use_upper=1
-let g:EasyMotion_add_search_history=0
-let g:EasyMotion_smartcase=1
-let g:EasyMotion_enter_jump_first=1
-map <Space> <Plug>(easymotion-s2)
-map <Space>/ <Plug>(easymotion-sn)
-map <Space><Space>f <Plug>(easymotion-bd-f)
-map <Space><Space>t <Plug>(easymotion-bd-t)
-map <Space><Space>w <Plug>(easymotion-bd-w)
-map <Space><Space>W <Plug>(easymotion-bd-W)
-map <Space><Space>e <Plug>(easymotion-bd-e)
-map <Space><Space>E <Plug>(easymotion-bd-E)
-map <Space><Space>n <Plug>(easymotion-bd-n)
-autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
+" {{{2 EasyMotion/Sneak settings
+if $VIMBLACKLIST =~ 'easymotion'
+    nmap <Space>   <Plug>Sneak_s
+    nmap <C-Space> <Plug>Sneak_S
+    nmap <Nul>     <Plug>Sneak_S
+    nmap <Space>   <Plug>Sneak_s
+    nmap <C-Space> <Plug>Sneak_S
+    nmap <Nul>     <Plug>Sneak_S
+    nmap <Space>   <Plug>Sneak_s
+    nmap <C-Space> <Plug>Sneak_S
+    nmap <Nul>     <Plug>Sneak_S
+else
+    map <S-Space> <Space>
+    map! <S-Space> <Space>
+    let g:EasyMotion_keys='ABCDEFGIMNOPQRSTUVWXYZLKJH'
+    let g:EasyMotion_use_upper=1
+    let g:EasyMotion_add_search_history=0
+    let g:EasyMotion_smartcase=1
+    let g:EasyMotion_enter_jump_first=1
+    map <Space> <Plug>(easymotion-s2)
+    map <Space>/ <Plug>(easymotion-sn)
+    map <Space><Space>f <Plug>(easymotion-bd-f)
+    map <Space><Space>t <Plug>(easymotion-bd-t)
+    map <Space><Space>w <Plug>(easymotion-bd-w)
+    map <Space><Space>W <Plug>(easymotion-bd-W)
+    map <Space><Space>e <Plug>(easymotion-bd-e)
+    map <Space><Space>E <Plug>(easymotion-bd-E)
+    map <Space><Space>n <Plug>(easymotion-bd-n)
+    autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
+endif
+let g:sneak#use_ic_scs=1
+highlight link SneakPluginTarget DiffText
+nmap f <Plug>Sneak_f
+nmap F <Plug>Sneak_F
+xmap f <Plug>Sneak_f
+xmap F <Plug>Sneak_F
+omap f <Plug>Sneak_f
+omap F <Plug>Sneak_F
+nnoremap <silent> <C-l> :sil! call sneak#hl#removehl()<CR>:nohl<CR><C-l>
+nmap , <Plug>SneakPrevious
+omap , <Plug>SneakPrevious
+nmap , <Plug>SneakPrevious
 
 " {{{2 VimFiler settings
 nnoremap <silent> - :VimFilerBufferDir -find<CR>
@@ -1052,7 +1076,7 @@ func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()."\<Esc>"
-        \.'gg3\|"+YZQ'.":\<C-u>Unite -buffer-name=Buffers/NeoMRU "
+        \.'gg3\|"+YZQ'.":\<C-u>Unite -buffer-name=buffers/neomru "
         \."-prompt-direction=top -unique buffer neomru/file\<CR>"."\<C-r>+"
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
     imap <buffer> <expr> <C-o>v     unite#do_action('vsplit')
@@ -1093,10 +1117,10 @@ nnoremap <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
 nnoremap <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
 nnoremap <silent> ,vn :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**<CR>
 nnoremap <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async<CR>
-nnoremap <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=Buffers buffer<CR>
+nnoremap <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer<CR>
 nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
-    \ ? "Buffers/" : "")."NeoMRU ".(len(filter(range(1,bufnr('$')),
+    \ ? "buffers/" : "")."neomru ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
 nnoremap <silent> <Leader>w :ccl\|lcl\|sil! UniteClose<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
