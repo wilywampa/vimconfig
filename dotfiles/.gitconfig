@@ -14,10 +14,10 @@
 	st = status
 	ci = commit -v
 	di = difftool -y
-	co = checkout
+	co = checkout -- .
 	new = log HEAD..origin
-	pu = pull origin master
 	up = pull origin master
+	url = config --get remote.origin.url
 [color]
 	diff = auto
 	status = auto

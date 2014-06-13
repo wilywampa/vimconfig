@@ -3,7 +3,7 @@ HISTFILE=~/.histfile
 HISTSIZE=10000
 SAVEHIST=10000
 setopt auto_cd beep extended_glob no_match notify no_beep
-setopt share_history inc_append_history
+setopt share_history inc_append_history extended_history
 # End of lines configured by zsh-newuser-install
 
 #{{{1 Lines added by compinstall
@@ -45,6 +45,7 @@ alias d='dirs -v'
 alias view='vim -R'
 alias e='vim'
 alias vims='vim -S ~/session.vis'
+alias gvims='gvim -S ~/session.vis'
 alias h='head'
 alias t='tail'
 alias svnadd="svn st | \grep '^?' | awk '{print \$2}' | s | xargs svn add"
@@ -52,6 +53,7 @@ alias svnrevert="svn st | \grep '^M' | awk '{print \$2}' | s | xargs svn revert"
 alias svnrm="svn st | \grep '^?' | awk '{print \$2}' | s | xargs rm -r"
 alias svnst="svn st | g -v '\.git'"
 alias svndi="svnst | awk '{print \$2}' | s | xargs svn di"
+alias svnexport="svn st | \grep '^[MA]' | awk '{print \$2}' | xargs -I {} cp --parents {}"
 alias ec='echo'
 alias scrn='screen -R'
 alias tmx='tmux attach || tmux new'
@@ -59,18 +61,18 @@ alias bell='echo -ne "\007"'
 alias ls='ls -h --color=auto'
 alias ll='ls -lsh'
 alias lls='ls -lshrt'
-alias lla='ls -lshA'
-alias llas='ls -lshrtA'
-alias llsa='ls -lshrtA'
+alias lla='ls -flshA --color=auto'
+alias llas='ls -flshrtA --color=auto'
+alias llsa='ls -flshrtA --color=auto'
 alias hist='history 1'
 alias csc='find . -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \
     | sed "s/.*/\"&\"/g" > csc.files ; cscope -R -b -i csc.files ; rm csc.files'
 alias ag="ag --color-line-number=';33' -S"
 alias psg='ps aux | grep -i'
-hash ack >& /dev/null && alias a='ack'
-hash ag >& /dev/null && alias a='ag'
+alias a='ag'
 alias awkp2="awk '{print \$2}'"
 alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .'
+alias so='source'
 
 #{{{1 Global aliases
 alias -g LL='ls -lshrtA'
@@ -81,7 +83,19 @@ alias -g FF='*(D.)'
 alias -g TEST='&& echo "yes" || echo "no"'
 
 #{{{1 Suffix aliases
-alias -s vim='vi'
+vim_or_cd() {
+    if [ -d "$1" ]; then
+        cd "$1"
+    else
+        vim "$1"
+    fi
+}
+alias -s vim=vim_or_cd
+alias -s h=vim
+alias -s hpp=vim
+alias -s c=vim
+alias -s cpp=vim
+alias -s m=vim
 
 #{{{1 Key bindings
 bindkey -v
@@ -92,47 +106,38 @@ zle -N down-line-or-beginning-search
 bindkey "^?" backward-delete-char
 bindkey          '^[[3~' delete-char
 bindkey          '^[[A' up-line-or-beginning-search
-bindkey -M viins '^[[A' up-line-or-beginning-search
+bindkey          '^P'   up-line-or-beginning-search
 bindkey -M vicmd '^[[A' up-line-or-beginning-search
 bindkey          '^[[B' down-line-or-beginning-search
-bindkey -M viins '^[[B' down-line-or-beginning-search
+bindkey          '^N'   down-line-or-beginning-search
 bindkey -M vicmd '^[[B' down-line-or-beginning-search
 bindkey          '^[OA' up-line-or-beginning-search
-bindkey -M viins '^[OA' up-line-or-beginning-search
 bindkey -M vicmd '^[OA' up-line-or-beginning-search
 bindkey          '^[OB' down-line-or-beginning-search
-bindkey -M viins '^[OB' down-line-or-beginning-search
 bindkey -M vicmd '^[OB' down-line-or-beginning-search
 bindkey -M vicmd 'gg' beginning-of-buffer-or-history
 bindkey '^R' history-incremental-search-backward
-bindkey '^N' history-incremental-search-backward
 bindkey '^S' history-incremental-search-forward
-bindkey '^P' history-incremental-search-forward
 bindkey -M isearch '^E' accept-search
 # Ctrl + arrow keys
 bindkey '^[[1;5C' forward-word
 bindkey '^[[1;5D' backward-word
 
-function vi-last-line()
-{
+vi-last-line() {
     zle end-of-buffer-or-history
     zle vi-first-non-blank
 }
 zle -N vi-last-line
 bindkey -M vicmd 'G' vi-last-line
 
-function self-insert-no-autoremove()
-{
+self-insert-no-autoremove() {
     LBUFFER="$LBUFFER$KEYS"
 }
 zle -N self-insert-no-autoremove
 bindkey '|' self-insert-no-autoremove
 
-function fg-job(){ fg }; zle -N fg-job; bindkey '^Z' fg-job
-
 #{{{1 Functions
-function kb2h()
-{
+kb2h() {
     read IN
     while [ $IN ]; do
         SLIST="KB,MB,GB,TB,PB,EB,ZB,YB"
@@ -152,21 +157,18 @@ function kb2h()
     done
 }
 
-function bigdirs()
-{
+bigdirs() {
     find . -type d -not -name "." -exec du -k {} + | sort -n \
         | tail -n ${1:-$(echo $(tput lines)-4 | bc)} | kb2h
 }
 
-function cygyank()
-{
+cygyank() {
     CUTBUFFER=$(cat /dev/clipboard | sed 's/\x0//g')
     zle yank
 }
 zle -N cygyank
 
-function xclipyank()
-{
+xclipyank() {
     CUTBUFFER=$(xclip -o | sed 's/\x0//g')
     if [ -z $CUTBUFFER ]; then
         CUTBUFFER=$(xclip -o -sel b | sed 's/\x0//g')
@@ -181,19 +183,16 @@ else
     bindkey '^V' cygyank
 fi
 
-function bigfiles()
-{
+bigfiles() {
     find . -type f -exec du -ak {} + | sort -n \
         | tail -n ${1:-$(echo $(tput lines)-4 | bc)} | kb2h
 }
 
-function md()
-{
+md() {
     mkdir -p "$@" && cd "$@";
 }
 
-function rationalise-dot()
-{
+rationalise-dot() {
     if [[ $LBUFFER = *.. ]]; then
         LBUFFER+=/..
     else
@@ -204,8 +203,7 @@ zle -N rationalise-dot
 bindkey -M viins . rationalise-dot
 bindkey -M isearch . self-insert
 
-function force-logout()
-{
+force-logout() {
     zle vi-kill-line
     if [[ -o login ]]; then; logout; else; exit; fi
 }
@@ -214,15 +212,64 @@ bindkey '^D' force-logout
 bindkey -M viins '^D' force-logout
 bindkey -M vicmd '^D' force-logout
 
+fg-job() { fg; zle reset-prompt; zle redisplay }
+zle -N fg-job; bindkey '^Z' fg-job;
+zle -N fg-job; bindkey -M vicmd '^Z' fg-job;
+
+tmux-next() { tmux next >& /dev/null }
+zle -N tmux-next; bindkey '^[[27;5;9~' tmux-next
+tmux-prev() { tmux prev >& /dev/null }
+zle -N tmux-prev; bindkey '^[[27;6;9~' tmux-prev
+
+# Ring bell after long commands finish
+if [[ -o interactive ]] && zmodload zsh/datetime && autoload -Uz add-zsh-hook; then
+    zbell_duration=5
+    zbell_ignore=(vi vim vims view vimdiff gvim gvims gview gvimdiff man more \
+        less e ez tmux tmx)
+    zbell_timestamp=$EPOCHSECONDS
+    zbell_begin() {
+        zbell_timestamp=$EPOCHSECONDS
+        zbell_lastcmd=$1
+    }
+    zbell_end() {
+        ran_long=$(( $EPOCHSECONDS - $zbell_timestamp >= $zbell_duration ))
+        has_ignored_cmd=0
+        for cmd in ${(s:;:)zbell_lastcmd//|/;}; do
+            words=(${(z)cmd})
+            util=${words[1]}
+            if (( ${zbell_ignore[(i)$util]} <= ${#zbell_ignore} )); then
+                has_ignored_cmd=1
+                break
+            fi
+        done
+        if (( ! $has_ignored_cmd )) && (( ran_long )); then
+            print -n "\a"
+        fi
+    }
+    add-zsh-hook preexec zbell_begin
+    add-zsh-hook precmd zbell_end
+fi
+
+vim-blacklist-add() {
+    vimblacklist=($vimblacklist "$1")
+    export VIMBLACKLIST=${(j:,:)vimblacklist}
+}
+
+vim-blacklist-remove() {
+    vimblacklist[${vimblacklist[(i)$1]}]=()
+    export VIMBLACKLIST=${(j:,:)vimblacklist}
+}
+
 #{{{1 Environment variables
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
-    vim -X -R -c 'set ft=man nomod nolist' \
+    vim -R -c 'set ft=man nomod noma nolist' \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
-export VIMBLACKLIST="syntastic,vimshell,processing,scriptease,over,flake8"
+vimblacklist=(syntastic vimshell processing scriptease over flake8 easymotion)
+export VIMBLACKLIST=${(j:,:)vimblacklist}
 if [ -e ~/.dircolors ]; then
-    eval $(dircolors ~/.dircolors)
+    eval $(dircolors -b ~/.dircolors)
 fi
 
 #{{{1 Completion Stuff
@@ -247,7 +294,7 @@ bindkey -M menuselect '^E' accept-search
 zstyle ':completion::complete:*' use-cache 1
 
 # case insensitive completion
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
 zstyle ':completion:*' verbose yes
 zstyle ':completion:*:descriptions' format '%B%d%b'
@@ -305,6 +352,8 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 # Process ID completion
 zstyle ':completion:*:*:kill:*' menu yes select
 zstyle ':completion:*:kill:*' force-list always
+zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#) #([^ ]#)*=33=31=32=34"
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,tty,cputime,command'
 
 # Don't suggest _functions
 zstyle ':completion:*:functions' ignored-patterns '_*'
@@ -317,21 +366,18 @@ vim_ins_mode="%{$fg[black]%}%{$bg[cyan]%}i%{$reset_color%}"
 vim_cmd_mode="%{$fg[black]%}%{$bg[yellow]%}n%{$reset_color%}"
 vim_mode=$vim_ins_mode
 
-function zle-keymap-select()
-{
+zle-keymap-select() {
     vim_mode="${${KEYMAP/(vicmd|opp)/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
     zle reset-prompt
 }
 zle -N zle-keymap-select
 
-function zle-line-finish()
-{
+zle-line-finish() {
     vim_mode=$vim_ins_mode
 }
 zle -N zle-line-finish
 
-function TRAPINT()
-{
+TRAPINT() {
     vim_mode=$vim_ins_mode
     return $(( 128 + $1 ))
 }

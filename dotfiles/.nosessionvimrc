@@ -1,4 +1,56 @@
 let g:no_session=1
 source ~/.vimrc
-inoremap <C-s> <Esc>ZZ
-nnoremap <C-s> ZZ
+imap <C-s> <Esc>ZA
+nmap <C-s> ZA
+
+if !exists('g:pathogen_disabled')
+	let g:pathogen_disabled=[]
+endif
+call add(g:pathogen_disabled, 'Gundo')
+call add(g:pathogen_disabled, 'LaTeX-Box')
+call add(g:pathogen_disabled, 'OmniCppComplete')
+call add(g:pathogen_disabled, 'ack')
+call add(g:pathogen_disabled, 'badwolf')
+call add(g:pathogen_disabled, 'dispatch')
+call add(g:pathogen_disabled, 'eunuch')
+call add(g:pathogen_disabled, 'flake8')
+call add(g:pathogen_disabled, 'indent-guides')
+call add(g:pathogen_disabled, 'matlab')
+call add(g:pathogen_disabled, 'misc')
+call add(g:pathogen_disabled, 'neomru')
+call add(g:pathogen_disabled, 'over')
+call add(g:pathogen_disabled, 'processing')
+call add(g:pathogen_disabled, 'scriptease')
+call add(g:pathogen_disabled, 'shell')
+call add(g:pathogen_disabled, 'sleuth')
+call add(g:pathogen_disabled, 'syntastic')
+call add(g:pathogen_disabled, 'tabular')
+call add(g:pathogen_disabled, 'tagbar')
+call add(g:pathogen_disabled, 'tmux-nagivator')
+call add(g:pathogen_disabled, 'undotree')
+call add(g:pathogen_disabled, 'unite')
+call add(g:pathogen_disabled, 'vimfiler')
+call add(g:pathogen_disabled, 'vimproc')
+call add(g:pathogen_disabled, 'vimshell')
+call add(g:pathogen_disabled, 'vimux')
+
+set complete+=k
+set dictionary=~/.tmuxwords_no_escape.zsh
+let g:neocomplete#sources#dictionary#dictionaries = { 'zsh' : '~/.tmuxwords_no_escape.zsh' }
+if !exists('g:neocomplete#keyword_patterns')
+	let g:neocomplete#keyword_patterns = {}
+endif
+let g:neocomplete#use_vimproc = 0
+
+autocmd VimEnter * call SetupScrollback()
+func! SetupScrollback()
+	call neocomplete#init#enable()
+	above split ~/.tmuxwords.zsh
+	norm! Gzb
+	setlocal nonumber norelativenumber readonly nomodifiable
+	setlocal nocursorline buftype=nofile
+	NeoCompleteDictionaryMakeCache
+	AnsiEsc
+	wincmd j
+	resize 3
+endfunc
