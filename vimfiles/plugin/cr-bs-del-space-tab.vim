@@ -115,7 +115,7 @@ function! Return_key ()
       nnoremap <silent> <CR> :call Return_key()<CR>
     endif
   else
-    if col('.') == strlen(getline('.'))
+    if col('.') == strlen(getline('.')) && getline('.')[col('.')-2] !~ '\s'
       execute "normal! a\<CR>\<ESC>k"
     else
       execute "normal! i\<CR>\<ESC>k"

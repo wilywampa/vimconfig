@@ -1111,7 +1111,7 @@ endfunc
 nnoremap <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>
 nnoremap <silent> "' :<C-u>Unite -prompt-direction=top -no-start-insert register<CR>
 nnoremap <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
-    \."-no-start-insert -no-quit grep:".getcwd()."\<CR>"
+    \."-no-start-insert -no-quit -auto-resize grep:".getcwd()."\<CR>"
 com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
 nnoremap <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
 nnoremap <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
@@ -1187,6 +1187,12 @@ nnoremap <silent> <M-Right> :TmuxNavigateRight<CR>
 nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
 nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
 nnoremap <silent> @\ :<C-u>VimuxRunLastCommand<CR>
+
+" Targets settings
+let g:targets_aiAI = 'ai  '
+let g:targets_nlNL = '    '
+let g:targets_pairs = ''
+let g:targets_quotes = ''
 
 " Import scripts
 execute pathogen#infect()
