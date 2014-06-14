@@ -81,7 +81,7 @@ if !s:readonly && !exists('g:no_session')
     augroup VimrcAutocmds
         au VimLeavePre * mks! ~/session.vis
         au VimEnter * mks! ~/periodic_session.vis
-        au VimEnter * exe "au BufEnter,BufRead,BufWrite,CursorHold * silent! mks! ~/periodic_session.vis"
+        au VimEnter * exe "au BufWinEnter * silent! mks! ~/periodic_session.vis"
     augroup END
 endif
 
@@ -253,9 +253,11 @@ ino <C-c> <NOP>
 ino <C-Space> <Esc>
 nno <C-Space> <Esc>
 cno <C-Space> <Esc>
+vno <C-Space> <Esc>
 ino <Nul> <Esc>
 nno <Nul> <Esc>
 cno <Nul> <Esc>
+vno <Nul> <Esc>
 ino jk <Esc>
 ino kj <Esc>
 
@@ -726,10 +728,10 @@ func! s:StarifyPath()
     let cmdline = getcmdline()
     let space = match(cmdline, '\m^.*\zs\s\ze\S\+$')
     let start = cmdline[0:space]
-    let finish = substitute(cmdline[space+1:-1],'\S\zs/','*/','g')
+    let finish = substitute(cmdline[space+1:-1],'[^[:space:]~]\zs/','*/','g')
     return start.finish
 endfunc
-cnoremap <C-s> <C-\>e<SID>StarifyPath()<CR><C-t>
+cnoremap <C-s> <C-\>e<SID>StarifyPath()<CR><C-t><C-d>
 
 " {{{2 GUI configration
 if has('gui_running')
@@ -1116,7 +1118,7 @@ com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-
 nnoremap <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
 nnoremap <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
 nnoremap <silent> ,vn :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**<CR>
-nnoremap <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async<CR>
+nnoremap <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async:!<CR>
 nnoremap <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer<CR>
 nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
@@ -1187,6 +1189,7 @@ nnoremap <silent> <M-Right> :TmuxNavigateRight<CR>
 nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
 nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
 nnoremap <silent> @\ :<C-u>VimuxRunLastCommand<CR>
+nnoremap <silent> @\| :<C-u>VimuxRunLastCommand<CR>
 
 " Targets settings
 let g:targets_aiAI = 'ai  '
