@@ -90,7 +90,7 @@ function! s:Vitality() " {{{
         " Doing things this way is nicer than just mapping the raw sequences
         " directly, because Vim won't hang after a bare <Esc> waiting for the rest
         " of the mapping.
-        execute "set <f24>=\<Esc>[O"
+        " execute "set <f24>=\<Esc>[O"
         execute "set <f25>=\<Esc>[I"
 
         " Handle the focus gained/lost signals in each mode separately.
@@ -98,34 +98,34 @@ function! s:Vitality() " {{{
         " The goal is to fire the autocmd and restore the state as cleanly as
         " possible.  This is easy for some modes and hard/impossible for others.
 
-        nnoremap <silent> <f24> :silent doautocmd <nomodeline> FocusLost %<cr>
+        " nnoremap <silent> <f24> :silent doautocmd <nomodeline> FocusLost %<cr>
         nnoremap <silent> <f25> :doautocmd <nomodeline> FocusGained %<cr>
 
-        onoremap <silent> <f24> <esc>:silent doautocmd <nomodeline> FocusLost %<cr>
+        " onoremap <silent> <f24> <esc>:silent doautocmd <nomodeline> FocusLost %<cr>
         onoremap <silent> <f25> <esc>:silent doautocmd <nomodeline> FocusGained %<cr>
 
-        vnoremap <silent> <f24> <esc>:silent doautocmd <nomodeline> FocusLost %<cr>gv
+        " vnoremap <silent> <f24> <esc>:silent doautocmd <nomodeline> FocusLost %<cr>gv
         vnoremap <silent> <f25> <esc>:silent doautocmd <nomodeline> FocusGained %<cr>gv
 
-        inoremap <silent> <f24> <c-o>:silent doautocmd <nomodeline> FocusLost %<cr>
+        " inoremap <silent> <f24> <c-o>:silent doautocmd <nomodeline> FocusLost %<cr>
         inoremap <silent> <f25> <c-o>:silent doautocmd <nomodeline> FocusGained %<cr>
 
-        cnoremap <silent> <f24> <c-\>e<SID>DoCmdFocusLost()<cr>
+        " cnoremap <silent> <f24> <c-\>e<SID>DoCmdFocusLost()<cr>
         cnoremap <silent> <f25> <c-\>e<SID>DoCmdFocusGained()<cr>
     endif
 
     " }}}
 endfunction " }}}
 
-function s:DoCmdFocusLost()
-    let cmd = getcmdline()
-    let pos = getcmdpos()
+" function s:DoCmdFocusLost()
+"     let cmd = getcmdline()
+"     let pos = getcmdpos()
 
-    silent doautocmd <nomodeline> FocusLost %
+"     silent doautocmd <nomodeline> FocusLost %
 
-    call setcmdpos(pos)
-    return cmd
-endfunction
+"     call setcmdpos(pos)
+"     return cmd
+" endfunction
 
 function s:DoCmdFocusGained()
     let cmd = getcmdline()
