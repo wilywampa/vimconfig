@@ -93,9 +93,7 @@ let g:lastTab=1
 func! s:SetLastWindow()
     for l:tab in range(1,tabpagenr('$'))
         for l:win in range(1,tabpagewinnr(l:tab,'$'))
-            if gettabwinvar(l:tab,l:win,'last')
-                call settabwinvar(l:tab,l:win,'last',0)
-            endif
+            call settabwinvar(l:tab,l:win,'last',0)
         endfor
     endfor
     let w:last=1
@@ -632,7 +630,7 @@ func! s:Paste()
     if @+ =~ "\<NL>"
         set paste
         set pastetoggle=<F10>
-        return "\<C-r>+\<F10>"
+        return "\<C-r>+\<F10>".(@+=~"\<NL>$"?"\<BS>":"")
     endif
     return "\<C-r>+"
 endfunc
@@ -716,8 +714,8 @@ func! s:SectionJump(type, v)
 endfunc
 func! s:SectionJumpMaps()
     for key in ['[[', '][', ']]', '[]']
-        exe "noremap  <silent> ".key." :<C-u>call <SID>SectionJump('".key."',0)<CR>"
-        exe "xnoremap <silent> ".key." :<C-u>call <SID>SectionJump('".key."',1)<CR>"
+        exe "noremap  <silent> <buffer> ".key." :<C-u>call <SID>SectionJump('".key."',0)<CR>"
+        exe "xnoremap <silent> <buffer> ".key." :<C-u>call <SID>SectionJump('".key."',1)<CR>"
     endfor
 endfunc
 autocmd VimrcAutocmds FileType c,cpp call <SID>SectionJumpMaps()
@@ -1053,6 +1051,7 @@ endfunc
 
 " {{{2 Unite settings
 let g:unite_source_history_yank_enable=1
+let g:unite_source_history_yank_limit=500
 let g:unite_split_rule='botright'
 let g:unite_enable_start_insert=1
 let g:unite_marked_icon='✓'
@@ -1068,6 +1067,7 @@ augroup VimrcAutocmds
     autocmd VimEnter * sil! call unite#filters#matcher_default#use(['matcher_regexp'])
     autocmd FileType unite setl conceallevel=0
     autocmd FileType unite call <SID>UniteMaps()
+    autocmd CursorHold * silent! call unite#sources#history_yank#_append()
 augroup END
 func! s:UniteMaps()
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
@@ -1078,7 +1078,7 @@ func! s:UniteMaps()
     inor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()."\<Esc>"
-        \.'gg3\|"+YZQ'.":\<C-u>Unite -buffer-name=buffers/neomru "
+        \.'gg3\|"+YQ'.":\<C-u>Unite -buffer-name=buffers/neomru "
         \."-prompt-direction=top -unique buffer neomru/file\<CR>"."\<C-r>+"
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
     imap <buffer> <expr> <C-o>v     unite#do_action('vsplit')
