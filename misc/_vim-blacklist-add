@@ -1,0 +1,8 @@
+#compdef vim-blacklist-add
+
+local -a bundles
+bundles=($(ls ~/.vim/bundle))
+for bundle in $vimblacklist; do
+    bundles[${bundles[(i)$bundle]}]=()
+done
+compadd $bundles

@@ -1,0 +1,3 @@
+#compdef vim-blacklist-remove
+
+compadd $vimblacklist

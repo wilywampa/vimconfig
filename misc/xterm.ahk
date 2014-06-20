@@ -1,18 +1,95 @@
 ; Reload automatically if already running
 #SingleInstance force
 
+$^1::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 1
+else
+    SendInput ^1
+return
+$^2::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 2
+else
+    SendInput ^2
+return
+$^3::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 3
+else
+    SendInput ^3
+return
+$^4::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 4
+else
+    SendInput ^4
+return
+$^5::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 5
+else
+    SendInput ^5
+return
+$^6::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 6
+else
+    SendInput ^6
+return
+$^7::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 7
+else
+    SendInput ^7
+return
+$^8::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 8
+else
+    SendInput ^8
+return
+$^9::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 9
+else
+    SendInput ^9
+return
+$^0::
+WinGet, Active_ID, ID, A
+WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
+if ( Active_Process ="XWin.exe" )
+    SendInput 0
+else
+    SendInput ^0
+return
+
 ; Send XTerm escape code for <C-Tab>
 $^Tab::
 WinGet, Active_ID, ID, A
 WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
 if ( Active_Process ="XWin.exe" )
-{
     SendInput {Esc}[27;5;9~
-}
 else
-{
     SendInput ^{Tab}
-}
 return
 
 ; Send XTerm escape code for <C-S-Tab>
@@ -20,13 +97,9 @@ $^+Tab::
 WinGet, Active_ID, ID, A
 WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
 if ( Active_Process ="XWin.exe" )
-{
     SendInput {Esc}[27;6;9~
-}
 else
-{
     SendInput ^+{Tab}
-}
 return
 
 ; Make <C-_> work without shift key
@@ -34,23 +107,19 @@ $^-::
 WinGet, Active_ID, ID, A
 WinGet, Active_Process, ProcessName, ahk_id %Active_ID%
 if ( Active_Process ="XWin.exe" )
-{
-    SendInput ^7
-}
+    SendInput 
 else
-{
     SendInput ^-
-}
 return
 
-; Make <C-^> (<C-6>) work with shift key
+; Make <C-^> work with shift key
 ^+`::
-SendInput ^6
+SendInput 
 Return
 
-; Make <C-^> (<C-6>) work without shift key
+; Make <C-^> work without shift key
 ^`::
-SendInput ^6
+SendInput 
 Return
 
 ; Activate/minimize gVim
