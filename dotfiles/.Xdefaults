@@ -1,6 +1,6 @@
 XTerm*termName: xterm-256color
 XTerm*faceName: Meslo LG S for Powerline
-XTerm*faceSize: 11.5
+XTerm*faceSize: 9.2
 XTerm*metaSendsEscape: false
 XTerm*altSendsEscape: false
 XTerm*reverseVideo: false
@@ -50,17 +50,29 @@ XTerm*color15:                #fdf6e3
 ! XTerm*pointerColorBackground:  #93a1a1
 ! XTerm*pointerColorForeground:  #586e75
 
-*VT100.translations:  #override \n\
+*VT100.translations: #override \n\
 Meta <Key>1: string(0x1b) string("1") \n\
 Meta <Key>2: string(0x1b) string("2") \n\
 Meta <Key>3: string(0x1b) string("3") \n\
 Meta <Key>4: string(0x1b) string("4") \n\
 Meta <Key>5: string(0x1b) string("5") \n\
+Ctrl <Key>0: string("0") \n\
+Ctrl <Key>1: string("1") \n\
+Ctrl <Key>2: string("2") \n\
+Ctrl <Key>3: string("3") \n\
+Ctrl <Key>4: string("4") \n\
+Ctrl <Key>5: string("5") \n\
+Ctrl <Key>6: string("6") \n\
+Ctrl <Key>7: string("7") \n\
+Ctrl <Key>8: string("8") \n\
+Ctrl <Key>9: string("9") \n\
 Ctrl ~Shift <Key>Tab: string(0x1b) string("[27;5;9~") \n\
 Ctrl Shift <Key>Tab: string(0x1b) string("[27;6;9~") \n\
 Ctrl ~Shift <Key>`: string(0x1e) \n\
 Ctrl Shift <Key>`: string(0x1e) \n\
 Ctrl ~Shift <Key>-: string(0x1f) \n\
-Ctrl Shift <Key>-: string(0x1f) \n
+Ctrl Shift <Key>-: string(0x1f) \n\
+Meta <Key>-: smaller-vt-font() \n\
+Meta <Key>+: larger-vt-font() \n
 
 ! vim: cms=!%s

@@ -48,7 +48,7 @@ bind x kill
 bind Q quit
 bind ^[ eval "bindkey -m v eval 'stuff \" \"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m V eval 'stuff \"0 $\"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m y eval 'stuff \" \"' 'writebuf' \"exec sh -c 'xsel -pi <$HOME/.screen-exchange'\" 'bindkey -m y'" 'copy'
 bind [ eval "bindkey -m v eval 'stuff \" \"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m V eval 'stuff \"0 $\"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m y eval 'stuff \" \"' 'writebuf' \"exec sh -c 'xsel -pi <$HOME/.screen-exchange'\" 'bindkey -m y'" 'copy'
-bind -t ^_ eval "bindkey -m v eval 'stuff \" \"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m V eval 'stuff \"0 $\"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m y eval 'stuff \" \"' 'writebuf' \"exec sh -c 'xsel -pi <$HOME/.screen-exchange'\" 'bindkey -m y'" 'copy'
+bindkey -t ^_ eval "bindkey -m v eval 'stuff \" \"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m V eval 'stuff \"0 $\"' 'bindkey -m v' 'bindkey -m V'" "bindkey -m y eval 'stuff \" \"' 'writebuf' \"exec sh -c 'xsel -pi <$HOME/.screen-exchange'\" 'bindkey -m y'" 'copy'
 bindkey -t ^I eval 'bindkey -m v' 'bindkey -m V' 'bindkey -m y' 'stuff "^I"'
 bindkey -t c eval 'bindkey -m v' 'bindkey -m V' 'bindkey -m y' 'stuff "c"'
 bindkey -t ^[ eval 'bindkey -m v' 'bindkey -m V' 'bindkey -m y' 'stuff "^["'

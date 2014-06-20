@@ -1,2 +1,7 @@
 .git
+.svn
 tags
+cscope.out
+.cache
+.cpan
+.cachetmp

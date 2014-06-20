@@ -3,7 +3,7 @@
 	email = jacob.niehus@gmail.com
 [core]
 	excludesfile = /Users/jniehus/.gitignore_global
-	editor = /usr/bin/vim
+	editor = /Applications/MacVim.app/Contents/MacOS/Vim
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
@@ -22,6 +22,7 @@
 	diff = auto
 	status = auto
 	branch = auto
+	ui = true
 [diff]
 	tool = bc3
 [difftool]

@@ -1,10 +1,7 @@
 let g:no_session=1
-source ~/.vimrc
-imap <C-s> <Esc>ZA
-nmap <C-s> ZA
 
 if !exists('g:pathogen_disabled')
-	let g:pathogen_disabled=[]
+    let g:pathogen_disabled=[]
 endif
 call add(g:pathogen_disabled, 'Gundo')
 call add(g:pathogen_disabled, 'LaTeX-Box')
@@ -34,23 +31,37 @@ call add(g:pathogen_disabled, 'vimproc')
 call add(g:pathogen_disabled, 'vimshell')
 call add(g:pathogen_disabled, 'vimux')
 
+source ~/.vimrc
+set noshowcmd
+imap <C-s> <Nul>ZA
+nmap <C-s> ZA
+let g:loaded_vitality = 1
+
 set complete+=k
 set dictionary=~/.tmuxwords_no_escape.zsh
 let g:neocomplete#sources#dictionary#dictionaries = { 'zsh' : '~/.tmuxwords_no_escape.zsh' }
-if !exists('g:neocomplete#keyword_patterns')
-	let g:neocomplete#keyword_patterns = {}
-endif
 let g:neocomplete#use_vimproc = 0
 
+autocmd VimLeave * silent! call system('rm ~/.tmuxwords.zsh ~/.tmuxwords_no_escape.zsh')
 autocmd VimEnter * call SetupScrollback()
 func! SetupScrollback()
-	call neocomplete#init#enable()
-	above split ~/.tmuxwords.zsh
-	norm! Gzb
-	setlocal nonumber norelativenumber readonly nomodifiable
-	setlocal nocursorline buftype=nofile
-	NeoCompleteDictionaryMakeCache
-	AnsiEsc
-	wincmd j
-	resize 3
+    if $TMUX != ""
+        call neocomplete#init#enable()
+        above split ~/.tmuxwords.zsh
+        norm! Gzb
+        setlocal nonumber norelativenumber readonly nomodifiable
+        setlocal nocursorline buftype=nofile
+        NeoCompleteDictionaryMakeCache
+        AnsiEsc
+        wincmd j
+        execute "resize ".(line('$')+2)
+    endif
+    execute "goto ".($ZCURSOR + 1)
+    if $ZKEYMAP != 'vicmd'
+        if col('.') == strlen(getline('.'))
+            startinsert!
+        else
+            startinsert
+        endif
+    endif
 endfunc
