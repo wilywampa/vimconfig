@@ -41,8 +41,12 @@ function! ShortCWD()
         let s:tagPrev=tagbar#currenttag('%s','','')
     endif
 
-    let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)
-        \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-50
+    if &buftype == 'help'
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:t'))-40
+    else
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)
+            \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-50
+    endif
 
     if strlen(s:cwd) > s:cwdMaxLen
         let parts=split(s:cwd,pathSep)

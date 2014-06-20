@@ -55,9 +55,8 @@ function! vimtools#EchoSyntax(count)
   return ''
 endfunction
 
+" Open in same window if current tab is empty, or else open in new window
 function! vimtools#OpenHelp(topic)
-  let v:errmsg=""
-  " Open in same window if current tab is empty, or else open in new window
   if vimtools#TabUsed()
     " Open vertically if there's enough room
     let l:split=0
@@ -74,26 +73,23 @@ function! vimtools#OpenHelp(topic)
       " If help is already open in a window, use that window
       exe l:helpWin.'wincmd w'
       setl bt=help
-      exe 'sil! help '.a:topic
+      exe 'help '.a:topic
     elseif (&columns > 160) && !l:split
       " Open help in vertical split if window is not already split
-      exe 'sil! vert help '.a:topic
+      exe 'vert help '.a:topic
     else
       let splitbelow_save = &splitbelow
       set nosplitbelow
       try
         set nosplitbelow
-        exe 'sil! help '.a:topic
+        exe 'help '.a:topic
       finally
         let &splitbelow = splitbelow_save
       endtry
     endif
   else
     setl ft=help bt=help noma
-    exe 'sil! help '.a:topic
-  endif
-  if v:errmsg != ""
-    echohl ErrorMsg | redraw | echo v:errmsg | echohl None
+    exe 'help '.a:topic
   endif
 endfunction
 

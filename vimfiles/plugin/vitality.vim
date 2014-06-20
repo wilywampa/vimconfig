@@ -99,7 +99,7 @@ function! s:Vitality() " {{{
         " possible.  This is easy for some modes and hard/impossible for others.
 
         nnoremap <silent> <f24> :silent doautocmd <nomodeline> FocusLost %<cr>:silent redraw!<cr>
-        nnoremap <silent> <f25> :doautocmd <nomodeline> FocusGained %<cr>:silent redraw!<cr>
+        nnoremap <silent> <f25> :silent doautocmd <nomodeline> FocusGained %<cr>:silent redraw!<cr>
 
         onoremap <silent> <f24> <esc>:silent doautocmd <nomodeline> FocusLost %<cr>:silent redraw!<cr>
         onoremap <silent> <f25> <esc>:silent doautocmd <nomodeline> FocusGained %<cr>:silent redraw!<cr>
@@ -109,8 +109,8 @@ function! s:Vitality() " {{{
 
         " inoremap <silent> <f24> <c-o>:silent doautocmd <nomodeline> FocusLost %<cr>
         " inoremap <silent> <f25> <c-o>:silent doautocmd <nomodeline> FocusGained %<cr>
-        inoremap <f24> <nop>
-        inoremap <f25> <nop>
+        inoremap <f24> <space><bs>
+        inoremap <f25> <space><bs>
 
         cnoremap <silent> <f24> <c-\>e<SID>DoCmdFocusLost()<cr>
         cnoremap <silent> <f25> <c-\>e<SID>DoCmdFocusGained()<cr>

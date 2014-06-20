@@ -111,8 +111,10 @@ func! s:LastActiveWindow()
     endfor
     if winnr('$') > 1
         winc w
-    else
+    elseif tabpagenr('$') > 1
         tabnext
+    elseif exists('$TMUX')
+        call system('tmux last-pane || tmux last-window')
     endif
 endfunc
 augroup VimrcAutocmds
@@ -215,7 +217,7 @@ if s:hasvimtools
 else
     com! -nargs=1 SwitchToOrOpen tab drop <args>
 endif
-nn <silent> ,ea :<C-u>SwitchToOrOpen ~/.ackrc<CR>
+nn <silent> ,ea :<C-u>SwitchToOrOpen ~/.vim/after/plugin/after.vim<CR>
 nn <silent> ,eb :<C-u>SwitchToOrOpen ~/.bashrc<CR>
 nn <silent> ,ec :<C-u>SwitchToOrOpen ~/.cshrc<CR>
 nn <silent> ,es :<C-u>SwitchToOrOpen ~/.screenrc<CR>
@@ -671,9 +673,9 @@ cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 func! s:SearchCmdDelWord()
     if getcmdtype() =~ '[/?]' && getcmdline() =~? '^\\v\k*$'
         if getcmdline()[1] ==# 'v'
-            return "\<C-w>v"
+            return "\<C-u>\\v"
         else
-            return "\<C-w>V"
+            return "\<C-u>\\V"
         endif
     endif
     return "\<C-w>"
@@ -1012,16 +1014,22 @@ else
 endif
 let g:sneak#use_ic_scs=1
 highlight link SneakPluginTarget DiffText
+nmap t <Plug>Sneak_t
+nmap T <Plug>Sneak_T
+xmap t <Plug>Sneak_t
+xmap T <Plug>Sneak_T
+omap t <Plug>Sneak_t
+omap T <Plug>Sneak_T
 nmap f <Plug>Sneak_f
 nmap F <Plug>Sneak_F
 xmap f <Plug>Sneak_f
 xmap F <Plug>Sneak_F
 omap f <Plug>Sneak_f
 omap F <Plug>Sneak_F
-nnoremap <silent> <C-l> :sil! call sneak#hl#removehl()<CR>:nohl<CR><C-l>
-nmap , <Plug>SneakPrevious
-omap , <Plug>SneakPrevious
-nmap , <Plug>SneakPrevious
+nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
+nmap ,, <Plug>SneakPrevious
+omap ,, <Plug>SneakPrevious
+nmap ,, <Plug>SneakPrevious
 
 " {{{2 VimFiler settings
 nnoremap <silent> - :VimFilerBufferDir -find<CR>
@@ -1110,17 +1118,17 @@ func! s:UniteMaps()
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
     sil! nunmap <buffer> ?
 endfunc
-nnoremap <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>
-nnoremap <silent> "' :<C-u>Unite -prompt-direction=top -no-start-insert register<CR>
-nnoremap <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
+nn <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>
+nn <silent> "' :<C-u>Unite -prompt-direction=top -no-start-insert register<CR>
+nn <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
     \."-no-start-insert -no-quit -auto-resize grep:".getcwd()."\<CR>"
 com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
-nnoremap <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
-nnoremap <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
-nnoremap <silent> ,vn :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**<CR>
-nnoremap <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async:!<CR>
-nnoremap <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer<CR>
-nnoremap <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
+nn <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
+nn <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
+nn <silent> ,vn :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**<CR>
+nn <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async<CR>
+nn <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer<CR>
+nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
     \ ? "buffers/" : "")."neomru ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
