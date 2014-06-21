@@ -217,14 +217,14 @@ if s:hasvimtools
 else
     com! -nargs=1 SwitchToOrOpen tab drop <args>
 endif
-nn <silent> ,ea :<C-u>SwitchToOrOpen ~/.vim/after/plugin/after.vim<CR>
-nn <silent> ,eb :<C-u>SwitchToOrOpen ~/.bashrc<CR>
-nn <silent> ,ec :<C-u>SwitchToOrOpen ~/.cshrc<CR>
-nn <silent> ,es :<C-u>SwitchToOrOpen ~/.screenrc<CR>
-nn <silent> ,et :<C-u>SwitchToOrOpen ~/.tmux.conf<CR>
-nn <silent> ,ev :<C-u>SwitchToOrOpen $MYVIMRC<CR>
-nn <silent> ,ex :<C-u>SwitchToOrOpen ~/.Xdefaults<CR>
-nn <silent> ,ez :<C-u>SwitchToOrOpen ~/.zshrc<CR>
+nn <silent> ,ea :<C-u>edit ~/.vim/after/plugin/after.vim<CR>
+nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>
+nn <silent> ,ec :<C-u>edit ~/.cshrc<CR>
+nn <silent> ,es :<C-u>edit ~/.screenrc<CR>
+nn <silent> ,et :<C-u>edit ~/.tmux.conf<CR>
+nn <silent> ,ev :<C-u>edit $MYVIMRC<CR>
+nn <silent> ,ex :<C-u>edit ~/.Xdefaults<CR>
+nn <silent> ,ez :<C-u>edit ~/.zshrc<CR>
 
 " Source vimrc
 nn <silent> ,sv :so $MYVIMRC<CR>:runtime after/plugin/after.vim<CR>
@@ -414,10 +414,8 @@ ino <M-p> <C-r>"
 nn <S-Tab> <C-o>
 
 " Make <C-d>/<C-u> scroll 1/4 page
-nn <silent> <C-d> :exe 'set scr='.(winheight('.')+1)/4<CR><C-d>
-nn <silent> <C-u> :exe 'set scr='.(winheight('.')+1)/4<CR><C-u>
-vn <silent> <C-d> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-d>
-vn <silent> <C-u> :<C-u>exe 'set scr='.(winheight('.')+1)/4<CR>gv<C-u>
+no <expr> <C-d> (v:count ? "" : (winheight('.')) / 4 + 1)."\<C-d>"
+no <expr> <C-u> (v:count ? "" : (winheight('.')) / 4 + 1)."\<C-u>"
 
 " Highlight word without moving cursor
 nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
@@ -570,16 +568,18 @@ endfunc
 nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 
 " Make dot repeat ignore InsertEnter event
-func! s:DotRepeat(count)
-    let eventignore_save = &eventignore
-    let &eventignore = 'InsertEnter'
-    try
-        exec "norm! ".(a:count ? a:count : "")."."
-    finally
-        let &eventignore = eventignore_save
-    endtry
-endfunc
-nnoremap <silent> . :<C-u>call <SID>DotRepeat(v:count)<CR>
+if !exists('*<SID>DotRepeat')
+    func! s:DotRepeat(count)
+        let eventignore_save = &eventignore
+        let &eventignore = 'InsertEnter'
+        try
+            exec "norm! ".(a:count ? a:count : "")."."
+        finally
+            let &eventignore = eventignore_save
+        endtry
+    endfunc
+    nnoremap <silent> . :<C-u>call <SID>DotRepeat(v:count)<CR>
+endif
 
 " Make q macro ignore InsertEnter event
 func! s:QMacro(count)
@@ -982,54 +982,20 @@ else
     let g:SuperTabDefaultCompletionType="context"
 endif
 
-" {{{2 EasyMotion/Sneak settings
-if $VIMBLACKLIST =~ 'easymotion'
-    nmap <Space>   <Plug>Sneak_s
-    nmap <C-Space> <Plug>Sneak_S
-    nmap <Nul>     <Plug>Sneak_S
-    nmap <Space>   <Plug>Sneak_s
-    nmap <C-Space> <Plug>Sneak_S
-    nmap <Nul>     <Plug>Sneak_S
-    nmap <Space>   <Plug>Sneak_s
-    nmap <C-Space> <Plug>Sneak_S
-    nmap <Nul>     <Plug>Sneak_S
-else
-    map <S-Space> <Space>
-    map! <S-Space> <Space>
-    let g:EasyMotion_keys='ABCDEFGIMNOPQRSTUVWXYZLKJH'
-    let g:EasyMotion_use_upper=1
-    let g:EasyMotion_add_search_history=0
-    let g:EasyMotion_smartcase=1
-    let g:EasyMotion_enter_jump_first=1
-    map <Space> <Plug>(easymotion-s2)
-    map <Space>/ <Plug>(easymotion-sn)
-    map <Space><Space>f <Plug>(easymotion-bd-f)
-    map <Space><Space>t <Plug>(easymotion-bd-t)
-    map <Space><Space>w <Plug>(easymotion-bd-w)
-    map <Space><Space>W <Plug>(easymotion-bd-W)
-    map <Space><Space>e <Plug>(easymotion-bd-e)
-    map <Space><Space>E <Plug>(easymotion-bd-E)
-    map <Space><Space>n <Plug>(easymotion-bd-n)
-    autocmd VimrcAutocmds VimEnter * sil! unmap <Leader><Leader>
-endif
+" {{{2 Sneak settings
+nmap <Space>   <Plug>Sneak_s
+nmap <C-Space> <Plug>Sneak_S
+nmap <Nul>     <Plug>Sneak_S
 let g:sneak#use_ic_scs=1
 highlight link SneakPluginTarget DiffText
-nmap t <Plug>Sneak_t
-nmap T <Plug>Sneak_T
-xmap t <Plug>Sneak_t
-xmap T <Plug>Sneak_T
-omap t <Plug>Sneak_t
-omap T <Plug>Sneak_T
-nmap f <Plug>Sneak_f
-nmap F <Plug>Sneak_F
-xmap f <Plug>Sneak_f
-xmap F <Plug>Sneak_F
-omap f <Plug>Sneak_f
-omap F <Plug>Sneak_F
+for m in ['n', 'x', 'o']
+    for l in ['f', 't']
+        execute m.'map '.l.' <Plug>Sneak_'.l
+        execute m.'map '.toupper(l).' <Plug>Sneak_'.toupper(l)
+    endfor
+    execute m.'map ,, <Plug>SneakPrevious'
+endfor
 nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
-nmap ,, <Plug>SneakPrevious
-omap ,, <Plug>SneakPrevious
-nmap ,, <Plug>SneakPrevious
 
 " {{{2 VimFiler settings
 nnoremap <silent> - :VimFilerBufferDir -find<CR>
@@ -1053,6 +1019,7 @@ func! s:VimfilerSettings()
     nmap <buffer> <F1>  <Plug>(vimfiler_help)
     nmap <buffer> <expr> <CR> vimfiler#smart_cursor_map(
         \"\<Plug>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
+    nmap <buffer> D     <Plug>(vimfiler_delete_file)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
 endfunc

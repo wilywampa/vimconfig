@@ -5,11 +5,11 @@ endif
 let b:did_matlab_run=1
 
 if !exists('g:matlab_path')
-  if has("mac")
-    let g:matlab_path = expand('~/Documents/MATLAB')
-  else
-    let g:matlab_path = expand('~/MATLAB')
-  endif
+    if has("mac")
+        let g:matlab_path = expand('~/Documents/MATLAB')
+    else
+        let g:matlab_path = expand('~/MATLAB')
+    endif
 endif
 
 if has("win16") || has("win32") || has("win64")
@@ -43,22 +43,26 @@ elseif system('echo $OSTYPE') =~ 'cygwin'
     endfunc
 else
     func! s:RunMATLAB()
+        call VimuxOpenRunner()
         call VimuxSendKeys("\<C-c>")
         call VimuxSendText("clearfun; cd ".expand('%:p:h')."; "
             \.expand('%:t:r')."; gendict; clearfun")
         call VimuxSendKeys("\<CR>")
     endfunc
     func! s:RunLineMATLAB()
+        call VimuxOpenRunner()
         call VimuxSendKeys("\<C-c>")
         call VimuxSendText(substitute(getline('.'),';$',';;',''))
         call VimuxSendKeys("\<CR>")
     endfunc
     func! s:UpdateDictionaryMATLAB()
+        call VimuxOpenRunner()
         call VimuxSendKeys("\<C-c>")
         call VimuxSendText("gendict")
         call VimuxSendKeys("\<CR>")
     endfunc
     func! s:GetHelpMATLAB()
+        call VimuxOpenRunner()
         call VimuxSendKeys("\<C-c>")
         call VimuxSendText('help '.expand('<cword>'))
         call VimuxSendKeys("\<CR>")
