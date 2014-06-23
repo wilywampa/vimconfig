@@ -995,17 +995,17 @@ else
 endif
 
 " {{{2 Sneak settings
-nmap <Space>   <Plug>Sneak_s
-nmap <C-Space> <Plug>Sneak_S
-nmap <Nul>     <Plug>Sneak_S
 let g:sneak#use_ic_scs=1
 highlight link SneakPluginTarget DiffText
-for m in ['n', 'x', 'o']
+for mode in ['n', 'x', 'o']
     for l in ['f', 't']
-        execute m.'map '.l.' <Plug>Sneak_'.l
-        execute m.'map '.toupper(l).' <Plug>Sneak_'.toupper(l)
+        execute mode.'map '.l.' <Plug>Sneak_'.l
+        execute mode.'map '.toupper(l).' <Plug>Sneak_'.toupper(l)
     endfor
-    execute m.'map ,, <Plug>SneakPrevious'
+    execute mode.'map <Space>   <Plug>Sneak_s'
+    execute mode.'map <C-Space> <Plug>Sneak_S'
+    execute mode.'map <Nul>     <Plug>Sneak_S'
+    execute mode.'map ,, <Plug>SneakPrevious'
 endfor
 nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
 
