@@ -313,10 +313,6 @@ nn <silent> <expr> <C-w><C-q> g:inCmdwin? ':q<CR>' : '<C-w>c'
 nn <silent> <expr> <C-w>q     g:inCmdwin? ':q<CR>' : '<C-w>c'
 nn <silent> <expr> <C-w><C-w> g:inCmdwin? ':q<CR>' : '<C-w><C-w>'
 
-" <C-k>/<C-j> inserts blank line above/below
-nn <silent> <C-j> :set paste<CR>m`o<Esc>``:set nopaste<CR>
-nn <silent> <C-k> :set paste<CR>m`O<Esc>``:set nopaste<CR>
-
 " <M-k>/<M-j> deletes blank line above/below
 nn <silent> <M-j> m`:sil +g/\m^\s*$/d<CR>``:noh<CR>:call
     \ histdel("search",-1)<CR>:let @/=histget("search",-1)<CR>
@@ -445,6 +441,13 @@ endif
 " Open cursor file in vertical split
 nn <C-w>f :execute "vsplit ".expand('<cfile>')<CR>
 nn <C-w><C-f> :execute "vsplit ".expand('<cfile>')<CR>
+
+" Default make key
+nn <silent> <F5> :update<CR>:make<CR><CR>
+
+" Cycle through previous searches
+nn <expr> <C-k> (g:inCmdwin? '' : 'q/'.v:count1)."k:let @/=getline('.')<CR>"
+nn <expr> <C-j> (g:inCmdwin? '' : 'q/'.v:count1)."j:let @/=getline('.')<CR>"
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -733,6 +736,15 @@ func! s:StarifyPath()
 endfunc
 cnoremap <C-s> <C-\>e<SID>StarifyPath()<CR><C-t><C-d>
 
+" Ring system bell
+func! s:Bell()
+    let visualbell_save = &visualbell
+    set novisualbell
+    execute "normal! \<Esc>"
+    let &visualbell = visualbell_save
+endfunc
+autocmd VimrcAutocmds QuickFixCmdPost * call <SID>Bell()
+
 " {{{2 GUI configration
 if has('gui_running')
     " Disable most visible GUI features
@@ -774,11 +786,11 @@ else
     " Use correct background color
     autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
 
-    " Enable mouse for scrolling
+    " Enable mouse for scrolling and cursor placement
     set mouse=nir
     for b in ["Left","Middle","Right"] | for m in ["","2","C","S","A"]
         execute 'map <'.m.(strlen(m)?'-':'').b.'Mouse> <NOP>'
-    endfor | endfor
+    endfor | endfor | unmap <LeftMouse>
 endif
 
 " }}}2
@@ -1020,8 +1032,10 @@ func! s:VimfilerSettings()
     nmap <buffer> <expr> <CR> vimfiler#smart_cursor_map(
         \"\<Plug>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
     nmap <buffer> D     <Plug>(vimfiler_delete_file)
+    nmap <buffer> <C-s> <Plug>(vimfiler_select_sort_type)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
+    exe "nunmap <buffer> S"
 endfunc
 
 " {{{2 Unite settings
@@ -1083,6 +1097,7 @@ func! s:UniteMaps()
     nmap <buffer> m <Plug>(unite_toggle_mark_current_candidate)
     nmap <buffer> M <Plug>(unite_toggle_mark_current_candidate_up)
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
+    nnor <buffer>  S gg$S
     sil! nunmap <buffer> ?
 endfunc
 nn <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>

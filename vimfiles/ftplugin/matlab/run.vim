@@ -49,11 +49,20 @@ else
             \.expand('%:t:r')."; gendict; clearfun")
         call VimuxSendKeys("\<CR>")
     endfunc
-    func! s:RunLineMATLAB()
+    func! s:RunLinesMATLAB(visual, ...)
         call VimuxOpenRunner()
+        if a:visual
+            let start = line("'<")
+            let end = line("'>")
+        else
+            let start = line('.')
+            let end = a:1 ? line('.') + a:1 - 1 : start
+        endif
         call VimuxSendKeys("\<C-c>")
-        call VimuxSendText(substitute(getline('.'),';$',';;',''))
-        call VimuxSendKeys("\<CR>")
+        for line in range(start, end)
+            call VimuxSendText(substitute(getline(line),';$',';;',''))
+            call VimuxSendKeys("\<CR>")
+        endfor
     endfunc
     func! s:UpdateDictionaryMATLAB()
         call VimuxOpenRunner()
@@ -68,7 +77,8 @@ else
         call VimuxSendKeys("\<CR>")
         VimuxZoomRunner
     endfunc
-    nmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLineMATLAB()<CR>
+    nmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(0, v:count)<CR>
+    vmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
     nmap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
     nnor <silent> <buffer> <Leader>: :VimuxPromptCommand<CR><C-f>:set ft=matlab<CR>
 endif
