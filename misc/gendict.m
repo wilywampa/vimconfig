@@ -4,6 +4,8 @@ function gendict
 
     if ismac
         dict = '~/Documents/MATLAB/dict.m';
+    elseif ispc
+        dict = [getenv('USERPROFILE') '\Documents\MATLAB\dict.m'];
     else
         dict = '~/MATLAB/dict.m';
     end

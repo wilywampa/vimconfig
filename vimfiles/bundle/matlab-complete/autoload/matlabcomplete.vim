@@ -1,6 +1,9 @@
 if !exists('g:matlab_dict')
-  if has("mac")
+  if has("mac") || has("win16") || has("win32") || has("win64")
     let g:matlab_dict = expand('~/Documents/MATLAB/dict.m')
+  elseif system('echo $OSTYPE') =~ 'cygwin'
+    let g:matlab_dict =
+        \ system('cygpath -u "$USERPROFILE/Documents/MATLAB/dict.m" | tr -d \\n')
   else
     let g:matlab_dict = expand('~/MATLAB/dict.m')
   endif

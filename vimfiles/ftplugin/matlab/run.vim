@@ -36,10 +36,12 @@ elseif system('echo $OSTYPE') =~ 'cygwin'
         let l:cmds=l:cmds+['clear functions']
         call writefile(l:cmds,l:fname)
         exec 'silent !RunMATLAB `cygpath -w '.l:fname.'`'
+        redraw!
     endfunc
     func! s:UpdateDictionaryMATLAB()
         exec 'sil !RunMATLAB "'.g:matlab_path.'\gendict.m"'
         exec 'sil !RunMATLAB "'.g:matlab_path.'\clearfun.m"'
+        redraw!
     endfunc
 else
     func! s:RunMATLAB()
