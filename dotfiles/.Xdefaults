@@ -12,10 +12,12 @@ XTerm*cursorBlink: true
 XTerm*visualBell: true
 XTerm*visualBellDelay: 0
 XTerm*bellIsUrgent: true
+XTerm*scrollBar: false
 
-*VT100.allowWindowOps: true
-*VT100.allowTitleOps: true
-*VT100.allowFontOps: true
+*allowWindowOps: true
+*allowTitleOps: true
+*allowFontOps: true
+*allowTcapOps: true
 
 ! Solarized dark
 XTerm*background:             #002b36

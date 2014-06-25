@@ -210,6 +210,7 @@ EXEC 01;31  # Unix
 .C 32
 .cc 32
 .cpp 32
+.ino 32
 .cxx 32
 .objc 32
 .sh 32
@@ -346,6 +347,8 @@ EXEC 01;31  # Unix
 .pptx 31
 .fla 31
 .psd 31
+.elf 31
+.hex 31
 
 # Archives, compressed
 .7z   1;35

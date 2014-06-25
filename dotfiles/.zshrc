@@ -36,8 +36,9 @@ alias f='find . -type f'
 alias fin='find . -type f -iname'
 alias fn='find . -type f -name'
 alias fd='find . -type d'
+alias fdn='find . -type d -name'
 alias fmd='find . -maxdepth'
-alias loc='locate'
+alias loc='locate --regex'
 alias s="sed 's/.*/\"&\"/'"
 alias fs='f | s'
 alias fsg='fs | grep'
@@ -62,12 +63,12 @@ alias ec='echo'
 alias scrn='screen -R'
 alias tmx='tmux attach || tmux new'
 alias bell='echo -ne "\007"'
-alias ls='ls -h --color=auto'
-alias ll='ls -lsh'
+alias ls='ls -h --color=auto --sort=none'
+alias ll='ls -lsh --sort=none'
 alias lls='ls -lshrt'
 alias lla='ls -lshA --color=auto --sort=none'
-alias llas='ls -lshrtA --color=auto --sort=none'
-alias llsa='ls -lshrtA --color=auto --sort=none'
+alias llas='ls -lshrtA --color=auto'
+alias llsa='ls -lshrtA --color=auto'
 alias hist='history 1'
 alias csc='find . -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \
     | sed "s/.*/\"&\"/g" > csc.files ; cscope -R -b -i csc.files ; rm csc.files'
@@ -131,12 +132,10 @@ vi-last-line() {
     zle end-of-buffer-or-history
     zle vi-first-non-blank
 }
-zle -N vi-last-line
-bindkey -M vicmd 'G' vi-last-line
+zle -N vi-last-line; bindkey -M vicmd 'G' vi-last-line
 
 self-insert-no-autoremove() { LBUFFER="$LBUFFER$KEYS" }
-zle -N self-insert-no-autoremove
-bindkey '|' self-insert-no-autoremove
+zle -N self-insert-no-autoremove; bindkey '|' self-insert-no-autoremove
 
 #{{{1 Functions
 b2h() {
@@ -147,12 +146,12 @@ b2h() {
 
 bigdirs() {
     find . -type d -not -name "." -exec du -b {} + | sort -n \
-        | tail -n $(( $(tput lines) - 4 )) | b2h
+        | tail -n $(( $(tput lines) - 6 )) | b2h
 }
 
 bigfiles() {
     find . -type f -exec du -b {} + | sort -n \
-        | tail -n $(( $(tput lines) - 4 )) | b2h
+        | tail -n $(( $(tput lines) - 6 )) | b2h
 }
 
 cygyank() {
@@ -203,29 +202,30 @@ fi
 md() { mkdir -p "$@" && cd "$@" }
 
 rationalise-dot() { [[ $LBUFFER == *.. ]] && LBUFFER+=/.. || LBUFFER+=. }
-zle -N rationalise-dot
-bindkey . rationalise-dot
+zle -N rationalise-dot; bindkey . rationalise-dot
 bindkey -M isearch . self-insert
 
 force-logout() {
     zle vi-kill-line
     [[ -o login ]] && logout || exit
 }
-zle -N force-logout
-vibindkey '^D' force-logout
+zle -N force-logout; vibindkey '^D' force-logout
 
 fg-job() {
-    fg; zle reset-prompt; zle redisplay
-    tmux set-window -q automatic-rename on
+    fg
+    if [ $? ]; then
+        [[ -n $TMUX ]] && tmux set-window -q automatic-rename on
+        zle reset-prompt; zle redisplay
+    fi
 }
-zle -N fg-job; vibindkey '^Z' fg-job;
+zle -N fg-job; vibindkey '^Z' fg-job
 
 autoload -Uz add-zsh-hook
 # Ring bell after long commands finish
 if [[ -o interactive ]] && zmodload zsh/datetime; then
     zbell_duration=5
     zbell_ignore=(vi vim vims view vimdiff gvim gvims gview gvimdiff man \
-        more less e ez tmux tmx)
+        more less e ez tmux tmx matlab)
     zbell_timestamp=$EPOCHSECONDS
     zbell_begin() {
         zbell_timestamp=$EPOCHSECONDS
@@ -251,12 +251,18 @@ if [[ -o interactive ]] && zmodload zsh/datetime; then
 fi
 
 tmux-name-win() {
-    if [[ -n $TMUX ]] && [[ -z $(jobs) ]]; then
-        print -n "\033k/${${PWD/#$HOME/\~}##*/}/\033\\"
+    if [[ -n $TMUX ]] && [[ -z $(jobs) ]] && [[ -z $NOAUTONAME ]]; then
+        if [[ $(tmux display-message -p '#{window_panes}') == 1 ]]; then
+            print -n "\033k/${${PWD/#$HOME/\~}##*/}/\033\\"
+        fi
     fi
 }
 tmux-name-auto() {
-    [[ -n $TMUX ]] && tmux set-window -q automatic-rename on
+    if [[ -n $TMUX ]] && [[ -z $NOAUTONAME ]]; then
+        if [[ $(tmux display-message -p '#{window_panes}') == 1 ]]; then
+            tmux set-window -q automatic-rename on
+        fi
+    fi
 }
 add-zsh-hook precmd tmux-name-win
 add-zsh-hook preexec tmux-name-auto
@@ -417,6 +423,6 @@ RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
 
 #{{{1 Machine-specific settings
 
-source ~/.zshrclocal
+[[ -e ~/.zshrclocal ]] && source ~/.zshrclocal
 
 # vim: set fdm=marker fdl=1 et sw=4:

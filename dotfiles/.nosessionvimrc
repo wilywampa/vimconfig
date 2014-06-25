@@ -42,9 +42,20 @@ set dictionary=~/.tmuxwords_no_escape.zsh
 let g:neocomplete#sources#dictionary#dictionaries = { 'zsh' : '~/.tmuxwords_no_escape.zsh' }
 let g:neocomplete#use_vimproc = 0
 
-autocmd VimLeave * silent! call system('rm ~/.tmuxwords.zsh ~/.tmuxwords_no_escape.zsh')
-autocmd VimEnter * call SetupScrollback()
-func! SetupScrollback()
+autocmd VimLeave * call <SID>OnVimLeave()
+func! s:OnVimLeave()
+    call system('rm ~/.tmuxwords.zsh ~/.tmuxwords_no_escape.zsh')
+    redir => fileinfo
+    execute "normal! g\<C-g>"
+    redir END
+    let eol = line('.') == line('$') && col('.') == col('$')-1
+    redir! > ~/.curpos
+    echo substitute(fileinfo, '\v%(\_.*Byte\s)(\d+)%(\_.*)', '\=submatch(1)-1+eol', '')
+    redir END
+endfunc
+
+autocmd VimEnter * call <SID>SetupScrollback()
+func! s:SetupScrollback()
     if $TMUX != ""
         call neocomplete#init#enable()
         above split ~/.tmuxwords.zsh

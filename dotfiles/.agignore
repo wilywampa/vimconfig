@@ -1,6 +1,7 @@
 .git
 .svn
 tags
+tags_extern
 cscope.out
 .cache
 .cpan
