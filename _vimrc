@@ -414,10 +414,14 @@ no <expr> <C-d> (v:count ? "" : (winheight('.')) / 4 + 1)."\<C-d>"
 no <expr> <C-u> (v:count ? "" : (winheight('.')) / 4 + 1)."\<C-u>"
 
 " Highlight word without moving cursor
-nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
-nn <silent> <Leader>8 :let @/='\<'.expand('<cword>').'\>'<CR>:set hls<CR>
-nn <silent> <Leader>g* :let @/=expand('<cword>')<CR>:set hls<CR>
-nn <silent> <Leader>g8 :let @/=expand('<cword>')<CR>:set hls<CR>
+nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>
+    \:call histadd('/', @/)<CR>:set hls<CR>
+nn <silent> <Leader>8 :let @/='\<'.expand('<cword>').'\>'<CR>
+    \:call histadd('/', @/)<CR>:set hls<CR>
+nn <silent> <Leader>g* :let @/=expand('<cword>')<CR>
+    \:call histadd('/', @/)<CR>:set hls<CR>
+nn <silent> <Leader>g8 :let @/=expand('<cword>')<CR>
+    \:call histadd('/', @/)<CR>:set hls<CR>
 
 " Use 'very magic' regex by default
 nn / /\v
@@ -653,6 +657,7 @@ func! s:SearchWholeWord(dir)
     else
         let @/='\<\('.@/.'\)\>'
     endif
+    call histadd('/', @/)
     echo a:dir.@/
 endfunc
 nn <silent> <Leader>n :call <SID>SearchWholeWord('/')<CR>n
