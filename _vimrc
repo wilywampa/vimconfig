@@ -220,6 +220,8 @@ endif
 nn <silent> ,ea :<C-u>edit ~/.vim/after/plugin/after.vim<CR>
 nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>
 nn <silent> ,ec :<C-u>edit ~/.cshrc<CR>
+nn <silent> ,eh :<C-u>edit ~/.histfile<CR>
+nn <silent> ,el :<C-u>edit ~/.zshrclocal<CR>
 nn <silent> ,es :<C-u>edit ~/.screenrc<CR>
 nn <silent> ,et :<C-u>edit ~/.tmux.conf<CR>
 nn <silent> ,ev :<C-u>edit $MYVIMRC<CR>
@@ -452,6 +454,9 @@ nn <silent> <F5> :update<CR>:make<CR><CR>
 " Cycle through previous searches
 nn <expr> <C-k> (g:inCmdwin? '' : 'q/'.v:count1)."k:let @/=getline('.')<CR>"
 nn <expr> <C-j> (g:inCmdwin? '' : 'q/'.v:count1)."j:let @/=getline('.')<CR>"
+
+" Don't open fold when jumping to first line in diff mode
+nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -784,6 +789,14 @@ else
     map! <F13> <C-Up>
     map! <F14> <C-Down>
 
+    " Shifted function key codes
+    exe "set <S-F1>=\e[25~"    | exe "set <S-F2>=\e[26~"
+    exe "set <S-F3>=\e[28~"    | exe "set <S-F4>=\e[29~"
+    exe "set <S-F5>=\e[31~"    | exe "set <S-F6>=\e[32~"
+    exe "set <S-F7>=\e[33~"    | exe "set <S-F8>=\e[34~"
+    exe "set <S-F9>=\e[20;2~"  | exe "set <S-F10>=\e[21;2~"
+    exe "set <S-F11>=\e[23;2~" | exe "set <S-F12>=\e[24;2~"
+
     " Change tab in XTerm
     "         <C-Tab>              <C-S-Tab>
     exec "set <F15>=\<Esc>[27;5;9~ <F16>=\<Esc>[27;6;9~"
@@ -868,6 +881,9 @@ augroup VimrcAutocmds
         \ endif
     autocmd BufWinEnter * if exists('b:do_unfold') |
         \ exe "normal! zv" | unlet b:do_unfold | endif
+
+    " Fix help buftype after loading session
+    autocmd SessionLoadPost *.txt if &filetype == 'help' | set buftype=help | endif
 augroup END
 
 " {{{1 Plugin configuration
@@ -926,6 +942,7 @@ nnoremap <silent> <Leader>t :sil! call <SID>TagbarToggle()<CR>
 let g:tagbar_iconchars=['▶','▼']
 let g:tagbar_sort=0
 let g:tagbar_autofocus=1
+let g:tagbar_map_showproto='r'
 
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
