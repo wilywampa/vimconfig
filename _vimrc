@@ -25,7 +25,6 @@ set hlsearch                    " Highlight search terms
 set incsearch                   " Incremental searching
 set ignorecase                  " Make search case-insensitive and smart
 set smartcase
-set showcmd                     " Show information about running command
 set showmode                    " Show current mode
 set nrformats-=octal            " Don't treat numbers as octal when incrementing/decrementing
 set shortmess+=t                " Truncate filenames in messages when necessary
@@ -61,6 +60,9 @@ sil! set clipboard+=unnamedplus
 set mouse=                      " Disable mouse integration
 set cmdwinheight=15             " Increase command window height
 sil! set showbreak=↪            " Show character at start of wrapped lines
+
+" Ignore system files
+set wildignore=*.a,*.reg,*.lib,*.spi,*.sys,*.dll,*.inf,*.so,*.dat
 
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
@@ -884,6 +886,9 @@ augroup VimrcAutocmds
 
     " Fix help buftype after loading session
     autocmd SessionLoadPost *.txt if &filetype == 'help' | set buftype=help | endif
+
+    " showcmd causes Vim to start in replace mode sometimes
+    autocmd VimEnter * set showcmd
 augroup END
 
 " {{{1 Plugin configuration
@@ -1076,11 +1081,16 @@ let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
 augroup VimrcAutocmds
     autocmd VimEnter * sil! call unite#filters#matcher_default#use(['matcher_regexp'])
-    autocmd FileType unite setl conceallevel=0
-    autocmd FileType unite call <SID>UniteMaps()
+    autocmd FileType unite call <SID>UniteSettings()
     autocmd CursorHold * silent! call unite#sources#history_yank#_append()
 augroup END
-func! s:UniteMaps()
+func! s:UniteSettings()
+    setlocal conceallevel=0
+    autocmd CursorMoved,CursorMovedI,BufEnter <buffer>
+        \ if exists('b:match') |
+        \     silent! call matchdelete(b:match) |
+        \ endif |
+        \ let b:match = matchadd('Search', (@/=~#'\\\@<!\u'?"":'\c').@/, 9999)
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
         \."\<Plug>(unite_append_enter)"
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
@@ -1119,7 +1129,7 @@ func! s:UniteMaps()
     nmap <buffer> m <Plug>(unite_toggle_mark_current_candidate)
     nmap <buffer> M <Plug>(unite_toggle_mark_current_candidate_up)
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
-    nnor <buffer>  S gg$S
+    nmap <buffer>  S A<C-u>
     sil! nunmap <buffer> ?
 endfunc
 nn <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>

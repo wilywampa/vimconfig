@@ -170,30 +170,14 @@ else
 }
 Return
 
-; Activate/minimize XTerm
+; Activate XTerm
 $#2::
 SetTitleMatchMode, 3
 Process, Exist, xterm.exe
 if !ErrorLevel = 0
 {
-    IfWinActive, xterm
-    {
-        WinGet MMX, MinMax, xterm
-        If MMX = 1
-        {
-            WinMinimize
-        }
-        Else
-        {
-            WinMaximize
-        }
-        Return
-    }
-    else
-    {
-        WinActivate, xterm
-        WinMaximize
-    }
+    WinActivateBottom, xterm
+    WinMaximize, xterm
 }
 else
 {
@@ -223,6 +207,18 @@ else
     SendInput tmx{Enter}
 }
 Return
+
+; Minimize XTerm
+$#+2::
+SetTitleMatchMode, 3
+Process, Exist, xterm.exe
+if !ErrorLevel = 0
+{
+    IfWinActive, xterm
+    {
+        WinMinimize, xterm
+    }
+}
 
 ; Shut down if Battlefield is open
 Loop

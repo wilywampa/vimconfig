@@ -114,6 +114,8 @@ function! Return_key ()
       execute "normal! \<CR>"
       nnoremap <silent> <CR> :call Return_key()<CR>
     endif
+  elseif foldclosed(line('.'))
+    normal! zo
   else
     if col('.') == strlen(getline('.')) && getline('.')[col('.')-2] !~ '\s'
       execute "normal! a\<CR>\<ESC>k"
@@ -122,7 +124,7 @@ function! Return_key ()
     endif
     sil!s/\s\+$\|\v$t^//g
     call histdel('/','\V$t^')
-    execute "normal! j^"
+    normal! j^
   endif
 
 endfunction
