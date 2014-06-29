@@ -1,0 +1,3 @@
+#!/bin/bash
+file=$(cygpath -ua "$@")
+vim --servername VIM --remote "$file"
