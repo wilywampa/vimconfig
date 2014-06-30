@@ -114,7 +114,7 @@ function! Return_key ()
       execute "normal! \<CR>"
       nnoremap <silent> <CR> :call Return_key()<CR>
     endif
-  elseif foldclosed(line('.'))
+  elseif foldclosed(line('.')) > 0
     normal! zo
   else
     if col('.') == strlen(getline('.')) && getline('.')[col('.')-2] !~ '\s'

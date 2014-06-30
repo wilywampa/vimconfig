@@ -94,23 +94,31 @@ xnoremap <silent> a} :<C-u>call <SID>SelectTextObject('B','a')<CR>
 
 onoremap <silent> i[ :<C-u>call <SID>SelectTextObject('[','i')<CR>
 onoremap <silent> i] :<C-u>call <SID>SelectTextObject('[','i')<CR>
+onoremap <silent> ir :<C-u>call <SID>SelectTextObject('[','i')<CR>
 onoremap <silent> a[ :<C-u>call <SID>SelectTextObject('[','a')<CR>
 onoremap <silent> a] :<C-u>call <SID>SelectTextObject('[','a')<CR>
+onoremap <silent> ar :<C-u>call <SID>SelectTextObject('[','a')<CR>
 
 xnoremap <silent> i[ :<C-u>call <SID>SelectTextObject('[','i')<CR>
 xnoremap <silent> i] :<C-u>call <SID>SelectTextObject('[','i')<CR>
+xnoremap <silent> ir :<C-u>call <SID>SelectTextObject('[','i')<CR>
 xnoremap <silent> a[ :<C-u>call <SID>SelectTextObject('[','a')<CR>
 xnoremap <silent> a] :<C-u>call <SID>SelectTextObject('[','a')<CR>
+xnoremap <silent> ar :<C-u>call <SID>SelectTextObject('[','a')<CR>
 
 onoremap <silent> i< :<C-u>call <SID>SelectTextObject('<','i')<CR>
 onoremap <silent> i> :<C-u>call <SID>SelectTextObject('<','i')<CR>
+onoremap <silent> ia :<C-u>call <SID>SelectTextObject('<','i')<CR>
 onoremap <silent> a< :<C-u>call <SID>SelectTextObject('<','a')<CR>
 onoremap <silent> a> :<C-u>call <SID>SelectTextObject('<','a')<CR>
+onoremap <silent> aa :<C-u>call <SID>SelectTextObject('<','a')<CR>
 
 xnoremap <silent> i< :<C-u>call <SID>SelectTextObject('<','i')<CR>
 xnoremap <silent> i> :<C-u>call <SID>SelectTextObject('<','i')<CR>
+xnoremap <silent> ia :<C-u>call <SID>SelectTextObject('<','i')<CR>
 xnoremap <silent> a< :<C-u>call <SID>SelectTextObject('<','a')<CR>
 xnoremap <silent> a> :<C-u>call <SID>SelectTextObject('<','a')<CR>
+xnoremap <silent> aa :<C-u>call <SID>SelectTextObject('<','a')<CR>
 
 func! s:SelectTextObjectQuote(obj,motion)
   if getline('.') !~ a:obj.".*".a:obj

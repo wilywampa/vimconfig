@@ -47,6 +47,7 @@ function! s:Bclose(bang, buffer)
     execute w.'wincmd w'
     let prevbuf = bufnr('#')
     if prevbuf > 0 && buflisted(prevbuf) && prevbuf != w
+        \ && getbufvar(bufnr('#'), '&buftype') != 'quickfix'
       buffer #
     else
       silent! bprevious
@@ -65,7 +66,9 @@ function! s:Bclose(bang, buffer)
       endif
     endif
   endfor
-  execute 'bdelete'.a:bang.' '.btarget
+  if buflisted(btarget)
+    execute 'bdelete'.a:bang.' '.btarget
+  endif
   execute wcurrent.'wincmd w'
 endfunction
 command! -bang -complete=buffer -nargs=? Bclose call s:Bclose('<bang>', '<args>')

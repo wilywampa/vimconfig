@@ -454,8 +454,8 @@ nn <C-w><C-f> :execute "vsplit ".expand('<cfile>')<CR>
 nn <silent> <F5> :update<CR>:make<CR><CR>
 
 " Cycle through previous searches
-nn <expr> <C-k> (g:inCmdwin? '' : 'q/'.v:count1)."k:let @/=getline('.')<CR>"
-nn <expr> <C-j> (g:inCmdwin? '' : 'q/'.v:count1)."j:let @/=getline('.')<CR>"
+nn <silent> <expr> <C-k> (g:inCmdwin? '' : 'q/'.v:count1)."k:let @/=getline('.')<CR>"
+nn <silent> <expr> <C-j> (g:inCmdwin? '' : 'q/'.v:count1)."j:let @/=getline('.')<CR>"
 
 " Don't open fold when jumping to first line in diff mode
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")

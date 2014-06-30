@@ -57,7 +57,7 @@ function! s:NextTextObject(motion, dir)
         let c = "{"
     elseif c ==# "r" || c ==# "[" || c ==# "]"
         let c = "["
-    elseif c ==# "<" || c ==# ">"
+    elseif c ==# "a" || c ==# "<" || c ==# ">"
         let c = "<"
     elseif c ==# "'"
         let c = "'"
