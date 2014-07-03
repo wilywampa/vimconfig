@@ -50,7 +50,6 @@ set ttimeoutlen=50
 set laststatus=2                " Always show statusline
 set keywordprg=:help            " Use Vim help instead of man to look up keywords
 set splitright                  " Vertical splits open on the right
-set splitbelow                  " Horizontal splits open on the bottom
 set fileformats=unix,dos        " Always prefer unix format
 sil! set fileformat=unix
 set csqf=s-,c-,d-,i-,t-,e-      " Use quickfix list for cscope results
@@ -180,6 +179,9 @@ else
     else
         " Explore to current file from Cygwin vim
         nnoremap <silent> <F4> :call system('cygstart explorer /select,`cygpath -w "'.expand('%:p').'"`')<CR>
+
+        " Use cygstart to open links
+        let g:netrw_browsex_viewer = "cygstart"
     endif
 
     let s:hasvimtools=filereadable(expand("$HOME/.vim/autoload/vimtools.vim"))
@@ -295,6 +297,7 @@ nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 
 " Copy full file path to clipboard on Ctrl-g
 nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>:let @*=@+<CR>:let @"=@+<CR>
+nn <silent> g<C-g> g<C-g>:let @+=expand('%:p:h')<CR>:let @*=@+<CR>:let @"=@+<CR>
 
 " Change tab position
 nn <silent> <C-w><C-e>     :tabm<CR>
@@ -781,7 +784,7 @@ if has('gui_running')
         set guioptions-=e
 
         " Set font for gVim
-        set guifont=Source\ Code\ Pro\ for\ Powerline\ Medium\ 11.5
+        set guifont=Source\ Code\ Pro\ for\ Powerline\ Medium\ 9
     endif
 else
     " Make control + arrow keys work in terminal
@@ -967,55 +970,57 @@ let g:commentary_map_backslash=0
 if has('lua')
     call add(g:pathogen_disabled, 'supertab')
 
-    " NeoComplete settings
-    let g:neocomplete#enable_at_startup=1
-    let g:neocomplete#enable_smart_case=1
-    let g:neocomplete#max_list=200
-    let g:neocomplete#min_keyword_length=3
-    let g:neocomplete#enable_refresh_always=1
-    let g:neocomplete#sources#buffer#cache_limit_size=3000000
-    let g:tmuxcomplete#trigger=''
-    if !exists('g:neocomplete#same_filetypes')
-        let g:neocomplete#same_filetypes={}
-    endif
-    let g:neocomplete#same_filetypes._='_'
-    if !exists('g:neocomplete#force_omni_input_patterns')
-        let g:neocomplete#force_omni_input_patterns={}
-    endif
-    let g:neocomplete#force_omni_input_patterns.matlab='\h\w*\(\.\((''\)\?\w*\)\+'
-    if !exists('g:neocomplete#keyword_patterns')
-        let g:neocomplete#keyword_patterns = {}
-    endif
-    let g:neocomplete#keyword_patterns.matlab = '\h\(\w\|\.\|(''\)*'
-    func! s:StartManualComplete(dir)
-        " Indent if only whitespace behind cursor
-        if getline('.')[col('.')-2] =~ '\S'
-            return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
-                \: neocomplete#start_manual_complete()
-        else
-            return a:dir ? "\<Tab>" : "\<BS>"
+    if !s:readonly
+        " NeoComplete settings
+        let g:neocomplete#enable_at_startup=1
+        let g:neocomplete#enable_smart_case=1
+        let g:neocomplete#max_list=200
+        let g:neocomplete#min_keyword_length=3
+        let g:neocomplete#enable_refresh_always=1
+        let g:neocomplete#sources#buffer#cache_limit_size=3000000
+        let g:tmuxcomplete#trigger=''
+        if !exists('g:neocomplete#same_filetypes')
+            let g:neocomplete#same_filetypes={}
         endif
-    endfunc
-    inoremap <expr> <Tab>   <SID>StartManualComplete(1)
-    inoremap <expr> <S-Tab> <SID>StartManualComplete(0)
-    inoremap <expr> <CR>    neocomplete#close_popup()."\<C-g>u\<CR>"
-    inoremap <expr> <C-e>   neocomplete#close_popup()
-    imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
-        \"\<Plug>(neosnippet_expand_or_jump)":
-        \neocomplete#close_popup()
-    inoremap <expr> <C-f>   neocomplete#cancel_popup()
-    inoremap <expr> <C-l>   neocomplete#complete_common_string()
-    if !exists('g:neocomplete#sources')
-        let g:neocomplete#sources={}
+        let g:neocomplete#same_filetypes._='_'
+        if !exists('g:neocomplete#force_omni_input_patterns')
+            let g:neocomplete#force_omni_input_patterns={}
+        endif
+        let g:neocomplete#force_omni_input_patterns.matlab='\h\w*\(\.\((''\)\?\w*\)\+'
+        if !exists('g:neocomplete#keyword_patterns')
+            let g:neocomplete#keyword_patterns = {}
+        endif
+        let g:neocomplete#keyword_patterns.matlab = '\h\(\w\|\.\|(''\)*'
+        func! s:StartManualComplete(dir)
+            " Indent if only whitespace behind cursor
+            if getline('.')[col('.')-2] =~ '\S'
+                return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
+                    \: neocomplete#start_manual_complete()
+            else
+                return a:dir ? "\<Tab>" : "\<BS>"
+            endif
+        endfunc
+        inoremap <expr> <Tab>   <SID>StartManualComplete(1)
+        inoremap <expr> <S-Tab> <SID>StartManualComplete(0)
+        inoremap <expr> <CR>    neocomplete#close_popup()."\<C-g>u\<CR>"
+        inoremap <expr> <C-e>   neocomplete#close_popup()
+        imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
+            \"\<Plug>(neosnippet_expand_or_jump)":
+            \neocomplete#close_popup()
+        inoremap <expr> <C-f>   neocomplete#cancel_popup()
+        inoremap <expr> <C-l>   neocomplete#complete_common_string()
+        if !exists('g:neocomplete#sources')
+            let g:neocomplete#sources={}
+        endif
+        let g:neocomplete#sources._=['_']
+        augroup VimrcAutocmds
+            autocmd CmdwinEnter * inoremap <buffer> <expr> <Tab>
+                \ pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
+            autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab>
+                \ pumvisible() ? "\<C-p>" : neocomplete#start_manual_complete()
+            autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
+        augroup END
     endif
-    let g:neocomplete#sources._=['_']
-    augroup VimrcAutocmds
-        autocmd CmdwinEnter * inoremap <buffer> <expr> <Tab>   pumvisible() ? "\<C-n>"
-            \ : neocomplete#start_manual_complete()
-        autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab> pumvisible() ? "\<C-p>"
-            \ : neocomplete#start_manual_complete()
-        autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
-    augroup END
 else
     call add(g:pathogen_disabled, 'neocomplete')
     let g:SuperTabDefaultCompletionType="context"
@@ -1048,6 +1053,7 @@ let g:vimfiler_tree_opened_icon='▼'
 let g:vimfiler_tree_closed_icon='▶'
 let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_restore_alternate_file=1
+let g:vimfiler_ignore_pattern='^\.\|\.[do]$'
 autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
 func! s:VimfilerSettings()
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
@@ -1130,6 +1136,8 @@ func! s:UniteSettings()
     nmap <buffer> M <Plug>(unite_toggle_mark_current_candidate_up)
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
     nmap <buffer>  S A<C-u>
+    imap <buffer> <C-Space> <Plug>(unite_toggle_mark_current_candidate)
+    imap <buffer> <Nul> <Plug>(unite_toggle_mark_current_candidate)
     sil! nunmap <buffer> ?
 endfunc
 nn <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>
@@ -1147,6 +1155,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ ? "buffers/" : "")."neomru ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
 nnoremap <silent> <Leader>w :ccl\|lcl\|sil! UniteClose<CR>
+nnoremap <silent> ,u :UniteResume<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch()
     if s:UnitePathSearchMode
@@ -1212,6 +1221,10 @@ nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
 nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
 nnoremap <silent> @\ :<C-u>VimuxRunLastCommand<CR>
 nnoremap <silent> @\| :<C-u>VimuxRunLastCommand<CR>
+nnoremap <silent> <Leader>bb :call
+    \ VimuxRunCommand('break '.expand('%:t').':'.line('.'))<CR>
+nnoremap <silent> <Leader>bc :call
+    \ VimuxRunCommand('clear '.expand('%:t').':'.line('.'))<CR>
 
 " Targets settings
 let g:targets_aiAI = 'ai  '

@@ -3,7 +3,7 @@ if [[ -z "$SOLARIZED_TOGGLE" ]]; then
 fi
 
 if [ $SOLARIZED_TOGGLE = "1" ]; then
-  xtermcontrol --bg='#002b36' --fg='#839496' --cursor='#93a1a1' \
+  xtermcontrol --bg='#012833' --fg='#839496' --cursor='#93a1a1' \
     --mouse-bg='#586e75' --mouse-fg='#93a1a1' --highlight='#000000'
   export SOLARIZED_TOGGLE=0
   >~/.vim/after/bg.vim <<< 'set background=dark'

@@ -117,7 +117,9 @@ function! Return_key ()
   elseif foldclosed(line('.')) > 0
     normal! zo
   else
-    if col('.') == strlen(getline('.')) && getline('.')[col('.')-2] !~ '\s'
+    let line = getline('.')
+    if col('.') == strlen(line) && line[col('.')-2] !~ '\s'
+        \ && line[len(line)-1] !~ '\m[[{(<''"]'
       execute "normal! a\<CR>\<ESC>k"
     else
       execute "normal! i\<CR>\<ESC>k"
