@@ -66,6 +66,9 @@ set wildignore=*.a,*.reg,*.lib,*.spi,*.sys,*.dll,*.inf,*.so,*.dat
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
 
+" Get return code from make command in v:shell_error
+set shellpipe=2>&1\ \|\ tee\ %s;exit\ \${pipestatus[1]}
+
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
 
@@ -858,7 +861,7 @@ augroup VimrcAutocmds
     autocmd InsertLeave * set nopaste
 
     " Open quickfix window automatically if not empty
-    autocmd QuickFixCmdPost * cw
+    autocmd QuickFixCmdPost * cw | if v:shell_error | echoerr 'Make failed' | endif
 
     " Always make quickfix full-width on the bottom
     autocmd FileType qf wincmd J

@@ -74,8 +74,12 @@ function! s:Vitality() " {{{
     " Trust me, you don't want to go down this rabbit hole.  Just keep them in
     " this order and no one gets hurt.
     if g:vitality_fix_focus
-        let &t_ti = enable_focus_reporting . save_screen
-        let &t_te = disable_focus_reporting . restore_screen
+        let s:t_ti_save = &t_ti
+        let s:t_te_save = &t_te
+        let s:t_ti = enable_focus_reporting . save_screen
+        let s:t_te = disable_focus_reporting . restore_screen
+        let &t_ti = s:t_ti
+        let &t_te = s:t_te
     endif
 
     " }}}
@@ -141,6 +145,22 @@ function s:DoCmdFocusGained()
     return cmd
 endfunction
 
+function s:DisableFocusEvents()
+    let &t_ti = s:t_ti_save
+    let &t_te = s:t_te_save
+endfunction
+
+function s:EnableFocusEvents()
+    let &t_ti = s:t_ti
+    let &t_te = s:t_te
+endfunction
+
 if s:inside_iterm
     call s:Vitality()
+
+    augroup vitality
+        autocmd!
+        autocmd QuickFixCmdPre  * call <SID>DisableFocusEvents()
+        autocmd QuickFixCmdPost * call <SID>EnableFocusEvents()
+    augroup END
 endif
