@@ -229,6 +229,7 @@ nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>
 nn <silent> ,ec :<C-u>edit ~/.cshrc<CR>
 nn <silent> ,eh :<C-u>edit ~/.histfile<CR>
 nn <silent> ,el :<C-u>edit ~/.zshrclocal<CR>
+nn <silent> ,em :<C-u>edit ~/.minttyrc<CR>
 nn <silent> ,es :<C-u>edit ~/.screenrc<CR>
 nn <silent> ,et :<C-u>edit ~/.tmux.conf<CR>
 nn <silent> ,ev :<C-u>edit $MYVIMRC<CR>
@@ -1010,6 +1011,7 @@ if has('lua')
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
             \"\<Plug>(neosnippet_expand_or_jump)":
             \neocomplete#close_popup()
+        smap <C-d> <Plug>(neosnippet_jump_or_expand)
         inoremap <expr> <C-f>   neocomplete#cancel_popup()
         inoremap <expr> <C-l>   neocomplete#complete_common_string()
         if !exists('g:neocomplete#sources')
