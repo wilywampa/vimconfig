@@ -11,9 +11,9 @@ int main(int argc, char const* argv[])
 
     const char *args[] = {"cygvim_wrapper", argv[1], NULL};
 
-    spawnve(_P_NOWAIT, "cygvim_wrapper",
-            (const char *const *)args,
-            (const char *const *)env);
+    spawnvpe(_P_NOWAIT, "cygvim_wrapper",
+             (const char *const *)args,
+             (const char *const *)env);
 
     return 0;
 }
