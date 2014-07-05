@@ -1125,6 +1125,10 @@ func! s:UniteSettings()
     imap <buffer> <expr> <C-o><C-o> unite#do_action('view')
     imap <buffer> <expr> <C-o>r     unite#do_action('open')
     imap <buffer> <expr> <C-o><C-r> unite#do_action('open')
+    nmap <buffer> <expr> ` b:unite['profile_name'] == 'source/grep'
+        \ ? ':call <SID>LastActiveWindow()<CR>'
+        \ : '<Plug>(unite_exit)'
+    imap <buffer> <expr> ` '<Plug>(unite_exit)'
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
     inor <buffer> <C-f> <C-o><C-d>
@@ -1133,8 +1137,6 @@ func! s:UniteSettings()
     imap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
     imap <buffer> <C-j> <Plug>(unite_select_next_line)
     imap <buffer> <C-k> <Plug>(unite_select_previous_line)
-    nmap <buffer> ` <Plug>(unite_exit)
-    imap <buffer> ` <Plug>(unite_exit)
     nmap <buffer> <C-c> <Plug>(unite_exit)
     imap <buffer> <C-c> <Plug>(unite_exit)
     nmap <buffer> m <Plug>(unite_toggle_mark_current_candidate)

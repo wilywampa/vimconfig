@@ -8,7 +8,7 @@ int main()
 
     if (pwr.BatteryFlag & 8)
         printf("⚡");
-    else if (pwr.BatteryFlag & 1)
+    else if (pwr.BatteryFlag & 1 && pwr.BatteryLifePercent >= 95)
         printf("✓");
 
     printf("%d%%", pwr.BatteryLifePercent);
