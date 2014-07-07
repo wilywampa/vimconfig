@@ -46,7 +46,7 @@ function! s:Bclose(bang, buffer)
   for w in wnums
     execute w.'wincmd w'
     let prevbuf = bufnr('#')
-    if prevbuf > 0 && buflisted(prevbuf) && prevbuf != w
+    if prevbuf > 0 && buflisted(prevbuf)
         \ && getbufvar(bufnr('#'), '&buftype') != 'quickfix'
       buffer #
     else
