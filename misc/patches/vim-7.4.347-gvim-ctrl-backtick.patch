@@ -1,0 +1,53 @@
+diff --git a/gui_gtk_x11.c b/gui_gtk_x11.c
+index 0be60ad..f24d997 100644
+--- a/gui_gtk_x11.c
++++ b/gui_gtk_x11.c
+@@ -732,10 +732,7 @@ blink_cb(gpointer data UNUSED)
+ gui_mch_start_blink(void)
+ {
+     if (blink_timer)
+-    {
+ 	gtk_timeout_remove(blink_timer);
+-	blink_timer = 0;
+-    }
+     /* Only switch blinking on if none of the times is zero */
+     if (blink_waittime && blink_ontime && blink_offtime && gui.in_focus)
+     {
+@@ -829,7 +826,9 @@ keyval_to_string(unsigned int keyval, unsigned int state, char_u *string)
+ 	     * resemble quite exactly the behaviour of the GTK+ 1.2 GUI on my
+ 	     * machine.  The only difference is BS vs. DEL for CTRL-8 (makes
+ 	     * more sense and is consistent with usual terminal behaviour). */
+-	    if (uc >= '@')
++	    if (uc == '`')
++		string[0] = Ctrl_HAT;
++	    else if (uc >= '@')
+ 		string[0] = uc & 0x1F;
+ 	    else if (uc == '2')
+ 		string[0] = NUL;
+@@ -2054,7 +2053,6 @@ write_session_file(char_u *filename)
+ 
+     ssop_flags = save_ssop_flags;
+     g_free(mksession_cmdline);
+-
+     /*
+      * Reopen the file and append a command to restore v:this_session,
+      * as if this save never happened.	This is to avoid conflicts with
+@@ -3143,14 +3141,10 @@ gui_mch_init(void)
+ 	gnome_program_init(VIMPACKAGE, VIM_VERSION_SHORT,
+ 			   LIBGNOMEUI_MODULE, gui_argc, gui_argv, NULL);
+ # if defined(FEAT_FLOAT) && defined(LC_NUMERIC)
+-	{
+-	    char *p = setlocale(LC_NUMERIC, NULL);
+-
+-	    /* Make sure strtod() uses a decimal point, not a comma. Gnome
+-	     * init may change it. */
+-	    if (p == NULL || strcmp(p, "C") != 0)
+-	       setlocale(LC_NUMERIC, "C");
+-	}
++	/* Make sure strtod() uses a decimal point, not a comma. Gnome init
++	 * may change it. */
++	if (setlocale(LC_NUMERIC, NULL) != (char *) "C")
++	   setlocale(LC_NUMERIC, "C");
+ # endif
+     }
+ #endif
