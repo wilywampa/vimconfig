@@ -1,0 +1,39 @@
+diff --git a/Users/jniehus/a/ls.c b/Users/jniehus/b/ls.c
+index e7d1d93..a2f67bc 100644
+--- a/Users/jniehus/a/ls.c
++++ b/Users/jniehus/b/ls.c
+@@ -58,6 +58,8 @@
+ #include <selinux/selinux.h>
+ #include <wchar.h>
+ 
++#include <sys/xattr.h>
++
+ #if HAVE_LANGINFO_CODESET
+ # include <langinfo.h>
+ #endif
+@@ -3055,6 +3057,7 @@ gobble_file (char const *name, enum filetype type, ino_t inode,
+                             ? ACL_T_SELINUX_ONLY
+                             : ACL_T_YES));
+           any_has_acl |= f->acl_type != ACL_T_NONE;
++          any_has_acl |= listxattr(f->name, NULL, 0, XATTR_NOFOLLOW);
+ 
+           if (err)
+             error (0, errno, "%s", quotearg_colon (absolute_name));
+@@ -3810,6 +3813,8 @@ print_long_format (const struct fileinfo *f)
+     }
+   if (! any_has_acl)
+     modebuf[10] = '\0';
++  else if (listxattr(f->name, NULL, 0, XATTR_NOFOLLOW) > 0)
++    modebuf[10] = '@';
+   else if (f->acl_type == ACL_T_SELINUX_ONLY)
+     modebuf[10] = '.';
+   else if (f->acl_type == ACL_T_YES)
+@@ -4370,7 +4375,7 @@ print_color_indicator (const struct fileinfo *f, bool symlink_target)
+ 
+   /* Check the file's suffix only if still classified as C_FILE.  */
+   ext = NULL;
+-  if (type == C_FILE)
++  if (type == C_FILE || type == C_DIR)
+     {
+       /* Test if NAME has a recognized suffix.  */
+ 
