@@ -938,19 +938,7 @@ nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
 " Tagbar configuration
-" Don't use Tagbar integration in airline until needed
-if !exists('g:initialized_tagbar')
-    sil! let g:airline_section_x='%{&ft}'
-endif
-func! s:TagbarToggle()
-    if !exists('g:initialized_tagbar')
-        call TagbarInit()
-        let g:airline_section_x=airline#section#create_right(['tagbar', 'filetype'])
-        exe 'AirlineToggle' | exe 'AirlineToggle'
-    endif
-    TagbarToggle
-endfunc
-nnoremap <silent> <Leader>t :sil! call <SID>TagbarToggle()<CR>
+nnoremap <silent> <Leader>t :TagbarToggle<CR>
 let g:tagbar_iconchars=['▶','▼']
 let g:tagbar_sort=0
 let g:tagbar_autofocus=1
