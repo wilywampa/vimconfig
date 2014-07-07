@@ -218,6 +218,7 @@ EXEC 01;31  # Unix
 .zsh 32
 .el 32
 .vim 32
+.vis 32
 .java 32
 .pl 32
 .pm 32
@@ -254,6 +255,23 @@ EXEC 01;31  # Unix
 .p 32
 .pod 32
 .tex 32
+
+# Dotfiles
+.zshrc 32
+.bashrc 32
+.cshrc 32
+.histfile 32
+.zshrclocal 32
+.minttyrc 32
+.screenrc 32
+.tmux.conf 32
+.Xdefaults 32
+.zshrc 32
+.histfile 32
+.agignore 32
+.dircolors 32
+.gitconfig 32
+.nosessionvimrc 32
 
 ### Multimedia formats
 

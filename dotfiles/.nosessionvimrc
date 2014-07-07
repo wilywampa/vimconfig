@@ -35,10 +35,12 @@ source ~/.vimrc
 set noshowcmd
 imap <C-s> <Nul>ZA
 nmap <C-s> ZA
+nmap ZZ ZA
 let g:loaded_vitality = 1
 
 set complete+=k
 set dictionary=~/.tmuxwords_no_escape.zsh
+set wrap
 let g:neocomplete#sources#dictionary#dictionaries = { 'zsh' : '~/.tmuxwords_no_escape.zsh' }
 let g:neocomplete#use_vimproc = 0
 

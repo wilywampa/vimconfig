@@ -39,6 +39,7 @@ alias fd='find . -type d'
 alias fdn='find . -type d -name'
 alias fmd='find . -maxdepth'
 alias loc='locate --regex'
+alias locate='locate --regex'
 alias s="sed 's/.*/\"&\"/'"
 alias fs='f | s'
 alias fsg='fs | grep'
@@ -78,6 +79,7 @@ alias a='ag'
 alias awkp2="awk '{print \$2}'"
 alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .'
 alias so='source'
+alias wh='whence'
 
 #{{{1 Global aliases
 alias -g LL='ls -lshrtA'
@@ -124,15 +126,18 @@ bindkey '^R' history-incremental-search-backward
 bindkey '^S' history-incremental-search-forward
 bindkey -M isearch '^E' accept-search
 bindkey -M isearch '^M' accept-search
+bindkey -M isearch '^[' accept-search
 # Ctrl + arrow keys
-bindkey '^[[1;5C' forward-word
-bindkey '^[[1;5D' backward-word
+vibindkey '^[[1;5A' up-line-or-beginning-search
+vibindkey '^[[1;5B' down-line-or-beginning-search
+vibindkey '^[[1;5C' forward-word
+vibindkey '^[[1;5D' backward-word
 
-vi-last-line() {
+_vi-last-line() {
     zle end-of-buffer-or-history
     zle vi-first-non-blank
 }
-zle -N vi-last-line; bindkey -M vicmd 'G' vi-last-line
+zle -N _vi-last-line; bindkey -M vicmd 'G' _vi-last-line
 
 self-insert-no-autoremove() { LBUFFER="$LBUFFER$KEYS" }
 zle -N self-insert-no-autoremove; bindkey '|' self-insert-no-autoremove
@@ -154,49 +159,67 @@ bigfiles() {
         | tail -n $(( $(tput lines) - 6 )) | b2h
 }
 
-cygyank() {
+_cygyank() {
     CUTBUFFER=$(cat /dev/clipboard | sed 's/\x0//g')
     zle yank
 }
-zle -N cygyank
-cyg-vi-yank() {
+zle -N _cygyank
+_cyg-vi-yank() {
     zle vi-yank
     echo $CUTBUFFER | tr -d '\n' > /dev/clipboard
 }
-zle -N cyg-vi-yank
-cyg-vi-yank-eol() {
+zle -N _cyg-vi-yank
+_cyg-vi-yank-eol() {
     zle vi-yank-eol
     echo $CUTBUFFER | tr -d '\n' > /dev/clipboard
 }
-zle -N cyg-vi-yank-eol
+zle -N _cyg-vi-yank-eol
+_cyg-list-expand-or-copy-cwd() {
+    if [[ $BUFFER =~ \\* ]]; then
+        zle list-expand
+    else
+        tr -d '\n' <<< $PWD > /dev/clipboard
+    fi
+}
+zle -N _cyg-list-expand-or-copy-cwd
 
-xclipyank() {
+_xclipyank() {
     CUTBUFFER=$(xclip -o | sed 's/\x0//g')
     if [ -z $CUTBUFFER ]; then
         CUTBUFFER=$(xclip -o -sel b | sed 's/\x0//g')
     fi
     zle yank
 }
-zle -N xclipyank
-xclip-vi-yank() {
+zle -N _xclipyank
+_xclip-vi-yank() {
     zle vi-yank
     echo $CUTBUFFER | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
 }
-zle -N xclip-vi-yank
-xclip-vi-yank-eol() {
+zle -N _xclip-vi-yank
+_xclip-vi-yank-eol() {
     zle vi-yank-eol
     echo $CUTBUFFER | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
 }
-zle -N xclip-vi-yank-eol
+zle -N _xclip-vi-yank-eol
+_xclip-list-expand-or-copy-cwd() {
+    if [[ $BUFFER =~ \\* ]]; then
+        zle list-expand
+    else
+        tr -d '\n' <<< $PWD | xclip -i -sel p -f | xclip -i -sel c
+    fi
+}
+zle -N _xclip-list-expand-or-copy-cwd
 
 if type xclip >& /dev/null ; then
-    vibindkey '^V' xclipyank
-    bindkey -M vicmd 'y' xclip-vi-yank
-    bindkey -M vicmd 'Y' xclip-vi-yank-eol
+    vibindkey '^V' _xclipyank
+    bindkey -M vicmd 'y' _xclip-vi-yank
+    bindkey -M vicmd 'Y' _xclip-vi-yank-eol
+    vibindkey '^G' _xclip-list-expand-or-copy-cwd
 else
-    vibindkey '^V' cygyank
-    bindkey -M vicmd 'y' cyg-vi-yank
-    bindkey -M vicmd 'Y' cyg-vi-yank-eol
+    vibindkey '^V' _cygyank
+    bindkey -M vicmd 'y' _cyg-vi-yank
+    bindkey -M vicmd 'Y' _cyg-vi-yank-eol
+    vibindkey '^G' _cyg-list-expand-or-copy-cwd
 fi
 
 md() { mkdir -p "$@" && cd "$@" }
@@ -205,27 +228,33 @@ rationalise-dot() { [[ $LBUFFER == *.. ]] && LBUFFER+=/.. || LBUFFER+=. }
 zle -N rationalise-dot; bindkey . rationalise-dot
 bindkey -M isearch . self-insert
 
-force-logout() {
-    zle vi-kill-line
-    [[ -o login ]] && logout || exit
+_time-command() {
+    BUFFER="time ( "$BUFFER" )"
+    CURSOR=$(( $CURSOR + 7 ))
 }
-zle -N force-logout; vibindkey '^D' force-logout
+zle -N _time-command; vibindkey '^T' _time-command
 
-fg-job() {
-    fg
-    if [ $? ]; then
+_vim-args() {
+    BUFFER="vim \$( "$BUFFER" )"
+    CURSOR=$(( $CURSOR + 7 ))
+}
+zle -N _vim-args; vibindkey '^E' _vim-args
+
+_fg-job() {
+    if [[ -n $(jobs) ]]; then
+        fg
         [[ -n $TMUX ]] && tmux set-window -q automatic-rename on
         zle reset-prompt; zle redisplay
     fi
 }
-zle -N fg-job; vibindkey '^Z' fg-job
+zle -N _fg-job; vibindkey '^Z' _fg-job
 
 autoload -Uz add-zsh-hook
 # Ring bell after long commands finish
 if [[ -o interactive ]] && zmodload zsh/datetime; then
     zbell_duration=5
     zbell_ignore=(vi vim vims view vimdiff gvim gvims gview gvimdiff man \
-        more less e ez tmux tmx matlab)
+        more less e ez tmux tmx matlab vimr)
     zbell_timestamp=$EPOCHSECONDS
     zbell_begin() {
         zbell_timestamp=$EPOCHSECONDS
@@ -250,22 +279,37 @@ if [[ -o interactive ]] && zmodload zsh/datetime; then
     add-zsh-hook precmd zbell_end
 fi
 
-tmux-name-win() {
+_tmux-name-win() {
     if [[ -n $TMUX ]] && [[ -z $(jobs) ]] && [[ -z $NOAUTONAME ]]; then
         if [[ $(tmux display-message -p '#{window_panes}') == 1 ]]; then
             print -n "\033k/${${PWD/#$HOME/\~}##*/}/\033\\"
         fi
     fi
 }
-tmux-name-auto() {
+_tmux-name-auto() {
     if [[ -n $TMUX ]] && [[ -z $NOAUTONAME ]]; then
         if [[ $(tmux display-message -p '#{window_panes}') == 1 ]]; then
             tmux set-window -q automatic-rename on
         fi
     fi
 }
-add-zsh-hook precmd tmux-name-win
-add-zsh-hook preexec tmux-name-auto
+add-zsh-hook precmd _tmux-name-win
+add-zsh-hook preexec _tmux-name-auto
+
+_reset-saved-buffer() { export BUFSAVE=; }
+add-zsh-hook precmd _reset-saved-buffer
+_list-choices-or-logout() {
+    [[ -z $BUFFER ]] && { [[ -o login ]] && logout || exit; }
+    if [[ -n $BUFSAVE ]]; then
+        if [[ $BUFSAVE == "$BUFFER" ]]; then
+            zle vi-kill-line
+            [[ -o login ]] && logout || exit
+        fi
+    fi
+    export BUFSAVE=$BUFFER
+    zle list-choices
+}
+zle -N _list-choices-or-logout; vibindkey '^D' _list-choices-or-logout
 
 tmux-next() { tmux next >& /dev/null }
 zle -N tmux-next; vibindkey '^[[27;5;9~' tmux-next
@@ -287,13 +331,16 @@ insert-last-command-output() { LBUFFER+="$(eval $history[$((HISTCMD-1))])" }
 zle -N insert-last-command-output
 bindkey '^X' insert-last-command-output
 
+# https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/plugins/extract/extract.plugin.zsh
+[[ -e ~/.zsh/extract.plugin.zsh ]] && source ~/.zsh/extract.plugin.zsh
+
 #{{{1 Environment variables
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     vim -R -c 'set ft=man nomod noma nolist' \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
-vimblacklist=(syntastic vimshell processing over flake8 easymotion tmux-complete)
+vimblacklist=(syntastic vimshell processing over flake8 tmux-complete)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 if [ -e ~/.dircolors ]; then
     eval $(dircolors -b ~/.dircolors)
@@ -393,11 +440,11 @@ vim_ins_mode="%{$fg[black]%}%{$bg[cyan]%}i%{$reset_color%}"
 vim_cmd_mode="%{$fg[black]%}%{$bg[yellow]%}n%{$reset_color%}"
 vim_mode=$vim_ins_mode
 
-zle-keymap-select() {
+_zle-keymap-select() {
     vim_mode="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
     zle reset-prompt
 }
-zle -N zle-keymap-select
+zle -N _zle-keymap-select
 
 zle-line-finish() { vim_mode=$vim_ins_mode }
 zle -N zle-line-finish
@@ -420,6 +467,30 @@ PROMPT="
 [zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${vim_mode}]%# "
 RPROMPT="%{${_lineup}%}%{$fg_bold[green]%}%T%{$reset_color%}"
 RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
+
+# Update prompt after TMOUT seconds and after hitting enter
+TMOUT=10
+TRAPALRM() { [[ -z $BUFFER ]] && zle reset-prompt }
+_accept-line() { zle reset-prompt; zle accept-line }
+zle -N _accept-line; vibindkey '^M' _accept-line
+
+#{{{1 Cygwin settings
+if [[ $OSTYPE == 'cygwin' ]]; then
+    export GROFF_NO_SGR=1
+    alias man='export MANWIDTH=$(( $(tput cols) - 6 )); man'
+
+    zstyle ':completion:*:default' use-cache 1
+    zstyle ':completion:*:kill:*' command 'ps -u $USER -s'
+    zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#)*=33=31=34"
+
+    path() {
+        echo $(readlink -f "$1") | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+    }
+
+    alias tmx='tmux attach 2> /dev/null || ( rm -r /tmp/tmux* >& /dev/null ; tmux new )'
+
+    export DISPLAY=localhost:0.0
+fi
 
 #{{{1 Machine-specific settings
 
