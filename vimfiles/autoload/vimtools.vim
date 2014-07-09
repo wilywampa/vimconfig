@@ -75,17 +75,11 @@ function! vimtools#OpenHelp(topic)
       setl bt=help
       exe 'help '.a:topic
     elseif (&columns > 160) && !l:split
-      " Open help in vertical split if window is not already split
+        \ && (str2float(&columns) / str2float(&lines)) > 2.7
+      " Open help in vertical split depending on window geometry
       exe 'vert help '.a:topic
     else
-      let splitbelow_save = &splitbelow
-      set nosplitbelow
-      try
-        set nosplitbelow
-        exe 'help '.a:topic
-      finally
-        let &splitbelow = splitbelow_save
-      endtry
+      exe 'aboveleft help '.a:topic
     endif
   else
     setl ft=help bt=help noma

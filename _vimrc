@@ -299,9 +299,11 @@ nn S "_S|nn <M-S> S|nn \\S S|vn S "_S|vn <M-S> S|vn \\S S
 nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
 nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 
-" Copy full file path to clipboard on Ctrl-g
+" Copy file/path with/without line number
 nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>:let @*=@+<CR>:let @"=@+<CR>
 nn <silent> g<C-g> g<C-g>:let @+=expand('%:p:h')<CR>:let @*=@+<CR>:let @"=@+<CR>
+nn <silent> <M-g> <C-g>:let @+=expand('%:p').':'.line('.')<CR>:let @*=@+<CR>:let @"=@+<CR>
+nn <silent> <M-G> <C-g>:let @+=expand('%:p:t').':'.line('.')<CR>:let @*=@+<CR>:let @"=@+<CR>
 
 " Change tab position
 nn <silent> <C-w><C-e>     :tabm<CR>
@@ -967,7 +969,7 @@ if has('lua')
         let g:neocomplete#enable_at_startup=1
         let g:neocomplete#enable_smart_case=1
         let g:neocomplete#max_list=200
-        let g:neocomplete#min_keyword_length=3
+        let g:neocomplete#min_keyword_length=4
         let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
         let g:tmuxcomplete#trigger=''

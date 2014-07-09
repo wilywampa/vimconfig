@@ -141,8 +141,8 @@ func! s:ToggleFindInComments()
     if b:findInComments
         let b:sfsave=v:searchforward
         call s:MapN()
-        nnoremap <buffer> <silent> / m`:call <SID>MapCR()<CR>:let b:sfsave=1<CR>:redraw<CR>:echo '/'<CR>/
-        nnoremap <buffer> <silent> ? m`:call <SID>MapCR()<CR>:let b:sfsave=0<CR>:redraw<CR>:echo '?'<CR>?
+        nnoremap <buffer> <silent> / m`:call <SID>MapCR()<CR>:let b:sfsave=1<CR>:redraw<CR>:echo '/\v'<CR>/\v
+        nnoremap <buffer> <silent> ? m`:call <SID>MapCR()<CR>:let b:sfsave=0<CR>:redraw<CR>:echo '?\v'<CR>?\v
         nnoremap <buffer> <silent> * m`:let @/='\<'.expand('<cword>').'\>'<CR>:let
             \ b:sfsave=1<CR>:call <SID>FindNotInComment(1)<CR>:set hlsearch<CR>
         nnoremap <buffer> <silent> # m`:let @/='\<'.expand('<cword>').'\>'<CR>:let

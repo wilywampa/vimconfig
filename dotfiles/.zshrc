@@ -4,6 +4,7 @@ HISTSIZE=10000
 SAVEHIST=10000
 setopt auto_cd beep extended_glob no_match notify no_beep share_history
 setopt inc_append_history extended_history interactive_comments
+setopt hist_expire_dups_first
 # End of lines configured by zsh-newuser-install
 
 #{{{1 Lines added by compinstall
@@ -342,9 +343,9 @@ export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
 vimblacklist=(syntastic vimshell processing over flake8 tmux-complete)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
-if [ -e ~/.dircolors ]; then
-    eval $(dircolors -b ~/.dircolors)
-fi
+[[ -e ~/.dircolors ]] && eval $(dircolors -b ~/.dircolors)
+[[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
+export FPATH
 
 #{{{1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist

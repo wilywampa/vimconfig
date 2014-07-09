@@ -4,7 +4,7 @@
 [core]
 	excludesfile = /Users/jniehus/.gitignore_global
 	editor = /Applications/MacVim.app/Contents/MacOS/Vim
-	pager = less -r
+	pager =
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
