@@ -59,6 +59,8 @@ sil! set clipboard+=unnamedplus
 set mouse=                      " Disable mouse integration
 set cmdwinheight=15             " Increase command window height
 sil! set showbreak=↪            " Show character at start of wrapped lines
+set makeprg=make\ -j8           " Use multiple jobs in make by default
+set nojoinspaces                " Don't add two spaces after punctuation
 
 " Ignore system files
 set wildignore=*.a,*.reg,*.lib,*.spi,*.sys,*.dll,*.inf,*.so,*.dat
@@ -359,8 +361,8 @@ map Y y$
 " Navigate windows/tabs with arrow keys
 no <Down>  <C-w>j
 no <Up>    <C-w>k
-no <silent> <Left>  :let w=winnr()<CR><C-w>h:if w==winnr()\|exe "norm! gT"\|en<CR>
-no <silent> <Right> :let w=winnr()<CR><C-w>l:if w==winnr()\|exe "norm! gt"\|en<CR>
+no <silent> <Left>  :<C-u>let w=winnr()<CR><C-w>h:if w==winnr()\|exe "norm! gT"\|en<CR>
+no <silent> <Right> :<C-u>let w=winnr()<CR><C-w>l:if w==winnr()\|exe "norm! gt"\|en<CR>
 
 " Change window size with control + arrow keys
 noremap <silent> <C-Down>  :<C-u>call vimtools#ResizeWindow('down')<CR>
@@ -815,11 +817,13 @@ else
     " Use correct background color
     autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
 
-    " Enable mouse for scrolling and cursor placement
+    " Enable mouse for scrolling and window selection
     set mouse=nir
+    noremap <F20> <NOP>
+    noremap <F21> <LeftMouse>
     for b in ["Left","Middle","Right"] | for m in ["","2","C","S","A"]
         execute 'map <'.m.(strlen(m)?'-':'').b.'Mouse> <NOP>'
-    endfor | endfor | unmap <LeftMouse>
+    endfor | endfor | map <expr> <LeftMouse> winnr('$')>1?"\<F21>":"\<F20>"
 endif
 
 " }}}2
@@ -898,6 +902,10 @@ augroup VimrcAutocmds
 
     " showcmd causes Vim to start in replace mode sometimes
     autocmd VimEnter * set showcmd
+
+    " Set global variable on FocusLost
+    autocmd FocusLost * let g:focuslost = 1 | silent! AirlineRefresh
+    autocmd FocusGained * silent! unlet g:focuslost | silent! AirlineRefresh
 augroup END
 
 " {{{1 Plugin configuration
