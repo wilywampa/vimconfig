@@ -768,6 +768,13 @@ func! s:Bell()
 endfunc
 autocmd VimrcAutocmds QuickFixCmdPost * call <SID>Bell()
 
+" Setup for single-file C/C++ projects
+func! s:SingleFile()
+    execute 'setlocal makeprg=make\ -j8\ '.expand('%:r')
+    nnoremap <buffer> <S-F5> :execute '!./'.expand('%:r')<CR>
+endfunc
+com! -nargs=0 SingleFile call <SID>SingleFile()
+
 " {{{2 GUI configration
 if has('gui_running')
     " Disable most visible GUI features
@@ -861,8 +868,8 @@ augroup VimrcAutocmds
 
     " Highlight current line in active window but not in insert mode
     autocmd BufRead,BufNewFile,VimEnter * set cul
-    autocmd InsertLeave,WinEnter * set cul
-    autocmd InsertEnter,WinLeave * set nocul
+    autocmd InsertLeave,WinEnter,FocusGained * set cul
+    autocmd InsertEnter,WinLeave,FocusLost * set nocul
 
     " Disable paste mode after leaving insert mode
     autocmd InsertLeave * set nopaste
@@ -905,7 +912,10 @@ augroup VimrcAutocmds
 
     " Set global variable on FocusLost
     autocmd FocusLost * let g:focuslost = 1 | silent! AirlineRefresh
-    autocmd FocusGained * silent! unlet g:focuslost | silent! AirlineRefresh
+    autocmd FocusGained,CursorMoved,CursorMovedI * 
+        \ if exists('g:focuslost') |
+        \     unlet g:focuslost | silent! execute "AirlineRefresh" |
+        \ endif
 augroup END
 
 " {{{1 Plugin configuration
@@ -981,10 +991,6 @@ if has('lua')
         let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
         let g:tmuxcomplete#trigger=''
-        if !exists('g:neocomplete#same_filetypes')
-            let g:neocomplete#same_filetypes={}
-        endif
-        let g:neocomplete#same_filetypes._='_'
         if !exists('g:neocomplete#force_omni_input_patterns')
             let g:neocomplete#force_omni_input_patterns={}
         endif
