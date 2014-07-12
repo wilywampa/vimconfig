@@ -15,6 +15,7 @@ let s:winWidthPrev=-1
 let s:tagPrev=''
 let s:bufModPrev=0
 let s:wsPrev=''
+let s:wsEnabledPrev=0
 
 function! ShortCWD()
     if (getcwd() == s:cwdPrev) && (@% == s:bufNamePrev)
@@ -25,6 +26,7 @@ function! ShortCWD()
             endif
         elseif exists('b:airline_whitespace_check')
             \ && b:airline_whitespace_check == s:wsPrev
+            \ && airline#extensions#whitespace#get_enabled() == s:wsEnabledPrev
             return s:cwd
         else
             return s:cwd
@@ -42,11 +44,17 @@ function! ShortCWD()
     let s:winWidthPrev=winwidth(0)
     let s:bufModPrev=&modified
     let s:cwd=fnamemodify(s:cwdPrev,':~')
+    if exists('*airline#extensions#whitespace#get_enabled')
+        let s:wsEnabledPrev=airline#extensions#whitespace#get_enabled()
+    endif
     if g:airline_section_x =~? 'tagbar'
         let s:tagPrev=tagbar#currenttag('%s','','')
     endif
     if exists('b:airline_whitespace_check')
+        \ && s:wsEnabledPrev
         let s:wsPrev=b:airline_whitespace_check
+    else
+        let s:wsPrev=''
     endif
 
     if &buftype == 'help'

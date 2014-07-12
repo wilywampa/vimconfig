@@ -798,12 +798,17 @@ else
     map! <F13> <C-Up>
     map! <F14> <C-Down>
 
-    " Make alt + up/down work in terminal
+    " Make alt + arrow keys work in terminal
     exec "set <F17>=\<Esc>[1;3A <F18>=\<Esc>[1;3B"
+    exec "set <F19>=\<Esc>[1;3C <F20>=\<Esc>[1;3D"
     map <F17> <M-Up>
     map <F18> <M-Down>
+    map <F19> <M-Right>
+    map <F20> <M-Left>
     map! <F17> <M-Up>
     map! <F18> <M-Down>
+    map! <F19> <M-Right>
+    map! <F20> <M-Left>
 
     " Shifted function key codes
     exe "set <S-F1>=\e[25~"    | exe "set <S-F2>=\e[26~"
@@ -949,7 +954,7 @@ else
 endif
 
 " Toggle warnings in airline
-nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>
+nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>:AirlineRefresh<CR>
 
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
