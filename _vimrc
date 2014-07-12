@@ -415,9 +415,6 @@ nn <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
 nn <silent> <Leader>.. :cd ..<CR>:pwd<CR>:sil! call repeat#set("\<Leader>..")<CR>
 nn <silent> ,.. :lcd ..<CR>:pwd<CR>:sil! call repeat#set(",..")<CR>
 
-" <CR> in insert mode creates undo point
-ino <CR> <C-g>u<CR>
-
 " Put from " register in insert mode
 ino <M-p> <C-r>"
 
@@ -449,13 +446,8 @@ nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
 nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
 
 " Make /<CR> and ?<CR> work when \v is added automatically
-if v:version >= 704
-    cno <expr> <CR> getcmdtype()=~'[/?]'?(getcmdline()==?'\v'?
-        \("\<End>\<C-u>\<CR>zv"):("\<C-]>\<CR>zv")):"\<C-]>\<CR>"
-else
-    cno <expr> <CR> getcmdtype()=~'[/?]'?(getcmdline()==?'\v'?
-        \("\<End>\<C-u>\<CR>zv"):(" \<BS>\<CR>zv")):" \<BS>\<CR>"
-endif
+nn /<CR> /<CR>
+nn ?<CR> ?<CR>
 
 " Open cursor file in vertical split
 nn <C-w>f :execute "vsplit ".expand('<cfile>')<CR>
@@ -485,12 +477,12 @@ endif
 
 " {{{2 Cscope configuration
 " Abbreviations for cscope commands
-cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cs add'   :'csa')
-cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<=4)?'cs find'  :'csf')
-cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<=4)?'cs kill *':'csk')
-cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<=4)?'cs reset' :'csr')
-cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cs show'  :'css')
-cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cs help'  :'csh')
+cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cs add'    :'csa')
+cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<=4)?'cs find'   :'csf')
+cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<=4)?'cs kill -1':'csk')
+cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<=4)?'cs reset'  :'csr')
+cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cs show'   :'css')
+cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cs help'   :'csh')
 
 " Mappings for cscope find commands
 no <M-\>s :cs find s <C-r>=expand("<cword>")<CR><CR>
@@ -610,13 +602,10 @@ endif
 func! s:QMacro(count)
     let eventignore_save = &eventignore
     let &eventignore = 'InsertEnter'
-    " Prevent creating undo points during macro execution
-    inoremap <buffer> <CR> <CR>
     try
-        exec "norm ".(a:count ? a:count : "")."@q"
+        execute "normal ".(a:count ? a:count : "")."@q"
     finally
         let &eventignore = eventignore_save
-        iunmap <buffer> <CR>
     endtry
 endfunc
 nnoremap <silent> Q :<C-u>call <SID>QMacro(v:count)<CR>
@@ -809,6 +798,13 @@ else
     map! <F13> <C-Up>
     map! <F14> <C-Down>
 
+    " Make alt + up/down work in terminal
+    exec "set <F17>=\<Esc>[1;3A <F18>=\<Esc>[1;3B"
+    map <F17> <M-Up>
+    map <F18> <M-Down>
+    map! <F17> <M-Up>
+    map! <F18> <M-Down>
+
     " Shifted function key codes
     exe "set <S-F1>=\e[25~"    | exe "set <S-F2>=\e[26~"
     exe "set <S-F3>=\e[28~"    | exe "set <S-F4>=\e[29~"
@@ -912,7 +908,7 @@ augroup VimrcAutocmds
 
     " Set global variable on FocusLost
     autocmd FocusLost * let g:focuslost = 1 | silent! AirlineRefresh
-    autocmd FocusGained,CursorMoved,CursorMovedI * 
+    autocmd FocusGained,CursorMoved,CursorMovedI *
         \ if exists('g:focuslost') |
         \     unlet g:focuslost | silent! execute "AirlineRefresh" |
         \ endif
@@ -940,7 +936,8 @@ endif
 
 " Set airline color scheme
 let g:airline_theme='tomorrow'
-au VimrcAutocmds TabEnter * sil! call airline#highlighter#highlight(['normal',&mod?'modified':''])
+au VimrcAutocmds TabEnter,FocusGained *
+    \ silent! call airline#highlighter#highlight(['normal',&mod?'modified':''])
 
 " Use powerline font unless in Mac SSH session or in old Vim
 if mobileSSH || v:version < 703
@@ -1010,7 +1007,6 @@ if has('lua')
         endfunc
         inoremap <expr> <Tab>   <SID>StartManualComplete(1)
         inoremap <expr> <S-Tab> <SID>StartManualComplete(0)
-        inoremap <expr> <CR>    neocomplete#close_popup()."\<C-g>u\<CR>"
         inoremap <expr> <C-e>   neocomplete#close_popup()
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
             \"\<Plug>(neosnippet_expand_or_jump)":
@@ -1018,10 +1014,6 @@ if has('lua')
         smap <C-d> <Plug>(neosnippet_jump_or_expand)
         inoremap <expr> <C-f>   neocomplete#cancel_popup()
         inoremap <expr> <C-l>   neocomplete#complete_common_string()
-        if !exists('g:neocomplete#sources')
-            let g:neocomplete#sources={}
-        endif
-        let g:neocomplete#sources._=['_']
         augroup VimrcAutocmds
             autocmd CmdwinEnter * inoremap <buffer> <expr> <Tab>
                 \ pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()

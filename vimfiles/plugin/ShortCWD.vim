@@ -14,13 +14,18 @@ let s:bufNamePrev=''
 let s:winWidthPrev=-1
 let s:tagPrev=''
 let s:bufModPrev=0
+let s:wsPrev=''
 
 function! ShortCWD()
-    if (getcwd() == s:cwdPrev) && (@% == s:bufNamePrev) && (winwidth(0) == s:winWidthPrev) && (&mod == s:bufModPrev)
+    if (getcwd() == s:cwdPrev) && (@% == s:bufNamePrev)
+        \ && (winwidth(0) == s:winWidthPrev) && (&mod == s:bufModPrev)
         if g:airline_section_x =~? 'tagbar'
             if (tagbar#currenttag('%s','','') == s:tagPrev)
                 return s:cwd
             endif
+        elseif exists('b:airline_whitespace_check')
+            \ && b:airline_whitespace_check == s:wsPrev
+            return s:cwd
         else
             return s:cwd
         endif
@@ -40,12 +45,16 @@ function! ShortCWD()
     if g:airline_section_x =~? 'tagbar'
         let s:tagPrev=tagbar#currenttag('%s','','')
     endif
+    if exists('b:airline_whitespace_check')
+        let s:wsPrev=b:airline_whitespace_check
+    endif
 
     if &buftype == 'help'
         let s:cwdMaxLen=winwidth(0)-strlen(expand('%:t'))-40
     else
         let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)
             \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-50
+            \-strlen(s:wsPrev)-(strlen(s:wsPrev)?3:0)
     endif
 
     if strlen(s:cwd) > s:cwdMaxLen
