@@ -11,7 +11,6 @@ if !exists('s:readonly') | let s:readonly=&readonly | endif
 
 set shiftwidth=4                " Number of spaces to indent
 set expandtab                   " Use spaces instead of tabs
-set tabstop=4                   " Length of indent
 set softtabstop=4
 set autoindent                  " Automatic indentation
 set cinoptions+=N-s             " Don't indent namespaces in C++
@@ -259,6 +258,9 @@ nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
 
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
+
+" Open tag below instead of above
+nn <silent> <C-w><C-]> :<C-u>bel sp<CR><C-]>:exe v:count?'v:count."winc _"<CR>
 
 " <Esc> alternatives - <Nul> is <C-Space> in terminal
 ino <C-c> <NOP>
@@ -761,6 +763,7 @@ autocmd VimrcAutocmds QuickFixCmdPost * call <SID>Bell()
 func! s:SingleFile()
     execute 'setlocal makeprg=make\ -j8\ '.expand('%:r')
     nnoremap <buffer> <S-F5> :execute '!./'.expand('%:r')<CR>
+    lcd! %:p:h
 endfunc
 com! -nargs=0 SingleFile call <SID>SingleFile()
 
