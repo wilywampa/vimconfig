@@ -226,17 +226,17 @@ if s:hasvimtools
 else
     com! -nargs=1 SwitchToOrOpen tab drop <args>
 endif
-nn <silent> ,ea :<C-u>edit ~/.vim/after/plugin/after.vim<CR>
-nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>
-nn <silent> ,ec :<C-u>edit ~/.cshrc<CR>
-nn <silent> ,eh :<C-u>edit ~/.histfile<CR>
-nn <silent> ,el :<C-u>edit ~/.zshrclocal<CR>
-nn <silent> ,em :<C-u>edit ~/.minttyrc<CR>
-nn <silent> ,es :<C-u>edit ~/.screenrc<CR>
-nn <silent> ,et :<C-u>edit ~/.tmux.conf<CR>
-nn <silent> ,ev :<C-u>edit $MYVIMRC<CR>
-nn <silent> ,ex :<C-u>edit ~/.Xdefaults<CR>
-nn <silent> ,ez :<C-u>edit ~/.zshrc<CR>
+nn <silent> ,ea :<C-u>edit ~/.vim/after/plugin/after.vim<CR>:norm! zv<CR>
+nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>:norm! zv<CR>
+nn <silent> ,ec :<C-u>edit ~/.cshrc<CR>:norm! zv<CR>
+nn <silent> ,eh :<C-u>edit ~/.histfile<CR>:norm! zv<CR>
+nn <silent> ,el :<C-u>edit ~/.zshrclocal<CR>:norm! zv<CR>
+nn <silent> ,em :<C-u>edit ~/.minttyrc<CR>:norm! zv<CR>
+nn <silent> ,es :<C-u>edit ~/.screenrc<CR>:norm! zv<CR>
+nn <silent> ,et :<C-u>edit ~/.tmux.conf<CR>:norm! zv<CR>
+nn <silent> ,ev :<C-u>edit $MYVIMRC<CR>:norm! zv<CR>
+nn <silent> ,ex :<C-u>edit ~/.Xdefaults<CR>:norm! zv<CR>
+nn <silent> ,ez :<C-u>edit ~/.zshrc<CR>:norm! zv<CR>
 
 " Source vimrc
 nn <silent> ,sv :so $MYVIMRC<CR>:runtime after/plugin/after.vim<CR>
@@ -792,7 +792,8 @@ if has('gui_running')
     endif
 else
     " Make control + arrow keys work in terminal
-    exec "set <F13>=\<Esc>[A <F14>=\<Esc>[B <C-Right>=\<Esc>[C <C-Left>=\<Esc>[D"
+    exec "set <F13>=\<Esc>[1;5A <F14>=\<Esc>[1;5B"
+    exec "set <C-Right>=\<Esc>[1;5C <C-Left>=\<Esc>[1;5D"
     map <F13> <C-Up>
     map <F14> <C-Down>
     map! <F13> <C-Up>
@@ -827,12 +828,21 @@ else
 
     " Enable mouse for scrolling and window selection
     set mouse=nir
-    noremap <F20> <NOP>
+    noremap <F22> <NOP>
     noremap <F21> <LeftMouse>
     for b in ["Left","Middle","Right"] | for m in ["","2","C","S","A"]
         execute 'map <'.m.(strlen(m)?'-':'').b.'Mouse> <NOP>'
-    endfor | endfor | map <expr> <LeftMouse> winnr('$')>1?"\<F21>":"\<F20>"
+    endfor | endfor | map <expr> <LeftMouse> winnr('$')>1?"\<F21>":"\<F22>"
 endif
+
+" Paste in visual mode without overwriting clipboard
+func! s:VisualPaste()
+    let reg = @"
+    normal! gvp
+    let @" = reg | let @+ = reg | let @* = reg
+endfunc
+vnoremap <silent> p :<C-u>call <SID>VisualPaste()<CR>
+vnoremap <M-p> p
 
 " }}}2
 
@@ -1072,6 +1082,7 @@ func! s:VimfilerSettings()
         \"\<Plug>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
     nmap <buffer> D     <Plug>(vimfiler_delete_file)
     nmap <buffer> <C-s> <Plug>(vimfiler_select_sort_type)
+    nmap <buffer> S     <Plug>(vimfiler_select_sort_type)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
     exe "nunmap <buffer> S"
@@ -1158,10 +1169,12 @@ nn <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:*
 nn <silent> ,vn :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**<CR>
 nn <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async<CR>
 nn <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer<CR>
+nn <silent> g<C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer:+<CR>
 nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
     \ ? "buffers/" : "")."neomru ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
+nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
 nnoremap <silent> <Leader>w :ccl\|lcl\|sil! UniteClose<CR>
 nnoremap <silent> ,u :UniteResume<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
@@ -1181,6 +1194,26 @@ func! s:UniteTogglePathSearch()
     endif
     return ''
 endfunc
+
+" Use Unite's MRU list for alternate buffer key
+func! UniteAlternateBuffer(count)
+    let buf = bufnr('%')
+    if !exists(':Unite') || (a:count == 1 && buflisted(bufnr('#')))
+        execute "normal! \<C-^>"
+    else
+        let buflist = unite#sources#buffer#get_unite_buffer_list()
+        if exists('buflist['.(a:count-1).']')
+            execute "buffer ".buflist[(a:count-1)]['action__buffer_nr']
+        elseif exists("buflist[-2]")
+            execute "buffer ".buflist[-2]['action__buffer_nr']
+        else
+            execute "normal! \<C-^>"
+        endif
+    endif
+    execute "normal! zv"
+    if bufnr('%') == buf | echo "No alternate buffer" | endif
+endfunc
+nnoremap <silent> <C-^> :<C-u>call UniteAlternateBuffer(v:count1)<CR>
 
 " }}}2
 

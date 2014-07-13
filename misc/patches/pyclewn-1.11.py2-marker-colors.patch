@@ -1,0 +1,31 @@
+diff --git a/clewn/buffer.py b/clewn/buffer.py
+index 71d2b36..e9a1f5c 100644
+--- a/clewn/buffer.py
++++ b/clewn/buffer.py
+@@ -99,7 +99,7 @@ class Buffer(dict):
+         if self.frame_typeNum == 0:
+             self.frame_typeNum = self.last_typeNum
+             self.nbsock.send_cmd(self, 'defineAnnoType',
+-                '0 "0" "" "=>" none %s' % self.nbsock.bg_colors[2])
++                '0 "0" "" "=>" Black DarkMagenta')
+ 
+     def add_anno(self, anno_id, lnum):
+         """Add an annotation."""
+@@ -197,13 +197,11 @@ class Annotation(object):
+         if not self.defined:
+             self.defined = True
+             self.nbsock.send_cmd(self.buf, 'defineAnnoType',
+-                '0 "%d" "" "%s" none %s'
+-                % ((2 * self.bp), str(self.bp)[-2:],
+-                   self.nbsock.bg_colors[0]))
++                '0 "%d" "" "%s" Black DarkYellow'
++                % ((2 * self.bp), str(self.bp)[-2:]))
+             self.nbsock.send_cmd(self.buf, "defineAnnoType",
+-                '0 "%d" "" "%s" none %s'
+-                % ((2 * self.bp + 1), str(self.bp)[-2:],
+-                   self.nbsock.bg_colors[1]))
++                '0 "%d" "" "%s" Black DarkGreen'
++                % ((2 * self.bp + 1), str(self.bp)[-2:]))
+ 
+     def update(self, disabled=False):
+         """Update the annotation."""

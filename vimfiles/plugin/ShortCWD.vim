@@ -17,20 +17,24 @@ let s:bufModPrev=0
 let s:wsPrev=''
 let s:wsEnabledPrev=0
 
+function! s:TagbarSame()
+    return g:airline_section_x =~? 'tagbar'
+        \ && (tagbar#currenttag('%s','','') == s:tagPrev)
+endfunction
+
+function! s:WhitespaceSame()
+    return (airline#extensions#whitespace#get_enabled()
+        \ && !exists('b:airline_whitespace_check')) ||
+        \ (exists('b:airline_whitespace_check')
+        \ && b:airline_whitespace_check == s:wsPrev
+        \ && airline#extensions#whitespace#get_enabled() == s:wsEnabledPrev)
+endfunction
+
 function! ShortCWD()
     if (getcwd() == s:cwdPrev) && (@% == s:bufNamePrev)
         \ && (winwidth(0) == s:winWidthPrev) && (&mod == s:bufModPrev)
-        if g:airline_section_x =~? 'tagbar'
-            if (tagbar#currenttag('%s','','') == s:tagPrev)
-                return s:cwd
-            endif
-        elseif exists('b:airline_whitespace_check')
-            \ && b:airline_whitespace_check == s:wsPrev
-            \ && airline#extensions#whitespace#get_enabled() == s:wsEnabledPrev
-            return s:cwd
-        else
-            return s:cwd
-        endif
+        \ && <SID>TagbarSame() && <SID>WhitespaceSame()
+        return s:cwd
     endif
 
     if s:hasWin && !&shellslash
