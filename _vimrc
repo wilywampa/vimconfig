@@ -260,7 +260,8 @@ nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
 nn <M-]> <C-w><C-]><C-w>L
 
 " Open tag below instead of above
-nn <silent> <C-w><C-]> :<C-u>bel sp<CR><C-]>:exe v:count?'v:count."winc _"<CR>
+nn <silent> <C-w><C-]> :<C-u>exec "norm! :below
+    \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
 
 " <Esc> alternatives - <Nul> is <C-Space> in terminal
 ino <C-c> <NOP>
@@ -1088,7 +1089,6 @@ func! s:VimfilerSettings()
     nmap <buffer> S     <Plug>(vimfiler_select_sort_type)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
-    exe "nunmap <buffer> S"
 endfunc
 
 " {{{2 Unite settings

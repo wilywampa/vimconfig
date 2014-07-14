@@ -7,7 +7,7 @@
 
 " Init {{{
 
-if has('gui_running') || !exists('$ITERM_PROFILE')
+if has('gui_running')
     finish
 endif
 
