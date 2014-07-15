@@ -36,7 +36,6 @@ set noshowcmd
 imap <C-s> <Nul>ZA
 nmap <C-s> ZA
 nmap ZZ ZA
-let g:loaded_vitality = 1
 
 set complete+=k
 set dictionary=~/.tmuxwords_no_escape.zsh

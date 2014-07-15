@@ -43,6 +43,7 @@ bind & kill
 bind ~ lastmsg
 bind o eval "only" "bind ^| other"
 bind ` focus
+bind "'" focus
 bind l other
 bind x kill
 bind Q quit

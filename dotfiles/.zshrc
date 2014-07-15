@@ -44,6 +44,7 @@ alias locate='locate --regex'
 alias s="sed 's/.*/\"&\"/'"
 alias fs='f | s'
 alias fsg='fs | grep'
+alias fsgi='fs | grep -i'
 alias fsxg='fs | xargs grep'
 alias fsa='fs | ag'
 alias fsxa='fs | xargs ag'
@@ -81,6 +82,7 @@ alias awkp2="awk '{print \$2}'"
 alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .'
 alias so='source'
 alias wh='whence'
+alias info='info --vi-keys'
 
 #{{{1 Global aliases
 alias -g LL='ls -lshrtA'
@@ -89,6 +91,7 @@ alias -g GI='grep --color=auto -i'
 alias -g FFR='**/*(D.)'
 alias -g FF='*(D.)'
 alias -g TEST='&& echo "yes" || echo "no"'
+alias -g AG="ag --color-line-number=';33' -S"
 
 #{{{1 Suffix aliases
 vim_or_cd() { [[ -d "$1" ]] && cd "$1" || vim "$1" }
@@ -124,7 +127,12 @@ bindkey -M vicmd 'gcc' vi-pound-insert
 bindkey -M vicmd 'Y' vi-yank-eol
 bindkey -M vicmd 'yy' vi-yank-whole-line
 bindkey '^R' history-incremental-search-backward
+bindkey 'ò' history-incremental-search-backward
 bindkey '^S' history-incremental-search-forward
+bindkey -M isearch '^R' history-incremental-search-backward
+bindkey -M isearch '^S' history-incremental-search-forward
+bindkey -M isearch '^K' history-incremental-search-backward
+bindkey -M isearch '^J' history-incremental-search-forward
 bindkey -M isearch '^E' accept-search
 bindkey -M isearch '^M' accept-search
 bindkey -M isearch '^[' accept-search
@@ -133,6 +141,9 @@ vibindkey '^[[1;5A' up-line-or-beginning-search
 vibindkey '^[[1;5B' down-line-or-beginning-search
 vibindkey '^[[1;5C' forward-word
 vibindkey '^[[1;5D' backward-word
+# Focus events
+vibindkey '^[[I' redisplay
+vibindkey '^[[O' redisplay
 
 _vi-last-line() {
     zle end-of-buffer-or-history
@@ -223,6 +234,22 @@ else
     vibindkey '^G' _cyg-list-expand-or-copy-cwd
 fi
 
+_escalate-kill() {
+    r="^kill"
+    if [[ ! $BUFFER =~ $r ]] && [[ $history[$((HISTCMD-1))] =~ $r ]]; then
+        BUFFER=$history[$((HISTCMD-1))]
+    elif [[ ! $BUFFER =~ $r ]]; then
+        return
+    fi
+    if [[ $BUFFER =~ $r" -15" ]]; then
+        BUFFER=${BUFFER/-15/-9}
+    elif [[ $BUFFER =~ $r ]] && [[ ! $BUFFER =~ $r" -[0-9]" ]]; then
+        BUFFER=${BUFFER/kill/kill -15}
+    fi
+    CURSOR=$#BUFFER
+}
+zle -N _escalate-kill; vibindkey '^K' _escalate-kill
+
 md() { mkdir -p "$@" && cd "$@" }
 
 rationalise-dot() { [[ $LBUFFER == *.. ]] && LBUFFER+=/.. || LBUFFER+=. }
@@ -245,7 +272,7 @@ _fg-job() {
     if [[ -n $(jobs) ]]; then
         fg
         [[ -n $TMUX ]] && tmux set-window -q automatic-rename on
-        zle reset-prompt; zle redisplay
+        zle redisplay
     fi
 }
 zle -N _fg-job; vibindkey '^Z' _fg-job
@@ -346,6 +373,7 @@ export VIMBLACKLIST=${(j:,:)vimblacklist}
 [[ -e ~/.dircolors ]] && eval $(dircolors -b ~/.dircolors)
 [[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
 export FPATH
+export EDITOR=vim
 
 #{{{1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
@@ -441,11 +469,11 @@ vim_ins_mode="%{$fg[black]%}%{$bg[cyan]%}i%{$reset_color%}"
 vim_cmd_mode="%{$fg[black]%}%{$bg[yellow]%}n%{$reset_color%}"
 vim_mode=$vim_ins_mode
 
-_zle-keymap-select() {
+zle-keymap-select() {
     vim_mode="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
     zle reset-prompt
 }
-zle -N _zle-keymap-select
+zle -N zle-keymap-select
 
 zle-line-finish() { vim_mode=$vim_ins_mode }
 zle -N zle-line-finish

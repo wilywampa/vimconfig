@@ -52,6 +52,9 @@ XTerm*color15:                #fdf6e3
 ! XTerm*pointerColorBackground:  #93a1a1
 ! XTerm*pointerColorForeground:  #586e75
 
+! Solarized red cursor
+XTerm*cursorColor: #dc322f
+
 *VT100.translations: #override \n\
 Meta <Key>1: string(0x1b) string("1") \n\
 Meta <Key>2: string(0x1b) string("2") \n\
