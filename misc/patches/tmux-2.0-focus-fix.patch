@@ -1,0 +1,41 @@
+diff --git a/server-client.c b/server-client.c
+index e225de3..7f5e7fc 100644
+--- a/server-client.c
++++ b/server-client.c
+@@ -564,6 +564,8 @@ server_client_check_focus(struct window_pane *wp)
+ 	u_int		 i;
+ 	struct client	*c;
+ 	int		 push;
++	FILE		*fid;
++	char		fname[256];
+ 
+ 	/* Are focus events off? */
+ 	if (!options_get_number(&global_options, "focus-events"))
+@@ -605,13 +607,25 @@ server_client_check_focus(struct window_pane *wp)
+ 
+ not_focused:
+ 	if (push || (wp->flags & PANE_FOCUSED))
+-		bufferevent_write(wp->event, "\033[O", 3);
++	{
++		/* bufferevent_write(wp->event, "\033[O", 3); */
++		sprintf(fname, "%s%s", getenv("HOME"), "/.cache/.tmuxlog");
++		fid = fopen(fname, "w");
++		fprintf(fid, "%ld\n", write(wp->fd, "\033[O", 3));
++		fclose(fid);
++	}
+ 	wp->flags &= ~PANE_FOCUSED;
+ 	return;
+ 
+ focused:
+ 	if (push || !(wp->flags & PANE_FOCUSED))
+-		bufferevent_write(wp->event, "\033[I", 3);
++	{
++		/* bufferevent_write(wp->event, "\033[I", 3); */
++		sprintf(fname, "%s%s", getenv("HOME"), "/.cache/.tmuxlog");
++		fid = fopen(fname, "w");
++		fprintf(fid, "%ld\n", write(wp->fd, "\033[I", 3));
++		fclose(fid);
++	}
+ 	wp->flags |= PANE_FOCUSED;
+ }
+ 
