@@ -16,7 +16,7 @@ diff --git a/src/edit.c b/src/edit.c
      backspace_until_column(i);
      changed_cline_bef_curs();
 +    /* Clean up deleted characters */
-+    update_screen(CLEAR);
++    screen_start();
  }
  
  /* Insert the new text being completed. */
