@@ -11,4 +11,6 @@ augroup filetypedetect
     autocmd! BufRead,BufNewFile *.applescript   setf applescript
     autocmd! BufRead,BufNewFile *.scpt          setf applescript
     autocmd! BufRead,BufNewFile *.conf          setf conf
+    autocmd! BufRead,BufNewFile [0-9]\\\{1,\}.*
+       \ if getline(1) == 'To: vim_dev@googlegroups.com' | setf diff | endif
 augroup END

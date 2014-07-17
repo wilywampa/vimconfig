@@ -320,9 +320,6 @@ nn <silent> <C-w><Left>    :<C-u>exe 'tabm-'.v:count1<CR>
 nn <silent> <C-w><C-Right> :<C-u>exe 'tabm+'.v:count1<CR>
 nn <silent> <C-w><Right>   :<C-u>exe 'tabm+'.v:count1<CR>
 
-" Insert result of visually selected expression
-vn <C-e> c<C-o>:let @"=substitute(@",'\n','','g')<CR><C-r>=<C-r>"<CR><Esc>
-
 " Make <C-c> cancel <C-w> instead of closing window
 no <C-w><C-c> <NOP>
 
@@ -848,6 +845,16 @@ endfunc
 vnoremap <silent> p :<C-u>call <SID>VisualPaste()<CR>
 vnoremap <M-p> p
 
+" Insert result of visually selected expression
+func! s:EvalExpr()
+    let reg = @"
+    normal! gvy
+    let ex = substitute(@",'\n','','g')
+    execute "normal! gvc\<C-r>=eval(ex)\<CR>\<Esc>"
+    let @" = reg | let @+ = reg | let @* = reg
+endfunc
+vnoremap <silent> <C-e> <Esc>:call <SID>EvalExpr()<CR>
+
 " }}}2
 
 " Abbreviations for diff commands
@@ -855,6 +862,7 @@ cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffthis':'dt')
 cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff \|
     \ windo set nowrap':'do')
 cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate':'du')
+cnorea <expr> vd ((getcmdtype()==':'&&getcmdpos()<=3)?'vert diffs':'vd')
 
 " Increase time allowed for keycode mappings over SSH
 if mobileSSH
@@ -1049,17 +1057,21 @@ endif
 " {{{2 Sneak settings
 let g:sneak#use_ic_scs=1
 highlight link SneakPluginTarget DiffText
-for mode in ['n', 'x', 'o']
-    for l in ['f', 't']
-        execute mode.'map '.l.' <Plug>Sneak_'.l
-        execute mode.'map '.toupper(l).' <Plug>Sneak_'.toupper(l)
+func! s:SneakMaps()
+    for mode in ['n', 'x', 'o']
+        for l in ['f', 't']
+            execute mode.'map '.l.' <Plug>Sneak_'.l
+            execute mode.'map '.toupper(l).' <Plug>Sneak_'.toupper(l)
+        endfor
+        execute mode.'map <Space>   <Plug>Sneak_s'
+        execute mode.'map <C-Space> <Plug>Sneak_S'
+        execute mode.'map <Nul>     <Plug>Sneak_S'
+        execute mode.'map ,, <Plug>SneakPrevious'
     endfor
-    execute mode.'map <Space>   <Plug>Sneak_s'
-    execute mode.'map <C-Space> <Plug>Sneak_S'
-    execute mode.'map <Nul>     <Plug>Sneak_S'
-    execute mode.'map ,, <Plug>SneakPrevious'
-endfor
-nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
+    nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
+endfunc
+autocmd VimrcAutocmds VimEnter *
+    \ if exists('g:loaded_sneak_plugin') | call <SID>SneakMaps() | endif
 
 " {{{2 VimFiler settings
 nnoremap <silent> - :VimFilerBufferDir -find<CR>
@@ -1217,6 +1229,51 @@ func! UniteAlternateBuffer(count)
     if bufnr('%') == buf | echo "No alternate buffer" | endif
 endfunc
 nnoremap <silent> <C-^> :<C-u>call UniteAlternateBuffer(v:count1)<CR>
+
+" Cycle through Unite's MRU list
+func! UniteBufferCycle(resume)
+    if a:resume && !exists('s:buflist')
+        call feedkeys("\<C-^>") | return
+    endif
+    let s:UBCActive = 1
+    if !a:resume
+        let s:buflist = unite#sources#buffer#get_unite_buffer_list()
+        let s:bufnr = -2
+    endif
+    let s:key = '['
+    while s:key == '[' || s:key == ']'
+        if s:bufnr == -2
+            let s:key = ']'
+            let s:bufnr = -1
+        endif
+        let s:bufnr = s:bufnr + (s:key == ']' ? 1 : -1)
+        if s:bufnr >= -1 && s:bufnr < len(s:buflist) - 1
+            execute "buffer ".s:buflist[s:bufnr]['action__buffer_nr']
+            redraw
+            let s = ''
+            if s:bufnr >= 0
+                let s .= 'Previous: "'.fnamemodify(bufname(
+                    \ s:buflist[s:bufnr-1]['action__buffer_nr']), ':t').'" '
+            endif
+            if s:bufnr < len(s:buflist) - 2
+                let s .= 'Next: "'.fnamemodify(bufname(
+                    \ s:buflist[s:bufnr+1]['action__buffer_nr']), ':t').'"'
+            endif
+            echo s
+        else
+            let s:bufnr = s:bufnr - (s:key == ']' ? 1 : -1)
+        endif
+        let s:key = nr2char(getchar())
+    endwhile
+    let s:UBCActive = 0
+    if index(['q', 'Q', "\<C-c>", "\<CR>", "\<Esc>"], s:key) < 0
+        call feedkeys(s:key)
+    endif
+endfunc
+nnoremap <silent> ]r :<C-u>call UniteBufferCycle(0)<CR>
+nnoremap <silent> [r :<C-u>call UniteBufferCycle(1)<CR>
+let s:UBCActive = 0
+autocmd VimrcAutocmds BufEnter * if !s:UBCActive | sil! unlet s:buflist | endif
 
 " }}}2
 
