@@ -62,7 +62,7 @@ set makeprg=make\ -j8           " Use multiple jobs in make by default
 set nojoinspaces                " Don't add two spaces after punctuation
 
 " Ignore system files
-set wildignore=*.a,*.reg,*.lib,*.spi,*.sys,*.dll,*.inf,*.so,*.dat
+set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so
 
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
@@ -307,6 +307,7 @@ nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
 " Copy file/path with/without line number
 nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>:let @*=@+<CR>:let @"=@+<CR>
 nn <silent> g<C-g> g<C-g>:let @+=expand('%:p:h')<CR>:let @*=@+<CR>:let @"=@+<CR>
+nn <silent> 1<C-g> 1<C-g>:let @+=expand('%:p:t')<CR>:let @*=@+<CR>:let @"=@+<CR>
 nn <silent> <M-g> <C-g>:let @+=expand('%:p').':'.line('.')<CR>:let @*=@+<CR>:let @"=@+<CR>
 nn <silent> <M-G> <C-g>:let @+=expand('%:p:t').':'.line('.')<CR>:let @*=@+<CR>:let @"=@+<CR>
 
@@ -342,6 +343,7 @@ vn <C-c> <Esc>'<0v'>g_y
 
 " File explorer at current buffer with -
 nn <silent> - :Explore<CR>
+nn _ -
 
 " Repeat last command with a bang
 nn @! :<C-u><C-r>:<Home><C-Right>!<CR>
@@ -462,6 +464,9 @@ nn <silent> <expr> <C-j> (g:inCmdwin? '' : 'q/'.v:count1)."j:let @/=getline('.')
 
 " Don't open fold when jumping to first line in diff mode
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
+
+" [count]V always selects [count] lines
+nn <expr> V v:count ? "\<Esc>V".(v:count - 1).'j' : 'V'
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -827,6 +832,10 @@ else
     " Use correct background color
     autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
 
+    " Use block cursor in normal mode and bar cursor in insert mode
+    let &t_SI = "\<Esc>[5 q"
+    let &t_EI = "\<Esc>[0 q"
+
     " Enable mouse for scrolling and window selection
     set mouse=nir
     noremap <F22> <NOP>
@@ -1014,7 +1023,6 @@ if has('lua')
         let g:neocomplete#min_keyword_length=4
         let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
-        let g:tmuxcomplete#trigger=''
         if !exists('g:neocomplete#force_omni_input_patterns')
             let g:neocomplete#force_omni_input_patterns={}
         endif
@@ -1178,6 +1186,7 @@ nn <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<C
 nn <silent> "' :<C-u>Unite -prompt-direction=top -no-start-insert register<CR>
 nn <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
     \."-no-start-insert -no-quit -auto-resize grep:".getcwd()."\<CR>"
+nn ,<C-a> :<C-u>Unite -prompt-direction=top -no-start-insert -no-quit -auto-resize grep:
 com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
 nn <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
 nn <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
@@ -1332,6 +1341,9 @@ let g:targets_aiAI = 'ai  '
 let g:targets_nlNL = '    '
 let g:targets_pairs = ''
 let g:targets_quotes = ''
+
+" LustyJuggler settings
+let g:LustyJugglerSuppressRubyWarning = 1
 
 " Import scripts
 execute pathogen#infect()
