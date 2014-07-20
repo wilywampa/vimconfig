@@ -127,10 +127,10 @@ func! vimtools#ResizeWindow(type)
   let startwin = winnr()
   try
     wincmd l
-    let win_on_right = winnr() == startwin
+    let win_on_right = winnr() == startwin || &winfixwidth
     execute startwin."wincmd w"
     wincmd j
-    let win_on_bottom = winnr() == startwin
+    let win_on_bottom = winnr() == startwin || &winfixheight
     execute startwin."wincmd w"
     wincmd k
     let win_on_top = winnr() == startwin

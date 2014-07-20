@@ -108,8 +108,8 @@ function! s:Vitality() " {{{
         onoremap <silent> <f24> <esc>:silent doautocmd <nomodeline> FocusLost %<cr>:silent redraw!<cr>
         onoremap <silent> <f25> <esc>:silent doautocmd <nomodeline> FocusGained %<cr>:silent redraw!<cr>
 
-        vnoremap <silent> <f24> <esc>:silent doautocmd <nomodeline> FocusLost %<cr>gv:silent redraw!<cr>
-        vnoremap <silent> <f25> <esc>:silent doautocmd <nomodeline> FocusGained %<cr>gv:silent redraw!<cr>
+        vnoremap <silent> <f24> <esc>:silent doautocmd <nomodeline> FocusLost %<cr>:silent redraw!<cr>gv
+        vnoremap <silent> <f25> <esc>:silent doautocmd <nomodeline> FocusGained %<cr>:silent redraw!<cr>gv
 
         " inoremap <silent> <f24> <c-o>:silent doautocmd <nomodeline> FocusLost %<cr>
         " inoremap <silent> <f25> <c-o>:silent doautocmd <nomodeline> FocusGained %<cr>

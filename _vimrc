@@ -466,7 +466,7 @@ nn <silent> <expr> <C-j> (g:inCmdwin? '' : 'q/'.v:count1)."j:let @/=getline('.')
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
 
 " [count]V always selects [count] lines
-nn <expr> V v:count ? "\<Esc>V".(v:count - 1).'j' : 'V'
+nn <expr> V v:count ? "\<Esc>V".(v:count > 1 ? (v:count - 1).'j' : '') : 'V'
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -1066,20 +1066,22 @@ endif
 let g:sneak#use_ic_scs=1
 highlight link SneakPluginTarget DiffText
 func! s:SneakMaps()
-    for mode in ['n', 'x', 'o']
-        for l in ['f', 't']
-            execute mode.'map '.l.' <Plug>Sneak_'.l
-            execute mode.'map '.toupper(l).' <Plug>Sneak_'.toupper(l)
+    if exists('g:loaded_sneak_plugin')
+        for mode in ['n', 'x', 'o']
+            for l in ['f', 't']
+                execute mode.'map '.l.' <Plug>Sneak_'.l
+                execute mode.'map '.toupper(l).' <Plug>Sneak_'.toupper(l)
+            endfor
+            execute mode.'map <Space>   <Plug>Sneak_s'
+            execute mode.'map <C-Space> <Plug>Sneak_S'
+            execute mode.'map <Nul>     <Plug>Sneak_S'
+            execute mode.'map ,, <Plug>SneakPrevious'
         endfor
-        execute mode.'map <Space>   <Plug>Sneak_s'
-        execute mode.'map <C-Space> <Plug>Sneak_S'
-        execute mode.'map <Nul>     <Plug>Sneak_S'
-        execute mode.'map ,, <Plug>SneakPrevious'
-    endfor
-    nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
+        nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
+    endif
 endfunc
-autocmd VimrcAutocmds VimEnter *
-    \ if exists('g:loaded_sneak_plugin') | call <SID>SneakMaps() | endif
+autocmd VimrcAutocmds VimEnter * call <SID>SneakMaps()
+call <SID>SneakMaps()
 
 " {{{2 VimFiler settings
 nnoremap <silent> - :VimFilerBufferDir -find<CR>

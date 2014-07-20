@@ -82,7 +82,7 @@ else
     nmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(0, v:count)<CR>
     vmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
     nmap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
-    nnor <silent> <buffer> <Leader>: :VimuxPromptCommand<CR><C-f>:set ft=matlab<CR>
+    nnor <silent> <buffer> <Leader>: :VimuxPromptCommand<CR><C-f>:set ft=matlab<CR>i
 endif
 
 nmap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>

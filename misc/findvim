@@ -1,0 +1,41 @@
+#!/bin/zsh
+if [ -z $TMUX ]; then
+  echo "Not in tmux!"
+  exit 1
+fi
+
+local fmt='#{pane_current_command},,#{pane_id}'
+
+if [[ $(vim --serverlist | head -n 1 2> /dev/null) == 'VIM' ]]; then
+  if [[ $# == 1 ]]; then
+    vim --servername VIM --remote "$@"
+  fi
+  for win in $(tmux list-windows -F '#{window_id}'); do
+    for pane in $(tmux list-panes -t$win -F "$fmt"); do
+      command=$pane[(ws:,,:)1]
+      echo $command
+      pane_id=$pane[(ws:,,:)2]
+      if [[ "$command" = 'vim' ]]; then
+        tmux select-window -t$win
+        tmux select-pane -t$pane_id
+        if [[ $# == 3 ]] && [[ "$1" == "-d" ]]; then
+          file1=$(readlink -f "$2")
+          file2=$(readlink -f "$3")
+          tmux send-keys Escape Escape ':tabe ' "${file1// /\\ }" 'Enter'
+          tmux send-keys Escape Escape ':vert diffs ' "${file2// /\\ }" 'Enter'
+          exit 0
+        elif [[ $# > 1 ]]; then
+          for ARG in "$@"; do
+            file=$(readlink -f "$ARG")
+            tmux send-keys 'C-\' 'C-n' ':e ' "${file// /\\ }" 'Enter'
+          done
+          exit 0
+        fi
+        exit 0
+      fi
+    done
+  done
+fi
+
+exec vim "$@"
+exit 0
