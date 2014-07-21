@@ -65,6 +65,7 @@ alias svnexport="svn st | \grep '^[MA]' | awk '{print \$2}' | xargs -I {} cp --p
 alias ec='echo'
 alias scrn='screen -R'
 alias tmx='tmux attach || tmux new'
+alias tma='tmux attach'
 alias bell='echo -ne "\007"'
 alias ls='ls -h --color=auto --sort=none'
 alias ll='ls -lsh --sort=none'
@@ -83,6 +84,7 @@ alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .'
 alias so='source'
 alias wh='whence'
 alias info='info --vi-keys'
+alias reset='reset; source ~/.zshrc'
 
 #{{{1 Global aliases
 alias -g LL='ls -lshrtA'
@@ -94,8 +96,8 @@ alias -g TEST='&& echo "yes" || echo "no"'
 alias -g AG="ag --color-line-number=';33' -S"
 
 #{{{1 Suffix aliases
-vim_or_cd() { [[ -d "$1" ]] && cd "$1" || vim "$1" }
-alias -s vim=vim_or_cd
+_vim_or_cd() { [[ -d "$1" ]] && cd "$1" || vim "$1" }
+alias -s vim=_vim_or_cd
 alias -s h=vim
 alias -s hpp=vim
 alias -s c=vim
@@ -196,9 +198,12 @@ _cyg-list-expand-or-copy-cwd() {
 zle -N _cyg-list-expand-or-copy-cwd
 
 _xclipyank() {
-    CUTBUFFER=$(xclip -o | sed 's/\x0//g')
-    if [ -z $CUTBUFFER ]; then
+    CUTBUFFER=$(xclip -o -sel c | sed 's/\x0//g')
+    if [[ -z $CUTBUFFER ]]; then
         CUTBUFFER=$(xclip -o -sel b | sed 's/\x0//g')
+    fi
+    if [[ -z $CUTBUFFER ]]; then
+        CUTBUFFER=$(pbpaste)
     fi
     zle yank
 }
@@ -233,6 +238,10 @@ else
     bindkey -M vicmd 'Y' _cyg-vi-yank-eol
     vibindkey '^G' _cyg-list-expand-or-copy-cwd
 fi
+
+path() {
+    echo $(readlink -f "$1") | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+}
 
 _escalate-kill() {
     r="^kill"
@@ -270,6 +279,8 @@ zle -N _vim-args; vibindkey '^E' _vim-args
 
 _fg-job() {
     if [[ -n $(jobs) ]]; then
+        _set-block-cursor
+        _disable-focus
         fg
         [[ -n $TMUX ]] && tmux set-window -q automatic-rename on
         zle redisplay
@@ -361,6 +372,36 @@ bindkey '^X' insert-last-command-output
 
 # https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/plugins/extract/extract.plugin.zsh
 [[ -e ~/.zsh/extract.plugin.zsh ]] && source ~/.zsh/extract.plugin.zsh
+
+make() {
+    if [[ $# == 0 ]]; then
+        command make -j8
+    else
+        command make "$@"
+    fi
+}
+
+#{{{1 Focus/cursor handling
+_xterm_block="\033[1 q"
+_xterm_bar="\033[5 q"
+_focus_enable="\033[?1004h"
+_focus_disable="\033[?1004l"
+
+_set-block-cursor() { echo -ne $_xterm_block }
+_set-bar-cursor()   { echo -ne $_xterm_bar }
+_enable-focus()     { echo -ne $_focus_enable }
+_disable-focus()    { echo -ne $_focus_disable }
+
+vibindkey '^[[O' redisplay
+vibindkey '^[[I' zle-keymap-select
+bindkey -M main '^[[O' redisplay
+bindkey -M main '^[[I' zle-keymap-select
+if [[ -z $MOBILE ]]; then
+    add-zsh-hook precmd _enable-focus
+    add-zsh-hook preexec _disable-focus
+    add-zsh-hook preexec _set-block-cursor
+    _set-bar-cursor
+fi
 
 #{{{1 Environment variables
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
@@ -465,21 +506,26 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 # Show vi input mode
 autoload -U colors && colors
 setopt PROMPT_SUBST
-vim_ins_mode="%{$fg[black]%}%{$bg[cyan]%}i%{$reset_color%}"
-vim_cmd_mode="%{$fg[black]%}%{$bg[yellow]%}n%{$reset_color%}"
-vim_mode=$vim_ins_mode
+_vim_ins_mode="%{$fg[black]%}%{$bg[cyan]%}i%{$reset_color%}"
+_vim_cmd_mode="%{$fg[black]%}%{$bg[yellow]%}n%{$reset_color%}"
+_vim_mode=$_vim_ins_mode
 
 zle-keymap-select() {
-    vim_mode="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
+    _vim_mode="${${KEYMAP/vicmd/${_vim_cmd_mode}}/(main|viins)/${_vim_ins_mode}}"
+    if [[ $KEYMAP =~ "viins|main" ]]; then
+        _set-bar-cursor
+    else
+        _set-block-cursor
+    fi
     zle reset-prompt
 }
 zle -N zle-keymap-select
 
-zle-line-finish() { vim_mode=$vim_ins_mode }
+zle-line-finish() { _vim_mode=$_vim_ins_mode }
 zle -N zle-line-finish
 
 TRAPINT() {
-    vim_mode=$vim_ins_mode
+    _vim_mode=$_vim_ins_mode
     return $(( 128 + $1 ))
 }
 
@@ -493,7 +539,7 @@ _linedown=$'\e[1B'
 
 PROMPT="
 %{$fg[blue]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg[cyan]%}%d%{$reset_color%}
-[zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${vim_mode}]%# "
+[zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
 RPROMPT="%{${_lineup}%}%{$fg_bold[green]%}%T%{$reset_color%}"
 RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
 
@@ -512,11 +558,9 @@ if [[ $OSTYPE == 'cygwin' ]]; then
     zstyle ':completion:*:kill:*' command 'ps -u $USER -s'
     zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#)*=33=31=34"
 
-    path() {
-        echo $(readlink -f "$1") | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
-    }
-
     alias tmx='tmux attach 2> /dev/null || ( rm -r /tmp/tmux* >& /dev/null ; tmux new )'
+    alias open='cygstart'
+    alias cyg='cygpath'
 
     export DISPLAY=localhost:0.0
 fi
