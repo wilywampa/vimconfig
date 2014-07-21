@@ -85,6 +85,29 @@ else
     nnor <silent> <buffer> <Leader>: :VimuxPromptCommand<CR><C-f>:set ft=matlab<CR>i
 endif
 
+if !exists('*<SID>ShowDictionary')
+    func s:ShowDictionary()
+        execute "silent keepalt vertical split ".g:matlab_dict
+        vertical resize 60
+        setlocal winfixwidth readonly nomodifiable
+        nnoremap <buffer> q :bd<CR>
+        wincmd p
+    endfunc
+endif
+
+if !exists('*<SID>ToggleDictionary')
+    func! s:ToggleDictionary()
+        let win = bufwinnr(g:matlab_dict)
+        if win != -1
+            execute win."wincmd w"
+            bdelete
+        else
+            call <SID>ShowDictionary()
+        endif
+    endfunc
+endif
+
+nmap <silent> <buffer> <Leader>m :call <SID>ToggleDictionary()<CR>
 nmap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>
 imap <silent> <buffer> <F5> <Esc><F5>
 nmap <silent> <buffer> <S-F5> :update<CR>:call <SID>UpdateDictionaryMATLAB()<CR>

@@ -457,6 +457,7 @@ nn <C-w><C-f> :execute "vsplit ".expand('<cfile>')<CR>
 
 " Default make key
 nn <silent> <F5> :update<CR>:make<CR><CR>
+im <F5> <Esc><F5>
 
 " Cycle through previous searches
 nn <silent> <expr> <C-k> (g:inCmdwin? '' : 'q/'.v:count1)."k:let @/=getline('.')<CR>"
