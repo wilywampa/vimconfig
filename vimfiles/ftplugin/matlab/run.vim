@@ -4,6 +4,17 @@ endif
 
 let b:did_matlab_run=1
 
+if !exists('g:matlab_dict')
+  if has("mac") || has("win16") || has("win32") || has("win64")
+    let g:matlab_dict = expand('~/Documents/MATLAB/dict.m')
+  elseif system('echo $OSTYPE') =~ 'cygwin'
+    let g:matlab_dict =
+        \ system('cygpath -u "$USERPROFILE/Documents/MATLAB/dict.m" | tr -d \\n')
+  else
+    let g:matlab_dict = expand('~/MATLAB/dict.m')
+  endif
+endif
+
 if !exists('g:matlab_path')
     if has("mac")
         let g:matlab_path = expand('~/Documents/MATLAB')
@@ -88,7 +99,7 @@ endif
 if !exists('*<SID>ShowDictionary')
     func s:ShowDictionary()
         execute "silent keepalt vertical split ".g:matlab_dict
-        vertical resize 60
+        botright vertical resize 60
         setlocal winfixwidth readonly nomodifiable
         nnoremap <buffer> q :bd<CR>
         wincmd p

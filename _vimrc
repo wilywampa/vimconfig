@@ -972,7 +972,7 @@ if s:readonly
 endif
 
 " Set airline color scheme
-let g:airline_theme='tomorrow'
+let g:airline_theme='solarized'
 au VimrcAutocmds TabEnter,FocusGained *
     \ silent! call airline#highlighter#highlight(['normal',&mod?'modified':''])
 
@@ -1338,6 +1338,9 @@ nnoremap <silent> <Leader>bb :call
     \ VimuxRunCommand('break '.expand('%:t').':'.line('.'))<CR>
 nnoremap <silent> <Leader>bc :call
     \ VimuxRunCommand('clear '.expand('%:t').':'.line('.'))<CR>
+let g:VimuxRunnerType = 'pane'
+com! -nargs=0 VimuxToggleRunnerType let g:VimuxRunnerType =
+    \ g:VimuxRunnerType == 'pane' ? 'window' : 'pane' | echo g:VimuxRunnerType
 
 " Targets settings
 let g:targets_aiAI = 'ai  '
@@ -1345,8 +1348,9 @@ let g:targets_nlNL = '    '
 let g:targets_pairs = ''
 let g:targets_quotes = ''
 
-" LustyJuggler settings
-let g:LustyJugglerSuppressRubyWarning = 1
+" fuzzyfinder settings
+set runtimepath+=~/.fzf
+nnoremap <silent> <M-f> :FZF<CR>
 
 " Import scripts
 execute pathogen#infect()
