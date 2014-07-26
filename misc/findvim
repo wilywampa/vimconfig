@@ -6,7 +6,8 @@ fi
 
 local fmt='#{pane_current_command},,#{pane_id}'
 
-if [[ $(vim --serverlist | head -n 1 2> /dev/null) == 'VIM' ]]; then
+vim --serverlist | grep -q '\bVIM\b' 2>&1 > /dev/null
+if [ $? ]; then
   if [[ $# == 1 ]]; then
     vim --servername VIM --remote "$@"
   fi

@@ -8,6 +8,11 @@ endif
 
 let FixMacrosLoaded=1
 
+" Problem was fixed in patch 7.4.374
+if v:version > 704 || has('7.4.374')
+    finish
+endif
+
 nnoremap <expr> @ <SID>FixMacros()
 
 function! s:FixMacros()

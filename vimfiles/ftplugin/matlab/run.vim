@@ -93,13 +93,12 @@ else
     nmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(0, v:count)<CR>
     vmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
     nmap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
-    nnor <silent> <buffer> <Leader>: :VimuxPromptCommand<CR><C-f>:set ft=matlab<CR>i
 endif
 
 if !exists('*<SID>ShowDictionary')
     func s:ShowDictionary()
-        execute "silent keepalt vertical split ".g:matlab_dict
-        botright vertical resize 60
+        execute "silent keepalt botright vertical split ".g:matlab_dict
+        vertical resize 50
         setlocal winfixwidth readonly nomodifiable
         nnoremap <buffer> q :bd<CR>
         wincmd p
@@ -112,6 +111,7 @@ if !exists('*<SID>ToggleDictionary')
         if win != -1
             execute win."wincmd w"
             bdelete
+            wincmd p
         else
             call <SID>ShowDictionary()
         endif
@@ -123,5 +123,13 @@ nmap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>
 imap <silent> <buffer> <F5> <Esc><F5>
 nmap <silent> <buffer> <S-F5> :update<CR>:call <SID>UpdateDictionaryMATLAB()<CR>
 imap <silent> <buffer> <S-F5> <Esc><S-F5>
+
+augroup MATLAB
+  autocmd!
+  autocmd CmdwinEnter @
+      \ if getbufvar(bufnr('#'), '&filetype') == 'matlab'
+      \     let &filetype = 'matlab' |
+      \ endif
+augroup END
 
 set omnifunc=matlabcomplete#complete
