@@ -352,7 +352,7 @@ nn @! :<C-u><C-r>:<Home><C-Right>!<CR>
 nn @~ :<C-u><C-r>:<C-f>^~<CR>
 
 " Use <C-q> to do what <C-v> used to do
-noremap <C-q> <C-v>
+no <C-q> <C-v>
 
 " Show current line of diff at bottom of tab
 nn <Leader>dl <C-w>t<C-w>s<C-w>J<C-w>t<C-w>l<C-w>s<C-w>J<C-w>t:res<CR><C-w>b
@@ -367,10 +367,10 @@ no <silent> <Left>  :<C-u>let w=winnr()<CR><C-w>h:if w==winnr()\|exe "norm! gT"\
 no <silent> <Right> :<C-u>let w=winnr()<CR><C-w>l:if w==winnr()\|exe "norm! gt"\|en<CR>
 
 " Change window size with control + arrow keys
-noremap <silent> <C-Down>  :<C-u>call vimtools#ResizeWindow('down')<CR>
-noremap <silent> <C-Up>    :<C-u>call vimtools#ResizeWindow('up')<CR>
-noremap <silent> <C-Left>  :<C-u>call vimtools#ResizeWindow('left')<CR>
-noremap <silent> <C-Right> :<C-u>call vimtools#ResizeWindow('right')<CR>
+no <silent> <C-Down>  :<C-u>call vimtools#ResizeWindow('down')<CR>
+no <silent> <C-Up>    :<C-u>call vimtools#ResizeWindow('up')<CR>
+no <silent> <C-Left>  :<C-u>call vimtools#ResizeWindow('left')<CR>
+no <silent> <C-Right> :<C-u>call vimtools#ResizeWindow('right')<CR>
 
 " Stay in visual mode after indent change
 vn < <gv
@@ -437,23 +437,13 @@ nn <silent> <Leader>g* :let @/=expand('<cword>')<CR>
 nn <silent> <Leader>g8 :let @/=expand('<cword>')<CR>
     \:call histadd('/', @/)<CR>:set hls<CR>
 
-" Use 'very magic' regex by default
-nn / /\v
-vn / /\v
-nn ? ?\v
-vn ? ?\v
-
 " Move current line to 1/5 down from top or up from bottom
 nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
 nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
 
-" Make /<CR> and ?<CR> work when \v is added automatically
-nn /<CR> /<CR>
-nn ?<CR> ?<CR>
-
 " Open cursor file in vertical split
-nn <C-w>f :execute "vsplit ".expand('<cfile>')<CR>
-nn <C-w><C-f> :execute "vsplit ".expand('<cfile>')<CR>
+nn <silent> <C-w>f :vertical wincmd f<CR>
+nn <silent> <C-w><C-f> :vertical wincmd f<CR>
 
 " Default make key
 nn <silent> <F5> :update<CR>:make<CR><CR>
@@ -503,12 +493,16 @@ vm <M-\> <Esc><M-\>
 
 " {{{2 Functions
 " Like bufdo but return to starting buffer
-func! Bufdo(command)
+func! Bufdo(command, bang)
     let currBuff=bufnr("%")
-    execute 'bufdo ' . a:command
+    if a:bang
+        execute 'bufdo set eventignore-=Syntax | ' . a:command
+    else
+        execute 'bufdo ' . a:command
+    endif
     execute 'buffer ' . currBuff
 endfunc
-com! -nargs=+ -complete=command Bufdo call Bufdo(<q-args>)
+com! -nargs=+ -bang -complete=command Bufdo call Bufdo(<q-args>, <bang>0)
 
 " Function to set key codes for terminals
 func! s:KeyCodes()
@@ -531,6 +525,13 @@ func! s:CmdwinMappings()
     " Delete item under cursor from history
     nnoremap <silent> <buffer> DD :call histdel(g:cmdwinType,'\V\^'.
         \escape(getline('.'),'\').'\$')<CR>:norm! "_dd<CR>
+
+    " Resize window
+    nnoremap <buffer> <C-Up>   <C-w>+
+    nnoremap <buffer> <C-Down> <C-w>-
+
+    " Close window
+    nnoremap <silent> <buffer> <Leader>w :q<CR>
 endfunc
 
 " Delete hidden buffers
@@ -589,32 +590,6 @@ func! s:FixReg()
     call setreg(l:reg, l:str)
 endfunc
 nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
-
-" Make dot repeat ignore InsertEnter event
-if !exists('*<SID>DotRepeat')
-    func! s:DotRepeat(count)
-        let eventignore_save = &eventignore
-        let &eventignore = 'InsertEnter'
-        try
-            exec "norm! ".(a:count ? a:count : "")."."
-        finally
-            let &eventignore = eventignore_save
-        endtry
-    endfunc
-    nnoremap <silent> . :<C-u>call <SID>DotRepeat(v:count)<CR>
-endif
-
-" Make q macro ignore InsertEnter event
-func! s:QMacro(count)
-    let eventignore_save = &eventignore
-    let &eventignore = 'InsertEnter'
-    try
-        execute "normal ".(a:count ? a:count : "")."@q"
-    finally
-        let &eventignore = eventignore_save
-    endtry
-endfunc
-nnoremap <silent> Q :<C-u>call <SID>QMacro(v:count)<CR>
 
 " Cycle search mode between regular, very magic, and very nomagic
 func! s:CycleSearchMode()
@@ -771,6 +746,55 @@ func! s:SingleFile()
 endfunc
 com! -nargs=0 SingleFile call <SID>SingleFile()
 
+" Use 'very magic' regex by default
+func! s:SearchHandleKey(fwd)
+    echo a:fwd ? '/\v' : '?\v'
+    let char = getchar()
+    if char == 13 " <CR>
+        return a:fwd ? "/\<CR>" : "?\<CR>"
+    elseif char == 27 " <Esc>
+        return "\<C-l>"
+    elseif char == "\<Up>"
+        return (a:fwd ? '/' : '?')."\<Up>"
+    elseif char == 22 " <C-v>
+        return (a:fwd ? '/' : '?')."\\v\<C-r>+"
+    elseif char == 24 " <C-x>
+        return (a:fwd ? '/' : '?').'\V'
+    else
+        return (a:fwd ? '/' : '?').'\v'.
+            \ (type(char) == 1 ? char : nr2char(char))
+    endif
+endfunc
+nn <expr> / <SID>SearchHandleKey(1)
+vn <expr> / <SID>SearchHandleKey(1)
+nn <expr> ? <SID>SearchHandleKey(0)
+vn <expr> ? <SID>SearchHandleKey(0)
+
+" Make pasted text have one blank line above and below
+func! s:MakeParagraph()
+    let reg = @"
+    let l1 = nextnonblank(line("'["))
+    let l2 = prevnonblank(line("']"))
+    let l3 = nextnonblank(l2 + 1)
+    if l3 > l2
+        silent execute "keeppatterns ".l2.",".l3."g/^\\s*$/d"
+        call append(l2, [""])
+    else
+        silent execute "keeppatterns ".line("']").",".line('$')."g/^\\s*$/d"
+    endif
+    let l4 = prevnonblank(l1 - 1)
+    if l4 > 0
+        silent execute "keeppatterns ".l4.",".l1."g/^\\s*$/d"
+        call append(l4, [""])
+        call cursor(l4 + 2, 0)
+    else
+        silent execute "keeppatterns 1,".l1."g/^\\s*$/d"
+        call cursor(1, 0)
+    endif
+    let @" = reg | let @+ = reg | let @* = reg
+endfunc
+nnoremap <silent> g= :call <SID>MakeParagraph()<CR>
+
 " {{{2 GUI configration
 if has('gui_running')
     " Disable most visible GUI features
@@ -831,7 +855,7 @@ else
     exec "set <F15>=\<Esc>[27;5;9~ <F16>=\<Esc>[27;6;9~"
 
     " Use correct background color
-    autocmd VimrcAutocmds VimEnter * set t_ut=|redraw!
+    autocmd VimrcAutocmds VimEnter * set t_ut=
 
     " Use block cursor in normal mode and bar cursor in insert mode
     let &t_SI = "\<Esc>[5 q"
@@ -915,10 +939,7 @@ augroup VimrcAutocmds
 
     " Use to check if inside command window
     au VimEnter,CmdwinLeave * let g:inCmdwin=0
-    au CmdwinEnter * let g:inCmdwin=1
-    au CmdwinEnter / let g:cmdwinType='/'
-    au CmdwinEnter ? let g:cmdwinType='?'
-    au CmdwinEnter : let g:cmdwinType=':'
+    au CmdwinEnter * let g:inCmdwin=1 | let g:cmdwinType = expand('<afile>')
     au CmdwinEnter * call <SID>CmdwinMappings()
 
     " Load files with mixed line endings as DOS format
@@ -1022,6 +1043,7 @@ if has('lua')
         let g:neocomplete#enable_smart_case=1
         let g:neocomplete#max_list=200
         let g:neocomplete#min_keyword_length=4
+        let g:neocomplete#auto_completion_start_length=3
         let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
         if !exists('g:neocomplete#force_omni_input_patterns')
@@ -1251,6 +1273,7 @@ func! UniteBufferCycle(resume)
     if !a:resume
         let s:buflist = unite#sources#buffer#get_unite_buffer_list()
         let s:bufnr = -2
+        let s:startbuf = bufnr('%')
     endif
     let s:key = '['
     while s:key == '[' || s:key == ']'
@@ -1281,6 +1304,8 @@ func! UniteBufferCycle(resume)
     if index(['q', 'Q', "\<C-c>", "\<CR>", "\<Esc>"], s:key) < 0
         call feedkeys(s:key)
     endif
+    execute "buffer ".s:startbuf
+    buffer #
 endfunc
 nnoremap <silent> ]r :<C-u>call UniteBufferCycle(0)<CR>
 nnoremap <silent> [r :<C-u>call UniteBufferCycle(1)<CR>
