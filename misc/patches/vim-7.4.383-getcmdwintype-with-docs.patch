@@ -1,0 +1,116 @@
+diff --git a/runtime/doc/cmdline.txt b/runtime/doc/cmdline.txt
+--- a/runtime/doc/cmdline.txt
++++ b/runtime/doc/cmdline.txt
+@@ -1084,6 +1084,9 @@
+ statusline of the command-line window itself and the statusline above it.
+ Thus you can resize the command-line window, but not others.
+ 
++The |getcmdwintype()| function returns the type of the command-line being
++edited as described in |cmdwin-char|.
++
+ 
+ AUTOCOMMANDS
+ 
+diff --git a/runtime/doc/eval.txt b/runtime/doc/eval.txt
+--- a/runtime/doc/eval.txt
++++ b/runtime/doc/eval.txt
+@@ -1808,6 +1808,7 @@
+ getcmdline()			String	return the current command-line
+ getcmdpos()			Number	return cursor position in command-line
+ getcmdtype()			String	return the current command-line type
++getcmdwintype()			String	return the current command-line window type
+ getcurpos()			List	position of the cursor
+ getcwd()			String	the current working directory
+ getfontname( [{name}])		String	name of font being used
+@@ -3349,6 +3350,11 @@
+ 		Returns an empty string otherwise.
+ 		Also see |getcmdpos()|, |setcmdpos()| and |getcmdline()|.
+ 
++getcmdwintype()						*getcmdwintype()*
++		Return the current |command-line-window| type. Possible return
++		values are the same as |getcmdtype()|. Returns an empty string
++		when not in the command-line window.
++
+ 							*getcurpos()*
+ getcurpos()	Get the position of the cursor.  This is like getpos('.'), but
+ 		includes an extra item in the list:
+diff --git a/runtime/doc/tags b/runtime/doc/tags
+--- a/runtime/doc/tags
++++ b/runtime/doc/tags
+@@ -6137,6 +6137,7 @@
+ getcmdline()	eval.txt	/*getcmdline()*
+ getcmdpos()	eval.txt	/*getcmdpos()*
+ getcmdtype()	eval.txt	/*getcmdtype()*
++getcmdwintype()	eval.txt	/*getcmdwintype()*
+ getcurpos()	eval.txt	/*getcurpos()*
+ getcwd()	eval.txt	/*getcwd()*
+ getfontname()	eval.txt	/*getfontname()*
+diff --git a/runtime/doc/usr_41.txt b/runtime/doc/usr_41.txt
+--- a/runtime/doc/usr_41.txt
++++ b/runtime/doc/usr_41.txt
+@@ -897,6 +897,7 @@
+ 	did_filetype()		check if a FileType autocommand was used
+ 	eventhandler()		check if invoked by an event handler
+ 	getpid()		get process ID of Vim
++	getcmdwintype()		return the current command-line window type
+ 
+ 	libcall()		call a function in an external library
+ 	libcallnr()		idem, returning a number
+diff --git a/runtime/syntax/vim.vim b/runtime/syntax/vim.vim
+--- a/runtime/syntax/vim.vim
++++ b/runtime/syntax/vim.vim
+@@ -75,7 +75,7 @@
+ " Function Names {{{2
+ syn keyword vimFuncName contained	abs and argidx atan browsedir bufloaded bufwinnr byteidxcomp changenr clearmatches complete_add copy count deepcopy diff_filler escape executable expand feedkeys filter float2nr fnameescape foldclosedend foldtextresult garbagecollect getbufvar getcmdline getcwd getfsize getline getpid getreg gettabwinvar getwinvar has hasmapto histget hlID indent inputdialog inputsave invert items len line localtime luaeval mapcheck matcharg matchlist min mzeval or prevnonblank py3eval readfile remote_expr remote_read rename reverse screenchar search searchpairpos serverlist setcmdpos setloclist setpos setreg settabwinvar sha256 shiftwidth sin sort spellbadword split str2float strchars strftime string strpart strtrans submatch synconcealed synIDattr synstack tabpagebuflist tabpagewinnr taglist tanh tolower tr type undotree virtcol wildmenumode wincol winline winrestcmd winsaveview writefile
+ syn keyword vimFuncName contained	acos append argv atan2 bufexists bufname byte2line call char2nr col complete_check cos cscope_connection delete diff_hlID eval exists expr8 filereadable finddir floor fnamemodify foldlevel foreground get getchar getcmdpos getfontname getftime getloclist getpos getregtype getwinposx glob has_key histadd histnr hostname index inputlist inputsecret isdirectory join libcall line2byte log map match matchdelete matchstr mkdir nextnonblank pathshorten printf pyeval reltime remote_foreground remote_send repeat round screencol searchdecl searchpos setbufvar setline setmatches setqflist settabvar setwinvar shellescape simplify sinh soundfold spellsuggest sqrt str2nr strdisplaywidth stridx strlen strridx strwidth substitute synID synIDtrans system tabpagenr tagfiles tan tempname toupper trunc undofile values visualmode winbufnr winheight winnr winrestview winwidth xor
+-syn keyword vimFuncName contained	add argc asin browse buflisted bufnr byteidx ceil cindent complete confirm cosh cursor did_filetype empty eventhandler exp extend filewritable findfile fmod foldclosed foldtext function getbufline getcharmod getcmdtype getfperm getftype getmatches getqflist gettabvar getwinposy globpath haslocaldir histdel hlexists iconv input inputrestore insert islocked keys libcallnr lispindent log10 maparg matchadd matchend max mode nr2char pow pumvisible range reltimestr remote_peek remove resolve screenattr screenrow searchpair server2client 
++syn keyword vimFuncName contained	add argc asin browse buflisted bufnr byteidx ceil cindent complete confirm cosh cursor did_filetype empty eventhandler exp extend filewritable findfile fmod foldclosed foldtext function getbufline getcharmod getcmdtype getcmdwintype getfperm getftype getmatches getqflist gettabvar getwinposy globpath haslocaldir histdel hlexists iconv input inputrestore insert islocked keys libcallnr lispindent log10 maparg matchadd matchend max mode nr2char pow pumvisible range reltimestr remote_peek remove resolve screenattr screenrow searchpair server2client 
+ 
+ "--- syntax here and above generated by mkvimvim ---
+ " Special Vim Highlighting (not automatic) {{{1
+diff --git a/src/eval.c b/src/eval.c
+--- a/src/eval.c
++++ b/src/eval.c
+@@ -554,6 +554,7 @@
+ static void f_getcmdline __ARGS((typval_T *argvars, typval_T *rettv));
+ static void f_getcmdpos __ARGS((typval_T *argvars, typval_T *rettv));
+ static void f_getcmdtype __ARGS((typval_T *argvars, typval_T *rettv));
++static void f_getcmdwintype __ARGS((typval_T *argvars, typval_T *rettv));
+ static void f_getcwd __ARGS((typval_T *argvars, typval_T *rettv));
+ static void f_getfontname __ARGS((typval_T *argvars, typval_T *rettv));
+ static void f_getfperm __ARGS((typval_T *argvars, typval_T *rettv));
+@@ -7984,6 +7985,7 @@
+     {"getcmdline",	0, 0, f_getcmdline},
+     {"getcmdpos",	0, 0, f_getcmdpos},
+     {"getcmdtype",	0, 0, f_getcmdtype},
++    {"getcmdwintype",	0, 0, f_getcmdwintype},
+     {"getcurpos",	0, 0, f_getcurpos},
+     {"getcwd",		0, 0, f_getcwd},
+     {"getfontname",	0, 1, f_getfontname},
+@@ -11503,6 +11505,26 @@
+ }
+ 
+ /*
++ * "getcmdwintype()" function
++ */
++    static void
++f_getcmdwintype(argvars, rettv)
++    typval_T	*argvars UNUSED;
++    typval_T	*rettv;
++{
++    rettv->v_type = VAR_STRING;
++    rettv->vval.v_string = NULL;
++#ifdef FEAT_CMDWIN
++    rettv->vval.v_string = alloc(2);
++    if (rettv->vval.v_string != NULL)
++    {
++	rettv->vval.v_string[0] = cmdwin_type;
++	rettv->vval.v_string[1] = NUL;
++    }
++#endif
++}
++
++/*
+  * "getcwd()" function
+  */
+     static void

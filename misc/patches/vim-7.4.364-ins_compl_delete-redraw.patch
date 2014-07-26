@@ -1,22 +1,23 @@
 diff --git a/src/edit.c b/src/edit.c
 --- a/src/edit.c
 +++ b/src/edit.c
-@@ -3854,7 +3854,8 @@
- 	    ins_compl_free();
- 	    compl_started = FALSE;
- 	    compl_matches = 0;
--	    msg_clr_cmdline();	/* necessary for "noshowmode" */
-+	    if (!shortmess(SHM_COMPLETIONMENU))
-+		msg_clr_cmdline();	/* necessary for "noshowmode" */
- 	    ctrl_x_mode = 0;
- 	    compl_enter_selects = FALSE;
- 	    if (edit_submode != NULL)
-@@ -4592,6 +4593,8 @@
-     i = compl_col + (compl_cont_status & CONT_ADDING ? compl_length : 0);
-     backspace_until_column(i);
+@@ -4596,6 +4596,8 @@
+     /* TODO: is this sufficient for redrawing?  Redrawing everything causes
+      * flicker, thus we can't do that. */
      changed_cline_bef_curs();
 +    /* Clean up deleted characters */
 +    screen_start();
  }
  
  /* Insert the new text being completed. */
+diff --git a/src/version.c b/src/version.c
+--- a/src/version.c
++++ b/src/version.c
+@@ -729,6 +729,7 @@
+ 	"-xpm",
+ # endif
+ #endif
++	"+ins_compl_del",
+ 	NULL
+ };
+ 

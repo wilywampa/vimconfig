@@ -1,8 +1,7 @@
-diff --git a/gui_gtk_x11.c b/gui_gtk_x11.c
-index 0be60ad..f24d997 100644
---- a/gui_gtk_x11.c
-+++ b/gui_gtk_x11.c
-@@ -732,10 +732,7 @@ blink_cb(gpointer data UNUSED)
+diff --git a/src/gui_gtk_x11.c b/src/gui_gtk_x11.c
+--- a/src/gui_gtk_x11.c
++++ b/src/gui_gtk_x11.c
+@@ -732,10 +732,7 @@
  gui_mch_start_blink(void)
  {
      if (blink_timer)
@@ -13,7 +12,7 @@ index 0be60ad..f24d997 100644
      /* Only switch blinking on if none of the times is zero */
      if (blink_waittime && blink_ontime && blink_offtime && gui.in_focus)
      {
-@@ -829,7 +826,9 @@ keyval_to_string(unsigned int keyval, unsigned int state, char_u *string)
+@@ -829,7 +826,9 @@
  	     * resemble quite exactly the behaviour of the GTK+ 1.2 GUI on my
  	     * machine.  The only difference is BS vs. DEL for CTRL-8 (makes
  	     * more sense and is consistent with usual terminal behaviour). */
@@ -24,7 +23,7 @@ index 0be60ad..f24d997 100644
  		string[0] = uc & 0x1F;
  	    else if (uc == '2')
  		string[0] = NUL;
-@@ -2054,7 +2053,6 @@ write_session_file(char_u *filename)
+@@ -2054,7 +2053,6 @@
  
      ssop_flags = save_ssop_flags;
      g_free(mksession_cmdline);
@@ -32,7 +31,7 @@ index 0be60ad..f24d997 100644
      /*
       * Reopen the file and append a command to restore v:this_session,
       * as if this save never happened.	This is to avoid conflicts with
-@@ -3143,14 +3141,10 @@ gui_mch_init(void)
+@@ -3143,14 +3141,10 @@
  	gnome_program_init(VIMPACKAGE, VIM_VERSION_SHORT,
  			   LIBGNOMEUI_MODULE, gui_argc, gui_argv, NULL);
  # if defined(FEAT_FLOAT) && defined(LC_NUMERIC)
@@ -51,3 +50,14 @@ index 0be60ad..f24d997 100644
  # endif
      }
  #endif
+diff --git a/src/version.c b/src/version.c
+--- a/src/version.c
++++ b/src/version.c
+@@ -729,6 +729,7 @@
+ 	"-xpm",
+ # endif
+ #endif
++	"+ctrl_backtick",
+ 	NULL
+ };
+ 
