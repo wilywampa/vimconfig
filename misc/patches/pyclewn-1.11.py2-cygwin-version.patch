@@ -1,0 +1,14 @@
+diff --git a/clewn/gdb.py b/clewn/gdb.py
+index 1e9d197..6643ebd 100644
+--- a/clewn/gdb.py
++++ b/clewn/gdb.py
+@@ -313,7 +313,8 @@ def parse_gdb_version(header):
+     lines = (x[2:-3] for x in header.splitlines() if x.startswith('~"') and
+                                                         x.endswith(r'\n"'))
+     try:
+-        version = lines.next().rsplit(' ', 1)
++        version = (lines.next().replace(' (cygwin-special)', '')).rsplit(' ',
++                                                                         1)
+     except StopIteration:
+         pass
+     else:
