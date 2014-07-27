@@ -127,7 +127,7 @@ imap <silent> <buffer> <S-F5> <Esc><S-F5>
 augroup MATLAB
   autocmd!
   autocmd CmdwinEnter @
-      \ if getbufvar(bufnr('#'), '&filetype') == 'matlab'
+      \ if getbufvar(bufnr('#'), '&filetype') == 'matlab' |
       \     let &filetype = 'matlab' |
       \ endif
 augroup END

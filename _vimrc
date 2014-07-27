@@ -919,6 +919,7 @@ augroup VimrcAutocmds
 
     " Prefer single-line style comments and fix shell script comments
     autocmd FileType cpp,arduino setl commentstring=//%s
+    autocmd FileType python setl commentstring=#%s
     autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
     autocmd FileType dosbatch setl commentstring=REM%s
     autocmd FileType autohotkey setl commentstring=;%s
@@ -1087,7 +1088,8 @@ endif
 
 " {{{2 Sneak settings
 let g:sneak#use_ic_scs=1
-highlight link SneakPluginTarget DiffText
+autocmd VimrcAutocmds ColorScheme * highlight! SneakPluginTarget
+    \ term=reverse cterm=reverse ctermfg=4 gui=reverse guifg=#268bd2
 func! s:SneakMaps()
     if exists('g:loaded_sneak_plugin')
         for mode in ['n', 'x', 'o']
