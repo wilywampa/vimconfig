@@ -14,7 +14,6 @@ if [ $? ]; then
   for win in $(tmux list-windows -F '#{window_id}'); do
     for pane in $(tmux list-panes -t$win -F "$fmt"); do
       command=$pane[(ws:,,:)1]
-      echo $command
       pane_id=$pane[(ws:,,:)2]
       if [[ "$command" = 'vim' ]]; then
         tmux select-window -t$win

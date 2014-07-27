@@ -1,3 +1,6 @@
-#!/bin/bash
+#!/bin/zsh
 file=$(cygpath -ua "$@")
-vim --servername VIM --remote "$file"
+vim --serverlist | grep -q '\bVIM\b' 2>&1 > /dev/null
+if [ $? ]; then
+  vim --servername VIM --remote "$file"
+fi
