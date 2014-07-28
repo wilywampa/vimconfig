@@ -59,16 +59,18 @@ autocmd VimEnter * call <SID>SetupScrollback()
 func! s:SetupScrollback()
     if $TMUX != ""
         call neocomplete#init#enable()
-        above split ~/.tmuxwords.zsh
-        norm! Gzb
-        setlocal nonumber norelativenumber readonly nomodifiable
-        setlocal nocursorline buftype=nofile
-        NeoCompleteDictionaryMakeCache
-        AnsiEsc
-        wincmd j
-        resize 999
-        normal! G$
-        execute "resize ".(winline()+2)
+        try
+            silent! above split ~/.tmuxwords.zsh
+            norm! Gzb
+            setlocal nonumber norelativenumber readonly nomodifiable
+            setlocal nocursorline buftype=nofile
+            NeoCompleteDictionaryMakeCache
+            AnsiEsc
+            wincmd j
+            resize 999
+            normal! G$
+            execute "resize ".(winline()+2)
+        endtry
     endif
     execute "goto ".($ZCURSOR + 1)
     if $ZKEYMAP != 'vicmd'

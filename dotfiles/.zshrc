@@ -1,4 +1,4 @@
-#{{{1 Lines configured by zsh-newuser-install
+#[[[1 Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=10000
 SAVEHIST=10000
@@ -7,14 +7,14 @@ setopt inc_append_history extended_history interactive_comments
 setopt hist_expire_dups_first
 # End of lines configured by zsh-newuser-install
 
-#{{{1 Lines added by compinstall
+#[[[1 Lines added by compinstall
 zstyle :compinstall filename '~/.zshrc'
 
 autoload -Uz compinit
 compinit -C
 # End of lines added by compinstall
 
-#{{{1 Basic settings
+#[[[1 Basic settings
 # Automatically use directory stack
 setopt auto_pushd pushd_minus pushd_silent pushd_to_home pushd_ignoredups
 
@@ -24,69 +24,98 @@ stty -ixon -ixoff
 # Try to correct misspelled commands
 setopt CORRECT
 
-#{{{1 Aliases
+#[[[1 Aliases
+# zsh
 alias sz='source ~/.zshrc'
-alias ez='vim ~/.zshrc'
 alias EXIT='exit'
+alias s="sed 's/.*/\"&\"/'"
+alias so='source'
+alias wh='whence'
+alias reset='reset; source ~/.zshrc'
+alias com='command'
+
+# grep
 alias grep='grep --color=auto'
 alias egrep='grep -E'
 alias fgrep='grep -F'
 alias g='grep'
 alias gi='grep -i'
+
+# find
 alias f='find . -type f'
 alias fin='find . -type f -iname'
 alias fn='find . -type f -name'
 alias fd='find . -type d'
 alias fdn='find . -type d -name'
 alias fmd='find . -maxdepth'
-alias loc='locate --regex'
-alias locate='locate --regex'
-alias s="sed 's/.*/\"&\"/'"
 alias fs='f | s'
 alias fsg='fs | grep'
 alias fsgi='fs | grep -i'
 alias fsxg='fs | xargs grep'
 alias fsa='fs | ag'
 alias fsxa='fs | xargs ag'
-alias d='dirs -v'
+
+# locate
+alias loc='locate --regex'
+alias locate='locate --regex'
+
+# vim
+alias vim='vim --servername VIM'
+alias vit='vim --servername VIM --remote-tab'
 alias view='vim -R'
 alias e='vim'
 alias vims='vim -S ~/session.vis'
-alias vimr='vim -S =(cat ~/periodic_session.vis)'
+alias vimr='vim -S =(<~/periodic_session.vis)'
 alias gvims='gvim -S ~/session.vis'
-alias h='head'
-alias t='tail'
+alias ez='vim ~/.zshrc'
+
+# svn
 alias svnadd="svn st | \grep '^?' | awk '{print \$2}' | s | xargs svn add"
 alias svnrevert="svn st | \grep '^M' | awk '{print \$2}' | s | xargs svn revert"
 alias svnrm="svn st | \grep '^?' | awk '{print \$2}' | s | xargs rm -r"
 alias svnst="svn st | g -v '\.git'"
 alias svndi="svnst | awk '{print \$2}' | s | xargs svn di"
 alias svnexport="svn st | \grep '^[MA]' | awk '{print \$2}' | xargs -I {} cp --parents {}"
-alias ec='echo'
-alias scrn='screen -R'
-alias tmx='tmux attach || tmux new'
-alias tma='tmux attach'
-alias bell='echo -ne "\007"'
+
+# hg
+alias hgadd="hg st | \grep '^?' | awk '{print \$2}' | s | xargs hg add"
+alias hgrevert="hg st | \grep '^M' | awk '{print \$2}' | s | xargs hg revert"
+alias hgrm="hg st | \grep '^?' | awk '{print \$2}' | s | xargs rm -r"
+alias hgst="hg st | g -v '\.git'"
+alias hgdi="hgst | awk '{print \$2}' | s | xargs hg di"
+alias hgexport="hg st | \grep '^[MA]' | awk '{print \$2}' | xargs -I {} cp --parents {}"
+
+# ls
+alias l='ls -h --color=auto --sort=none'
 alias ls='ls -h --color=auto --sort=none'
 alias ll='ls -lsh --sort=none'
 alias lls='ls -lshrt'
 alias lla='ls -lshA --color=auto --sort=none'
 alias llas='ls -lshrtA --color=auto'
 alias llsa='ls -lshrtA --color=auto'
+
+# misc
+alias ec='echo'
+alias scrn='screen -R'
+alias tmx='tmux attach || tmux new'
+alias tma='tmux attach'
+alias bell='echo -ne "\007"'
 alias hist='history 1'
 alias csc='find . -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \
     | sed "s/.*/\"&\"/g" > csc.files ; cscope -R -b -i csc.files ; rm csc.files'
 alias ag="ag --color-line-number=';33' -S"
-alias psg='ps aux | grep -i'
 alias a='ag'
+alias psg='ps aux | grep -i'
 alias awkp2="awk '{print \$2}'"
 alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .'
-alias so='source'
-alias wh='whence'
 alias info='info --vi-keys'
-alias reset='reset; source ~/.zshrc'
+alias remake='make clean && make -j8'
+alias d='dirs -v'
+alias h='head'
+alias t='tail'
+alias tree="tree -C | vim -R -c 'AnsiEsc' -"
 
-#{{{1 Global aliases
+#[[[1 Global aliases
 alias -g LL='ls -lshrtA'
 alias -g GG='grep --color=auto'
 alias -g GI='grep --color=auto -i'
@@ -95,7 +124,7 @@ alias -g FF='*(D.)'
 alias -g TEST='&& echo "yes" || echo "no"'
 alias -g AG="ag --color-line-number=';33' -S"
 
-#{{{1 Suffix aliases
+#[[[1 Suffix aliases
 _vim_or_cd() { [[ -d "$1" ]] && cd "$1" || vim "$1" }
 alias -s vim=_vim_or_cd
 alias -s h=vim
@@ -104,7 +133,7 @@ alias -s c=vim
 alias -s cpp=vim
 alias -s m=vim
 
-#{{{1 Key bindings
+#[[[1 Key bindings
 vibindkey() {
     bindkey -M viins "$@"
     bindkey -M vicmd "$@"
@@ -156,7 +185,7 @@ zle -N _vi-last-line; bindkey -M vicmd 'G' _vi-last-line
 self-insert-no-autoremove() { LBUFFER="$LBUFFER$KEYS" }
 zle -N self-insert-no-autoremove; bindkey '|' self-insert-no-autoremove
 
-#{{{1 Functions
+#[[[1 Functions
 b2h() {
     awk 'function human(x) { s=" kMGTEPYZ"; while (x>=1000 && length(s)>1) \
         {x/=1024; s=substr(s,2)} return int(x+0.5) substr(s,1,1) }{ \
@@ -165,12 +194,12 @@ b2h() {
 
 bigdirs() {
     find . -type d -not -name "." -exec du -b {} + | sort -n \
-        | tail -n $(( $(tput lines) - 6 )) | b2h
+        | tail -n $(( $LINES - 6 )) | b2h
 }
 
 bigfiles() {
     find . -type f -exec du -b {} + | sort -n \
-        | tail -n $(( $(tput lines) - 6 )) | b2h
+        | tail -n $(( $LINES - 6 )) | b2h
 }
 
 _cygyank() {
@@ -201,9 +230,6 @@ _xclipyank() {
     CUTBUFFER=$(xclip -o -sel c | sed 's/\x0//g')
     if [[ -z $CUTBUFFER ]]; then
         CUTBUFFER=$(xclip -o -sel b | sed 's/\x0//g')
-    fi
-    if [[ -z $CUTBUFFER ]]; then
-        CUTBUFFER=$(pbpaste)
     fi
     zle yank
 }
@@ -250,7 +276,9 @@ _escalate-kill() {
     elif [[ ! $BUFFER =~ $r ]]; then
         return
     fi
-    if [[ $BUFFER =~ $r" -15" ]]; then
+    if [[ $BUFFER =~ $r" -2" ]]; then
+        BUFFER=${BUFFER/-2/-15}
+    elif [[ $BUFFER =~ $r" -15" ]]; then
         BUFFER=${BUFFER/-15/-9}
     elif [[ $BUFFER =~ $r ]] && [[ ! $BUFFER =~ $r" -[0-9]" ]]; then
         BUFFER=${BUFFER/kill/kill -15}
@@ -381,42 +409,40 @@ make() {
     fi
 }
 
-#{{{1 Focus/cursor handling
-_xterm_block="\033[1 q"
-_xterm_bar="\033[5 q"
+#[[[1 Focus/cursor handling
+_cursor_block="\033[1 q"
+_cursor_bar="\033[5 q"
 _focus_enable="\033[?1004h"
 _focus_disable="\033[?1004l"
 
-_set-block-cursor() { echo -ne $_xterm_block }
-_set-bar-cursor()   { echo -ne $_xterm_bar }
-_enable-focus()     { echo -ne $_focus_enable }
-_disable-focus()    { echo -ne $_focus_disable }
+_set-block-cursor() { [[ -z $MOBILE ]] && echo -ne $_cursor_block }
+_set-bar-cursor()   { [[ -z $MOBILE ]] && echo -ne $_cursor_bar }
+_enable-focus()     { [[ -z $MOBILE ]] && echo -ne $_focus_enable }
+_disable-focus()    { [[ -z $MOBILE ]] && echo -ne $_focus_disable }
 
 vibindkey '^[[O' redisplay
 vibindkey '^[[I' zle-keymap-select
 bindkey -M main '^[[O' redisplay
 bindkey -M main '^[[I' zle-keymap-select
-if [[ -z $MOBILE ]]; then
-    add-zsh-hook precmd _enable-focus
-    add-zsh-hook preexec _disable-focus
-    add-zsh-hook preexec _set-block-cursor
-    _set-bar-cursor
-fi
+add-zsh-hook precmd _enable-focus
+add-zsh-hook preexec _disable-focus
+add-zsh-hook preexec _set-block-cursor
+_set-bar-cursor
 
-#{{{1 Environment variables
+#[[[1 Environment variables
 export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     vim -R -c 'set ft=man nomod noma nolist' \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
-vimblacklist=(syntastic vimshell processing over flake8 tmux-complete)
+vimblacklist=(syntastic vimshell processing over flake8)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 [[ -e ~/.dircolors ]] && eval $(dircolors -b ~/.dircolors)
 [[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
 export FPATH
 export EDITOR=vim
 
-#{{{1 Completion Stuff
+#[[[1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
 
 # Use shift-tab to select previous completion
@@ -502,7 +528,34 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,tty,cputime,command'
 # Don't suggest _functions
 zstyle ':completion:*:functions' ignored-patterns '_*'
 
-#{{{1 Prompt stuff
+#[[[1 Prompt stuff
+
+export _PSVARLEN=0
+local userhost=$(print -P "%n@%m")
+export _USERHOSTLEN=${#userhost}
+_short-pwd() {
+    maxlen=$(($COLUMNS - 22 - $_USERHOSTLEN - $_PSVARLEN))
+    if [[ ${#PWD} -gt $maxlen ]]; then
+        newpwd=$(print -P "%~")
+        parts=(${(s:/:)newpwd})
+        trunc=0
+        while [[ $trunc -lt $((${#parts} - 1)) ]]; do
+            ((trunc++))
+            parts[$trunc]=${parts[$trunc][1]}
+            newpwd=${(j:/:)parts}
+            if [[ ${#newpwd} -lt $maxlen ]]; then
+                break
+            fi
+        done
+        if [[ $newpwd[1] != '~' ]]; then
+            newpwd=/$newpwd
+        fi
+        echo $newpwd
+    else
+        echo $PWD
+    fi
+}
+
 # Show vi input mode
 autoload -U colors && colors
 setopt PROMPT_SUBST
@@ -538,7 +591,7 @@ _lineup=$'\e[1A'
 _linedown=$'\e[1B'
 
 PROMPT="
-%{$fg[blue]%}%n%{$reset_color%}@%{$fg[yellow]%}%m%{$reset_color%} %{$fg[cyan]%}%d%{$reset_color%}
+%{$fg[blue]%}%n%{$reset_color%}@%{$fg[yellow]%}%m %{$fg[cyan]%}\$(_short-pwd)%{$reset_color%}
 [zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
 RPROMPT="%{${_lineup}%}%{$fg_bold[green]%}%T%{$reset_color%}"
 RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
@@ -549,12 +602,11 @@ TRAPALRM() { [[ -z $BUFFER ]] && zle reset-prompt }
 _accept-line() { zle reset-prompt; zle accept-line }
 zle -N _accept-line; vibindkey '^M' _accept-line
 
-#{{{1 Cygwin settings
+#[[[1 Cygwin settings
 if [[ $OSTYPE == 'cygwin' ]]; then
     export GROFF_NO_SGR=1
-    alias man='export MANWIDTH=$(( $(tput cols) - 6 )); man'
+    alias man='export MANWIDTH=$(( $COLUMNS - 6 )); man'
 
-    zstyle ':completion:*:default' use-cache 1
     zstyle ':completion:*:kill:*' command 'ps -u $USER -s'
     zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#)*=33=31=34"
 
@@ -563,10 +615,15 @@ if [[ $OSTYPE == 'cygwin' ]]; then
     alias cyg='cygpath'
 
     export DISPLAY=localhost:0.0
+
+    # Synchronize X11 PRIMARY and CLIPBOARD selections
+    if [[ ! $(ps) =~ 'autocutsel' ]] && (( $+commands[autocutsel] )); then
+        autocutsel -selection PRIMARY -fork
+        autocutsel -selection CLIPBOARD -fork
+    fi
 fi
 
-#{{{1 Machine-specific settings
-
+#[[[1 Machine-specific settings
 [[ -e ~/.zshrclocal ]] && source ~/.zshrclocal
 
-# vim: set fdm=marker fdl=1 et sw=4:
+# vim: set fdm=marker fdl=1 et sw=4 fmr=[[[,]]]:
