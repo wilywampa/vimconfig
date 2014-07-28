@@ -716,7 +716,7 @@ func! s:SectionJumpMaps()
         exe "xnoremap <silent> <buffer> ".key." :<C-u>call <SID>SectionJump('".key."',1)<CR>"
     endfor
 endfunc
-autocmd VimrcAutocmds FileType c,cpp call <SID>SectionJumpMaps()
+autocmd VimrcAutocmds FileType c,cpp,zsh call <SID>SectionJumpMaps()
 
 " Add wildcards to path in command line for zsh-like expansion
 func! s:StarifyPath()
@@ -747,28 +747,26 @@ endfunc
 com! -nargs=0 SingleFile call <SID>SingleFile()
 
 " Use 'very magic' regex by default
-func! s:SearchHandleKey(fwd)
-    echo a:fwd ? '/\v' : '?\v'
+func! s:SearchHandleKey(dir)
+    echo a:dir.'\v'
     let char = getchar()
+    if char =~ '`$' | let char = '' | endif " Weird special case
     if char == 13 " <CR>
-        return a:fwd ? "/\<CR>" : "?\<CR>"
+        return a:dir."\<CR>"
     elseif char == 27 " <Esc>
         return "\<C-l>"
-    elseif char == "\<Up>"
-        return (a:fwd ? '/' : '?')."\<Up>"
     elseif char == 22 " <C-v>
-        return (a:fwd ? '/' : '?')."\\v\<C-r>+"
+        return a:dir."\\v\<C-r>+"
     elseif char == 24 " <C-x>
-        return (a:fwd ? '/' : '?').'\V'
+        return a:dir.'\V'
     else
-        return (a:fwd ? '/' : '?').'\v'.
-            \ (type(char) == 1 ? char : nr2char(char))
+        return a:dir.'\v'.(type(char) == 1 ? char : nr2char(char))
     endif
 endfunc
-nn <expr> / <SID>SearchHandleKey(1)
-vn <expr> / <SID>SearchHandleKey(1)
-nn <expr> ? <SID>SearchHandleKey(0)
-vn <expr> ? <SID>SearchHandleKey(0)
+nn <expr> / <SID>SearchHandleKey('/')
+vn <expr> / <SID>SearchHandleKey('/')
+nn <expr> ? <SID>SearchHandleKey('?')
+vn <expr> ? <SID>SearchHandleKey('?')
 
 " Make pasted text have one blank line above and below
 func! s:MakeParagraph()
@@ -918,7 +916,7 @@ augroup VimrcAutocmds
     autocmd FileType conf setl indentexpr=getline(v:lnum-1)=~'\\\\$'?&sw:0
 
     " Prefer single-line style comments and fix shell script comments
-    autocmd FileType cpp,arduino setl commentstring=//%s
+    autocmd FileType cpp,arduino setl commentstrig=//%s
     autocmd FileType python setl commentstring=#%s
     autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
     autocmd FileType dosbatch setl commentstring=REM%s
@@ -1378,6 +1376,10 @@ let g:targets_quotes = ''
 " fuzzyfinder settings
 set runtimepath+=~/.fzf
 nnoremap <silent> <M-f> :FZF<CR>
+
+" eunuch settings
+cnoreabbrev <expr> loc ((getcmdtype() == ':' && getcmdpos() <= 4) ?
+    \ 'Locate! --regex' : 'loc')
 
 " Import scripts
 execute pathogen#infect()
