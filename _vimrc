@@ -750,23 +750,20 @@ com! -nargs=0 SingleFile call <SID>SingleFile()
 func! s:SearchHandleKey(dir)
     echo a:dir.'\v'
     let char = getchar()
-    if char =~ '`$' | let char = '' | endif " Weird special case
-    if char == 13 " <CR>
-        return a:dir."\<CR>"
-    elseif char == 27 " <Esc>
-        return "\<C-l>"
-    elseif char == 22 " <C-v>
-        return a:dir."\\v\<C-r>+"
-    elseif char == 24 " <C-x>
-        return a:dir.'\V'
+    if char =~ '`$' | let char = '' | endif          " Weird special case
+    if char == 13 | return a:dir."\<CR>"             " <CR>
+    elseif char == 27 || char == 3 | return "\<C-l>" " <Esc>/<C-c>
+    elseif char == 22 | return a:dir."\\v\<C-r>+"    " <C-v>
+    elseif char == 24 | return a:dir.'\V'            " <C-x>
+    elseif char == "\<Up>" | return a:dir."\<Up>"
     else
         return a:dir.'\v'.(type(char) == 1 ? char : nr2char(char))
     endif
 endfunc
-nn <expr> / <SID>SearchHandleKey('/')
-vn <expr> / <SID>SearchHandleKey('/')
-nn <expr> ? <SID>SearchHandleKey('?')
-vn <expr> ? <SID>SearchHandleKey('?')
+nnoremap <expr> / <SID>SearchHandleKey('/')
+vnoremap <expr> / <SID>SearchHandleKey('/')
+nnoremap <expr> ? <SID>SearchHandleKey('?')
+vnoremap <expr> ? <SID>SearchHandleKey('?')
 
 " Make pasted text have one blank line above and below
 func! s:MakeParagraph()
@@ -916,7 +913,7 @@ augroup VimrcAutocmds
     autocmd FileType conf setl indentexpr=getline(v:lnum-1)=~'\\\\$'?&sw:0
 
     " Prefer single-line style comments and fix shell script comments
-    autocmd FileType cpp,arduino setl commentstrig=//%s
+    autocmd FileType cpp,arduino setl commentstring=//%s
     autocmd FileType python setl commentstring=#%s
     autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
     autocmd FileType dosbatch setl commentstring=REM%s
@@ -944,7 +941,7 @@ augroup VimrcAutocmds
     " Load files with mixed line endings as DOS format
     autocmd BufReadPost * nested
         \ if !exists('b:reload_dos') && !&binary && &ff == 'unix'
-        \       && (0 < search('\r$', 'nc')) |
+        \       && (0 < search('\r$', 'nc')) && &buftype == '' |
         \     let b:reload_dos = 1 |
         \     e ++ff=dos |
         \ endif
@@ -983,10 +980,12 @@ if !hasWin | call extend(g:pathogen_disabled, ['misc','shell']) | endif
 
 " Disable some plugins if in read-only mode
 if s:readonly
+    call add(g:pathogen_disabled, 'gtfo')
     call add(g:pathogen_disabled, 'neocomplete')
     call add(g:pathogen_disabled, 'neosnippet-snippets')
     call add(g:pathogen_disabled, 'syntastic')
     call add(g:pathogen_disabled, 'tabular')
+    call add(g:pathogen_disabled, 'targets')
     call add(g:pathogen_disabled, 'unite')
     call add(g:pathogen_disabled, 'vimfiler')
 endif
@@ -1086,8 +1085,9 @@ endif
 
 " {{{2 Sneak settings
 let g:sneak#use_ic_scs=1
-autocmd VimrcAutocmds ColorScheme * highlight! SneakPluginTarget
-    \ term=reverse cterm=reverse ctermfg=4 gui=reverse guifg=#268bd2
+autocmd VimrcAutocmds ColorScheme * execute 'highlight! SneakPluginTarget'
+    \ .' term=reverse cterm=reverse ctermfg=4 ctermbg='
+    \ .(&bg == 'dark' ? '8' : '15').' gui=reverse guifg=#268bd2'
 func! s:SneakMaps()
     if exists('g:loaded_sneak_plugin')
         for mode in ['n', 'x', 'o']
@@ -1132,6 +1132,7 @@ func! s:VimfilerSettings()
     nmap <buffer> D     <Plug>(vimfiler_delete_file)
     nmap <buffer> <C-s> <Plug>(vimfiler_select_sort_type)
     nmap <buffer> S     <Plug>(vimfiler_select_sort_type)
+    nmap <buffer> <Tab> <Plug>(vimfiler_choose_action)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
 endfunc
@@ -1152,6 +1153,7 @@ let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
 augroup VimrcAutocmds
     autocmd VimEnter * sil! call unite#filters#matcher_default#use(['matcher_regexp'])
+        \ | sil! call unite#custom#default_action('directory', 'cd')
     autocmd FileType unite call <SID>UniteSettings()
     autocmd CursorHold * silent! call unite#sources#history_yank#_append()
 augroup END
@@ -1205,6 +1207,7 @@ func! s:UniteSettings()
     nmap <buffer>  S A<C-u>
     imap <buffer> <C-Space> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <Nul> <Plug>(unite_toggle_mark_current_candidate)
+    imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
     sil! nunmap <buffer> ?
 endfunc
 nn <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>
@@ -1223,6 +1226,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
     \ ? "buffers/" : "")."neomru ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
+nn <silent> <M-p> :<C-u>Unite -prompt-direction=top neomru/directory<CR>
 nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
 nnoremap <silent> <Leader>w :ccl\|lcl\|sil! UniteClose<CR>
 nnoremap <silent> ,u :UniteResume<CR>
@@ -1345,7 +1349,9 @@ nmap <silent> <Leader>i <Plug>IndentGuidesToggle
 " Ack settings
 if executable('ag') | let g:ackprg='ag --nogroup --nocolor --column -S' | endif
 let g:ack_autofold_results=0
-com! -nargs=* -bang A Ack<bang> <args>
+let g:ack_apply_lmappings=0
+let g:ack_apply_qmappings=0
+cnoreabbrev <expr> A ((getcmdtype() == ':' && getcmdpos() <= 2) ? 'Ack!' : 'A')
 
 " tmux navigator settings
 let g:tmux_navigator_no_mappings=1

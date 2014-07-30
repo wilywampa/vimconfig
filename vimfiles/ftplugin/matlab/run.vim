@@ -73,7 +73,7 @@ else
         endif
         call VimuxSendKeys("\<C-c>")
         for line in range(start, end)
-            call VimuxSendText(substitute(getline(line),';$',';;',''))
+            call VimuxSendText(getline(line))
             call VimuxSendKeys("\<CR>")
         endfor
     endfunc
