@@ -234,8 +234,7 @@ nn <Leader>gn :grep *(D.) -e ''<Left>
 nn <Leader>go :call setqflist([])<CR>:silent! Bufdo grepa '' %<C-Left><C-Left><Right>
 
 " Delete trailing whitespace
-nn <silent> ,ws :keepj sil!%s/\s\+$\\|\v$t^//g<CR>
-    \:call histdel('/','\V$t^')<CR>:let @/=histget('/',-1)<CR>
+nn <silent> ,ws :keepj keepp sil! %s/\s\+$\//g<CR>
 
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
@@ -262,8 +261,8 @@ nn <silent> <M-t> :tabnew<CR>
 nn <silent> <M-T> :tab split<CR>
 
 " Print number of occurences of last search
-nn <silent> <M-n> :%s///gn<CR>
-vn <silent> <M-n> :s///gn<CR>
+nn <expr> <silent> <M-n> ":%s///".(&gdefault ? "" : "g")."n<CR>"
+vn <expr> <silent> <M-n> ":s///".(&gdefault ? "" : "g")."n<CR>"
 
 " Delete without yank by default, and <M-d> for delete with yank
 nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
@@ -347,11 +346,13 @@ no <silent> <C-Right> :<C-u>call vimtools#ResizeWindow('right')<CR>
 vn < <gv
 vn > >gv
 
-" Copy WORD above/below cursor with <M-y>/<M-e>
-ino <expr> <M-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
-ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
+" Copy WORD above/below cursor with <C-y>/<C-e>
+ino <expr> <C-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
+ino <expr> <C-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
+ino <M-e> <C-e>
+ino <M-y> <C-y>
 
-" Make j/k work as expected on wrapped lines using <expr> map to minimize side effects
+" Make j/k work as expected on wrapped lines
 no <expr> j &wrap?'gj':'j'
 no <expr> k &wrap?'gk':'k'
 
@@ -375,6 +376,8 @@ nn <silent> <Leader>w :ccl\|lcl<CR>
 
 " Switch to quickfix window
 nn <silent> <C-w><Space> :copen<CR>
+nn <silent> <C-w><C-Space> :copen<CR>
+nn <silent> <C-w><Nul> :copen<CR>
 
 " Make current buffer a scratch buffer
 nn <silent> <Leader>s :set bt=nofile<CR>
@@ -890,8 +893,7 @@ endif
 
 augroup VimrcAutocmds
     " Don't auto comment new line made with 'o', 'O', or <CR>
-    autocmd FileType * set formatoptions-=o
-    autocmd FileType * set formatoptions-=r
+    autocmd FileType * exe "set fo-=o" | exe "set fo-=r"
 
     " Use line wrapping for plain text files (but not help files)
     autocmd FileType text setl wrap linebreak
@@ -1011,12 +1013,6 @@ let OmniCpp_MayCompleteScope=1
 autocmd VimrcAutocmds CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
 
 " Commentary configuration
-xmap <Leader>c  <Plug>Commentary
-nmap <Leader>c  <Plug>Commentary
-omap <Leader>c  <Plug>Commentary
-nmap <Leader>cc <Plug>CommentaryLine
-nmap c<Leader>c <Plug>ChangeCommentary
-nmap <Leader>cu <Plug>Commentary<Plug>Commentary
 let g:commentary_map_backslash=0
 
 " {{{2 Completion settings
