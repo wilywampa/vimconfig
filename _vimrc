@@ -58,8 +58,9 @@ sil! set clipboard+=unnamedplus
 set mouse=                      " Disable mouse integration
 set cmdwinheight=15             " Increase command window height
 sil! set showbreak=↪            " Show character at start of wrapped lines
-set makeprg=make\ -j8           " Use multiple jobs in make by default
+set makeprg=make\ -j            " Use multiple jobs in make by default
 set nojoinspaces                " Don't add two spaces after punctuation
+set gdefault                    " Substitute all occurences by default
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so
@@ -95,37 +96,17 @@ runtime! macros/matchit.vim
 
 " {{{2 Switch to last active tab/window
 let g:lastTab=1
-func! s:SetLastWindow()
-    for l:tab in range(1,tabpagenr('$'))
-        for l:win in range(1,tabpagewinnr(l:tab,'$'))
-            call settabwinvar(l:tab,l:win,'last',0)
-        endfor
-    endfor
-    let w:last=1
-endfunc
 func! s:LastActiveWindow()
-    " Switch to last active window if it still exists
-    for l:tab in range(1,tabpagenr('$'))
-        for l:win in range(1,tabpagewinnr(l:tab,'$'))
-            if gettabwinvar(l:tab,l:win,'last')
-                exec 'tabn '.l:tab
-                exec l:win.'wincmd w'
-                return
-            endif
-        endfor
-    endfor
-    if winnr('$') > 1
-        winc w
-    elseif tabpagenr('$') > 1
-        tabnext
-    elseif exists('$TMUX')
-        call system('tmux last-pane || tmux last-window')
+    if winnr('#') > 0 && winnr('#') != winnr()
+        wincmd p
+    elseif winnr('$') > 1
+        wincmd w
+    else
+        execute "tabnext ".g:lastTab
     endif
 endfunc
 augroup VimrcAutocmds
     au TabLeave * let g:lastTab=tabpagenr()
-    au WinEnter * let w:last=0
-    au WinLeave * call <SID>SetLastWindow()
 augroup END
 nnoremap <silent> <expr> ` g:inCmdwin? ':q<CR>' : ':call <SID>LastActiveWindow()<CR>'
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
@@ -263,18 +244,8 @@ nn <M-]> <C-w><C-]><C-w>L
 nn <silent> <C-w><C-]> :<C-u>exec "norm! :below
     \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
 
-" <Esc> alternatives - <Nul> is <C-Space> in terminal
+" Break <C-c> habit
 ino <C-c> <NOP>
-ino <C-Space> <Esc>
-nno <C-Space> <Esc>
-cno <C-Space> <Esc>
-vno <C-Space> <Esc>
-ino <Nul> <Esc>
-nno <Nul> <Esc>
-cno <Nul> <Esc>
-vno <Nul> <Esc>
-ino jk <Esc>
-ino kj <Esc>
 
 " Shortcuts for switching tab, including closing command window if it's open
 nn <silent> <expr> <C-Tab>   tabpagenr('$')==1 ?
@@ -462,10 +433,10 @@ nn <expr> V v:count ? "\<Esc>V".(v:count > 1 ? (v:count - 1).'j' : '') : 'V'
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
-    cnorea <expr> ht ((getcmdtype()==':'&&getcmdpos()<=3)?'tab help':'ht')
-    cnorea <expr> h ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'h')
-    cnorea <expr> H ((getcmdtype()==':'&&getcmdpos()<=2)?'Help':'H')
-    cnoremap <expr> <Up> ((getcmdtype()==':'&&getcmdline()=='h')?'<BS>H<Up>':'<Up>')
+    cnorea <expr> ht getcmdtype()==':'&&getcmdpos()<=3 ? 'tab help':'ht'
+    cnorea <expr> h getcmdtype()==':'&&getcmdpos()<=2 ? 'Help':'h'
+    cnorea <expr> H getcmdtype()==':'&&getcmdpos()<=2 ? 'Help':'H'
+    cnoremap <expr> <Up> getcmdtype()==':'&&getcmdline()=='h' ? '<BS>H<Up>':'<Up>'
     nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec
         \ 'Help '.vimtools#HelpTopic()<CR>"
     vnoremap <silent> <expr> K vimtools#OpenHelpVisual()
@@ -606,7 +577,8 @@ func! s:CycleSearchMode()
     endif
     return l:cmd
 endfunc
-cnoremap <C-x> <C-\>e<SID>CycleSearchMode()<CR>
+cnoremap <expr> <C-x> getcmdtype() =~ '[/?]' ?
+    \ "\<C-\>e\<SID>CycleSearchMode()\<CR>" : ""
 
 " Close other windows or close other tabs
 func! s:CloseWinsOrTabs()
@@ -887,11 +859,27 @@ vnoremap <silent> <C-e> <Esc>:call <SID>EvalExpr()<CR>
 " }}}2
 
 " Abbreviations for diff commands
-cnorea <expr> dt ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffthis':'dt')
-cnorea <expr> do ((getcmdtype()==':'&&getcmdpos()<=3)?'windo diffoff \|
-    \ windo set nowrap':'do')
-cnorea <expr> du ((getcmdtype()==':'&&getcmdpos()<=3)?'diffupdate':'du')
-cnorea <expr> vd ((getcmdtype()==':'&&getcmdpos()<=3)?'vert diffs':'vd')
+cnoreabbrev <expr> dt getcmdtype()==':'&&getcmdpos()<=3 ? 'windo diffthis':'dt'
+cnoreabbrev <expr> do getcmdtype()==':'&&getcmdpos()<=3 ? 'windo diffoff \|
+    \ windo set nowrap':'do'
+cnoreabbrev <expr> du getcmdtype()==':'&&getcmdpos()<=4 ? 'diffupdate':'du'
+cnoreabbrev <expr> vd getcmdtype()==':'&&getcmdpos()<=3 ? 'vert diffs':'vd'
+
+" Don't overwrite pattern with substitute command
+func! s:KeepPatternsSubstitute()
+    if getcmdtype() == ':'
+        if getcmdline() == 's'
+            return "keeppatterns s/"
+        elseif getcmdline() == "'<,'>s"
+            return "keeppatterns '<,'>s/"
+        endif
+    endif
+    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
+    let cmdend = strpart(getcmdline(), getcmdpos() - 1)
+    call setcmdpos(getcmdpos() + 1)
+    return cmdstart.'/'.cmdend
+endfunc
+cnoremap / <C-\>e<SID>KeepPatternsSubstitute()<CR>
 
 " Increase time allowed for keycode mappings over SSH
 if mobileSSH
@@ -1041,7 +1029,6 @@ if has('lua')
         let g:neocomplete#enable_smart_case=1
         let g:neocomplete#max_list=200
         let g:neocomplete#min_keyword_length=4
-        let g:neocomplete#auto_completion_start_length=3
         let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
         if !exists('g:neocomplete#force_omni_input_patterns')
@@ -1051,6 +1038,11 @@ if has('lua')
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}
         endif
+        if !exists('g:neocomplete#sources')
+            let g:neocomplete#sources = {}
+        endif
+        let g:neocomplete#sources._ = ['file/include', 'member', 'buffer',
+            \ 'syntax', 'include', 'neosnippet', 'omni']
         let g:neocomplete#keyword_patterns.matlab = '\h\(\w\|\.\|(''\)*'
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
@@ -1351,7 +1343,7 @@ if executable('ag') | let g:ackprg='ag --nogroup --nocolor --column -S' | endif
 let g:ack_autofold_results=0
 let g:ack_apply_lmappings=0
 let g:ack_apply_qmappings=0
-cnoreabbrev <expr> A ((getcmdtype() == ':' && getcmdpos() <= 2) ? 'Ack!' : 'A')
+cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'A'
 
 " tmux navigator settings
 let g:tmux_navigator_no_mappings=1
@@ -1365,6 +1357,7 @@ nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
 nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
 nnoremap <silent> @\ :<C-u>VimuxRunLastCommand<CR>
 nnoremap <silent> @\| :<C-u>VimuxRunLastCommand<CR>
+nnoremap <silent> q\| :VimuxPromptCommand<CR><C-f>
 nnoremap <silent> <Leader>bb :call
     \ VimuxRunCommand('break '.expand('%:t').':'.line('.'))<CR>
 nnoremap <silent> <Leader>bc :call
@@ -1384,8 +1377,8 @@ set runtimepath+=~/.fzf
 nnoremap <silent> <M-f> :FZF<CR>
 
 " eunuch settings
-cnoreabbrev <expr> loc ((getcmdtype() == ':' && getcmdpos() <= 4) ?
-    \ 'Locate! --regex' : 'loc')
+cnoreabbrev <expr> loc getcmdtype() == ':' && getcmdpos() <= 4 ?
+    \ 'Locate! --regex' : 'loc'
 
 " Import scripts
 execute pathogen#infect()
