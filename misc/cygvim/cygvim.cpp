@@ -6,16 +6,47 @@
 
 int main(int argc, char const* argv[])
 {
-    if (argc != 2)
-        exit(1);
+    int retval;
+    const char *filename;
 
-    const char *args[] = {"cygvim_wrapper", argv[1], NULL};
+    if (argc > 2)
+        exit(1);
+    else if (argc == 1)
+    {
+        OPENFILENAME ofn;
+        char szFile[256];
+
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = NULL;
+        ofn.lpstrFile = szFile;
+        ofn.lpstrFile[0] = '\0';
+        ofn.nMaxFile = sizeof(szFile);
+        ofn.lpstrFilter = "All\0*.*";
+        ofn.nFilterIndex =1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir=NULL;
+        ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST;
+
+        retval = GetOpenFileName(&ofn);
+        if (!retval)
+            exit(1);
+        else
+            filename = szFile;
+    }
+    else
+    {
+        filename = argv[1];
+    }
+
+    const char *args[] = {"cygvim_wrapper", filename, NULL};
     const char *env[]  = {"DISPLAY=localhost:0.0", NULL};
 
     char executable[1024];
     sprintf(executable, "/home/%s/bin/cygvim_wrapper", getenv("USERNAME"));
 
-    int retval = spawnve(_P_NOWAIT, executable, args, env);
+    retval = spawnve(_P_NOWAIT, executable, args, env);
 
     if (retval == -1)
     {
