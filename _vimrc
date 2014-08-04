@@ -61,6 +61,7 @@ sil! set showbreak=↪            " Show character at start of wrapped lines
 set makeprg=make\ -j            " Use multiple jobs in make by default
 set nojoinspaces                " Don't add two spaces after punctuation
 set gdefault                    " Substitute all occurrences by default
+set nostartofline               " Don't jump to start of line for various motions
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so
@@ -844,6 +845,14 @@ com! -nargs=0 NotFollowedBy call FollowedBy(1)
 com! -nargs=0 PrecededBy call PrecededBy(0)
 com! -nargs=0 NotPrecededBy call PrecededBy(1)
 
+" Search without saving when in command line window
+func! s:SearchWithoutSave()
+    let @/ = getcmdline()
+    return ''
+endfunc
+cnoremap <expr> <CR> g:inCmdwin && g:cmdwinType =~ '[/?]' && getcmdtype() =~ '[/?]'
+    \ ? "\<C-\>e<SID>SearchWithoutSave()\<CR>\<CR>" : "\<CR>"
+
 " {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
@@ -908,7 +917,7 @@ else
 
     " Use block cursor in normal mode and bar cursor in insert mode
     let &t_SI = "\<Esc>[5 q"
-    let &t_EI = "\<Esc>[0 q"
+    let &t_EI = "\<Esc>[1 q"
 
     " Enable mouse for scrolling and window selection
     set mouse=nir

@@ -13,6 +13,7 @@ XTerm*visualBell: true
 XTerm*visualBellDelay: 0
 XTerm*bellIsUrgent: true
 XTerm*scrollBar: false
+XTerm*fullscreen: always
 
 *allowWindowOps: true
 *allowTitleOps: true
@@ -24,7 +25,6 @@ XTerm*background:             #012833
 XTerm*foreground:             #839496
 XTerm*fading:                 40
 XTerm*fadeColor:              #012833
-XTerm*cursorColor:            #93a1a1
 XTerm*pointerColorBackground: #586e75
 XTerm*pointerColorForeground: #93a1a1
 XTerm*color0:                 #023540

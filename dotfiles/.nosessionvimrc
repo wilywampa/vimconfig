@@ -33,7 +33,7 @@ call add(g:pathogen_disabled, 'vimux')
 
 source ~/.vimrc
 set noshowcmd
-imap <C-s> <Nul>ZA
+imap <C-s> <Esc>ZA
 nmap <C-s> ZA
 nmap ZZ ZA
 
@@ -63,7 +63,7 @@ func! s:SetupScrollback()
             silent! above split ~/.tmuxwords.zsh
             norm! Gzb
             setlocal nonumber norelativenumber readonly nomodifiable
-            setlocal nocursorline buftype=nofile
+            setlocal nowrap nocursorline buftype=nofile
             NeoCompleteDictionaryMakeCache
             AnsiEsc
             wincmd j

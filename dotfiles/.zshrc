@@ -42,11 +42,14 @@ alias g='grep'
 alias gi='grep -i'
 
 # find
-alias f='find . -type f'
-alias fin='find . -type f -iname'
-alias fn='find . -type f -name'
+alias f='find .'
+alias fa='find . | ag'
+alias fn='find . -type f -iname'
+alias fnc='find . -type f -name'
+alias fnr='find . -type f -iregex'
+alias fnrc='find . -type f -regex'
 alias fd='find . -type d'
-alias fdn='find . -type d -name'
+alias fdn='find . -type d -iname'
 alias fmd='find . -maxdepth'
 alias fs='f | s'
 alias fsg='fs | grep'
@@ -85,12 +88,21 @@ alias hgst="hg st | g -v '\.git'"
 alias hgdi="hgst | awk '{print \$2}' | s | xargs hg di"
 alias hgexport="hg st | \grep '^[MA]' | awk '{print \$2}' | xargs -I {} cp --parents {}"
 
+# git
+alias gci='git commit'
+alias gcl='git clone'
+alias gfe='git fetch'
+alias gdi='git diff'
+alias gdit='git difftool'
+alias gpu='git pull'
+alias gst='git status'
+
 # ls
-alias l='ls -h --color=auto --sort=none'
-alias ls='ls -h --color=auto --sort=none'
-alias ll='ls -lsh --sort=none'
+alias l='ls -h --color=auto'
+alias ls='ls -h --color=auto'
+alias ll='ls -lsh'
 alias lls='ls -lshrt'
-alias lla='ls -lshA --color=auto --sort=none'
+alias lla='ls -lshA --color=auto'
 alias llas='ls -lshrtA --color=auto'
 alias llsa='ls -lshrtA --color=auto'
 
@@ -109,14 +121,15 @@ alias psg='ps aux | grep -i'
 alias awkp2="awk '{print \$2}'"
 alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .'
 alias info='info --vi-keys'
-alias remake='make clean && make -j8'
+alias remake='make clean && make -j'
 alias d='dirs -v'
 alias h='head'
 alias t='tail'
 alias tree="tree -C | vim -R -c 'AnsiEsc' -"
 
 #[[[1 Global aliases
-alias -g LL='ls -lshrtA'
+alias -g LL='ls --color=auto -lsh'
+alias -g LLS='ls --color=auto -lshrtA'
 alias -g GG='grep --color=auto'
 alias -g GI='grep --color=auto -i'
 alias -g FFR='**/*(D.)'
@@ -192,15 +205,24 @@ b2h() {
             gsub(/^[0-9]+/, human($1)); print}'
 }
 
-bigdirs() {
-    find . -type d -not -name "." -exec du -b {} + | sort -n \
-        | tail -n $(( $LINES - 6 )) | b2h
-}
-
-bigfiles() {
-    find . -type f -exec du -b {} + | sort -n \
-        | tail -n $(( $LINES - 6 )) | b2h
-}
+sort -h >& /dev/null <<< "test"
+if [ $? -eq 0 ]; then
+    bigdirs() {
+        du -h . | sort -h | tail -n ${1:-$(( $LINES - 6 ))}
+    }
+    bigfiles() {
+        find . -type f -exec du -h {} + | sort -h \
+            | tail -n ${1:-$(( $LINES - 6 ))}
+    }
+else
+    bigdirs() {
+        du . | sort -n | tail -n ${1:-$(( $LINES - 6 ))} | b2h
+    }
+    bigfiles() {
+        find . -type f -exec du -b {} + | sort -n \
+            | tail -n ${1:-$(( $LINES - 6 ))} | b2h
+    }
+fi
 
 _cygyank() {
     CUTBUFFER=$(cat /dev/clipboard | sed 's/\x0//g')
@@ -285,7 +307,46 @@ _escalate-kill() {
     fi
     CURSOR=$#BUFFER
 }
-zle -N _escalate-kill; vibindkey '^K' _escalate-kill
+zle -N _escalate-kill
+
+_escalate_whence() {
+    if [[ ! $BUFFER =~ "^wh" ]] && [[ $history[$((HISTCMD-1))] =~ "^wh" ]]; then
+        BUFFER=$history[$((HISTCMD-1))]
+    elif [[ ! $BUFFER =~ "^wh" ]]; then
+        return
+    fi
+    if [[ $BUFFER =~ "^wh [^- ]" ]]; then
+        BUFFER=${BUFFER/wh /wh -a }
+    elif [[ $BUFFER =~ "^wh -a" ]]; then
+        BUFFER=${BUFFER/wh -a/wh -f}
+    elif [[ $BUFFER =~ "^wh -f" ]]; then
+        BUFFER=${BUFFER/wh -f /which }
+    elif [[ $BUFFER =~ "^which" ]] && [[ ! $BUFFER =~ "^which -a" ]]; then
+        BUFFER=${BUFFER/which /which -a }
+    fi
+    CURSOR=$#BUFFER
+}
+zle -N _escalate_whence
+
+_escalate() {
+    r="^kill"
+    if [[ $BUFFER =~ "^wh" ]]; then
+        _escalate_whence
+    elif [[ $BUFFER =~ $r ]]; then
+        _escalate-kill
+    elif [[ $history[$((HISTCMD-1))] =~ "^wh" ]]; then
+        _escalate_whence
+    elif [[ $history[$((HISTCMD-1))] =~ $r ]]; then
+        _escalate-kill
+    fi
+}
+zle -N _escalate; vibindkey '^K' _escalate
+
+_backward-delete-WORD () {
+    local WORDCHARS=${WORDCHARS}"\"\`'\@"
+    zle backward-delete-word
+}
+zle -N _backward-delete-WORD; vibindkey '÷' _backward-delete-WORD
 
 md() { mkdir -p "$@" && cd "$@" }
 
@@ -310,8 +371,8 @@ _fg-job() {
         _set-block-cursor
         _disable-focus
         fg
-        [[ -n $TMUX ]] && tmux set-window -q automatic-rename on
-        zle redisplay
+        zle reset-prompt
+        _tmux-name-auto
     fi
 }
 zle -N _fg-job; vibindkey '^Z' _fg-job
@@ -348,16 +409,16 @@ fi
 
 _tmux-name-win() {
     if [[ -n $TMUX ]] && [[ -z $(jobs) ]] && [[ -z $NOAUTONAME ]]; then
-        if [[ $(tmux display-message -p '#{window_panes}') == 1 ]]; then
-            print -n "\033k/${${PWD/#$HOME/\~}##*/}/\033\\"
-        fi
+        tmux if "[[ $(tmux display-message -p -t $TMUX_PANE \
+            '#{window_panes}') == 1 ]]" "rename-window -t \
+            $TMUX_PANE $(print -n "/${${PWD/#$HOME/\~}##*/}/")"
     fi
 }
 _tmux-name-auto() {
     if [[ -n $TMUX ]] && [[ -z $NOAUTONAME ]]; then
-        if [[ $(tmux display-message -p '#{window_panes}') == 1 ]]; then
-            tmux set-window -q automatic-rename on
-        fi
+        tmux if "[[ $(tmux display-message -p -t $TMUX_PANE \
+            '#{window_panes}') == 1 ]]" "set-window -q -t \
+            $TMUX_PANE automatic-rename on"
     fi
 }
 add-zsh-hook precmd _tmux-name-win
@@ -435,7 +496,7 @@ export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
-vimblacklist=(syntastic vimshell processing over flake8)
+vimblacklist=(syntastic vimshell processing over flake8 tmux-complete)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 [[ -e ~/.dircolors ]] && eval $(dircolors -b ~/.dircolors)
 [[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
@@ -595,6 +656,7 @@ PROMPT="
 [zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
 RPROMPT="%{${_lineup}%}%{$fg_bold[green]%}%T%{$reset_color%}"
 RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
+SPROMPT="Correct $fg[red]%R$reset_color to $fg[green]%r?$reset_color (Yes, No, Abort, Edit) "
 
 # Update prompt after TMOUT seconds and after hitting enter
 TMOUT=10
@@ -615,6 +677,11 @@ if [[ $OSTYPE == 'cygwin' ]]; then
     alias cyg='cygpath'
 
     export DISPLAY=localhost:0.0
+
+    _cygstart_dir() {
+        cygstart $PWD
+    }
+    zle -N _cygstart_dir; vibindkey '^[OS' _cygstart_dir
 
     # Synchronize X11 PRIMARY and CLIPBOARD selections
     if [[ ! $(ps) =~ 'autocutsel' ]] && (( $+commands[autocutsel] )); then
