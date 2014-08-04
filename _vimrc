@@ -60,7 +60,7 @@ set cmdwinheight=15             " Increase command window height
 sil! set showbreak=↪            " Show character at start of wrapped lines
 set makeprg=make\ -j            " Use multiple jobs in make by default
 set nojoinspaces                " Don't add two spaces after punctuation
-set gdefault                    " Substitute all occurences by default
+set gdefault                    " Substitute all occurrences by default
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so
@@ -260,7 +260,7 @@ nm <F16> <C-S-Tab>
 nn <silent> <M-t> :tabnew<CR>
 nn <silent> <M-T> :tab split<CR>
 
-" Print number of occurences of last search
+" Print number of occurrences of last search
 nn <expr> <silent> <M-n> ":%s///".(&gdefault ? "" : "g")."n<CR>"
 vn <expr> <silent> <M-n> ":s///".(&gdefault ? "" : "g")."n<CR>"
 
@@ -663,7 +663,7 @@ func! s:SearchCmdDelWord()
 endfunc
 cnoremap <expr> <C-w> <SID>SearchCmdDelWord()
 
-" Fix up arrow in seach history when search starts with \v
+" Fix up arrow in search history when search starts with \v
 func! s:OlderHistory()
     if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
         return "\<C-u>\<Up>"
@@ -824,7 +824,27 @@ func! s:FuncAbbrevs()
 endfunc
 cnoremap ( <C-\>e<SID>FuncAbbrevs()<CR><Left><C-]><Right>
 
-" {{{2 GUI configration
+" Search (not) followed/preceded by
+func! FollowedBy(not)
+    let s1 = input('Main: ')
+    let s2 = input((a:not ? 'Not f' : 'F').'ollowed by: ')
+    let @/ = '\v\zs'.s1.'\ze.*('.s2.'.*)@<'.(a:not ? '!' : '=').'$'
+    call histadd('/', @/) | set hlsearch | normal! n
+    echo '/'.@/
+endfunc
+func! PrecededBy(not)
+    let s1 = input('Main: ')
+    let s2 = input((a:not ? 'Not p' : 'P').'receded by: ')
+    let @/ = '\v^(.*'.s2.')@'.(a:not ? '!' : '=').'.*\zs'.s1
+    call histadd('/', @/) | set hlsearch | normal! n
+    echo '/'.@/
+endfunc
+com! -nargs=0 FollowedBy call FollowedBy(0)
+com! -nargs=0 NotFollowedBy call FollowedBy(1)
+com! -nargs=0 PrecededBy call PrecededBy(0)
+com! -nargs=0 NotPrecededBy call PrecededBy(1)
+
+" {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
     set guioptions=eAc
