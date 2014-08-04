@@ -7,7 +7,7 @@ fi
 local fmt='#{pane_current_command},,#{pane_id}'
 
 vim --serverlist | grep -q '\bVIM\b' 2>&1 > /dev/null
-if [ $? ]; then
+if [ $? -eq 0 ]; then
   if [[ $# == 1 ]]; then
     vim --servername VIM --remote "$@"
   fi
@@ -37,5 +37,5 @@ if [ $? ]; then
   done
 fi
 
-exec vim "$@"
+exec vim --servername VIM "$@"
 exit 0

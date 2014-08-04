@@ -234,7 +234,7 @@ nn <Leader>gn :grep *(D.) -e ''<Left>
 nn <Leader>go :call setqflist([])<CR>:silent! Bufdo grepa '' %<C-Left><C-Left><Right>
 
 " Delete trailing whitespace
-nn <silent> ,ws :keepj keepp sil! %s/\s\+$\//g<CR>
+nn <silent> <expr> ,ws ":keepj keepp sil! %s/\\s\\+$//".(&gdefault ? "" : "g")."\<CR>"
 
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
@@ -353,8 +353,10 @@ ino <M-e> <C-e>
 ino <M-y> <C-y>
 
 " Make j/k work as expected on wrapped lines
-no <expr> j &wrap?'gj':'j'
-no <expr> k &wrap?'gk':'k'
+no <expr> j &wrap && strdisplaywidth(getline('.')) > (winwidth(0) -
+    \ (&number ? &numberwidth : 0)) ? 'gj' : 'j'
+no <expr> k &wrap && strdisplaywidth(getline('.')) > (winwidth(0) -
+    \ (&number ? &numberwidth : 0)) ? 'gk' : 'k'
 
 " ZZ and ZQ close buffer if it's not open in another window
 nn <silent> ZQ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
@@ -466,6 +468,14 @@ no <M-\>d :cs find d <C-r>=expand("<cword>")<CR><CR>
 vm <M-\> <Esc><M-\>
 
 " {{{2 Functions
+" Save/restore unnamed/clipboard registers
+func! SaveRegs()
+    let s:quotereg = @" | let s:starreg = @* | let s:plusreg = @+
+endfunc
+func! RestoreRegs()
+    let @" = s:quotereg | let @* = s:starreg | let @+ = s:plusreg
+endfunc
+
 " Like bufdo but return to starting buffer
 func! Bufdo(command, bang)
     let currBuff=bufnr("%")
@@ -742,7 +752,7 @@ vnoremap <expr> ? <SID>SearchHandleKey('?')
 
 " Make pasted text have one blank line above and below
 func! s:MakeParagraph()
-    let reg = @"
+    call SaveRegs()
     let l1 = nextnonblank(line("'["))
     let l2 = prevnonblank(line("']"))
     let l3 = nextnonblank(l2 + 1)
@@ -761,9 +771,58 @@ func! s:MakeParagraph()
         silent execute "keeppatterns 1,".l1."g/^\\s*$/d"
         call cursor(1, 0)
     endif
-    let @" = reg | let @+ = reg | let @* = reg
+    call RestoreRegs()
 endfunc
 nnoremap <silent> g= :call <SID>MakeParagraph()<CR>
+
+" Paste in visual mode without overwriting clipboard
+func! s:VisualPaste()
+    call SaveRegs()
+    normal! gvp
+    call RestoreRegs()
+endfunc
+vnoremap <silent> p :<C-u>call <SID>VisualPaste()<CR>
+vnoremap <M-p> p
+
+" Insert result of visually selected expression
+func! s:EvalExpr()
+    call SaveRegs()
+    return "c\<C-o>:let @\"=substitute(@\",'\\n','','g')\<CR>".
+        \ "\<C-r>=\<C-r>\"\<CR>\<Esc>:call RestoreRegs()\<CR>"
+endfunc
+vnoremap <expr> <silent> <C-e> <SID>EvalExpr()
+
+" Don't overwrite pattern with substitute command
+func! s:KeepPatternsSubstitute()
+    if getcmdtype() == ':'
+        if getcmdline() == 's' | return "keeppatterns s/"
+        elseif getcmdline() == "%s" | return "keeppatterns %s/"
+        elseif getcmdline() == "'<,'>s" | return "keeppatterns '<,'>s/"
+        endif
+    endif
+    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
+    let cmdend = strpart(getcmdline(), getcmdpos() - 1)
+    call setcmdpos(getcmdpos() + 1)
+    return cmdstart.'/'.cmdend
+endfunc
+cnoremap / <C-\>e<SID>KeepPatternsSubstitute()<CR><Left><C-]><Right>
+
+" Function abbreviations
+func! s:FuncAbbrevs()
+    if getcmdtype() == ':'
+        let cmd = getcmdline()
+        if cmd =~ '\snr2' | return substitute(cmd, '\snr2', '&char(', '')
+        elseif cmd =~ '\sch2' | return substitute(cmd, '\sch2', ' char2nr(', '')
+        elseif cmd =~ '\sgetl' | return substitute(cmd, '\sgetl', '&ine(', '')
+        elseif cmd =~ '\ssys' | return substitute(cmd, '\ssys', '&tem(', '')
+        endif
+    endif
+    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
+    let cmdend = strpart(getcmdline(), getcmdpos() - 1)
+    call setcmdpos(getcmdpos() + 1)
+    return cmdstart.'('.cmdend
+endfunc
+cnoremap ( <C-\>e<SID>FuncAbbrevs()<CR><Left><C-]><Right>
 
 " {{{2 GUI configration
 if has('gui_running')
@@ -840,25 +899,6 @@ else
     endfor | endfor | map <expr> <LeftMouse> winnr('$')>1?"\<F21>":"\<F22>"
 endif
 
-" Paste in visual mode without overwriting clipboard
-func! s:VisualPaste()
-    let reg = @"
-    normal! gvp
-    let @" = reg | let @+ = reg | let @* = reg
-endfunc
-vnoremap <silent> p :<C-u>call <SID>VisualPaste()<CR>
-vnoremap <M-p> p
-
-" Insert result of visually selected expression
-func! s:EvalExpr()
-    let reg = @"
-    normal! gvy
-    let ex = substitute(@",'\n','','g')
-    execute "normal! gvc\<C-r>=eval(ex)\<CR>\<Esc>"
-    let @" = reg | let @+ = reg | let @* = reg
-endfunc
-vnoremap <silent> <C-e> <Esc>:call <SID>EvalExpr()<CR>
-
 " }}}2
 
 " Abbreviations for diff commands
@@ -868,21 +908,13 @@ cnoreabbrev <expr> do getcmdtype()==':'&&getcmdpos()<=3 ? 'windo diffoff \|
 cnoreabbrev <expr> du getcmdtype()==':'&&getcmdpos()<=4 ? 'diffupdate':'du'
 cnoreabbrev <expr> vd getcmdtype()==':'&&getcmdpos()<=3 ? 'vert diffs':'vd'
 
-" Don't overwrite pattern with substitute command
-func! s:KeepPatternsSubstitute()
-    if getcmdtype() == ':'
-        if getcmdline() == 's'
-            return "keeppatterns s/"
-        elseif getcmdline() == "'<,'>s"
-            return "keeppatterns '<,'>s/"
-        endif
-    endif
-    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
-    let cmdend = strpart(getcmdline(), getcmdpos() - 1)
-    call setcmdpos(getcmdpos() + 1)
-    return cmdstart.'/'.cmdend
-endfunc
-cnoremap / <C-\>e<SID>KeepPatternsSubstitute()<CR>
+" Other abbreviations
+cnoreabbrev <expr> ve getcmdtype()==':'&&getcmdpos()<=3 ? 'verbose':'ve'
+cnoreabbrev <expr> ex getcmdtype()==':'&&getcmdpos()<=3 ? 'execute':'ex'
+cnoreabbrev <expr> no getcmdtype()==':'&&getcmdpos()<=3 ? 'normal':'no'
+cnoreabbrev <expr> wi getcmdtype()==':'&&getcmdpos()<=3 ? 'windo':'wi'
+cnoreabbrev <expr> ca getcmdtype()==':'&&getcmdpos()<=3 ? 'call':'ca'
+cnoreabbrev <expr> pp getcmdtype()=='>'&&getcmdpos()<=3 ? 'PP':'pp'
 
 " Increase time allowed for keycode mappings over SSH
 if mobileSSH
@@ -928,6 +960,10 @@ augroup VimrcAutocmds
     au CmdwinEnter * let g:inCmdwin=1 | let g:cmdwinType = expand('<afile>')
     au CmdwinEnter * call <SID>CmdwinMappings()
 
+    " Enforce cmdwinheight when quickfix window is open
+    au CmdwinEnter * if winheight(0) > &cmdwinheight | exe "norm! "
+        \ .&cmdwinheight."\<C-w>_" | endif
+
     " Load files with mixed line endings as DOS format
     autocmd BufReadPost * nested
         \ if !exists('b:reload_dos') && !&binary && &ff == 'unix'
@@ -957,6 +993,24 @@ augroup VimrcAutocmds
         \     unlet g:focuslost | silent! execute "AirlineRefresh" |
         \ endif
 augroup END
+
+" Define some useful constants
+let pi = acos(-1.0)
+let d2r = pi / 180.0
+let r2d = 180.0 / pi
+let ft2m = 0.3048
+let m2ft = 1.0 / ft2m
+let ft2km = ft2m / 1000.0
+let km2ft = 1.0 / ft2km
+let grav = 9.80665
+let kg2lb = 2.20462
+let lb2kg = 0.453592
+let nmi2km = 1.852
+let km2nmi = 1.0 / nmi2km
+let slug2kg = 14.5939029
+let kg2slug = 1.0 / slug2kg
+let amps = 340.29
+let afps = amps * m2ft
 
 " {{{1 Plugin configuration
 
@@ -1016,7 +1070,7 @@ autocmd VimrcAutocmds CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! 
 let g:commentary_map_backslash=0
 
 " {{{2 Completion settings
-if has('lua')
+if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
     call add(g:pathogen_disabled, 'supertab')
 
     if !s:readonly
@@ -1027,6 +1081,7 @@ if has('lua')
         let g:neocomplete#min_keyword_length=4
         let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
+        let g:tmuxcomplete#trigger=''
         if !exists('g:neocomplete#force_omni_input_patterns')
             let g:neocomplete#force_omni_input_patterns={}
         endif
@@ -1051,7 +1106,8 @@ if has('lua')
         endfunc
         inoremap <expr> <Tab>   <SID>StartManualComplete(1)
         inoremap <expr> <S-Tab> <SID>StartManualComplete(0)
-        inoremap <expr> <C-e>   neocomplete#close_popup()
+        inoremap <expr> <C-e>   pumvisible() ? neocomplete#close_popup()
+            \ : matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
             \"\<Plug>(neosnippet_expand_or_jump)":
             \neocomplete#close_popup()
@@ -1353,7 +1409,8 @@ nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
 nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
 nnoremap <silent> @\ :<C-u>VimuxRunLastCommand<CR>
 nnoremap <silent> @\| :<C-u>VimuxRunLastCommand<CR>
-nnoremap <silent> q\| :VimuxPromptCommand<CR><C-f>
+nnoremap <silent> g\| :VimuxPromptCommand<CR><C-f>
+nnoremap <silent> g\ :VimuxPromptCommand<CR><C-f>
 nnoremap <silent> <Leader>bb :call
     \ VimuxRunCommand('break '.expand('%:t').':'.line('.'))<CR>
 nnoremap <silent> <Leader>bc :call
