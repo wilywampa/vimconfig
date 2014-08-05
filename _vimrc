@@ -1222,8 +1222,10 @@ func! s:VimfilerSettings()
     nmap <buffer> <C-s> <Plug>(vimfiler_select_sort_type)
     nmap <buffer> S     <Plug>(vimfiler_select_sort_type)
     nmap <buffer> <Tab> <Plug>(vimfiler_choose_action)
+    nmap <buffer> gN    <Plug>(vimfiler_new_file)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
+    exe "nunmap <buffer> N"
 endfunc
 
 " {{{2 Unite settings
