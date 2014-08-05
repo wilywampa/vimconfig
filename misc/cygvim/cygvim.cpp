@@ -60,6 +60,8 @@ int main(int argc, char const* argv[])
             sprintf(path, "%s", getenv("PATH"));
             ::MessageBox(NULL, path, "PATH", MB_OK);
         }
+
+        exit(1);
     }
 
     return 0;

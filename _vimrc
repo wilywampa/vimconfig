@@ -436,6 +436,11 @@ nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
 " [count]V always selects [count] lines
 nn <expr> V v:count ? "\<Esc>V".(v:count > 1 ? (v:count - 1).'j' : '') : 'V'
 
+" <Home> moves cursor after \v
+cnoremap <expr> <Home> "\<Home>".(getcmdtype() =~ '[/?]' &&
+    \ getcmdline() =~? '^\\v' ? "\<Right>\<Right>" : "")
+cmap <C-b> <Home>
+
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
@@ -664,6 +669,17 @@ func! s:SearchCmdDelWord()
 endfunc
 cnoremap <expr> <C-w> <SID>SearchCmdDelWord()
 
+" <C-Left> moves cursor after \v
+func! s:SearchCtrlLeft()
+    if getcmdtype() =~ '[/?]' && getcmdline() =~? '^\\v'
+        if strpart(getcmdline(), 0, getcmdpos() - 1) =~ '\v^\S+\s?$'
+            return "\<C-Left>\<Right>\<Right>"
+        endif
+    endif
+    return "\<C-Left>"
+endfunc
+cnoremap <expr> <C-Left> <SID>SearchCtrlLeft()
+
 " Fix up arrow in search history when search starts with \v
 func! s:OlderHistory()
     if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
@@ -851,7 +867,7 @@ func! s:SearchWithoutSave()
     return ''
 endfunc
 cnoremap <expr> <CR> g:inCmdwin && g:cmdwinType =~ '[/?]' && getcmdtype() =~ '[/?]'
-    \ ? "\<C-\>e<SID>SearchWithoutSave()\<CR>\<CR>" : "\<CR>"
+    \ ? "\<C-\>e<SID>SearchWithoutSave()\<CR>\<CR>" : "\<C-]>\<CR>"
 
 " {{{2 GUI configuration
 if has('gui_running')
