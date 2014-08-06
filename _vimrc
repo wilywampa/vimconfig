@@ -842,17 +842,17 @@ endfunc
 cnoremap ( <C-\>e<SID>FuncAbbrevs()<CR><Left><C-]><Right>
 
 " Search (not) followed/preceded by
-func! FollowedBy(not)
-    let s1 = input('Main: ')
-    let s2 = input((a:not ? 'Not f' : 'F').'ollowed by: ')
-    let @/ = '\v\zs'.s1.'\ze.*('.s2.'.*)@<'.(a:not ? '!' : '=').'$'
+func! FollowedBy(not) abort
+    let s1 = substitute(input('Main: '),'\m\c^\\v','','')
+    let s2 = substitute(input((a:not ? 'Not f' : 'F').'ollowed by: '),'\m\c^\\v','','')
+    let @/ = '\v\zs('.s1.')\ze.*('.s2.'.*)@<'.(a:not ? '!' : '=').'$'
     call histadd('/', @/) | set hlsearch | normal! n
     echo '/'.@/
 endfunc
-func! PrecededBy(not)
-    let s1 = input('Main: ')
-    let s2 = input((a:not ? 'Not p' : 'P').'receded by: ')
-    let @/ = '\v^(.*'.s2.')@'.(a:not ? '!' : '=').'.*\zs'.s1
+func! PrecededBy(not) abort
+    let s1 = substitute(input('Main: '),'\m\c^\\v','','')
+    let s2 = substitute(input((a:not ? 'Not p' : 'P').'receded by: '),'\m\c^\\v','','')
+    let @/ = '\v^(.*'.s2.')@'.(a:not ? '!' : '=').'.*\zs('.s1.')'
     call histadd('/', @/) | set hlsearch | normal! n
     echo '/'.@/
 endfunc
