@@ -441,6 +441,9 @@ cnoremap <expr> <Home> "\<Home>".(getcmdtype() =~ '[/?]' &&
     \ getcmdline() =~? '^\\v' ? "\<Right>\<Right>" : "")
 cmap <C-b> <Home>
 
+" Fix @: in visual mode when there is a modifier before the range
+vnoremap <expr> @ @: =~ "\\V'<,'>" ? "\<Esc>@" : "@"
+
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
@@ -868,6 +871,7 @@ func! s:SearchWithoutSave()
 endfunc
 cnoremap <expr> <CR> g:inCmdwin && g:cmdwinType =~ '[/?]' && getcmdtype() =~ '[/?]'
     \ ? "\<C-\>e<SID>SearchWithoutSave()\<CR>\<CR>" : "\<C-]>\<CR>"
+    \ .(getcmdtype() =~ '[/?]' ? "zv" : "")
 
 " {{{2 GUI configuration
 if has('gui_running')
@@ -1156,7 +1160,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
             \"\<Plug>(neosnippet_expand_or_jump)":
             \neocomplete#close_popup()
-        smap <C-d> <Plug>(neosnippet_jump_or_expand)
+        smap <C-d> <Plug>(neosnippet_expand_or_jump)
         inoremap <expr> <C-f>   neocomplete#cancel_popup()
         inoremap <expr> <C-l>   neocomplete#complete_common_string()
         augroup VimrcAutocmds
@@ -1170,6 +1174,9 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
 else
     call add(g:pathogen_disabled, 'neocomplete')
     let g:SuperTabDefaultCompletionType="context"
+    imap <C-d> <Plug>(neosnippet_expand_or_jump)
+    smap <C-d> <Plug>(neosnippet_expand_or_jump)
+    silent! set shortmess+=c
 endif
 
 " {{{2 Sneak settings
