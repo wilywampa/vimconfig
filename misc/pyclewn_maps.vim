@@ -17,6 +17,7 @@ nnoremap <M-R> :C run<CR>
 nnoremap <M-s> :C step<CR>
 nnoremap <M-W> :C where<CR>
 nnoremap <M-X> :execute "C foldvar ."line('.')<CR>
-vnoremap <C-p> y:Cdisplay<Space><C-r>"<CR>
+vnoremap <expr> <C-p> &filetype == 'python' ?
+    \ "y:C print \<C-r>\"\<CR>" : "y:Cdisplay \<C-r>\"\<CR>"
 vnoremap <M-p> y:Cdisplay<Space>*<C-r>"<CR>
 cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'Cprint':'Cp')

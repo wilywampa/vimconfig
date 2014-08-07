@@ -261,10 +261,6 @@ nm <F16> <C-S-Tab>
 nn <silent> <M-t> :tabnew<CR>
 nn <silent> <M-T> :tab split<CR>
 
-" Print number of occurrences of last search
-nn <expr> <silent> <M-n> ":%s///".(&gdefault ? "" : "g")."n<CR>"
-vn <expr> <silent> <M-n> ":s///".(&gdefault ? "" : "g")."n<CR>"
-
 " Delete without yank by default, and <M-d> for delete with yank
 nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
 nn C "_C|nn <M-C> C|nn \\C C|vn C "_C|vn <M-C> C|vn \\C C
@@ -626,7 +622,7 @@ func! s:Paste()
     return "\<C-r>+"
 endfunc
 map <C-v> "+gP
-cmap <C-v> <C-r>+
+cmap <C-v> <C-r>=substitute(@+, '\n', '', 'g')<CR>
 imap <expr> <C-v> <SID>Paste()
 exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
 
@@ -872,6 +868,17 @@ endfunc
 cnoremap <expr> <CR> g:inCmdwin && g:cmdwinType =~ '[/?]' && getcmdtype() =~ '[/?]'
     \ ? "\<C-\>e<SID>SearchWithoutSave()\<CR>\<CR>" : "\<C-]>\<CR>"
     \ .(getcmdtype() =~ '[/?]' ? "zv" : "")
+
+" Print number of occurrences of last search without moving cursor
+func! s:PrintCount()
+    let l:view = winsaveview() | let l:gd = &gdefault | set nogdefault
+    redir => l:cnt | keepjumps silent %s///gne | redir END
+    keepjumps call winrestview(l:view)
+    echo l:cnt =~ 'match' ? substitute(l:cnt,'\n','','') : 'No matches'
+    let &gdefault = l:gd
+endfunc
+nn <silent> <M-n> :call <SID>PrintCount()<CR>
+vn <silent> <M-n> :<C-u>call <SID>PrintCount()<CR>
 
 " {{{2 GUI configuration
 if has('gui_running')

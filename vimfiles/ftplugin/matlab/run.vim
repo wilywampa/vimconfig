@@ -121,7 +121,7 @@ endif
 nmap <silent> <buffer> <Leader>m :call <SID>ToggleDictionary()<CR>
 nmap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>
 imap <silent> <buffer> <F5> <Esc><F5>
-nmap <silent> <buffer> <S-F5> :update<CR>:call <SID>UpdateDictionaryMATLAB()<CR>
+nmap <silent> <buffer> <S-F5> :call <SID>UpdateDictionaryMATLAB()<CR>
 imap <silent> <buffer> <S-F5> <Esc><S-F5>
 
 augroup MATLAB
