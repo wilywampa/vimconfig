@@ -1,6 +1,4 @@
 diff --git a/pdb_clone/pdb.py b/pdb_clone/pdb.py
-old mode 100644
-new mode 100755
 index 091ef5a..4633840
 --- a/pdb_clone/pdb.py
 +++ b/pdb_clone/pdb.py
