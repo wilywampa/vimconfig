@@ -1,0 +1,15 @@
+diff --git a/pdb_clone/pdb.py b/pdb_clone/pdb.py
+old mode 100644
+new mode 100755
+index 091ef5a..4633840
+--- a/pdb_clone/pdb.py
++++ b/pdb_clone/pdb.py
+@@ -744,7 +744,7 @@ class Pdb(bdb.Bdb, cmd.Cmd):
+                     filename = self.mainpyfile
+             else:
+                 root, ext = os.path.splitext(filename)
+-                if ext == '':
++                if ext == '' and os.path.exists(filename + '.py'):
+                     filename = filename + '.py'
+                 if not os.path.exists(filename):
+                     self.error('Bad filename: "%s".' % arg)
