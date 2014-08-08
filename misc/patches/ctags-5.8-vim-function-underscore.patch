@@ -1,0 +1,12 @@
+diff --git a/vim.c b/vim.c
+index 951ee5f..59c75ab 100644
+--- a/vim.c
++++ b/vim.c
+@@ -249,6 +249,7 @@ static void parseFunction (const unsigned char *line)
+ 		{
+ 			cp = skipPrefix (cp, &scope);
+ 			if (isupper ((int) *cp)  ||  
++					*cp == '_' ||
+ 					scope == 's'  ||  /* script scope */
+ 					scope == '<'  ||  /* script scope */
+ 					scope == 'd'  ||  /* dictionary */
