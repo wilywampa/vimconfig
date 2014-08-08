@@ -440,6 +440,10 @@ cmap <C-b> <Home>
 " Fix @: in visual mode when there is a modifier before the range
 vnoremap <expr> @ @: =~ "\\V'<,'>" ? "\<Esc>@" : "@"
 
+" Synonyms for q: and q/
+nn g: q:
+nn g/ q/
+
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
@@ -622,7 +626,7 @@ func! s:Paste()
     return "\<C-r>+"
 endfunc
 map <C-v> "+gP
-cmap <C-v> <C-r>=substitute(@+, '\n', '', 'g')<CR>
+cnoremap <C-v> <C-r>=substitute(@+, '\n', '', 'g')<CR>
 imap <expr> <C-v> <SID>Paste()
 exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
 
@@ -810,14 +814,16 @@ vnoremap <expr> <silent> <C-e> <SID>EvalExpr()
 
 " Don't overwrite pattern with substitute command
 func! s:KeepPatternsSubstitute()
+    let cmdline = getcmdline()
     if getcmdtype() == ':'
-        if getcmdline() == 's' | return "keeppatterns s/"
-        elseif getcmdline() == "%s" | return "keeppatterns %s/"
-        elseif getcmdline() == "'<,'>s" | return "keeppatterns '<,'>s/"
+        let cmd = cmdline[match(cmdline,'\a')]
+        if cmdline =~ '\v^[sgv]$' | return "keeppatterns ".cmd."/"
+        elseif cmdline =~ '\v^\%[sgv]$' | return "keeppatterns %".cmd."/"
+        elseif cmdline =~ "\\m^'<,'>[sgv]$" | return "keeppatterns '<,'>".cmd."/"
         endif
     endif
-    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
-    let cmdend = strpart(getcmdline(), getcmdpos() - 1)
+    let cmdstart = strpart(cmdline, 0, getcmdpos() - 1)
+    let cmdend = strpart(cmdline, getcmdpos() - 1)
     call setcmdpos(getcmdpos() + 1)
     return cmdstart.'/'.cmdend
 endfunc
@@ -845,14 +851,14 @@ func! FollowedBy(not) abort
     let s1 = substitute(input('Main: '),'\m\c^\\v','','')
     let s2 = substitute(input((a:not ? 'Not f' : 'F').'ollowed by: '),'\m\c^\\v','','')
     let @/ = '\v\zs('.s1.')\ze.*('.s2.'.*)@<'.(a:not ? '!' : '=').'$'
-    call histadd('/', @/) | set hlsearch | normal! n
+    call histadd('/', @/) | set hlsearch | normal! nzv
     echo '/'.@/
 endfunc
 func! PrecededBy(not) abort
     let s1 = substitute(input('Main: '),'\m\c^\\v','','')
     let s2 = substitute(input((a:not ? 'Not p' : 'P').'receded by: '),'\m\c^\\v','','')
     let @/ = '\v^(.*'.s2.')@'.(a:not ? '!' : '=').'.*\zs('.s1.')'
-    call histadd('/', @/) | set hlsearch | normal! n
+    call histadd('/', @/) | set hlsearch | normal! nzv
     echo '/'.@/
 endfunc
 com! -nargs=0 FollowedBy call FollowedBy(0)
@@ -972,6 +978,12 @@ cnoreabbrev <expr> wi getcmdtype()==':'&&getcmdpos()<=3 ? 'windo':'wi'
 cnoreabbrev <expr> ca getcmdtype()==':'&&getcmdpos()<=3 ? 'call':'ca'
 cnoreabbrev <expr> pp getcmdtype()=='>'&&getcmdpos()<=3 ? 'PP':'pp'
 
+" Create new buffer with filetype as (optional) argument
+com! -nargs=? New     new     | set filetype=<args>
+com! -nargs=? Enew    enew    | set filetype=<args>
+com! -nargs=? Vnew    vnew    | set filetype=<args>
+com! -nargs=? Tabedit tabedit | set filetype=<args>
+
 " Increase time allowed for keycode mappings over SSH
 if mobileSSH
     set ttimeoutlen=250
@@ -1061,6 +1073,8 @@ let km2ft = 1.0 / ft2km
 let grav = 9.80665
 let kg2lb = 2.20462
 let lb2kg = 0.453592
+let mi2km = ft2m * 5280.0 / 1000.0
+let km2mi = 1.0 / mi2km
 let nmi2km = 1.852
 let km2nmi = 1.0 / nmi2km
 let slug2kg = 14.5939029
