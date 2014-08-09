@@ -694,35 +694,6 @@ func! s:OlderHistory()
 endfunc
 cnoremap <expr> <Up> <SID>OlderHistory()
 
-" Make [[, ]], [], and ][ work when { is not in first column
-func! s:SectionJump(type, v)
-    let l:count = v:count1
-    if a:v | exe "norm! gv" | endif
-    while l:count
-        if a:type == '[['
-            call search('{','b',1)
-            normal! w99[{
-        elseif a:type == ']['
-            call search('}','',line('$'))
-            normal! b99]}
-        elseif a:type == ']]'
-            normal j0[[%
-            call search('{','',line('$'))
-        elseif a:type == '[]'
-            normal k$][%
-            call search('}','b',1)
-        endif
-        let l:count -= 1
-    endwhile
-endfunc
-func! s:SectionJumpMaps()
-    for key in ['[[', '][', ']]', '[]']
-        exe "noremap  <silent> <buffer> ".key." :<C-u>call <SID>SectionJump('".key."',0)<CR>"
-        exe "xnoremap <silent> <buffer> ".key." :<C-u>call <SID>SectionJump('".key."',1)<CR>"
-    endfor
-endfunc
-autocmd VimrcAutocmds FileType c,cpp,zsh call <SID>SectionJumpMaps()
-
 " Add wildcards to path in command line for zsh-like expansion
 func! s:StarifyPath()
     set wildcharm=<C-t>
@@ -769,31 +740,6 @@ nnoremap <expr> / <SID>SearchHandleKey('/')
 vnoremap <expr> / <SID>SearchHandleKey('/')
 nnoremap <expr> ? <SID>SearchHandleKey('?')
 vnoremap <expr> ? <SID>SearchHandleKey('?')
-
-" Make pasted text have one blank line above and below
-func! s:MakeParagraph()
-    call SaveRegs()
-    let l1 = nextnonblank(line("'["))
-    let l2 = prevnonblank(line("']"))
-    let l3 = nextnonblank(l2 + 1)
-    if l3 > l2
-        silent execute "keeppatterns ".l2.",".l3."g/^\\s*$/d"
-        call append(l2, [""])
-    else
-        silent execute "keeppatterns ".line("']").",".line('$')."g/^\\s*$/d"
-    endif
-    let l4 = prevnonblank(l1 - 1)
-    if l4 > 0
-        silent execute "keeppatterns ".l4.",".l1."g/^\\s*$/d"
-        call append(l4, [""])
-        call cursor(l4 + 2, 0)
-    else
-        silent execute "keeppatterns 1,".l1."g/^\\s*$/d"
-        call cursor(1, 0)
-    endif
-    call RestoreRegs()
-endfunc
-nnoremap <silent> g= :call <SID>MakeParagraph()<CR>
 
 " Paste in visual mode without overwriting clipboard
 func! s:VisualPaste()
@@ -847,26 +793,6 @@ func! s:FuncAbbrevs()
     return cmdstart.'('.cmdend
 endfunc
 cnoremap ( <C-\>e<SID>FuncAbbrevs()<CR><Left><C-]><Right>
-
-" Search (not) followed/preceded by
-func! FollowedBy(not) abort
-    let s1 = substitute(input('Main: '),'\m\c^\\v','','')
-    let s2 = substitute(input((a:not ? 'Not f' : 'F').'ollowed by: '),'\m\c^\\v','','')
-    let @/ = '\v\zs('.s1.')\ze.*('.s2.'.*)@<'.(a:not ? '!' : '=').'$'
-    call histadd('/', @/) | set hlsearch | normal! nzv
-    echo '/'.@/
-endfunc
-func! PrecededBy(not) abort
-    let s1 = substitute(input('Main: '),'\m\c^\\v','','')
-    let s2 = substitute(input((a:not ? 'Not p' : 'P').'receded by: '),'\m\c^\\v','','')
-    let @/ = '\v^(.*'.s2.')@'.(a:not ? '!' : '=').'.*\zs('.s1.')'
-    call histadd('/', @/) | set hlsearch | normal! nzv
-    echo '/'.@/
-endfunc
-com! -nargs=0 FollowedBy call FollowedBy(0)
-com! -nargs=0 NotFollowedBy call FollowedBy(1)
-com! -nargs=0 PrecededBy call PrecededBy(0)
-com! -nargs=0 NotPrecededBy call PrecededBy(1)
 
 " Search without saving when in command line window
 func! s:SearchWithoutSave()
@@ -1510,25 +1436,14 @@ nnoremap <silent> <M-f> :FZF<CR>
 cnoreabbrev <expr> loc getcmdtype() == ':' && getcmdpos() <= 4 ?
     \ 'Locate! --regex' : 'loc'
 
-" Display file structure with dircolors
-func! s:Tree(...)
-    let dir = a:0 ? a:1 : getcwd()
-    let treenr = bufnr('--tree--')
-    if treenr == -1
-        execute "enew" | execute "file --tree--" | execute "set buftype=nofile"
-    else
-        execute "buffer ".treenr | execute "AnsiEsc" | execute "normal! ggdG"
-    endif
-    if dir != getcwd() | execute "lcd ".dir | endif
-    execute "silent read!cd ".dir."; tree -CQf"
-    execute "AnsiEsc" | execute "normal! gg"
-    syn match ansiConceal conceal '"'
-    syn match ansiConceal conceal "\(\"\..*\/\)"
-    nnoremap <buffer> j j$B3w
-    nnoremap <buffer> k k$B3w
-    nnoremap <buffer> <CR> gf
-endfunc
-com! -nargs=? -complete=dir Tree call <SID>Tree(<f-args>)
+" vimtools functions
+com! -nargs=? -complete=dir Tree call vimtools#Tree(<f-args>)
+com! -nargs=0 FollowedBy call vimtools#FollowedBy(0)
+com! -nargs=0 NotFollowedBy call vimtools#FollowedBy(1)
+com! -nargs=0 PrecededBy call vimtools#PrecededBy(0)
+com! -nargs=0 NotPrecededBy call vimtools#PrecededBy(1)
+autocmd VimrcAutocmds FileType c,cpp,zsh call vimtools#SectionJumpMaps()
+nnoremap <silent> g= :call vimtools#MakeParagraph()<CR>
 
 " Import scripts
 execute pathogen#infect()

@@ -120,7 +120,7 @@ function! vimtools#SwitchToOrOpen(fname)
   endif
 endfunction
 
-func! vimtools#ResizeWindow(type)
+function! vimtools#ResizeWindow(type)
   if winnr('$') == 1 | return | endif
   let eventignore_save = &eventignore
   set eventignore=all
@@ -154,6 +154,93 @@ func! vimtools#ResizeWindow(type)
     let &eventignore = eventignore_save
     execute startwin."wincmd w"
   endtry
-endfunc
+endfunction
+
+" Display file structure with dircolors
+function! vimtools#Tree(...)
+    let dir = a:0 ? a:1 : getcwd()
+    let treenr = bufnr('--tree--')
+    if treenr == -1
+        execute "enew" | execute "file --tree--" | execute "set buftype=nofile"
+    else
+        execute "buffer ".treenr | execute "AnsiEsc" | execute "normal! ggdG"
+    endif
+    if dir != getcwd() | execute "lcd ".dir | endif
+    execute "silent read!cd ".dir."; tree -CQf"
+    execute "AnsiEsc" | execute "normal! gg"
+    syn match ansiConceal conceal '"'
+    syn match ansiConceal conceal "\(\"\..*\/\)"
+    nnoremap <buffer> j j$B3w
+    nnoremap <buffer> k k$B3w
+    nnoremap <buffer> <CR> gf
+endfunction
+
+" Make [[, ]], [], and ][ work when { is not in first column
+function! vimtools#SectionJump(type, v)
+    let l:count = v:count1
+    if a:v | exe "norm! gv" | endif
+    while l:count
+        if a:type == '[['
+            call search('{','b',1)
+            normal! w99[{
+        elseif a:type == ']['
+            call search('}','',line('$'))
+            normal! b99]}
+        elseif a:type == ']]'
+            normal j0[[%
+            call search('{','',line('$'))
+        elseif a:type == '[]'
+            normal k$][%
+            call search('}','b',1)
+        endif
+        let l:count -= 1
+    endwhile
+endfunction
+function! vimtools#SectionJumpMaps()
+    for key in ['[[', '][', ']]', '[]']
+        exe "noremap  <silent> <buffer> ".key." :<C-u>call vimtools#SectionJump('".key."',0)<CR>"
+        exe "xnoremap <silent> <buffer> ".key." :<C-u>call vimtools#SectionJump('".key."',1)<CR>"
+    endfor
+endfunction
+
+" Make pasted text have one blank line above and below
+function! vimtools#MakeParagraph()
+    call SaveRegs()
+    let l1 = nextnonblank(line("'["))
+    let l2 = prevnonblank(line("']"))
+    let l3 = nextnonblank(l2 + 1)
+    if l3 > l2
+        silent execute "keeppatterns ".l2.",".l3."g/^\\s*$/d"
+        call append(l2, [""])
+    else
+        silent execute "keeppatterns ".line("']").",".line('$')."g/^\\s*$/d"
+    endif
+    let l4 = prevnonblank(l1 - 1)
+    if l4 > 0
+        silent execute "keeppatterns ".l4.",".l1."g/^\\s*$/d"
+        call append(l4, [""])
+        call cursor(l4 + 2, 0)
+    else
+        silent execute "keeppatterns 1,".l1."g/^\\s*$/d"
+        call cursor(1, 0)
+    endif
+    call RestoreRegs()
+endfunction
+
+" Search (not) followed/preceded by
+function! vimtools#FollowedBy(not) abort
+    let s1 = substitute(input('Main: '),'\m\c^\\v','','')
+    let s2 = substitute(input((a:not ? 'Not f' : 'F').'ollowed by: '),'\m\c^\\v','','')
+    let @/ = '\v\zs('.s1.')\ze.*('.s2.'.*)@<'.(a:not ? '!' : '=').'$'
+    call histadd('/', @/) | set hlsearch | normal! nzv
+    echo '/'.@/
+endfunction
+function! vimtools#PrecededBy(not) abort
+    let s1 = substitute(input('Main: '),'\m\c^\\v','','')
+    let s2 = substitute(input((a:not ? 'Not p' : 'P').'receded by: '),'\m\c^\\v','','')
+    let @/ = '\v^(.*'.s2.')@'.(a:not ? '!' : '=').'.*\zs('.s1.')'
+    call histadd('/', @/) | set hlsearch | normal! nzv
+    echo '/'.@/
+endfunction
 
 " vim:set et ts=2 sts=2 sw=2:
