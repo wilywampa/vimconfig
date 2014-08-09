@@ -161,7 +161,8 @@ function! vimtools#Tree(...)
     let dir = a:0 ? a:1 : getcwd()
     let treenr = bufnr('--tree--')
     if treenr == -1
-        execute "enew" | execute "file --tree--" | execute "set buftype=nofile"
+        execute "enew" | execute "file --tree--" | execute "set buftype=nowrite"
+        execute "autocmd VimLeavePre,VimLeave,QuitPre * bwipe! ".bufnr('%')
     else
         execute "buffer ".treenr | execute "AnsiEsc" | execute "normal! ggdG"
     endif
@@ -231,16 +232,18 @@ endfunction
 function! vimtools#FollowedBy(not) abort
     let s1 = substitute(input('Main: '),'\m\c^\\v','','')
     let s2 = substitute(input((a:not ? 'Not f' : 'F').'ollowed by: '),'\m\c^\\v','','')
-    let @/ = '\v\zs('.s1.')\ze.*('.s2.'.*)@<'.(a:not ? '!' : '=').'$'
-    call histadd('/', @/) | set hlsearch | normal! nzv
+    let @/ = '\v\zs('.s1.')(.*'.s2.')@'.(a:not ? '!' : '=').'\ze.*$'
+    call histadd('/', @/) | normal! nzv
     echo '/'.@/
+    set nohlsearch | set hlsearch | redraw!
 endfunction
 function! vimtools#PrecededBy(not) abort
     let s1 = substitute(input('Main: '),'\m\c^\\v','','')
     let s2 = substitute(input((a:not ? 'Not p' : 'P').'receded by: '),'\m\c^\\v','','')
-    let @/ = '\v^(.*'.s2.')@'.(a:not ? '!' : '=').'.*\zs('.s1.')'
-    call histadd('/', @/) | set hlsearch | normal! nzv
+    let @/ = '\v^.*(('.s2.').*)@<'.(a:not ? '!' : '=').'\zs('.s1.')'
+    call histadd('/', @/) | normal! nzv
     echo '/'.@/
+    set nohlsearch | set hlsearch | redraw!
 endfunction
 
 " vim:set et ts=2 sts=2 sw=2:
