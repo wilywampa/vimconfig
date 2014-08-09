@@ -88,9 +88,8 @@ function! vimtools#OpenHelp(topic)
 endfunction
 
 function! vimtools#OpenHelpVisual()
-  let g:oldreg=@"
-  let l:cmd=":call setreg('\"',g:oldreg) | Help \<C-r>\"\<CR>"
-  return g:inCmdwin? "y:quit\<CR>".l:cmd : 'y'.l:cmd
+  call SaveRegs()
+  return (g:inCmdwin ? "y:q\<CR>" : "y").":Help \<C-r>\"\<CR>:call RestoreRegs()\<CR>"
 endfunction
 
 function! vimtools#TabUsed()
@@ -234,16 +233,16 @@ function! vimtools#FollowedBy(not) abort
   let s2 = substitute(input((a:not ? 'Not f' : 'F').'ollowed by: '),'\m\c^\\v','','')
   let @/ = '\v\zs('.s1.')(.*'.s2.')@'.(a:not ? '!' : '=').'\ze.*$'
   call histadd('/', @/) | normal! nzv
-  echo '/'.@/
   set nohlsearch | set hlsearch | redraw!
+  echo '/'.@/
 endfunction
 function! vimtools#PrecededBy(not) abort
   let s1 = substitute(input('Main: '),'\m\c^\\v','','')
   let s2 = substitute(input((a:not ? 'Not p' : 'P').'receded by: '),'\m\c^\\v','','')
   let @/ = '\v^.*(('.s2.').*)@<'.(a:not ? '!' : '=').'\zs('.s1.')'
   call histadd('/', @/) | normal! nzv
-  echo '/'.@/
   set nohlsearch | set hlsearch | redraw!
+  echo '/'.@/
 endfunction
 
 " vim:set et ts=2 sts=2 sw=2:

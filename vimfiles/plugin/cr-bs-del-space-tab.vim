@@ -131,10 +131,10 @@ function! Return_key ()
 
 endfunction
 
-
-
+nnoremap <expr> <silent> <CR> g:inCmdwin && g:cmdwinType =~ '[/?]' ?
+    \ "\<CR>zv" : ":call Return_key()\<CR>"
 nnoremap <silent> <DEL> :call Delete_key()<CR>
-nnoremap <silent> <CR> :call Return_key()<CR>
+"nnoremap <silent> <CR> :call Return_key()<CR>
 "nnoremap <silent> <SPACE> i<SPACE><ESC>l
 "nnoremap <silent> <TAB> :call TAB_key()<CR>
 nnoremap <silent> <BS> :call BS_key()<CR>

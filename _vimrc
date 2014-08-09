@@ -1188,7 +1188,6 @@ endfunc
 let g:unite_source_history_yank_enable=1
 let g:unite_source_history_yank_limit=500
 let g:unite_split_rule='botright'
-let g:unite_enable_start_insert=1
 let g:unite_marked_icon='✓'
 let g:unite_cursor_line_highlight='CursorLine'
 if executable('ag')
@@ -1199,8 +1198,7 @@ endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
 augroup VimrcAutocmds
-    autocmd VimEnter * sil! call unite#filters#matcher_default#use(['matcher_regexp'])
-        \ | sil! call unite#custom#default_action('directory', 'cd')
+    autocmd VimEnter * if exists(':Unite') | call <SID>UniteSetup() | endif
     autocmd FileType unite call <SID>UniteSettings()
     autocmd CursorHold * silent! call unite#sources#history_yank#_append()
 augroup END
@@ -1257,15 +1255,15 @@ func! s:UniteSettings()
     imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
     sil! nunmap <buffer> ?
 endfunc
-nn <silent> "" :<C-u>Unite -prompt-direction=top -no-start-insert history/yank<CR>
-nn <silent> "' :<C-u>Unite -prompt-direction=top -no-start-insert register<CR>
+nn <silent> "" :<C-u>Unite -prompt-direction=top history/yank<CR>
+nn <silent> "' :<C-u>Unite -prompt-direction=top register<CR>
 nn <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
-    \."-no-start-insert -no-quit -auto-resize grep:".getcwd()."\<CR>"
-nn ,<C-a> :<C-u>Unite -prompt-direction=top -no-start-insert -no-quit -auto-resize grep:
+    \."-no-quit -auto-resize grep:".getcwd()."\<CR>"
+nn ,<C-a> :<C-u>Unite -prompt-direction=top -no-quit -auto-resize grep:
 com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
 nn <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
-nn <silent> ,vr :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**/*<CR>
-nn <silent> ,vn :Unite -prompt-direction=top -no-start-insert -no-quit vimgrep:**<CR>
+nn <silent> ,vr :Unite -prompt-direction=top -no-quit vimgrep:**/*<CR>
+nn <silent> ,vn :Unite -prompt-direction=top -no-quit vimgrep:**<CR>
 nn <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async<CR>
 nn <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer<CR>
 nn <silent> g<C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer:+<CR>
@@ -1293,6 +1291,14 @@ func! s:UniteTogglePathSearch()
         let s:UnitePathSearchMode=1
     endif
     return ''
+endfunc
+func! s:UniteSetup()
+    call unite#filters#matcher_default#use(['matcher_regexp'])
+    call unite#custom#default_action('directory', 'cd')
+    call unite#custom#profile('default', 'context', {'start_insert': 1})
+    for source in ['history/yank', 'register', 'grep', 'vimgrep']
+        call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
+    endfor
 endfunc
 
 " Use Unite's MRU list for alternate buffer key
