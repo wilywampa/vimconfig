@@ -625,7 +625,7 @@ func! s:Paste()
     endif
     return "\<C-r>+"
 endfunc
-map <C-v> "+gP
+noremap <C-v> "+gP
 cnoremap <C-v> <C-r>=substitute(@+, '\n', '', 'g')<CR>
 imap <expr> <C-v> <SID>Paste()
 exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
@@ -802,7 +802,9 @@ func! s:VisualPaste()
     call RestoreRegs()
 endfunc
 vnoremap <silent> p :<C-u>call <SID>VisualPaste()<CR>
+vnoremap <silent> <C-p> :<C-u>call <SID>VisualPaste()<CR>=']
 vnoremap <M-p> p
+vnoremap <M-P> p=']
 
 " Insert result of visually selected expression
 func! s:EvalExpr()
@@ -1507,6 +1509,26 @@ nnoremap <silent> <M-f> :FZF<CR>
 " eunuch settings
 cnoreabbrev <expr> loc getcmdtype() == ':' && getcmdpos() <= 4 ?
     \ 'Locate! --regex' : 'loc'
+
+" Display file structure with dircolors
+func! s:Tree(...)
+    let dir = a:0 ? a:1 : getcwd()
+    let treenr = bufnr('--tree--')
+    if treenr == -1
+        execute "enew" | execute "file --tree--" | execute "set buftype=nofile"
+    else
+        execute "buffer ".treenr | execute "AnsiEsc" | execute "normal! ggdG"
+    endif
+    if dir != getcwd() | execute "lcd ".dir | endif
+    execute "silent read!cd ".dir."; tree -CQf"
+    execute "AnsiEsc" | execute "normal! gg"
+    syn match ansiConceal conceal '"'
+    syn match ansiConceal conceal "\(\"\..*\/\)"
+    nnoremap <buffer> j j$B3w
+    nnoremap <buffer> k k$B3w
+    nnoremap <buffer> <CR> gf
+endfunc
+com! -nargs=? -complete=dir Tree call <SID>Tree(<f-args>)
 
 " Import scripts
 execute pathogen#infect()
