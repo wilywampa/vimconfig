@@ -445,6 +445,10 @@ vnoremap <expr> @ @: =~ "\\V'<,'>" ? "\<Esc>@" : "@"
 nn g: q:
 nn g/ q/
 
+" Use <C-n>/<C-p> instead of arrows for command line history
+cm <C-p> <Up>
+cm <C-n> <Down>
+
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
@@ -780,15 +784,15 @@ cnoremap / <C-\>e<SID>KeepPatternsSubstitute()<CR><Left><C-]><Right>
 
 " Function abbreviations
 func! s:FuncAbbrevs()
+    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
     if getcmdtype() == ':'
         let cmd = getcmdline()
-        if cmd =~ '\snr2' | return substitute(cmd, '\snr2', '&char(', '')
-        elseif cmd =~ '\sch2' | return substitute(cmd, '\sch2', ' char2nr(', '')
-        elseif cmd =~ '\sgetl' | return substitute(cmd, '\sgetl', '&ine(', '')
-        elseif cmd =~ '\ssys' | return substitute(cmd, '\ssys', '&tem(', '')
+        if cmdstart =~ '\snr2$' | return substitute(cmd, '\snr2', '&char(', '')
+        elseif cmdstart =~ '\sch2$' | return substitute(cmd, '\sch2', ' char2nr(', '')
+        elseif cmdstart =~ '\sgetl$' | return substitute(cmd, '\sgetl', '&ine(', '')
+        elseif cmdstart =~ '\ssys$' | return substitute(cmd, '\ssys', '&tem(', '')
         endif
     endif
-    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
     let cmdend = strpart(getcmdline(), getcmdpos() - 1)
     call setcmdpos(getcmdpos() + 1)
     return cmdstart.'('.cmdend
@@ -828,9 +832,9 @@ if has('gui_running')
         " Set font for gVim
         if hostname() ==? 'Jake-Desktop'
             " Big font for big TV
-            set guifont=DejaVu_Sans_Mono_for_Powerline:h13:cANSI
-        else
             set guifont=DejaVu_Sans_Mono_for_Powerline:h11:cANSI
+        else
+            set guifont=DejaVu_Sans_Mono_for_Powerline:h9:cANSI
         endif
     elseif hasMac
         " Set font for MacVim

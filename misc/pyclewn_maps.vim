@@ -21,3 +21,4 @@ vnoremap <expr> <C-p> &filetype == 'python' ?
     \ "y:C print \<C-r>\"\<CR>" : "y:Cdisplay \<C-r>\"\<CR>"
 vnoremap <M-p> y:Cdisplay<Space>*<C-r>"<CR>
 cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'Cprint':'Cp')
+nnoremap <M-w> :res 10<CR>:set wfh<CR>
