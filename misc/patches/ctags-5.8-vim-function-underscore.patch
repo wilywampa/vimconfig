@@ -6,7 +6,7 @@ index 951ee5f..59c75ab 100644
  		{
  			cp = skipPrefix (cp, &scope);
  			if (isupper ((int) *cp)  ||  
-+					*cp == '_' ||
++					*cp == '_'    ||
  					scope == 's'  ||  /* script scope */
  					scope == '<'  ||  /* script scope */
  					scope == 'd'  ||  /* dictionary */

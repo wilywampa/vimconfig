@@ -178,23 +178,26 @@ endfunction
 " Make [[, ]], [], and ][ work when { is not in first column
 function! vimtools#SectionJump(type, v)
   let l:count = v:count1
-  if a:v | exe "norm! gv" | endif
+  let startpos = getpos('.')
+  keepjumps if a:v | exe "norm! gv" | endif
   while l:count
     if a:type == '[['
-      call search('{','b',1)
-      normal! w99[{
+      keepjumps call search('{','b',1)
+      keepjumps normal! w99[{
     elseif a:type == ']['
-      call search('}','',line('$'))
-      normal! b99]}
+      keepjumps call search('}','',line('$'))
+      keepjumps normal! b99]}
     elseif a:type == ']]'
-      normal j0[[%
-      call search('{','',line('$'))
+      keepjumps normal j0[[%
+      keepjumps call search('{','',line('$'))
     elseif a:type == '[]'
-      normal k$][%
-      call search('}','b',1)
+      keepjumps normal k$][%
+      keepjumps call search('}','b',1)
     endif
     let l:count -= 1
   endwhile
+  call setpos("''", startpos)
+  normal! `'`'
 endfunction
 function! vimtools#SectionJumpMaps()
   for key in ['[[', '][', ']]', '[]']

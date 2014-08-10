@@ -426,8 +426,9 @@ im <F5> <Esc><F5>
 nn <silent> <expr> <C-k> (g:inCmdwin? '' : 'q/'.v:count1)."k:let @/=getline('.')<CR>"
 nn <silent> <expr> <C-j> (g:inCmdwin? '' : 'q/'.v:count1)."j:let @/=getline('.')<CR>"
 
-" Don't open fold when jumping to first line in diff mode
+" Don't open fold when jumping to first or last line in diff mode
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
+nn <silent> <expr> G "G".(&diff ? "" : "zv")
 
 " [count]V always selects [count] lines
 nn <expr> V v:count ? "\<Esc>V".(v:count > 1 ? (v:count - 1).'j' : '') : 'V'
@@ -799,9 +800,13 @@ func! s:SearchWithoutSave()
     let @/ = getcmdline()
     return ''
 endfunc
-cnoremap <expr> <CR> g:inCmdwin && g:cmdwinType =~ '[/?]' && getcmdtype() =~ '[/?]'
-    \ ? "\<C-\>e<SID>SearchWithoutSave()\<CR>\<CR>" : "\<C-]>\<CR>"
-    \ .(getcmdtype() =~ '[/?]' ? "zv" : "")
+augroup VimrcAutocmds
+    autocmd CmdwinEnter * if expand('<afile>') =~ '[/?]' |
+        \     execute 'cnoremap <expr> <CR> getcmdtype() =~ "[/?]" ?
+        \         "\<C-\>e<SID>SearchWithoutSave()\<CR>\<CR>" : "\<C-]>\<CR>"' |
+        \ endif
+    autocmd CmdwinLeave * silent! cunmap <CR>
+augroup END
 
 " Print number of occurrences of last search without moving cursor
 func! s:PrintCount()
