@@ -1,0 +1,34 @@
+diff --git a/src/eval.c b/src/eval.c
+--- a/src/eval.c
++++ b/src/eval.c
+@@ -12335,6 +12335,7 @@
+     int		n = FALSE;
+     static char	*(has_list[]) =
+     {
++	"sys_echo_off",
+ #ifdef AMIGA
+ 	"amiga",
+ # ifdef FEAT_ARP
+diff --git a/src/os_unix.c b/src/os_unix.c
+--- a/src/os_unix.c
++++ b/src/os_unix.c
+@@ -4151,7 +4151,7 @@
+ 
+     out_flush();
+     if (options & SHELL_COOKED)
+-	settmode(TMODE_COOK);		/* set to normal mode */
++	settmode(TMODE_SLEEP);		/* set to normal mode */
+ 
+     /*
+      * Do this loop twice:
+diff --git a/src/version.c b/src/version.c
+--- a/src/version.c
++++ b/src/version.c
+@@ -60,6 +60,7 @@
+ 
+ static char *(features[]) =
+ {
++	"+sys_echo_off",
+ #ifdef HAVE_ACL
+ 	"+acl",
+ #else
