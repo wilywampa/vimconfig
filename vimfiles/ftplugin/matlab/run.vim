@@ -90,9 +90,19 @@ else
         call VimuxSendKeys("\<CR>")
         VimuxZoomRunner
     endfunc
+    func! s:PrintVarMATLAB()
+        call SaveRegs()
+        normal! gvy
+        call VimuxOpenRunner()
+        call VimuxSendKeys("\<C-c>")
+        call VimuxSendText(@")
+        call VimuxSendKeys("\<CR>")
+        call RestoreRegs()
+    endfunc
     nmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(0, v:count)<CR>
     vmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
     nmap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
+    vmap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>
 endif
 
 if !exists('*<SID>ShowDictionary')

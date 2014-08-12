@@ -1414,6 +1414,7 @@ let g:ack_autofold_results=0
 let g:ack_apply_lmappings=0
 let g:ack_apply_qmappings=0
 cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'A'
+cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'a'
 
 " tmux navigator settings
 let g:tmux_navigator_no_mappings=1
