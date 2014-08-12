@@ -24,6 +24,7 @@ if !exists('g:matlab_path')
 endif
 
 if has("win16") || has("win32") || has("win64")
+
     func! s:RunMATLAB()
         let l:fname=expand('%:p:h').'\RunMATLAB.m'
         let l:cmds=['clear functions']
@@ -34,11 +35,14 @@ if has("win16") || has("win32") || has("win64")
         call writefile(l:cmds,l:fname)
         exec 'silent !start "'.g:runmatlab_exe.'" "'.l:fname.'"'
     endfunc
+
     func s:UpdateDictionaryMATLAB()
         exec 'sil !start "'.g:runmatlab_exe.'" "'.g:matlab_path.'\gendict.m"'
         exec 'sil !start "'.g:runmatlab_exe.'" "'.g:matlab_path.'\clearfun.m"'
     endfunc
+
 elseif system('echo $OSTYPE') =~ 'cygwin'
+
     func! s:RunMATLAB()
         let l:fname=expand('%:p:h').'/RunMATLAB.m'
         let l:cmds=['clear functions']
@@ -49,12 +53,15 @@ elseif system('echo $OSTYPE') =~ 'cygwin'
         exec 'silent !RunMATLAB `cygpath -w '.l:fname.'`'
         redraw!
     endfunc
+
     func! s:UpdateDictionaryMATLAB()
         exec 'sil !RunMATLAB "'.g:matlab_path.'\gendict.m"'
         exec 'sil !RunMATLAB "'.g:matlab_path.'\clearfun.m"'
         redraw!
     endfunc
+
 else
+
     func! s:RunMATLAB()
         call VimuxOpenRunner()
         call VimuxSendKeys("\<C-c>")
@@ -62,6 +69,7 @@ else
             \.expand('%:t:r')."; gendict; clearfun")
         call VimuxSendKeys("\<CR>")
     endfunc
+
     func! s:RunLinesMATLAB(visual, ...)
         call VimuxOpenRunner()
         if a:visual
@@ -77,12 +85,14 @@ else
             call VimuxSendKeys("\<CR>")
         endfor
     endfunc
+
     func! s:UpdateDictionaryMATLAB()
         call VimuxOpenRunner()
         call VimuxSendKeys("\<C-c>")
         call VimuxSendText("gendict")
         call VimuxSendKeys("\<CR>")
     endfunc
+
     func! s:GetHelpMATLAB()
         call VimuxOpenRunner()
         call VimuxSendKeys("\<C-c>")
@@ -90,6 +100,7 @@ else
         call VimuxSendKeys("\<CR>")
         VimuxZoomRunner
     endfunc
+
     func! s:PrintVarMATLAB()
         call SaveRegs()
         normal! gvy
@@ -99,6 +110,7 @@ else
         call VimuxSendKeys("\<CR>")
         call RestoreRegs()
     endfunc
+
     nmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(0, v:count)<CR>
     vmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
     nmap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
