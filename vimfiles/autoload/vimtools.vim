@@ -75,7 +75,7 @@ function! vimtools#OpenHelp(topic)
       setl bt=help
       exe 'help '.a:topic
     elseif (&columns > 160) && !l:split
-        \ && (str2float(&columns) / str2float(&lines)) > 2.7
+        \ && (str2float(&columns) / str2float(&lines)) > 2.5
       " Open help in vertical split depending on window geometry
       exe 'vert help '.a:topic
     else
@@ -161,7 +161,9 @@ function! vimtools#Tree(...)
   let treenr = bufnr('--tree--')
   if treenr == -1
     execute "enew" | execute "file --tree--" | execute "set buftype=nowrite"
-    execute "autocmd VimLeavePre,VimLeave,QuitPre * bwipe! ".bufnr('%')
+    autocmd VimLeavePre,VimLeave,QuitPre * if bufnr('--tree--')
+        \ |   execute "bwipe! ".bufnr('--tree--')
+        \ | endif
   else
     execute "buffer ".treenr | execute "AnsiEsc" | execute "normal! ggdG"
   endif
@@ -180,30 +182,32 @@ function! vimtools#SectionJump(type, v)
   let l:count = v:count1
   let startpos = getpos('.')
   keepjumps if a:v | exe "norm! gv" | endif
-  while l:count
-    if a:type == '[['
-      keepjumps call search('{','b',1)
-      keepjumps normal! w99[{
-    elseif a:type == ']['
-      keepjumps call search('}','',line('$'))
-      keepjumps normal! b99]}
-    elseif a:type == ']]'
-      keepjumps normal j0[[%
-      keepjumps call search('{','',line('$'))
-    elseif a:type == '[]'
-      keepjumps normal k$][%
-      keepjumps call search('}','b',1)
-    endif
-    let l:count -= 1
-  endwhile
-  call setpos("''", startpos)
-  normal! `'`'
+while l:count
+  if a:type == '[['
+    keepjumps call search('{','b',1)
+    keepjumps normal! w99[{
+  elseif a:type == ']['
+    keepjumps call search('}','',line('$'))
+    keepjumps normal! b99]}
+  elseif a:type == ']]'
+    keepjumps normal j0[[%
+    keepjumps call search('{','',line('$'))
+  elseif a:type == '[]'
+    keepjumps normal k$][%
+    keepjumps call search('}','b',1)
+  endif
+  let l:count -= 1
+endwhile
+call setpos("''", startpos)
+normal! `'`'
 endfunction
 function! vimtools#SectionJumpMaps()
-  for key in ['[[', '][', ']]', '[]']
-    exe "noremap  <silent> <buffer> ".key." :<C-u>call vimtools#SectionJump('".key."',0)<CR>"
-    exe "xnoremap <silent> <buffer> ".key." :<C-u>call vimtools#SectionJump('".key."',1)<CR>"
-  endfor
+  if search('\m\C^\s*namespace', 'cnw') == 0 && search('\m\C^{', 'cnw') == 0
+    for key in ['[[', '][', ']]', '[]']
+      exe "noremap  <silent> <buffer> ".key." :<C-u>call vimtools#SectionJump('".key."',0)<CR>"
+      exe "xnoremap <silent> <buffer> ".key." :<C-u>call vimtools#SectionJump('".key."',1)<CR>"
+    endfor
+  endif
 endfunction
 
 " Make pasted text have one blank line above and below

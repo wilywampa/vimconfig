@@ -18,8 +18,12 @@ let s:wsPrev=''
 let s:wsEnabledPrev=0
 
 function! s:TagbarSame()
-    return g:airline_section_x =~? 'tagbar'
-        \ && (tagbar#currenttag('%s','','') == s:tagPrev)
+    try
+        return g:airline_section_x =~? 'tagbar'
+            \ && (tagbar#currenttag('%s','','') == s:tagPrev)
+    catch
+        return 0
+    endtry
 endfunction
 
 function! s:WhitespaceSame()

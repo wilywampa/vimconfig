@@ -7,6 +7,7 @@ augroup filetypedetect
     autocmd! BufRead,BufNewFile */arduino/*.cpp setf arduino
     autocmd! BufRead,BufNewFile */arduino/*.h   setf arduino
     autocmd! BufRead,BufNewFile *.pde           setf processing
+    autocmd! BufRead,BufNewFile *.sml           setf xml
     autocmd! BufRead,BufNewFile *.todo          setf todo
     autocmd! BufRead,BufNewFile *.applescript   setf applescript
     autocmd! BufRead,BufNewFile *.scpt          setf applescript

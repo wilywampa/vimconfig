@@ -121,8 +121,11 @@ if !exists('*<SID>ShowDictionary')
     func s:ShowDictionary()
         execute "silent keepalt botright vertical split ".g:matlab_dict
         vertical resize 50
-        setlocal winfixwidth readonly nomodifiable
+        setlocal winfixwidth readonly nomodifiable nobuflisted
         nnoremap <buffer> q :bd<CR>
+        nnoremap <buffer> Q :bd<CR>
+        nnoremap <silent> <Leader>m :call <SID>ToggleDictionary()<CR>
+        autocmd WinEnter <buffer> edit!
         wincmd p
     endfunc
 endif

@@ -17,8 +17,7 @@ nnoremap <M-R> :C run<CR>
 nnoremap <M-s> :C step<CR>
 nnoremap <M-W> :C where<CR>
 nnoremap <M-X> :execute "C foldvar ."line('.')<CR>
-vnoremap <expr> <C-p> &filetype == 'python' ?
-    \ "y:C print \<C-r>\"\<CR>" : "y:Cdisplay \<C-r>\"\<CR>"
-vnoremap <M-p> y:Cdisplay<Space>*<C-r>"<CR>
+vnoremap <silent> <C-p> :<C-u>call SaveRegs()<CR>gvy:C print <C-r>"<CR>:call RestoreRegs()<CR>
+vnoremap <silent> <M-p> :<C-u>call SaveRegs()<CR>gvy:C print *<C-r>"<CR>:call RestoreRegs()<CR>
 cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'Cprint':'Cp')
 nnoremap <M-w> :res 10<CR>:set wfh<CR>

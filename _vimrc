@@ -376,7 +376,7 @@ nn <silent> <Leader>w :ccl\|lcl<CR>
 " Switch to quickfix window
 nn <silent> <C-w><Space> :copen<CR>
 nn <silent> <C-w><C-Space> :copen<CR>
-nn <silent> <C-w><Nul> :copen<CR>
+nn <silent> <C-w><C-@> :copen<CR>
 
 " Make current buffer a scratch buffer
 nn <silent> <Leader>s :set bt=nofile<CR>
@@ -448,6 +448,9 @@ nn g/ q/
 " Use <C-n>/<C-p> instead of arrows for command line history
 cm <C-p> <Up>
 cm <C-n> <Down>
+
+" Put spaces around a character
+nn g<Space>  a<Space><Esc>hi<Space><Esc>l
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -576,7 +579,7 @@ func! Redir(cmd)
     let @+=@"
 endfunc
 com! -nargs=+ -complete=command Redir call Redir(<q-args>)
-nnoremap <Leader>r :<Up><Home>Redir <CR>
+nnoremap <Leader>r :<C-r>:<Home>Redir <CR>
 
 " Function to removing trailing carriage return from register
 func! s:FixReg()
@@ -787,10 +790,10 @@ func! s:FuncAbbrevs()
     let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
     if getcmdtype() == ':'
         let cmd = getcmdline()
-        if cmdstart =~ '\snr2$' | return substitute(cmd, '\snr2', '&char(', '')
-        elseif cmdstart =~ '\sch2$' | return substitute(cmd, '\sch2', ' char2nr(', '')
-        elseif cmdstart =~ '\sgetl$' | return substitute(cmd, '\sgetl', '&ine(', '')
-        elseif cmdstart =~ '\ssys$' | return substitute(cmd, '\ssys', '&tem(', '')
+        if cmdstart =~ '\<nr2$' | return substitute(cmd, 'nr2', '&char(', '')
+        elseif cmdstart =~ '\<ch2$' | return substitute(cmd, 'ch2', 'char2nr(', '')
+        elseif cmdstart =~ '\<getl$' | return substitute(cmd, 'getl', '&ine(', '')
+        elseif cmdstart =~ '\<sys$' | return substitute(cmd, 'sys', '&tem(', '')
         endif
     endif
     let cmdend = strpart(getcmdline(), getcmdpos() - 1)
@@ -798,6 +801,29 @@ func! s:FuncAbbrevs()
     return cmdstart.'('.cmdend
 endfunc
 cnoremap ( <C-\>e<SID>FuncAbbrevs()<CR><Left><C-]><Right>
+
+" Delete until character on command line
+func! s:DeleteUntilChar(char)
+    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
+    let newcmdstart = substitute(cmdstart, '^.*'.a:char.'\zs.*', '', '')
+    let cmdend = strpart(getcmdline(), getcmdpos() - 1)
+    call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart))
+    return newcmdstart.cmdend
+endfunc
+cnoremap <C-^> <C-\>e<SID>DeleteUntilChar('\/')<CR>
+inoremap <C-^> <Esc>vT/"_c
+cnoremap <M-w> <C-\>e<SID>DeleteUntilChar('\s')<CR>
+inoremap <M-w> <Esc>vT<Space>"_c
+
+" Stay at search result without completing search
+func! s:QuitSearch()
+    if getcmdtype() !~ '[/?]' | return '' | endif
+    let g:quit_pat = getcmdline()
+    return "\<End>\<C-u>\<Esc>:call search(g:quit_pat, '".
+        \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>"
+endfunc
+cnoremap <silent> <expr> <C-@> <SID>QuitSearch()
+cnoremap <silent> <expr> <C-Space> <SID>QuitSearch()
 
 " Search without saving when in command line window
 func! s:SearchWithoutSave()
@@ -1151,7 +1177,7 @@ func! s:SneakMaps()
             endfor
             execute mode.'map <Space>   <Plug>Sneak_s'
             execute mode.'map <C-Space> <Plug>Sneak_S'
-            execute mode.'map <Nul>     <Plug>Sneak_S'
+            execute mode.'map <C-@>     <Plug>Sneak_S'
             execute mode.'map ,, <Plug>SneakPrevious'
         endfor
         nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
@@ -1260,7 +1286,7 @@ func! s:UniteSettings()
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
     nmap <buffer>  S A<C-u>
     imap <buffer> <C-Space> <Plug>(unite_toggle_mark_current_candidate)
-    imap <buffer> <Nul> <Plug>(unite_toggle_mark_current_candidate)
+    imap <buffer> <C-@> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
     sil! nunmap <buffer> ?
 endfunc
