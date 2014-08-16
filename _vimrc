@@ -818,9 +818,8 @@ inoremap <M-w> <Esc>vT<Space>"_c
 " Stay at search result without completing search
 func! s:QuitSearch()
     if getcmdtype() !~ '[/?]' | return '' | endif
-    let g:quit_pat = getcmdline()
-    return "\<End>\<C-u>\<Esc>:call search(g:quit_pat, '".
-        \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>"
+    return "\<C-e>\<C-u>\<Esc>:call search('".getcmdline()."', '".
+        \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv"
 endfunc
 cnoremap <silent> <expr> <C-@> <SID>QuitSearch()
 cnoremap <silent> <expr> <C-Space> <SID>QuitSearch()
@@ -1484,7 +1483,7 @@ com! -nargs=0 FollowedBy call vimtools#FollowedBy(0)
 com! -nargs=0 NotFollowedBy call vimtools#FollowedBy(1)
 com! -nargs=0 PrecededBy call vimtools#PrecededBy(0)
 com! -nargs=0 NotPrecededBy call vimtools#PrecededBy(1)
-autocmd VimrcAutocmds FileType c,cpp,zsh call vimtools#SectionJumpMaps()
+autocmd VimrcAutocmds FileType c,cpp,*sh call vimtools#SectionJumpMaps()
 nnoremap <silent> g= :call vimtools#MakeParagraph()<CR>
 
 " Import scripts

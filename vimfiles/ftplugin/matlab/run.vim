@@ -125,7 +125,6 @@ if !exists('*<SID>ShowDictionary')
         nnoremap <buffer> q :bd<CR>
         nnoremap <buffer> Q :bd<CR>
         nnoremap <silent> <Leader>m :call <SID>ToggleDictionary()<CR>
-        autocmd WinEnter <buffer> edit!
         wincmd p
     endfunc
 endif

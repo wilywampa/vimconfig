@@ -8,7 +8,7 @@ if [ $SOLARIZED_TOGGLE = "1" ]; then
   >~/.vim/after/plugin/bg.vim <<< 'set background=dark'
   [[ -n $TMUX ]] && tmux run-shell "cut -c3- ~/.tmux.conf | sh -s status_dark"
   for instance in $(vim --serverlist); do
-    vim --servername $instance --remote-send "<C-\><C-n>:set background=dark<CR>"
+    vim --servername $instance --remote-send "<C-\><C-n>:set background=dark<CR><C-l>"
   done
   export SOLARIZED_TOGGLE=0
 else
@@ -17,7 +17,7 @@ else
   >~/.vim/after/plugin/bg.vim <<< 'set background=light'
   [[ -n $TMUX ]] && tmux run-shell "cut -c3- ~/.tmux.conf | sh -s status_light"
   for instance in $(vim --serverlist); do
-    vim --servername $instance --remote-send "<C-\><C-n>:set background=light<CR>"
+    vim --servername $instance --remote-send "<C-\><C-n>:set background=light<CR><C-l>"
   done
   export SOLARIZED_TOGGLE=1
 fi

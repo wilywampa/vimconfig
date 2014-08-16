@@ -31,12 +31,12 @@ function gendictstruct(fid, var_in)
     hasStringFields = 0;
 
     for j = 1:length(fields)
-        if findstr(fields{j}, '.')
+        if strfind(fields{j}, '.')
             printvar(fid, [var_in '.(''' fields{j} ''')']);
             hasStringFields = 1;
         else
             printvar(fid, [var_in '.' fields{j}]);
-            if evalin('base', ['exist(''' var_in '.' fields{j} ''')'])
+            if evalin('base', ['exist(''' var_in '.' fields{j} ''', ''var'')'])
                 if isstruct(evalin('base', [var_in '.' fields{j}]))
                     gendictstruct(fid, [var_in '.' fields{j}]);
                 end
@@ -48,18 +48,18 @@ function gendictstruct(fid, var_in)
         fprintf(fid, [var_in '.(''\n']);
     end
 
-function str = sizestr(sizein)
+function str = sizestr(varnamestr)
 
-    if nargin == 0
-        str = '0';
-    else
-        str = strtrim(sprintf('%d ', sizein));
-        str = strrep(str, ' ', 'x');
-    end
-
+    sizein = evalin('base', ['size(''' varnamestr ''')']);
+    str = strtrim(sprintf('%d ', sizein));
+    str = strrep(str, ' ', 'x');
     return
 
 function printvar(fid, varnamestr)
 
-    varinfo = evalin('base', ['whos(''' varnamestr ''')']); %#ok
-    fprintf(fid, [varnamestr ' ' sizestr(varinfo.size) ' ' varinfo.class '\n']);
+    try
+        classstr = evalin('base', ['class(' varnamestr ')']);
+        fprintf(fid, [varnamestr ' ' sizestr(varnamestr) ' ' classstr '\n']);
+    catch %#ok<CTCH>
+        fprintf(fid, [varnamestr ' ' sizestr(varnamestr) '\n']);
+    end
