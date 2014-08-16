@@ -256,6 +256,7 @@ EXEC 01;31  # Unix
 .pod 32
 .tex 32
 .patch 32
+.m 32
 
 # Dotfiles
 .zshrc 32

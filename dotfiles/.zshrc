@@ -44,11 +44,14 @@ alias gi='grep -i'
 # find
 alias f='find .'
 alias fa='find . | ag'
+alias ff='find . -type f'
+alias ffa='find . -type f | ag'
 alias fn='find . -type f -iname'
 alias fnc='find . -type f -name'
 alias fnr='find . -type f -iregex'
 alias fnrc='find . -type f -regex'
 alias fd='find . -type d'
+alias fda='find . -type d | ag'
 alias fdn='find . -type d -iname'
 alias fmd='find . -maxdepth'
 alias fs='f | s'
@@ -73,20 +76,26 @@ alias gvims='gvim -S ~/session.vis'
 alias ez='vim ~/.zshrc'
 
 # svn
-alias svnadd="svn st | \grep '^?' | awk '{print \$2}' | s | xargs svn add"
-alias svnrevert="svn st | \grep '^M' | awk '{print \$2}' | s | xargs svn revert"
-alias svnrm="svn st | \grep '^?' | awk '{print \$2}' | s | xargs rm -r"
+alias svnadd="svn st | grep '^?' | awk '{print \$2}' | s | xargs svn add"
+alias svnrevert="svn st | grep '^M' | awk '{print \$2}' | s | xargs svn revert"
+alias svnrm="svn st | grep '^?' | awk '{print \$2}' | s | xargs rm -r"
 alias svnst="svn st | g -v '\.git'"
 alias svndi="svnst | awk '{print \$2}' | s | xargs svn di"
-alias svnexport="svn st | \grep '^[MA]' | awk '{print \$2}' | xargs -I {} cp --parents {}"
+svnexport() {
+    mkdir -p "$1"
+    svn st | grep '^[MA]' | awk '{print $2}' | xargs -I {} cp --parents {} "$1"
+}
 
 # hg
-alias hgadd="hg st | \grep '^?' | awk '{print \$2}' | s | xargs hg add"
-alias hgrevert="hg st | \grep '^M' | awk '{print \$2}' | s | xargs hg revert"
-alias hgrm="hg st | \grep '^?' | awk '{print \$2}' | s | xargs rm -r"
+alias hgadd="hg st | grep '^?' | awk '{print \$2}' | s | xargs hg add"
+alias hgrevert="hg st | grep '^M' | awk '{print \$2}' | s | xargs hg revert"
+alias hgrm="hg st | grep '^?' | awk '{print \$2}' | s | xargs rm -r"
 alias hgst="hg st | g -v '\.git'"
 alias hgdi="hgst | awk '{print \$2}' | s | xargs hg di"
-alias hgexport="hg st | \grep '^[MA]' | awk '{print \$2}' | xargs -I {} cp --parents {}"
+hgexport() {
+    mkdir -p "$1"
+    hg st | grep '^[MA]' | awk '{print $2}' | xargs -I {} cp --parents {} "$1"
+}
 
 # git
 alias gci='git commit'
@@ -96,6 +105,8 @@ alias gdi='git diff'
 alias gdit='git difftool'
 alias gpu='git pull'
 alias gst='git status'
+alias gadd='git add'
+alias glog='git log --reverse'
 
 # ls
 alias l='ls -h --color=auto'
@@ -125,7 +136,7 @@ alias remake='make clean && make -j'
 alias d='dirs -v'
 alias h='head'
 alias t='tail'
-alias tree="tree -C | vim -R -c 'AnsiEsc' -"
+alias rename='export NOAUTONAME=1; tmux rename-window'
 
 #[[[1 Global aliases
 alias -g LL='ls --color=auto -lsh'
@@ -216,7 +227,7 @@ if [ $? -eq 0 ]; then
     }
 else
     bigdirs() {
-        du . | sort -n | tail -n ${1:-$(( $LINES - 6 ))} | b2h
+        du --block-size=1 . | sort -n | tail -n ${1:-$(( $LINES - 6 ))} | b2h
     }
     bigfiles() {
         find . -type f -exec du -b {} + | sort -n \
@@ -348,6 +359,12 @@ _backward-delete-WORD () {
 }
 zle -N _backward-delete-WORD; vibindkey '÷' _backward-delete-WORD
 
+_backward-delete-to-slash () {
+  local WORDCHARS=${WORDCHARS//\//}
+  zle backward-delete-word
+}
+zle -N _backward-delete-to-slash; vibindkey '^^' _backward-delete-to-slash
+
 md() { mkdir -p "$@" && cd "$@" }
 
 rationalise-dot() { [[ $LBUFFER == *.. ]] && LBUFFER+=/.. || LBUFFER+=. }
@@ -365,6 +382,12 @@ _vim-args() {
     CURSOR=$(( $CURSOR + 7 ))
 }
 zle -N _vim-args; vibindkey '^E' _vim-args
+
+_use-as-args() {
+    BUFFER=" \$( "$BUFFER" )"
+    CURSOR=0
+}
+zle -N _use-as-args; bindkey '^A' _use-as-args
 
 _fg-job() {
     if [[ -n $(jobs) ]]; then
@@ -409,16 +432,18 @@ fi
 
 _tmux-name-win() {
     if [[ -n $TMUX ]] && [[ -z $(jobs) ]] && [[ -z $NOAUTONAME ]]; then
-        tmux if "[[ $(tmux display-message -p -t $TMUX_PANE \
-            '#{window_panes}') == 1 ]]" "rename-window -t \
-            $TMUX_PANE $(print -n "/${${PWD/#$HOME/\~}##*/}/")"
+        if [[ $(tmux display-message -p -t $TMUX_PANE '#{window_panes}') -eq 1 ]]; then
+            name=$(print -n "/${${PWD/#$HOME/\~}##*/}/")
+            if [[ ${#name} -gt 23 ]]; then; name=${name[1,9]}...${name[-9,-1]}; fi
+            tmux rename-window -t $TMUX_PANE $name
+        fi
     fi
 }
 _tmux-name-auto() {
     if [[ -n $TMUX ]] && [[ -z $NOAUTONAME ]]; then
-        tmux if "[[ $(tmux display-message -p -t $TMUX_PANE \
-            '#{window_panes}') == 1 ]]" "set-window -q -t \
-            $TMUX_PANE automatic-rename on"
+        if [[ $(tmux display-message -p -t $TMUX_PANE '#{window_panes}') -eq 1 ]]; then
+            tmux set-window -q -t $TMUX_PANE automatic-rename on
+        fi
     fi
 }
 add-zsh-hook precmd _tmux-name-win
@@ -464,7 +489,7 @@ bindkey '^X' insert-last-command-output
 
 make() {
     if [[ $# == 0 ]]; then
-        command make -j8
+        command make -j
     else
         command make "$@"
     fi
@@ -478,8 +503,14 @@ _focus_disable="\033[?1004l"
 
 _set-block-cursor() { [[ -z $MOBILE ]] && echo -ne $_cursor_block }
 _set-bar-cursor()   { [[ -z $MOBILE ]] && echo -ne $_cursor_bar }
-_enable-focus()     { [[ -z $MOBILE ]] && echo -ne $_focus_enable }
 _disable-focus()    { [[ -z $MOBILE ]] && echo -ne $_focus_disable }
+_enable-focus()     {
+    if [[ -z $MOBILE ]]; then
+        stty -echoctl # Prevents '^[[I' showing up on screen
+        echo -ne $_focus_enable
+        stty echoctl
+    fi
+}
 
 vibindkey '^[[O' redisplay
 vibindkey '^[[I' zle-keymap-select
@@ -487,16 +518,20 @@ bindkey -M main '^[[O' redisplay
 bindkey -M main '^[[I' zle-keymap-select
 add-zsh-hook precmd _enable-focus
 add-zsh-hook preexec _disable-focus
+add-zsh-hook precmd _set-bar-cursor
 add-zsh-hook preexec _set-block-cursor
 _set-bar-cursor
 
 #[[[1 Environment variables
-export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
-    vim -R -c 'set ft=man nomod noma nolist' \
+export VIMPAGER="/bin/sh -c \"unset PAGER;col -b -x | \
+    vim -R -c 'set ft=man nomod noma nolist' --servername VIM \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
+export PAGER=
+alias man='PAGER=$VIMPAGER man'
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
-vimblacklist=(syntastic vimshell processing over flake8 tmux-complete)
+vimblacklist=(syntastic vimshell processing over flake8 tmux-complete svndiff \
+    signify vcscommand fugitive)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 [[ -e ~/.dircolors ]] && eval $(dircolors -b ~/.dircolors)
 [[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
@@ -589,8 +624,13 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,tty,cputime,command'
 # Don't suggest _functions
 zstyle ':completion:*:functions' ignored-patterns '_*'
 
-#[[[1 Prompt stuff
+# Fast completion for files only
+zle -C complete-files menu-complete _generic
+zstyle ':completion:complete-files:*' completer _files
+zstyle ':completion:complete-files:*' menu 'select=0'
+bindkey '^@' complete-files
 
+#[[[1 Prompt stuff
 export _PSVARLEN=0
 local userhost=$(print -P "%n@%m")
 export _USERHOSTLEN=${#userhost}
@@ -616,14 +656,12 @@ _short-pwd() {
         echo $PWD
     fi
 }
-
 # Show vi input mode
 autoload -U colors && colors
 setopt PROMPT_SUBST
 _vim_ins_mode="%{$fg[black]%}%{$bg[cyan]%}i%{$reset_color%}"
 _vim_cmd_mode="%{$fg[black]%}%{$bg[yellow]%}n%{$reset_color%}"
 _vim_mode=$_vim_ins_mode
-
 zle-keymap-select() {
     _vim_mode="${${KEYMAP/vicmd/${_vim_cmd_mode}}/(main|viins)/${_vim_ins_mode}}"
     if [[ $KEYMAP =~ "viins|main" ]]; then
@@ -634,35 +672,37 @@ zle-keymap-select() {
     zle reset-prompt
 }
 zle -N zle-keymap-select
-
 zle-line-finish() { _vim_mode=$_vim_ins_mode }
 zle -N zle-line-finish
-
 TRAPINT() {
     _vim_mode=$_vim_ins_mode
     return $(( 128 + $1 ))
 }
-
 # Ctrl-F opens Vim as command editor
 autoload edit-command-line
 zle -N edit-command-line
 vibindkey '^F' edit-command-line
-
 _lineup=$'\e[1A'
 _linedown=$'\e[1B'
-
 PROMPT="
 %{$fg[blue]%}%n%{$reset_color%}@%{$fg[yellow]%}%m %{$fg[cyan]%}\$(_short-pwd)%{$reset_color%}
 [zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
 RPROMPT="%{${_lineup}%}%{$fg_bold[green]%}%T%{$reset_color%}"
 RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
 SPROMPT="Correct $fg[red]%R$reset_color to $fg[green]%r?$reset_color (Yes, No, Abort, Edit) "
-
 # Update prompt after TMOUT seconds and after hitting enter
 TMOUT=10
 TRAPALRM() { [[ -z $BUFFER ]] && zle reset-prompt }
 _accept-line() { zle reset-prompt; zle accept-line }
 zle -N _accept-line; vibindkey '^M' _accept-line
+
+# vared setup
+zle -N _set-bar-cursor
+VAREDPROMPT='
+[$fg[red]vared $fg[yellow]VAR ${_vim_mode}]%# '
+vared() {
+    builtin vared -i _set-bar-cursor -p ${VAREDPROMPT/VAR/${argv[-1]}} ${argv[-1]}
+}
 
 #[[[1 Cygwin settings
 if [[ $OSTYPE == 'cygwin' ]]; then
@@ -678,6 +718,7 @@ if [[ $OSTYPE == 'cygwin' ]]; then
 
     export DISPLAY=localhost:0.0
 
+    # Open file browser with F4
     _cygstart_dir() {
         cygstart $PWD
     }
