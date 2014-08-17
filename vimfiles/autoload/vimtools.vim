@@ -155,6 +155,16 @@ function! vimtools#ResizeWindow(type)
   endtry
 endfunction
 
+" Move cursor using key until on non-concealed text
+function! vimtools#conceal_move(key)
+  execute "normal ".a:key
+  let cnt = 0
+  while synconcealed(line('.'), col('.'))[0] && cnt < 20
+    let cnt = cnt + 1
+    execute "normal ".a:key
+  endwhile
+endfunction
+
 " Display file structure with dircolors
 function! vimtools#Tree(...)
   let dir = a:0 ? a:1 : getcwd()
@@ -169,12 +179,14 @@ function! vimtools#Tree(...)
   endif
   if dir != getcwd() | execute "lcd ".dir | endif
   execute "silent read!cd ".dir."; tree -CQf"
+  setlocal nomodified
   execute "AnsiEsc" | execute "normal! gg"
   syn match ansiConceal conceal '"'
   syn match ansiConceal conceal "\(\"\..*\/\)"
-  nnoremap <buffer> j j$B3w
-  nnoremap <buffer> k k$B3w
+  nnoremap <silent> <buffer> j j0:call search('[[:alnum:]]')<CR>call vimtools#conceal_move('w')<CR>
+  nnoremap <silent> <buffer> k k0:call search('[[:alnum:]]')<CR>call vimtools#conceal_move('w')<CR>
   nnoremap <buffer> <CR> gf
+  nnoremap <silent> <buffer> ZZ :wincmd c<CR>
 endfunction
 
 " Make [[, ]], [], and ][ work when { is not in first column

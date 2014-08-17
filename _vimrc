@@ -211,6 +211,7 @@ nn <silent> ,ea :<C-u>edit ~/.vim/after/plugin/after.vim<CR>:norm! zv<CR>
 nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>:norm! zv<CR>
 nn <silent> ,ec :<C-u>edit ~/.cshrc<CR>:norm! zv<CR>
 nn <silent> ,eh :<C-u>edit ~/.histfile<CR>:norm! zv<CR>
+nn <silent> ,ei :<C-u>edit ~/.inputrc<CR>:norm! zv<CR>
 nn <silent> ,el :<C-u>edit ~/.zshrclocal<CR>:norm! zv<CR>
 nn <silent> ,em :<C-u>edit ~/.minttyrc<CR>:norm! zv<CR>
 nn <silent> ,es :<C-u>edit ~/.screenrc<CR>:norm! zv<CR>
@@ -310,7 +311,6 @@ vn <C-c> <Esc>'<0v'>g_y
 
 " File explorer at current buffer with -
 nn <silent> - :Explore<CR>
-nn _ -
 
 " Repeat last command with a bang
 nn @! :<C-u><C-r>:<Home><C-Right>!<CR>
@@ -451,6 +451,13 @@ cm <C-n> <Down>
 
 " Put spaces around a character
 nn g<Space>  a<Space><Esc>hi<Space><Esc>l
+
+" Use _ instead of - and swap +/- because - is left of + like j/k
+nn _ +
+nn + -
+
+" Go to most recent text change
+nn <silent> g. :exe "b".g:last_change_buf \| call setpos('.', g:last_change_pos)<CR>
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -788,12 +795,13 @@ cnoremap / <C-\>e<SID>KeepPatternsSubstitute()<CR><Left><C-]><Right>
 " Function abbreviations
 func! s:FuncAbbrevs()
     let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
-    if getcmdtype() == ':'
+    if getcmdtype() =~ '[:=]'
         let cmd = getcmdline()
         if cmdstart =~ '\<nr2$' | return substitute(cmd, 'nr2', '&char(', '')
         elseif cmdstart =~ '\<ch2$' | return substitute(cmd, 'ch2', 'char2nr(', '')
         elseif cmdstart =~ '\<getl$' | return substitute(cmd, 'getl', '&ine(', '')
         elseif cmdstart =~ '\<sys$' | return substitute(cmd, 'sys', '&tem(', '')
+        elseif cmdstart =~ '\<pr$' | return substitute(cmd, 'pr', '&intf(', '')
         endif
     endif
     let cmdend = strpart(getcmdline(), getcmdpos() - 1)
@@ -818,7 +826,7 @@ inoremap <M-w> <Esc>vT<Space>"_c
 " Stay at search result without completing search
 func! s:QuitSearch()
     if getcmdtype() !~ '[/?]' | return '' | endif
-    return "\<C-e>\<C-u>\<Esc>:call search('".getcmdline()."', '".
+    return "\<C-e>\<C-u>\<C-c>:call search('".getcmdline()."', '".
         \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv"
 endfunc
 cnoremap <silent> <expr> <C-@> <SID>QuitSearch()
@@ -934,8 +942,11 @@ cnoreabbrev <expr> vd getcmdtype()==':'&&getcmdpos()<=3 ? 'vert diffs':'vd'
 
 " Other abbreviations
 cnoreabbrev <expr> ve getcmdtype()==':'&&getcmdpos()<=3 ? 'verbose':'ve'
-cnoreabbrev <expr> ex getcmdtype()==':'&&getcmdpos()<=3 ? 'execute':'ex'
-cnoreabbrev <expr> no getcmdtype()==':'&&getcmdpos()<=3 ? 'normal':'no'
+let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|\\@<=/)*\\@<!/'
+cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
+    \ \|\| (getcmdline() =~ g:global_command_pattern.'ex$') ? 'execute':'ex'
+cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
+    \ \|\| (getcmdline() =~ g:global_command_pattern.'no$') ? 'normal':'no'
 cnoreabbrev <expr> wi getcmdtype()==':'&&getcmdpos()<=3 ? 'windo':'wi'
 cnoreabbrev <expr> ca getcmdtype()==':'&&getcmdpos()<=3 ? 'call':'ca'
 cnoreabbrev <expr> pp getcmdtype()=='>'&&getcmdpos()<=3 ? 'PP':'pp'
@@ -1021,6 +1032,13 @@ augroup VimrcAutocmds
     autocmd FocusGained,CursorMoved,CursorMovedI *
         \ if exists('g:focuslost') |
         \     unlet g:focuslost | silent! execute "AirlineRefresh" |
+        \ endif
+
+    " Save position of last text change
+    autocmd TextChanged,TextChangedI *
+        \ if &buflisted && &buftype == '' |
+        \     let g:last_change_pos = getpos("'.") |
+        \     let g:last_change_buf = bufnr('%') |
         \ endif
 augroup END
 
@@ -1121,12 +1139,12 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}
         endif
+        let g:neocomplete#keyword_patterns.matlab = '\h\(\.(''\)\?\w*'
         if !exists('g:neocomplete#sources')
             let g:neocomplete#sources = {}
         endif
         let g:neocomplete#sources._ = ['file/include', 'member', 'buffer',
             \ 'syntax', 'include', 'neosnippet', 'omni']
-        let g:neocomplete#keyword_patterns.matlab = '\h\(\w\|\.\|(''\)*'
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
             if getline('.')[col('.')-2] =~ '\S'
