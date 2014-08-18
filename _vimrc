@@ -203,9 +203,9 @@ im <F2> <C-o><F2>
 
 " Edit configuration files
 if s:hasvimtools
-    com! -nargs=1 SwitchToOrOpen call vimtools#SwitchToOrOpen(<f-args>)
+    command! -nargs=1 SwitchToOrOpen call vimtools#SwitchToOrOpen(<f-args>)
 else
-    com! -nargs=1 SwitchToOrOpen tab drop <args>
+    command! -nargs=1 SwitchToOrOpen tab drop <args>
 endif
 nn <silent> ,ea :<C-u>edit ~/.vim/after/plugin/after.vim<CR>:norm! zv<CR>
 nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>:norm! zv<CR>
@@ -461,7 +461,7 @@ nn <silent> g. :exe "b".g:last_change_buf \| call setpos('.', g:last_change_pos)
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
-    com! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
+    command! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
     cnorea <expr> ht getcmdtype()==':'&&getcmdpos()<=3 ? 'tab help':'ht'
     cnorea <expr> h getcmdtype()==':'&&getcmdpos()<=2 ? 'Help':'h'
     cnorea <expr> H getcmdtype()==':'&&getcmdpos()<=2 ? 'Help':'H'
@@ -510,7 +510,7 @@ func! Bufdo(command, bang)
     endif
     execute 'buffer ' . currBuff
 endfunc
-com! -nargs=+ -bang -complete=command Bufdo call Bufdo(<q-args>, <bang>0)
+command! -nargs=+ -bang -complete=command Bufdo call Bufdo(<q-args>, <bang>0)
 
 " Function to set key codes for terminals
 func! s:KeyCodes()
@@ -585,7 +585,7 @@ func! Redir(cmd)
     let @*=@"
     let @+=@"
 endfunc
-com! -nargs=+ -complete=command Redir call Redir(<q-args>)
+command! -nargs=+ -complete=command Redir call Redir(<q-args>)
 nnoremap <Leader>r :<C-r>:<Home>Redir <CR>
 
 " Function to removing trailing carriage return from register
@@ -735,7 +735,7 @@ func! s:SingleFile()
     nnoremap <buffer> <S-F5> :execute '!./'.expand('%:r')<CR>
     lcd! %:p:h
 endfunc
-com! -nargs=0 SingleFile call <SID>SingleFile()
+command! -nargs=0 SingleFile call <SID>SingleFile()
 
 " Use 'very magic' regex by default
 func! s:SearchHandleKey(dir)
@@ -776,39 +776,17 @@ endfunc
 vnoremap <expr> <silent> <C-e> <SID>EvalExpr()
 
 " Don't overwrite pattern with substitute command
-func! s:KeepPatternsSubstitute()
-    let cmdline = getcmdline()
-    if getcmdtype() == ':'
-        let cmd = cmdline[match(cmdline,'\a')]
-        if cmdline =~ '\v^[sgv]$' | return "keeppatterns ".cmd."/"
-        elseif cmdline =~ '\v^\%[sgv]$' | return "keeppatterns %".cmd."/"
-        elseif cmdline =~ "\\m^'<,'>[sgv]$" | return "keeppatterns '<,'>".cmd."/"
-        endif
-    endif
-    let cmdstart = strpart(cmdline, 0, getcmdpos() - 1)
-    let cmdend = strpart(cmdline, getcmdpos() - 1)
-    call setcmdpos(getcmdpos() + 1)
-    return cmdstart.'/'.cmdend
-endfunc
-cnoremap / <C-\>e<SID>KeepPatternsSubstitute()<CR><Left><C-]><Right>
+if s:hasvimtools
+    command! -nargs=* KeepPatterns call vimtools#KeepPatterns(<q-args>)
+    cnoremap / <C-\>evimtools#KeepPatternsSubstitute()<CR><Left><C-]><Right>
+    nnoremap <expr> & ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."\<CR>"
+    nnoremap <expr> g& ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."/".g:lsub_flags."\<CR>"
+endif
 
 " Function abbreviations
-func! s:FuncAbbrevs()
-    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
-    if getcmdtype() =~ '[:=]'
-        let cmd = getcmdline()
-        if cmdstart =~ '\<nr2$' | return substitute(cmd, 'nr2', '&char(', '')
-        elseif cmdstart =~ '\<ch2$' | return substitute(cmd, 'ch2', 'char2nr(', '')
-        elseif cmdstart =~ '\<getl$' | return substitute(cmd, 'getl', '&ine(', '')
-        elseif cmdstart =~ '\<sys$' | return substitute(cmd, 'sys', '&tem(', '')
-        elseif cmdstart =~ '\<pr$' | return substitute(cmd, 'pr', '&intf(', '')
-        endif
-    endif
-    let cmdend = strpart(getcmdline(), getcmdpos() - 1)
-    call setcmdpos(getcmdpos() + 1)
-    return cmdstart.'('.cmdend
-endfunc
-cnoremap ( <C-\>e<SID>FuncAbbrevs()<CR><Left><C-]><Right>
+if s:hasvimtools
+    cnoremap ( <C-\>evimtools#FuncAbbrevs()<CR><Left><C-]><Right>
+endif
 
 " Delete until character on command line
 func! s:DeleteUntilChar(char)
@@ -826,8 +804,10 @@ inoremap <M-w> <Esc>vT<Space>"_c
 " Stay at search result without completing search
 func! s:QuitSearch()
     if getcmdtype() !~ '[/?]' | return '' | endif
-    return "\<C-e>\<C-u>\<C-c>:call search('".getcmdline()."', '".
-        \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv"
+    let visual = mode() =~? "[v\<C-v>]"
+    return "\<C-e>\<C-u>\<C-c>:\<C-u>call search('".getcmdline()."', '".
+        \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv".
+        \ (visual ? 'm>gv' : "")
 endfunc
 cnoremap <silent> <expr> <C-@> <SID>QuitSearch()
 cnoremap <silent> <expr> <C-Space> <SID>QuitSearch()
@@ -952,10 +932,10 @@ cnoreabbrev <expr> ca getcmdtype()==':'&&getcmdpos()<=3 ? 'call':'ca'
 cnoreabbrev <expr> pp getcmdtype()=='>'&&getcmdpos()<=3 ? 'PP':'pp'
 
 " Create new buffer with filetype as (optional) argument
-com! -nargs=? New     new     | set filetype=<args>
-com! -nargs=? Enew    enew    | set filetype=<args>
-com! -nargs=? Vnew    vnew    | set filetype=<args>
-com! -nargs=? Tabedit tabedit | set filetype=<args>
+command! -nargs=? New     new     | set filetype=<args>
+command! -nargs=? Enew    enew    | set filetype=<args>
+command! -nargs=? Vnew    vnew    | set filetype=<args>
+command! -nargs=? Tabedit tabedit | set filetype=<args>
 
 " Increase time allowed for keycode mappings over SSH
 if mobileSSH
@@ -1478,7 +1458,7 @@ nnoremap <silent> <Leader>bb :call
 nnoremap <silent> <Leader>bc :call
     \ VimuxRunCommand('clear '.expand('%:t').':'.line('.'))<CR>
 let g:VimuxRunnerType = 'pane'
-com! -nargs=0 VimuxToggleRunnerType let g:VimuxRunnerType =
+command! -nargs=0 VimuxToggleRunnerType let g:VimuxRunnerType =
     \ g:VimuxRunnerType == 'pane' ? 'window' : 'pane' | echo g:VimuxRunnerType
 
 " Targets settings
@@ -1496,11 +1476,11 @@ cnoreabbrev <expr> loc getcmdtype() == ':' && getcmdpos() <= 4 ?
     \ 'Locate! --regex' : 'loc'
 
 " vimtools functions
-com! -nargs=? -complete=dir Tree call vimtools#Tree(<f-args>)
-com! -nargs=0 FollowedBy call vimtools#FollowedBy(0)
-com! -nargs=0 NotFollowedBy call vimtools#FollowedBy(1)
-com! -nargs=0 PrecededBy call vimtools#PrecededBy(0)
-com! -nargs=0 NotPrecededBy call vimtools#PrecededBy(1)
+command! -nargs=? -complete=dir Tree call vimtools#Tree(<f-args>)
+command! -nargs=0 FollowedBy call vimtools#FollowedBy(0)
+command! -nargs=0 NotFollowedBy call vimtools#FollowedBy(1)
+command! -nargs=0 PrecededBy call vimtools#PrecededBy(0)
+command! -nargs=0 NotPrecededBy call vimtools#PrecededBy(1)
 autocmd VimrcAutocmds FileType c,cpp,*sh call vimtools#SectionJumpMaps()
 nnoremap <silent> g= :call vimtools#MakeParagraph()<CR>
 

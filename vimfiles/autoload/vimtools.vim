@@ -264,4 +264,54 @@ function! vimtools#PrecededBy(not) abort
   echo '/'.@/
 endfunction
 
+" Don't overwrite pattern with substitute command
+function! vimtools#KeepPatterns(cmd)
+  let pat = @/
+  try
+    execute a:cmd
+    let g:lsub_pat = @/
+    let l:subs_pat = '\v\C^[^/]*s%[ubstitute]/([^/]|\\@<=/)*\\@<!/'
+    let g:lsub_rep=substitute(a:cmd,l:subs_pat.'\v\ze([^/]|\\@<=/)*','','')
+    let g:lsub_rep=substitute(g:lsub_rep,'\v([^/]|\\@<=/)*\zs\\@<!/.{-}$','','')
+    if a:cmd =~ '\v\\@<!/.*\\@<!/.*\\@<!/'
+      let g:lsub_flags=substitute(a:cmd,'\v^.*\\@<!/\ze.{-}$','','')
+    else
+      let g:lsub_flags=''
+    endif
+  finally
+    let @/ = pat
+  endtry
+endfunction
+function! vimtools#KeepPatternsSubstitute()
+  let cmdline = getcmdline()
+  if getcmdtype() == ':'
+    let cmd = cmdline[match(cmdline,'\a')]
+    if cmdline =~ '\v^[sgv]$' | return "KeepPatterns ".cmd."/"
+    elseif cmdline =~ '\v^\%[sgv]$' | return "KeepPatterns %".cmd."/"
+    elseif cmdline =~ "\\m^'<,'>[sgv]$" | return "KeepPatterns '<,'>".cmd."/"
+    endif
+  endif
+  let cmdstart = strpart(cmdline, 0, getcmdpos() - 1)
+  let cmdend = strpart(cmdline, getcmdpos() - 1)
+  call setcmdpos(getcmdpos() + 1)
+  return cmdstart.'/'.cmdend
+endfunction
+
+" Function abbreviations
+function! vimtools#FuncAbbrevs()
+  let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
+  if getcmdtype() =~ '[:=]'
+    let cmd = getcmdline()
+    if cmdstart =~ '\<nr2$' | return substitute(cmd, 'nr2', '&char(', '')
+    elseif cmdstart =~ '\<ch2$' | return substitute(cmd, 'ch2', 'char2nr(', '')
+    elseif cmdstart =~ '\<getl$' | return substitute(cmd, 'getl', '&ine(', '')
+    elseif cmdstart =~ '\<sys$' | return substitute(cmd, 'sys', '&tem(', '')
+    elseif cmdstart =~ '\<pr$' | return substitute(cmd, 'pr', '&intf(', '')
+    endif
+  endif
+  let cmdend = strpart(getcmdline(), getcmdpos() - 1)
+  call setcmdpos(getcmdpos() + 1)
+  return cmdstart.'('.cmdend
+endfunction
+
 " vim:set et ts=2 sts=2 sw=2:
