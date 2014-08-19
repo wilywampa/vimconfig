@@ -215,7 +215,8 @@ nn <silent> ,ei :<C-u>edit ~/.inputrc<CR>:norm! zv<CR>
 nn <silent> ,el :<C-u>edit ~/.zshrclocal<CR>:norm! zv<CR>
 nn <silent> ,em :<C-u>edit ~/.minttyrc<CR>:norm! zv<CR>
 nn <silent> ,es :<C-u>edit ~/.screenrc<CR>:norm! zv<CR>
-nn <silent> ,et :<C-u>edit ~/.tmux.conf<CR>:norm! zv<CR>
+nn <silent> ,et :<C-u>if expand('%') =~ "\.tmux\.conf$" \| edit
+    \ ~/.tmux-local.conf \| else \| edit ~/.tmux.conf \| endif<CR>:norm! zv<CR>
 nn <silent> ,ev :<C-u>edit $MYVIMRC<CR>:norm! zv<CR>
 nn <silent> ,ex :<C-u>edit ~/.Xdefaults<CR>:norm! zv<CR>
 nn <silent> ,ez :<C-u>edit ~/.zshrc<CR>:norm! zv<CR>
@@ -253,10 +254,18 @@ nn <silent> <expr> <C-Tab>   tabpagenr('$')==1 ?
     \":sil! call system('tmux next')\<CR>" : (g:inCmdwin? ':q<CR>gt' : 'gt')
 nn <silent> <expr> <C-S-Tab> tabpagenr('$')==1 ?
     \":sil! call system('tmux prev')\<CR>" : (g:inCmdwin? ':q<CR>gT' : 'gT')
+ino <silent> <expr> <C-Tab> system('tmux next')
+ino <silent> <expr> <C-S-Tab> system('tmux prev')
+cno <silent> <expr> <C-Tab> system('tmux next')
+cno <silent> <expr> <C-S-Tab> system('tmux prev')
+vno <silent> <expr> <C-Tab> system('tmux next')
+vno <silent> <expr> <C-S-Tab> system('tmux prev')
 nm <M-l> <C-Tab>
 nm <M-h> <C-S-Tab>
-nm <F15> <C-Tab>
-nm <F16> <C-S-Tab>
+map <F15> <C-Tab>
+map <F16> <C-S-Tab>
+map! <F15> <C-Tab>
+map! <F16> <C-S-Tab>
 
 " Open new tab
 nn <silent> <M-t> :tabnew<CR>
@@ -423,8 +432,8 @@ nn <silent> <F5> :update<CR>:make<CR><CR>
 im <F5> <Esc><F5>
 
 " Cycle through previous searches
-nn <silent> <expr> <C-k> (g:inCmdwin? '' : 'q/'.v:count1)."k:let @/=getline('.')<CR>"
-nn <silent> <expr> <C-j> (g:inCmdwin? '' : 'q/'.v:count1)."j:let @/=getline('.')<CR>"
+nn <silent> <expr> <C-k> (g:inCmdwin? '' : "/\<C-f>".v:count1)."k:let @/=getline('.')<CR>"
+nn <silent> <expr> <C-j> (g:inCmdwin? '' : "/\<C-f>".v:count1)."j:let @/=getline('.')<CR>"
 
 " Don't open fold when jumping to first or last line in diff mode
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
@@ -647,6 +656,7 @@ exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
 
 " Make last search a whole word
 func! s:SearchWholeWord(dir)
+    let sf = v:searchforward
     if @/[0:1] ==# '\v'
         let @/ = '\v<('.@/[2:].')>'
     elseif @/[0:1] ==# '\V'
@@ -655,10 +665,14 @@ func! s:SearchWholeWord(dir)
         let @/='\<\('.@/.'\)\>'
     endif
     call histadd('/', @/)
-    echo a:dir.@/
+    if (a:dir && sf) || (!a:dir && !sf)
+        echo '/'.@/ | return '/'."\<CR>"
+    else
+        echo '?'.@/ | return "?\<CR>"
+    endif
 endfunc
-nn <silent> <Leader>n :call <SID>SearchWholeWord('/')<CR>n
-nn <silent> <Leader>N :call <SID>SearchWholeWord('?')<CR>N
+nn <silent> <expr> <Leader>n <SID>SearchWholeWord(1)
+nn <silent> <expr> <Leader>N <SID>SearchWholeWord(0)
 
 " Search for first non-blank
 func! s:FirstNonBlank()
@@ -1000,6 +1014,7 @@ augroup VimrcAutocmds
         \ endif
     autocmd BufWinEnter * if exists('b:do_unfold') |
         \ exe "normal! zv" | unlet b:do_unfold | endif
+    autocmd VimEnter * silent! normal! zv
 
     " Fix help buftype after loading session
     autocmd SessionLoadPost *.txt if &filetype == 'help' | set buftype=help | endif
@@ -1438,6 +1453,23 @@ let g:ack_apply_lmappings=0
 let g:ack_apply_qmappings=0
 cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'A'
 cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'a'
+func! s:AckCurrentSearch(ic)
+    let view = winsaveview() | call SaveRegs()
+    keepjumps normal gny
+    call winrestview(view)
+    if a:ic == 0 | let cmd = "Ack! -s '".@"."'" | else
+        if @/ =~ '\u'
+            let cmd = "Ack! '".@"."'"
+        else
+            let cmd = "Ack! '".tolower(@")."'"
+        endif
+    endif
+    execute cmd | call histadd(':', cmd) | cwindow
+    if &buftype == 'quickfix' | execute "normal! gg" | endif
+    call RestoreRegs()
+endfunc
+nnoremap <silent> ga :<C-u>call <SID>AckCurrentSearch(1)<CR>
+nnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0)<CR>
 
 " tmux navigator settings
 let g:tmux_navigator_no_mappings=1

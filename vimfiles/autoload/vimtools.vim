@@ -286,9 +286,9 @@ function! vimtools#KeepPatternsSubstitute()
   let cmdline = getcmdline()
   if getcmdtype() == ':'
     let cmd = cmdline[match(cmdline,'\a')]
-    if cmdline =~ '\v^[sgv]$' | return "KeepPatterns ".cmd."/"
-    elseif cmdline =~ '\v^\%[sgv]$' | return "KeepPatterns %".cmd."/"
-    elseif cmdline =~ "\\m^'<,'>[sgv]$" | return "KeepPatterns '<,'>".cmd."/"
+    if     cmdline=~ '\v^[sgv]$'       | return "KeepPatterns ".cmd."/"
+    elseif cmdline=~ '\v^\%[sgv]$'     | return "KeepPatterns %".cmd."/"
+    elseif cmdline=~ "\\m^'<,'>[sgv]$" | return "KeepPatterns '<,'>".cmd."/"
     endif
   endif
   let cmdstart = strpart(cmdline, 0, getcmdpos() - 1)
@@ -302,11 +302,11 @@ function! vimtools#FuncAbbrevs()
   let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
   if getcmdtype() =~ '[:=]'
     let cmd = getcmdline()
-    if cmdstart =~ '\<nr2$' | return substitute(cmd, 'nr2', '&char(', '')
-    elseif cmdstart =~ '\<ch2$' | return substitute(cmd, 'ch2', 'char2nr(', '')
-    elseif cmdstart =~ '\<getl$' | return substitute(cmd, 'getl', '&ine(', '')
-    elseif cmdstart =~ '\<sys$' | return substitute(cmd, 'sys', '&tem(', '')
-    elseif cmdstart =~ '\<pr$' | return substitute(cmd, 'pr', '&intf(', '')
+    if     cmdstart=~'\v<nr2%[cha]$' | return substitute(cmd,'\v<nr2%[cha]$','nr2char(','')
+    elseif cmdstart=~'\v<ch2%[nr]$'  | return substitute(cmd,'\v<ch2%[n]$','char2nr(','')
+    elseif cmdstart=~'\v<getl%[in]$' | return substitute(cmd,'\v<getl%[in]$','getline(','')
+    elseif cmdstart=~'\v<sys%[te]$'  | return substitute(cmd,'\v<sys%[te]$','system(','')
+    elseif cmdstart=~'\v<pr%[int]$'  | return substitute(cmd,'\v<pr%[int]$','printf(','')
     endif
   endif
   let cmdend = strpart(getcmdline(), getcmdpos() - 1)
