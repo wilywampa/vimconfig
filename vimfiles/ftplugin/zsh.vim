@@ -17,10 +17,12 @@ if exists('$TMUX')
             let start = line('.')
             let end = a:1 ? line('.') + a:1 - 1 : start
         endif
-        call VimuxSendKeys("\<Esc>") | call VimuxSendKeys("S")
+        call VimuxSendKeys("S q C-u")
         for line in range(start, end)
-            call VimuxSendText(substitute(getline(line),';$',';;',''))
-            call VimuxSendKeys("\<Esc>") | call VimuxSendKeys("o")
+            call VimuxSendText(getline(line))
+            if line < end
+                call VimuxSendKeys("C-j")
+            endif
         endfor
         call VimuxSendKeys("\<CR>")
     endfunc
