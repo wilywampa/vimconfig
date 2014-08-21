@@ -50,7 +50,7 @@ function gendictstruct(fid, var_in)
 
 function str = sizestr(varnamestr)
 
-    sizein = evalin('base', ['size(''' varnamestr ''')']);
+    sizein = evalin('base', ['size(' varnamestr ')']);
     str = strtrim(sprintf('%d ', sizein));
     str = strrep(str, ' ', 'x');
     return

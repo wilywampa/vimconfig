@@ -170,21 +170,22 @@ function! vimtools#Tree(...)
   let dir = a:0 ? a:1 : getcwd()
   let treenr = bufnr('--tree--')
   if treenr == -1
-    execute "enew" | execute "file --tree--" | execute "set buftype=nowrite"
-    autocmd VimLeavePre,VimLeave,QuitPre * if bufnr('--tree--')
-        \ |   execute "bwipe! ".bufnr('--tree--')
-        \ | endif
+    execute "enew" | silent execute "file --tree--"
+    setlocal winfixwidth readonly nobuflisted
+    setlocal buftype=nofile bufhidden=hide noswapfile
   else
-    execute "buffer ".treenr | execute "AnsiEsc" | execute "normal! ggdG"
+    execute "buffer ".treenr | silent execute "normal! ggdG"
   endif
   if dir != getcwd() | execute "lcd ".dir | endif
   execute "silent read!cd ".dir."; tree -CQf"
   setlocal nomodified
-  execute "AnsiEsc" | execute "normal! gg"
+  redir => ansiCheck | silent! highlight ansiRed | redir END
+  if ansiCheck !~ 'term' | execute "AnsiEsc" | endif
+  execute "normal! gg"
   syn match ansiConceal conceal '"'
   syn match ansiConceal conceal "\(\"\..*\/\)"
-  nnoremap <silent> <buffer> j j0:call search('[[:alnum:]]')<CR>call vimtools#conceal_move('w')<CR>
-  nnoremap <silent> <buffer> k k0:call search('[[:alnum:]]')<CR>call vimtools#conceal_move('w')<CR>
+  nnoremap <silent> <buffer> j j0f"l
+  nnoremap <silent> <buffer> k k0f"l
   nnoremap <buffer> <CR> gf
   nnoremap <silent> <buffer> ZZ :wincmd c<CR>
 endfunction

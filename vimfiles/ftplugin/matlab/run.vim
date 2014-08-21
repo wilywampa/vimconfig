@@ -122,6 +122,7 @@ if !exists('*<SID>ShowDictionary')
         execute "silent keepalt botright vertical split ".g:matlab_dict
         vertical resize 50
         setlocal winfixwidth readonly nomodifiable nobuflisted
+        setlocal buftype=nofile bufhidden=hide noswapfile
         nnoremap <buffer> q :bd<CR>
         nnoremap <buffer> Q :bd<CR>
         nnoremap <silent> <Leader>m :call <SID>ToggleDictionary()<CR>

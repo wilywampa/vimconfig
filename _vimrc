@@ -361,8 +361,9 @@ ino <M-y> <C-y>
 " Make j/k work as expected on wrapped lines
 no <expr> j &wrap && strdisplaywidth(getline('.')) > (winwidth(0) -
     \ (&number ? &numberwidth : 0)) ? 'gj' : 'j'
-no <expr> k &wrap && strdisplaywidth(getline('.')) > (winwidth(0) -
-    \ (&number ? &numberwidth : 0)) ? 'gk' : 'k'
+no <expr> k &wrap && max([strdisplaywidth(getline('.')),
+    \ strdisplaywidth(getline(line('.')-1))]) >
+    \ (winwidth(0) - (&number ? &numberwidth : 0)) ? 'gk' : 'k'
 
 " ZZ and ZQ close buffer if it's not open in another window
 nn <silent> ZQ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
@@ -458,8 +459,9 @@ nn g/ q/
 cm <C-p> <Up>
 cm <C-n> <Down>
 
-" Put spaces around a character
+" Put spaces around a character/visual selection
 nn g<Space>  a<Space><Esc>hi<Space><Esc>l
+vn g<Space>  <Esc>`>a<Space><Esc>`<i<Space><Esc>l
 
 " Use _ instead of - and swap +/- because - is left of + like j/k
 nn _ +
@@ -762,13 +764,11 @@ func! s:SearchHandleKey(dir)
     elseif char == 24 | return a:dir.'\V'            " <C-x>
     elseif char == "\<Up>" | return a:dir."\<Up>"
     else
-        return a:dir.'\v'.(type(char) == 1 ? char : nr2char(char))
+        return a:dir.'\v'.(type(char) == type("") ? char : nr2char(char))
     endif
 endfunc
-nnoremap <expr> / <SID>SearchHandleKey('/')
-vnoremap <expr> / <SID>SearchHandleKey('/')
-nnoremap <expr> ? <SID>SearchHandleKey('?')
-vnoremap <expr> ? <SID>SearchHandleKey('?')
+noremap <expr> / <SID>SearchHandleKey('/')
+noremap <expr> ? <SID>SearchHandleKey('?')
 
 " Paste in visual mode without overwriting clipboard
 func! s:VisualPaste()
@@ -810,8 +810,8 @@ func! s:DeleteUntilChar(char)
     call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart))
     return newcmdstart.cmdend
 endfunc
-cnoremap <C-^> <C-\>e<SID>DeleteUntilChar('\/')<CR>
-inoremap <C-^> <Esc>vT/"_c
+cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('\/')<CR>
+inoremap <C-@> <Esc>vT/"_c
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar('\s')<CR>
 inoremap <M-w> <Esc>vT<Space>"_c
 
@@ -823,8 +823,8 @@ func! s:QuitSearch()
         \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv".
         \ (visual ? 'm>gv' : "")
 endfunc
-cnoremap <silent> <expr> <C-@> <SID>QuitSearch()
-cnoremap <silent> <expr> <C-Space> <SID>QuitSearch()
+cnoremap <silent> <expr> <C-^> <SID>QuitSearch()
+cnoremap <silent> <expr> <C-CR> <SID>QuitSearch()
 
 " Search without saving when in command line window
 func! s:SearchWithoutSave()
@@ -920,7 +920,7 @@ else
     set mouse=nir
     noremap <F22> <NOP>
     noremap <F21> <LeftMouse>
-    for b in ["Left","Middle","Right"] | for m in ["","2","C","S","A"]
+    for b in ["Left","Middle","Right"] | for m in ["","2","3","4","C","S","A"]
         execute 'map <'.m.(strlen(m)?'-':'').b.'Mouse> <NOP>'
     endfor | endfor | map <expr> <LeftMouse> winnr('$')>1?"\<F21>":"\<F22>"
 endif
@@ -1035,6 +1035,9 @@ augroup VimrcAutocmds
         \     let g:last_change_pos = getpos("'.") |
         \     let g:last_change_buf = bufnr('%') |
         \ endif
+
+    " Jump to quickfix result in previous window
+    autocmd FileType qf nn <silent> <buffer> <CR> :exe "winc p \| ".line('.')."cc"<CR>
 augroup END
 
 " Define some useful constants
