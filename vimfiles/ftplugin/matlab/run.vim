@@ -111,10 +111,21 @@ else
         call RestoreRegs()
     endfunc
 
+    func! s:PrintVarSizeMATLAB()
+        call SaveRegs()
+        normal! gvy
+        call VimuxOpenRunner()
+        call VimuxSendKeys("\<C-c>")
+        call VimuxSendText('size('.@".')'))
+        call VimuxSendKeys("\<CR>")
+        call RestoreRegs()
+    endfunc
+
     nmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(0, v:count)<CR>
     vmap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
     nmap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
     vmap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>
+    vmap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarSizeMATLAB()<CR>
 endif
 
 if !exists('*<SID>ShowDictionary')
@@ -125,7 +136,6 @@ if !exists('*<SID>ShowDictionary')
         setlocal buftype=nofile bufhidden=hide noswapfile
         nnoremap <buffer> q :bd<CR>
         nnoremap <buffer> Q :bd<CR>
-        nnoremap <silent> <Leader>m :call <SID>ToggleDictionary()<CR>
         wincmd p
     endfunc
 endif
@@ -143,11 +153,11 @@ if !exists('*<SID>ToggleDictionary')
     endfunc
 endif
 
-nmap <silent> <buffer> <Leader>m :call <SID>ToggleDictionary()<CR>
-nmap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>
-imap <silent> <buffer> <F5> <Esc><F5>
-nmap <silent> <buffer> <S-F5> :call <SID>UpdateDictionaryMATLAB()<CR>
-imap <silent> <buffer> <S-F5> <Esc><S-F5>
+nnoremap <silent> <Leader>m :call <SID>ToggleDictionary()<CR>
+nnoremap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>
+imap     <silent> <buffer> <F5> <Esc><F5>
+nnoremap <silent> <buffer> <S-F5> :call <SID>UpdateDictionaryMATLAB()<CR>
+imap     <silent> <buffer> <S-F5> <Esc><S-F5>
 
 augroup MATLAB
   autocmd!

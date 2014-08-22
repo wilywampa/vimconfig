@@ -12,17 +12,25 @@ function gendict
     fid = fopen(dict, 'w');
 
     for i = 1:length(vars)
-        printvar(fid, vars{i});
-
-        if isstruct(evalin('base', vars{i}))
-            gendictstruct(fid, vars{i});
-        end
+        gendictvar(fid, vars{i});
     end
 
     fclose(fid);
 
     if isunix
         system(['sort ' dict ' -o ' dict ' >& /dev/null']);
+    end
+
+function gendictvar(fid, var_in)
+
+    printvar(fid, var_in);
+
+    if isstruct(evalin('base', var_in))
+        gendictstruct(fid, var_in);
+    end
+
+    if iscell(evalin('base', var_in))
+        gendictcell(fid, var_in);
     end
 
 function gendictstruct(fid, var_in)
@@ -46,6 +54,12 @@ function gendictstruct(fid, var_in)
 
     if hasStringFields
         fprintf(fid, [var_in '.(''\n']);
+    end
+
+function gendictcell(fid, var_in)
+
+    for i = 1:evalin('base', ['numel(' var_in ')'])
+        gendictvar(fid, [var_in '{' num2str(i) '}']);
     end
 
 function str = sizestr(varnamestr)

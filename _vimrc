@@ -177,7 +177,7 @@ endif
 " Save current file if modified or execute command if in command window
 nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':update<CR>'
 ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:update<CR>'
-vn <silent> <C-s> <C-c>:update<CR>
+vn <silent> <C-s> <C-c>:update<CR>gv
 
 " Redraw the screen and remove search highlighting
 nn <silent> <C-l> :nohl<CR><C-l>
@@ -460,8 +460,10 @@ cm <C-p> <Up>
 cm <C-n> <Down>
 
 " Put spaces around a character/visual selection
-nn g<Space>  a<Space><Esc>hi<Space><Esc>l
-vn g<Space>  <Esc>`>a<Space><Esc>`<i<Space><Esc>l
+nn g<Space> :call SaveRegs()<CR>s <C-r>" <Esc>:call RestoreRegs()<CR>
+nn <silent> g<Space> a <Esc>hi <Esc>l:sil!
+    \ call repeat#set("a <C-v><Esc>hi <C-v><Esc>l")<CR>
+vn g<Space> <Esc>`>a<Space><Esc>`<i<Space><Esc>l
 
 " Use _ instead of - and swap +/- because - is left of + like j/k
 nn _ +
@@ -936,6 +938,7 @@ cnoreabbrev <expr> vd getcmdtype()==':'&&getcmdpos()<=3 ? 'vert diffs':'vd'
 
 " Other abbreviations
 cnoreabbrev <expr> ve getcmdtype()==':'&&getcmdpos()<=3 ? 'verbose':'ve'
+cnoreabbrev <expr> ec getcmdtype()=~'[:@]'&&getcmdpos()<=3 ? 'echo':'ec'
 let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|\\@<=/)*\\@<!/'
 cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
     \ \|\| (getcmdline() =~ g:global_command_pattern.'ex$') ? 'execute':'ex'
@@ -944,6 +947,16 @@ cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
 cnoreabbrev <expr> wi getcmdtype()==':'&&getcmdpos()<=3 ? 'windo':'wi'
 cnoreabbrev <expr> ca getcmdtype()==':'&&getcmdpos()<=3 ? 'call':'ca'
 cnoreabbrev <expr> pp getcmdtype()=='>'&&getcmdpos()<=3 ? 'PP':'pp'
+cnoreabbrev <expr> ls getcmdtype()==':' && getcmdline() == '!ls' ?
+    \ 'ls -h --color=auto'.(has('mac') ? ' --sort=none' : '') : 'ls'
+cnoreabbrev <expr> ll getcmdtype()==':' && getcmdline() == '!ll' ?
+    \ 'ls -lsh --color=auto'.(has('mac') ? ' --sort=none' : '') : 'll'
+cnoreabbrev <expr> lls getcmdtype()==':' && getcmdline() == '!lls' ?
+    \ 'ls -lshrt --color=auto' : 'lls'
+cnoreabbrev <expr> lla getcmdtype()==':' && getcmdline() == '!lla' ?
+    \ 'ls -lshA --color=auto'.(has('mac') ? ' --sort=none' : '') : 'lla'
+cnoreabbrev <expr> llas getcmdtype()==':' && getcmdline() == '!llas' ?
+    \ 'ls -lshrt --color=auto' : 'llas'
 
 " Create new buffer with filetype as (optional) argument
 command! -nargs=? New     new     | set filetype=<args>
@@ -985,7 +998,8 @@ augroup VimrcAutocmds
     autocmd InsertLeave * set nopaste
 
     " Open quickfix window automatically if not empty
-    autocmd QuickFixCmdPost * cw | if v:shell_error | echoerr 'Make failed' | endif
+    autocmd QuickFixCmdPost * cw |
+        \ if v:shell_error | redraw! | echoerr 'Shell command failed' | endif
 
     " Always make quickfix full-width on the bottom
     autocmd FileType qf wincmd J
@@ -1133,11 +1147,12 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         if !exists('g:neocomplete#force_omni_input_patterns')
             let g:neocomplete#force_omni_input_patterns={}
         endif
-        let g:neocomplete#force_omni_input_patterns.matlab='\h\w*\(\.\((''\)\?\w*\)\+'
+        let g:neocomplete#force_omni_input_patterns.matlab =
+            \ '\h\w*\(\.\((''\)\?\w*\)\+\|\h\w*{\d\+'
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}
         endif
-        let g:neocomplete#keyword_patterns.matlab = '\h\(\.(''\)\?\w*'
+        let g:neocomplete#keyword_patterns.matlab = '\h{\?}\?\(\.(''\)\?\w*'
         if !exists('g:neocomplete#sources')
             let g:neocomplete#sources = {}
         endif
@@ -1221,7 +1236,7 @@ func! s:VimfilerSettings()
     nmap <buffer> e     <Plug>(vimfiler_execute)
     nmap <buffer> <BS>  <Plug>(vimfiler_close)
     nmap <buffer> -     <Plug>(vimfiler_switch_to_parent_directory)
-    nmap <buffer> <F1>  <Plug>(vimfiler_help)
+    nmap <buffer> <F1>  <Plug>(vimfiler_help)<Plug>(unite_redraw)
     nmap <buffer> <expr> <CR> vimfiler#smart_cursor_map(
         \"\<Plug>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
     nmap <buffer> D     <Plug>(vimfiler_delete_file)
@@ -1303,6 +1318,8 @@ func! s:UniteSettings()
     imap <buffer> <C-Space> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-@> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
+    inor <buffer> . \.
+    inor <buffer> \. .
     sil! nunmap <buffer> ?
 endfunc
 nn <silent> "" :<C-u>Unite -prompt-direction=top history/yank<CR>
