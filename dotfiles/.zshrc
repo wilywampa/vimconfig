@@ -81,6 +81,7 @@ alias svnrevert="svn st | grep '^M' | awk '{print \$2}' | s | xargs svn revert"
 alias svnrm="svn st | grep '^?' | awk '{print \$2}' | s | xargs rm -r"
 alias svnst="svn st | g -v '\.git'"
 alias svndi="svnst | awk '{print \$2}' | s | xargs svn di"
+alias svndiff='svn di --diff-cmd diff | vim -c "set buftype=nowrite" -'
 svnexport() {
     mkdir -p "$1"
     svn st | grep '^[MA]' | awk '{print $2}' | xargs -I {} cp --parents {} "$1"
@@ -104,15 +105,17 @@ alias gfe='git fetch'
 alias gdi='git diff'
 alias gdit='git difftool'
 alias gpu='git pull'
+alias gco='git checkout'
 alias gst='git status'
 alias gadd='git add'
 alias glog='git log --reverse'
+alias gls='git ls-files'
 
 # ls
 alias l='ls -h --color=auto'
 alias ls='ls -h --color=auto'
-alias ll='ls -lsh'
-alias lls='ls -lshrt'
+alias ll='ls -lsh --color=auto'
+alias lls='ls -lshrt --color=auto'
 alias lla='ls -lshA --color=auto'
 alias llas='ls -lshrtA --color=auto'
 alias llsa='ls -lshrtA --color=auto'
@@ -199,6 +202,7 @@ vibindkey '^[[1;5D' backward-word
 # Focus events
 vibindkey '^[[I' redisplay
 vibindkey '^[[O' redisplay
+bindkey -M viins '^J' vi-open-line-below
 
 _vi-last-line() {
     zle end-of-buffer-or-history
@@ -209,6 +213,126 @@ zle -N _vi-last-line; bindkey -M vicmd 'G' _vi-last-line
 self-insert-no-autoremove() { LBUFFER="$LBUFFER$KEYS" }
 zle -N self-insert-no-autoremove; bindkey '|' self-insert-no-autoremove
 
+#[[[1 Abbreviations
+typeset -Ag abbrevs
+abbrevs=(
+'gci'   'git commit'
+'gcl'   'git clone'
+'gfe'   'git fetch'
+'gdi'   'git diff'
+'gdit'  'git difftool'
+'gpu'   'git pull'
+'gst'   'git status'
+'gco'   'git checkout'
+'gadd'  'git add'
+'glog'  'git log --reverse'
+'gls'   'git ls-files'
+'com'   'command'
+'ec'    'echo'
+'so'    'source'
+'sz'    'source ~/.zshrc'
+'wh'    'whence'
+'g'     'grep'
+'gi'    'grep -i'
+'f'     'find .'
+'fa'    'find . | ag'
+'ffa'   'find . -type f | ag'
+'fda'   'find . -type d | ag'
+'loc'   'locate --regex'
+'co'    './configure'
+'cop'   './configure --prefix=$HOME/.local'
+'min'   'make install'
+'mcl'   'make clean'
+'rem'   'make clean && make -j'
+'xa'    'xargs'
+'c'     'copy'
+'svd'   'svndiff'
+'vc'    'cd $VIMCONFIG'
+'vcb'   'cd $VIMCONFIG/vimfiles/bundle'
+)
+
+# Post-modifier abbreviations
+typeset -Ag pmabbrevs
+pmabbrevs=(
+'g'     'grep --color=auto'
+'grep'  'grep --color=auto'
+'egrep' 'grep --color=auto -E'
+'fgrep' 'grep --color=auto -F'
+'gi'    'grep --color=auto -i'
+'ls'    'ls --color=auto -h'
+'ll'    'ls --color=auto -lsh'
+'lla'   'ls --color=auto -lshA'
+'llsa'  'ls --color=auto -lshrtA'
+'lls'   'ls --color=auto -lshrt'
+'llsa'  'ls --color=auto -lshrtA'
+'ag'    'ag -S'
+'a'     'ag -S'
+)
+
+typeset -Ag globalabbrevs
+globalabbrevs=(
+'H'   '| head -n'
+'T'   '| tail -n'
+'VC'  '$VIMCONFIG'
+'VCB' '$VIMCONFIG/vimfiles/bundle'
+'AG'  'ag -S'
+)
+
+magic-abbrev-expand() {
+    local left pre mods prevword lastidx doabbrev=0 dopostmod=0
+    if [[ $KEYMAP == 'vicmd' ]]; then
+        LBUFFER=$BUFFER
+        RBUFFER=
+    fi
+    if [[ ${LBUFFER[-1]} != " " ]]; then
+        # Get index of last space, pipe, semicolon, or $( before last word
+        lastidx=${LBUFFER[(I) ]}
+        (( ${LBUFFER[(I)\|]} > $lastidx )) && lastidx=${LBUFFER[(I)\|]}
+        (( ${LBUFFER[(I);]} > $lastidx )) && lastidx=${LBUFFER[(I);]}
+        if [[ $LBUFFER == *$\(* ]]; then
+            (( $((${LBUFFER[(I)$\(]}+1)) > $lastidx )) && lastidx=$((${LBUFFER[(I)$\(]}+1))
+        fi
+        pre=${LBUFFER[$lastidx+1,-1]}
+        left=${LBUFFER[1,$lastidx]}
+        prevword=${left[(w)-1]}
+        mods=('xargs' 'unbuffer' 'time' 'noglob' 'nocorrect' 'exec' '&&' '||')
+        # Previous word is a modifier
+        if (( ${mods[(i)$prevword]} <= ${#mods} )); then
+            doabbrev=1
+            dopostmod=1
+        fi
+        # Only one word in buffer
+        (( ${(w)#LBUFFER} < 2 )) && doabbrev=1
+        # Preceded by a pipe, semicolon, or $(
+        [[ ${prevword[-1]} == '|' ]] && doabbrev=1
+        [[ ${prevword[-1]} == ';' ]] && doabbrev=1
+        [[ ${prevword[-2,-1]} == '$(' ]] && doabbrev=1
+        if [[ $dopostmod == 1 ]] && [[ ${pmabbrevs[(i)$pre]} == $pre ]]; then
+            LBUFFER=$left${pmabbrevs[$pre]:-$pre}
+        elif [[ $doabbrev == 1 ]] && [[ ${abbrevs[(i)$pre]} == $pre ]]; then
+            LBUFFER=$left${abbrevs[$pre]:-$pre}
+        else
+            LBUFFER=$left${globalabbrevs[$pre]:-$pre}
+        fi
+    fi
+    if [[ $KEYS == " " ]]; then
+        zle magic-space # Add space or do history expansion
+    else
+        [[ $KEYS != $(echo '\015') ]] && LBUFFER=$LBUFFER$KEYS
+    fi
+}
+
+no-magic-abbrev-expand() { LBUFFER+=' ' }
+
+_accept-line() { magic-abbrev-expand; zle reset-prompt; zle accept-line }
+zle -N _accept-line; vibindkey '^M' _accept-line
+zle -N magic-abbrev-expand
+zle -N no-magic-abbrev-expand
+bindkey -M viins " " magic-abbrev-expand
+bindkey -M viins "/" magic-abbrev-expand
+bindkey -M viins "|" magic-abbrev-expand
+bindkey -M viins "^O" no-magic-abbrev-expand
+
 #[[[1 Functions
 b2h() {
     awk 'function human(x) { s=" kMGTEPYZ"; while (x>=1000 && length(s)>1) \
@@ -216,7 +340,7 @@ b2h() {
             gsub(/^[0-9]+/, human($1)); print}'
 }
 
-sort -h >& /dev/null <<< "test"
+echo "test" | sort -h >& /dev/null
 if [ $? -eq 0 ]; then
     bigdirs() {
         du -h . | sort -h | tail -n ${1:-$(( $LINES - 6 ))}
@@ -254,7 +378,7 @@ _cyg-list-expand-or-copy-cwd() {
     if [[ $BUFFER =~ \\* ]]; then
         zle list-expand
     else
-        tr -d '\n' <<< $PWD > /dev/clipboard
+        echo $PWD | tr -d '\n' > /dev/clipboard
     fi
 }
 zle -N _cyg-list-expand-or-copy-cwd
@@ -281,7 +405,7 @@ _xclip-list-expand-or-copy-cwd() {
     if [[ $BUFFER =~ \\* ]]; then
         zle list-expand
     else
-        tr -d '\n' <<< $PWD | xclip -i -sel p -f | xclip -i -sel c
+        echo $PWD | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
     fi
 }
 zle -N _xclip-list-expand-or-copy-cwd
@@ -300,6 +424,10 @@ fi
 
 path() {
     echo $(readlink -f "$1") | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+}
+
+copy() {
+    echo "$@" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
 }
 
 _escalate-kill() {
@@ -326,12 +454,12 @@ _escalate_whence() {
     elif [[ ! $BUFFER =~ "^wh" ]]; then
         return
     fi
-    if [[ $BUFFER =~ "^wh [^- ]" ]]; then
-        BUFFER=${BUFFER/wh /wh -a }
-    elif [[ $BUFFER =~ "^wh -a" ]]; then
-        BUFFER=${BUFFER/wh -a/wh -f}
-    elif [[ $BUFFER =~ "^wh -f" ]]; then
-        BUFFER=${BUFFER/wh -f /which }
+    if [[ $BUFFER =~ "^whence [^- ]" ]]; then
+        BUFFER=${BUFFER/whence /whence -a }
+    elif [[ $BUFFER =~ "^whence -a" ]]; then
+        BUFFER=${BUFFER/whence -a/whence -f}
+    elif [[ $BUFFER =~ "^whence -f" ]]; then
+        BUFFER=${BUFFER/whence -f /which }
     elif [[ $BUFFER =~ "^which" ]] && [[ ! $BUFFER =~ "^which -a" ]]; then
         BUFFER=${BUFFER/which /which -a }
     fi
@@ -363,7 +491,7 @@ _backward-delete-to-slash () {
   local WORDCHARS=${WORDCHARS//\//}
   zle backward-delete-word
 }
-zle -N _backward-delete-to-slash; vibindkey '^^' _backward-delete-to-slash
+zle -N _backward-delete-to-slash; vibindkey '^@' _backward-delete-to-slash
 
 md() { mkdir -p "$@" && cd "$@" }
 
@@ -378,6 +506,22 @@ _time-command() {
 zle -N _time-command; vibindkey '^T' _time-command
 
 _vim-args() {
+    # Try to set vim's search pattern if opening files from ag command
+    if [[ ${BUFFER[(w)1]} =~ ag? ]]; then
+        # Extract string between quotes
+        pat=$(echo $BUFFER | sed "s/[^']*'\([^']*\)'[^']*$/\1/")
+        if (( ${#pat} == ${#BUFFER} )); then
+            # If BUFFER is of the form 'ag pattern -l', extract pattern
+            if (( ${(w)#BUFFER} == 3 )) && [[ ${BUFFER[(w)-1]} == "-l" ]]; then
+                pat=${BUFFER[(w)2]}
+            fi
+        fi
+        if (( ${#pat} < ${#BUFFER} )); then
+            BUFFER="vim -c \"let @/='\\v$pat'\" -c \"call histadd('/', @/)\" \$( "$BUFFER" )"
+            CURSOR=$(( $CURSOR + 51 + ${#pat} ))
+            return
+        fi
+    fi
     BUFFER="vim \$( "$BUFFER" )"
     CURSOR=$(( $CURSOR + 7 ))
 }
@@ -469,6 +613,10 @@ zle -N tmux-next; vibindkey '^[[27;5;9~' tmux-next
 tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
+vimblacklist=(syntastic vimshell processing over flake8 tmux-complete svndiff \
+    signify vcscommand)
+export VIMBLACKLIST=${(j:,:)vimblacklist}
+
 vim-blacklist-add() {
     vimblacklist=($vimblacklist "$1")
     export VIMBLACKLIST=${(j:,:)vimblacklist}
@@ -530,9 +678,6 @@ export PAGER=
 alias man='PAGER=$VIMPAGER man'
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
-vimblacklist=(syntastic vimshell processing over flake8 tmux-complete svndiff \
-    signify vcscommand fugitive)
-export VIMBLACKLIST=${(j:,:)vimblacklist}
 [[ -e ~/.dircolors ]] && eval $(dircolors -b ~/.dircolors)
 [[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
 export FPATH
@@ -628,7 +773,7 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 zle -C complete-files menu-complete _generic
 zstyle ':completion:complete-files:*' completer _files
 zstyle ':completion:complete-files:*' menu 'select=0'
-bindkey '^@' complete-files
+bindkey '^^' complete-files
 
 #[[[1 Prompt stuff
 export _PSVARLEN=0
@@ -689,19 +834,18 @@ PROMPT="
 [zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
 RPROMPT="%{${_lineup}%}%{$fg_bold[green]%}%T%{$reset_color%}"
 RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
-SPROMPT="Correct $fg[red]%R$reset_color to $fg[green]%r?$reset_color (Yes, No, Abort, Edit) "
+SPROMPT="Correct $fg[red]%R$reset_color to $fg[green]%r$reset_color? (Yes, No, Abort, Edit) "
 # Update prompt after TMOUT seconds and after hitting enter
 TMOUT=10
 TRAPALRM() { [[ -z $BUFFER ]] && zle reset-prompt }
-_accept-line() { zle reset-prompt; zle accept-line }
-zle -N _accept-line; vibindkey '^M' _accept-line
 
 # vared setup
 zle -N _set-bar-cursor
-VAREDPROMPT='
-[$fg[red]vared $fg[yellow]VAR ${_vim_mode}]%# '
+_vared_red="%{$fg[red]%}vared%{$reset_color%}"
 vared() {
-    builtin vared -i _set-bar-cursor -p ${VAREDPROMPT/VAR/${argv[-1]}} ${argv[-1]}
+    _vared_var="%{$fg[yellow]%}${argv[-1]}%{$reset_color%}"
+    builtin vared -i _set-bar-cursor -p \
+        $(echo '\n')'[${_vared_red} ${_vared_var} ${_vim_mode}]%# ' ${argv[-1]}
 }
 
 #[[[1 Cygwin settings

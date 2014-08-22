@@ -3,8 +3,8 @@
 	email = jacob.niehus@gmail.com
 [core]
 	excludesfile = /Users/jniehus/.gitignore_global
-	editor = /Applications/MacVim.app/Contents/MacOS/Vim
-	pager =
+	editor = vim
+	pager = 
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path = 
@@ -19,6 +19,7 @@
 	new = log HEAD..origin
 	up = pull origin master
 	url = config --get remote.origin.url
+	ls = ls-files
 [color]
 	diff = auto
 	status = auto
@@ -30,3 +31,6 @@
 	bc3 = trustExitCode
 [push]
 	default = simple
+[filter "media"]
+	clean = git-media-clean %f
+	smudge = git-media-smudge %f
