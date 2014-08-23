@@ -4,17 +4,6 @@ endif
 
 let b:did_matlab_run=1
 
-if !exists('g:matlab_dict')
-  if has("mac") || has("win16") || has("win32") || has("win64")
-    let g:matlab_dict = expand('~/Documents/MATLAB/dict.m')
-  elseif system('echo $OSTYPE') =~ 'cygwin'
-    let g:matlab_dict =
-        \ system('cygpath -u "$USERPROFILE/Documents/MATLAB/dict.m" | tr -d \\n')
-  else
-    let g:matlab_dict = expand('~/MATLAB/dict.m')
-  endif
-endif
-
 if !exists('g:matlab_path')
     if has("mac")
         let g:matlab_path = expand('~/Documents/MATLAB')
@@ -128,32 +117,6 @@ else
     vmap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarSizeMATLAB()<CR>
 endif
 
-if !exists('*<SID>ShowDictionary')
-    func s:ShowDictionary()
-        execute "silent keepalt botright vertical split ".g:matlab_dict
-        vertical resize 50
-        setlocal winfixwidth readonly nomodifiable nobuflisted
-        setlocal buftype=nofile bufhidden=hide noswapfile
-        nnoremap <buffer> q :bd<CR>
-        nnoremap <buffer> Q :bd<CR>
-        wincmd p
-    endfunc
-endif
-
-if !exists('*<SID>ToggleDictionary')
-    func! s:ToggleDictionary()
-        let win = bufwinnr(g:matlab_dict)
-        if win != -1
-            execute win."wincmd w"
-            bdelete
-            wincmd p
-        else
-            call <SID>ShowDictionary()
-        endif
-    endfunc
-endif
-
-nnoremap <silent> <Leader>m :call <SID>ToggleDictionary()<CR>
 nnoremap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>
 imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> <S-F5> :call <SID>UpdateDictionaryMATLAB()<CR>

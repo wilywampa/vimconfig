@@ -459,12 +459,6 @@ nn g/ q/
 cm <C-p> <Up>
 cm <C-n> <Down>
 
-" Put spaces around a character/visual selection
-nn g<Space> :call SaveRegs()<CR>s <C-r>" <Esc>:call RestoreRegs()<CR>
-nn <silent> g<Space> a <Esc>hi <Esc>l:sil!
-    \ call repeat#set("a <C-v><Esc>hi <C-v><Esc>l")<CR>
-vn g<Space> <Esc>`>a<Space><Esc>`<i<Space><Esc>l
-
 " Use _ instead of - and swap +/- because - is left of + like j/k
 nn _ +
 nn + -
@@ -852,6 +846,16 @@ endfunc
 nn <silent> <M-n> :call <SID>PrintCount()<CR>
 vn <silent> <M-n> :<C-u>call <SID>PrintCount()<CR>
 
+" Put spaces around a character/visual selection
+func! s:SpacesAround(visual)
+    call SaveRegs()
+    execute "normal! ".(a:visual ? "gv" : "")."s \<C-r>\" \<Esc>h"
+    call RestoreRegs()
+    silent! call repeat#set("g\<Space>")
+endfunc
+nn <silent> g<Space> :<C-u>call <SID>SpacesAround(0)<CR>
+vn <silent> g<Space> :<C-u>call <SID>SpacesAround(1)<CR>
+
 " {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
@@ -938,7 +942,7 @@ cnoreabbrev <expr> vd getcmdtype()==':'&&getcmdpos()<=3 ? 'vert diffs':'vd'
 
 " Other abbreviations
 cnoreabbrev <expr> ve getcmdtype()==':'&&getcmdpos()<=3 ? 'verbose':'ve'
-cnoreabbrev <expr> ec getcmdtype()=~'[:@]'&&getcmdpos()<=3 ? 'echo':'ec'
+cnoreabbrev <expr> ec getcmdtype()=~'[:@>]'&&getcmdpos()<=3 ? 'echo':'ec'
 let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|\\@<=/)*\\@<!/'
 cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
     \ \|\| (getcmdline() =~ g:global_command_pattern.'ex$') ? 'execute':'ex'
@@ -1051,7 +1055,7 @@ augroup VimrcAutocmds
         \ endif
 
     " Jump to quickfix result in previous window
-    autocmd FileType qf nn <silent> <buffer> <CR> :exe "winc p \| ".line('.')."cc"<CR>
+    autocmd FileType qf nn <silent> <buffer> <CR> :exe "winc p \| ".line('.')."cc"<CR>zv
 augroup END
 
 " Define some useful constants
@@ -1144,20 +1148,20 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
         let g:tmuxcomplete#trigger=''
-        if !exists('g:neocomplete#force_omni_input_patterns')
-            let g:neocomplete#force_omni_input_patterns={}
-        endif
-        let g:neocomplete#force_omni_input_patterns.matlab =
-            \ '\h\w*\(\.\((''\)\?\w*\)\+\|\h\w*{\d\+'
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}
         endif
-        let g:neocomplete#keyword_patterns.matlab = '\h{\?}\?\(\.(''\)\?\w*'
+        let g:neocomplete#keyword_patterns.matlab =
+            \ '\h\w*\(\(\.\((''\?\)\?\w*\('')\?\)\?\)\+'
+            \ .'\|{\d\+}\(\.\((''\?\)\?\w*\('')\?\)\?\)\+'
+            \ .'\|{\d*\}\?\)\?'
         if !exists('g:neocomplete#sources')
             let g:neocomplete#sources = {}
         endif
         let g:neocomplete#sources._ = ['file/include', 'member', 'buffer',
             \ 'syntax', 'include', 'neosnippet', 'omni']
+        let g:neocomplete#sources.matlab = ['file/include', 'member', 'buffer',
+            \ 'syntax', 'include', 'neosnippet', 'omni', 'matlab-complete']
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
             if getline('.')[col('.')-2] =~ '\S'
