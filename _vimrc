@@ -70,7 +70,7 @@ set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
 
 " Get return code from make command in v:shell_error
-set shellpipe=2>&1\ \|\ tee\ %s;exit\ \${pipestatus[1]}
+let &shellpipe='2>&1 | tee %s;echo ${pipestatus[1]} > $HOME/.exit;exit ${pipestatus[1]}'
 
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
@@ -444,7 +444,7 @@ nn <silent> <expr> G "G".(&diff ? "" : "zv")
 nn <expr> V v:count ? "\<Esc>V".(v:count > 1 ? (v:count - 1).'j' : '') : 'V'
 
 " <Home> moves cursor after \v
-cnoremap <expr> <Home> "\<Home>".(getcmdtype() =~ '[/?]' &&
+cno <expr> <Home> "\<Home>".(getcmdtype() =~ '[/?]' &&
     \ getcmdline() =~? '^\\v' ? "\<Right>\<Right>" : "")
 cmap <C-b> <Home>
 
@@ -858,6 +858,14 @@ endfunc
 nn <silent> g<Space> :<C-u>call <SID>SpacesAround(0)<CR>
 vn <silent> g<Space> :<C-u>call <SID>SpacesAround(1)<CR>
 
+" Show human-readable timestamp in zsh history file
+func! s:EchoHistTime()
+    let line = getline(search('^:\s*\d*:', 'bcnW')) | if !len(line) | return | endif
+    redraw | let fmt = len($DATEFMT) ? $DATEFMT : '%a %d%b%y %T'
+    echo strftime(fmt, matchstr(line, ':\s\zs\d\+\ze:'))
+endfunc
+autocmd VimrcAutocmds CursorMoved $HOME/.histfile call <SID>EchoHistTime()
+
 " {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
@@ -1004,8 +1012,10 @@ augroup VimrcAutocmds
     autocmd InsertLeave * set nopaste
 
     " Open quickfix window automatically if not empty
-    autocmd QuickFixCmdPost * cw |
-        \ if v:shell_error | redraw! | echoerr 'Shell command failed' | endif
+    autocmd QuickFixCmdPost * cwindow |
+        \ if substitute(system('< $HOME/.exit'), '\d\+', '&', '') != 0 |
+        \     redraw! | echohl ErrorMsg | echomsg "Shell command failed" | echohl None |
+        \ endif | call system('[[ -f $HOME/.exit ]] && command rm $HOME/.exit')
 
     " Always make quickfix full-width on the bottom
     autocmd FileType qf wincmd J
@@ -1019,14 +1029,6 @@ augroup VimrcAutocmds
     au CmdwinEnter * if winheight(0) > &cmdwinheight | exe "norm! "
         \ .&cmdwinheight."\<C-w>_" | endif
 
-    " Load files with mixed line endings as DOS format
-    autocmd BufReadPost * nested
-        \ if !exists('b:reload_dos') && !&binary && &ff == 'unix'
-        \       && (0 < search('\r$', 'nc')) && &buftype == '' |
-        \     let b:reload_dos = 1 |
-        \     e ++ff=dos |
-        \ endif
-
     " Restore cursor position and open fold after loading a file
     autocmd BufReadPost *
         \ if line("'\"") > 1 && line("'\"") <= line("$") |
@@ -1035,6 +1037,14 @@ augroup VimrcAutocmds
     autocmd BufWinEnter * if exists('b:do_unfold') |
         \ exe "normal! zv" | unlet b:do_unfold | endif
     autocmd VimEnter * silent! normal! zv
+
+    " Load files with mixed line endings as DOS format
+    autocmd BufReadPost * nested
+        \ if !exists('b:reload_dos') && !&binary && &ff == 'unix'
+        \       && (0 < search('\r$', 'nc')) && &buftype == '' |
+        \     let b:reload_dos = 1 |
+        \     e ++ff=dos |
+        \ endif
 
     " Fix help buftype after loading session
     autocmd SessionLoadPost *.txt if &filetype == 'help' | set buftype=help | endif
@@ -1491,6 +1501,7 @@ func! s:AckCurrentSearch(ic)
             let cmd = "Ack! '".tolower(@")."'"
         endif
     endif
+    let cmd = escape(cmd, '%#')
     execute cmd | call histadd(':', cmd) | cwindow
     if &buftype == 'quickfix' | execute "normal! gg" | endif
     call RestoreRegs()

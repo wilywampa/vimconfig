@@ -16,6 +16,8 @@ func! s:RunPython()
     endif
 endfunc
 
+setlocal define=^\s*\\(def\\\\|class\\)
+
 noremap  <silent> <buffer> <F5> :up<CR>:<C-u>call <SID>RunPython()<CR>
 imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>

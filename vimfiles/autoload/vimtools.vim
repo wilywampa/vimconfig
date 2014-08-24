@@ -71,20 +71,25 @@ function! vimtools#OpenHelp(topic)
     endfor
     if l:helpWin
       " If help is already open in a window, use that window
-      exe l:helpWin.'wincmd w'
-      setl bt=help
-      exe 'help '.a:topic
+      execute l:helpWin.'wincmd w'
+      setlocal bt=help
+      let cmd = 'help '
     elseif (&columns > 160) && !l:split
         \ && (str2float(&columns) / str2float(&lines)) > 2.5
       " Open help in vertical split depending on window geometry
-      exe 'vert help '.a:topic
+      let cmd = 'vertical help '
     else
-      exe 'aboveleft help '.a:topic
+      let cmd = 'aboveleft help '
     endif
   else
-    setl ft=help bt=help noma
-    exe 'help '.a:topic
+    setlocal ft=help bt=help noma
+    let cmd = 'help '
   endif
+  try
+    execute cmd.a:topic
+  catch /^Vim\%((\a\+)\)\=:E149/
+    echohl ErrorMsg | echo substitute(v:exception, '^[^:]*:', '', '') | echohl None
+  endtry
 endfunction
 
 function! vimtools#OpenHelpVisual()
@@ -226,6 +231,7 @@ endfunction
 " Make pasted text have one blank line above and below
 function! vimtools#MakeParagraph()
   call SaveRegs()
+  let foldenable_save = &foldenable | set nofoldenable
   let l1 = nextnonblank(line("'["))
   let l2 = prevnonblank(line("']"))
   let l3 = nextnonblank(l2 + 1)
@@ -244,6 +250,7 @@ function! vimtools#MakeParagraph()
     silent execute "keeppatterns 1,".l1."g/^\\s*$/d"
     call cursor(1, 0)
   endif
+  let &foldenable = foldenable_save
   call RestoreRegs()
 endfunction
 
