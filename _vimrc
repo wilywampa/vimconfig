@@ -7,7 +7,7 @@ if &compatible | set nocompatible | endif
 silent! autocmd! VimrcAutocmds
 
 " Check if in read-only mode to disable unnecessary plugins
-if !exists('s:readonly') | let s:readonly=&readonly | endif
+if !exists('s:readonly') | let s:readonly = &readonly || exists('vimpager') | endif
 
 set shiftwidth=4                " Number of spaces to indent
 set expandtab                   " Use spaces instead of tabs
@@ -480,12 +480,12 @@ endif
 
 " {{{2 Cscope configuration
 " Abbreviations for cscope commands
-cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cs add'    :'csa')
-cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<=4)?'cs find'   :'csf')
-cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<=4)?'cs kill -1':'csk')
-cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<=4)?'cs reset'  :'csr')
-cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cs show'   :'css')
-cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cs help'   :'csh')
+cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope add'    :'csa')
+cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope find'   :'csf')
+cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope kill -1':'csk')
+cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope reset'  :'csr')
+cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope show'   :'css')
+cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope help'   :'csh')
 
 " Mappings for cscope find commands
 no <M-\>s :cs find s <C-r>=expand("<cword>")<CR><CR>
@@ -610,18 +610,18 @@ nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 func! s:CycleSearchMode()
     let l:cmd = getcmdline()
     let l:pos = getcmdpos()
-    if l:cmd =~# '^\\v'
-        let l:cmd = substitute(l:cmd,'^\\v','\\V','')
-    elseif l:cmd =~# '^\\V'
-        let l:cmd = substitute(l:cmd,'^\\V','','')
+    if l:cmd =~# '\v^(KeepPatterns [^/]*[sgv]\/)?\\v'
+        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?\\v','\1\\V','')
+    elseif l:cmd =~# '\v^(KeepPatterns [^/]*[sgv]\/)?\\V'
+        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?\\V','\1','')
         call setcmdpos(l:pos - 2)
     else
-        let l:cmd = '\v'.l:cmd
+        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?','\1\\v','')
         call setcmdpos(l:pos + 2)
     endif
     return l:cmd
 endfunc
-cnoremap <expr> <C-x> getcmdtype() =~ '[/?]' ?
+cnoremap <expr> <C-x> getcmdtype() =~ '[/?:]' ?
     \ "\<C-\>e\<SID>CycleSearchMode()\<CR>" : ""
 
 " Close other windows or close other tabs
@@ -714,8 +714,10 @@ cnoremap <expr> <C-Left> <SID>SearchCtrlLeft()
 func! s:OlderHistory()
     if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
         return "\<C-u>\<Up>"
+    elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[sgv]/\\[vV]$'
+        return "\<BS>\<BS>\<Up>"
     elseif s:hasvimtools
-        return ((getcmdtype()==':'&&getcmdline()=='h')?"\<BS>H\<Up>":"\<Up>")
+        return getcmdtype() == ':' && getcmdline() == 'h' ? "\<BS>H\<Up>" : "\<Up>"
     endif
     return "\<Up>"
 endfunc
@@ -1240,7 +1242,7 @@ func! s:VimfilerSettings()
     nmap <buffer> e     <Plug>(vimfiler_execute)
     nmap <buffer> <BS>  <Plug>(vimfiler_close)
     nmap <buffer> -     <Plug>(vimfiler_switch_to_parent_directory)
-    nmap <buffer> <F1>  <Plug>(vimfiler_help)<Plug>(unite_redraw)
+    nmap <buffer> <F1>  <Plug>(vimfiler_help)
     nmap <buffer> <expr> <CR> vimfiler#smart_cursor_map(
         \"\<Plug>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
     nmap <buffer> D     <Plug>(vimfiler_delete_file)
@@ -1318,6 +1320,7 @@ func! s:UniteSettings()
     nmap <buffer> m <Plug>(unite_toggle_mark_current_candidate)
     nmap <buffer> M <Plug>(unite_toggle_mark_current_candidate_up)
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
+    imap <buffer> <F1>  <Esc><Plug>(unite_quick_help)
     nmap <buffer>  S A<C-u>
     imap <buffer> <C-Space> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-@> <Plug>(unite_toggle_mark_current_candidate)
@@ -1376,7 +1379,7 @@ endfunc
 func! UniteAlternateBuffer(count)
     let buf = bufnr('%')
     if !exists(':Unite') || (a:count == 1 && buflisted(bufnr('#')))
-        execute "normal! \<C-^>"
+        try | execute "normal! \<C-^>" | catch | endtry
     else
         let buflist = unite#sources#buffer#get_unite_buffer_list()
         if exists('buflist['.(a:count-1).']')

@@ -287,9 +287,11 @@ function! vimtools#KeepPatternsSubstitute()
   let cmdline = getcmdline()
   if getcmdtype() == ':'
     let cmd = cmdline[match(cmdline,'\a')]
-    if     cmdline=~ '\v^[sgv]$'       | return "KeepPatterns ".cmd."/"
-    elseif cmdline=~ '\v^\%[sgv]$'     | return "KeepPatterns %".cmd."/"
-    elseif cmdline=~ "\\m^'<,'>[sgv]$" | return "KeepPatterns '<,'>".cmd."/"
+    if     cmdline =~# '\v^[sgv]$'       | return "KeepPatterns ".cmd."/\\v"
+    elseif cmdline =~# '\v^\%[sgv]$'     | return "KeepPatterns %".cmd."/\\v"
+    elseif cmdline =~# "\\m^'<,'>[sgv]$" | return "KeepPatterns '<,'>".cmd."/\\v"
+    elseif cmdline =~# '\v^.*[sgv]/\\v$'
+      return substitute(cmdline, '\v(^.*[sgv]/)\\v', '\1/', '')
     endif
   endif
   let cmdstart = strpart(cmdline, 0, getcmdpos() - 1)
