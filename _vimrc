@@ -4,7 +4,7 @@
 if &compatible | set nocompatible | endif
 
 " Reset autocommands when vimrc is re-sourced
-silent! autocmd! VimrcAutocmds
+augroup VimrcAutocmds | silent! autocmd! | augroup END
 
 " Check if in read-only mode to disable unnecessary plugins
 if !exists('s:readonly') | let s:readonly = &readonly || exists('vimpager') | endif
@@ -27,6 +27,7 @@ set smartcase
 set showmode                    " Show current mode
 set nrformats-=octal            " Don't treat numbers as octal when incrementing/decrementing
 set shortmess+=t                " Truncate filenames in messages when necessary
+set shortmess+=A                " Don't show swap file warning (open read-only via autocmd)
 set showmatch                   " Show matching brace after inserting
 set shiftround                  " Round indent to multiple of shiftwidth
 set scrolloff=2                 " Pad lines/columns with context around cursor
@@ -102,15 +103,16 @@ func! s:LastActiveWindow()
         wincmd p
     elseif winnr('$') > 1
         wincmd w
-    else
+    elseif tabpagenr() != g:lastTab && g:lastTab <= tabpagenr('$')
         execute "tabnext ".g:lastTab
+    else
+        tabnext
     endif
 endfunc
-augroup VimrcAutocmds
-    au TabLeave * let g:lastTab=tabpagenr()
-augroup END
+autocmd VimrcAutocmds TabLeave * let g:lastTab=tabpagenr()
 nnoremap <silent> <expr> ` g:inCmdwin? ':q<CR>' : ':call <SID>LastActiveWindow()<CR>'
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
+nnoremap <silent> <Leader>; :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ' `
 nnoremap <silent> <M-'> '
 
@@ -242,8 +244,10 @@ nn <silent> <expr> ,ws ":keepj keepp sil! %s/\\s\\+$//".(&gdefault ? "" : "g")."
 " Open tag in vertical split with Alt-]
 nn <M-]> <C-w><C-]><C-w>L
 
-" Open tag below instead of above
-nn <silent> <C-w><C-]> :<C-u>exec "norm! :below
+" Open tag vertically or below
+nn <silent> <C-w><C-]> :<C-u>execute "normal! :belowright vertical
+    \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
+nn <silent> <C-w>] :<C-u>execute "normal! :belowright
     \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
 
 " Break <C-c> habit
@@ -327,6 +331,9 @@ nn @! :<C-u><C-r>:<Home><C-Right>!<CR>
 " Repeat last command with case of first character switched
 nn @~ :<C-u><C-r>:<C-f>^~<CR>
 
+" Repeat last command with 'verbose' prepended
+nn @& :<C-u><C-r>:<Home>verbose <CR>
+
 " Use <C-q> to do what <C-v> used to do
 no <C-q> <C-v>
 
@@ -381,7 +388,7 @@ cno <expr> . (getcmdtype()==':'&&getcmdline()=~'[/ ]\.\.$')?'/..':'.'
 nn <silent> <Leader>x :exec getline('.')<CR>
 
 " Close quickfix window/location list
-nn <silent> <Leader>w :ccl\|lcl<CR>
+nn <silent> <Leader>w :ccl\|lcl\|winc z<CR>
 
 " Switch to quickfix window
 nn <silent> <C-w><Space> :copen<CR>
@@ -424,9 +431,9 @@ nn <silent> <Leader>g8 :let @/=expand('<cword>')<CR>
 nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
 nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
 
-" Open cursor file in vertical split
-nn <silent> <C-w>f :vertical wincmd f<CR>
-nn <silent> <C-w><C-f> :vertical wincmd f<CR>
+" Open cursor file in vertical or horizontal split
+nn <silent> <C-w><C-f> :belowright vertical wincmd f<CR>
+nn <silent> <C-w>f :belowright wincmd f<CR>
 
 " Default make key
 nn <silent> <F5> :update<CR>:make<CR><CR>
@@ -464,7 +471,7 @@ nn _ +
 nn + -
 
 " Go to most recent text change
-nn <silent> g. :exe "b".g:last_change_buf \| call setpos('.', g:last_change_pos)<CR>
+nn <silent> g. m':execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR>
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -648,7 +655,8 @@ func! s:Paste()
     return "\<C-r>+"
 endfunc
 noremap <C-v> "+gP
-cnoremap <C-v> <C-r>=substitute(@+, '\n', '', 'g')<CR>
+cnoremap <expr> <C-v> getcmdtype() == '=' ?
+    \ "\<C-r>+" : "\<C-r>=substitute(@+, '\\n', '', 'g')\<CR>"
 imap <expr> <C-v> <SID>Paste()
 exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
 
@@ -755,12 +763,14 @@ command! -nargs=0 SingleFile call <SID>SingleFile()
 func! s:SearchHandleKey(dir)
     echo a:dir.'\v'
     let char = getchar()
-    if char =~ '`$' | let char = '' | endif          " Weird special case
-    if char == 13 | return a:dir."\<CR>"             " <CR>
-    elseif char == 27 || char == 3 | return "\<C-l>" " <Esc>/<C-c>
-    elseif char == 22 | return a:dir."\\v\<C-r>+"    " <C-v>
-    elseif char == 24 | return a:dir.'\V'            " <C-x>
-    elseif char == "\<Up>" | return a:dir."\<Up>"
+    if     char =~ '`$' | let char = '' | endif
+    if     char == char2nr("\<CR>")             | return a:dir."\<CR>"
+    elseif char == char2nr("\<Esc>")            | return "\<C-l>"
+    elseif char == char2nr("\<C-c>")            | return "\<C-l>"
+    elseif char == char2nr("\<C-v>")            | return a:dir."\\v\<C-r>+"
+    elseif char == char2nr("\<C-x>")            | return a:dir.'\V'
+    elseif char == "\<Up>"                      | return a:dir."\<Up>"
+    elseif char == char2nr("/") && a:dir == '/' | return '//'
     else
         return a:dir.'\v'.(type(char) == type("") ? char : nr2char(char))
     endif
@@ -803,14 +813,15 @@ endif
 " Delete until character on command line
 func! s:DeleteUntilChar(char)
     let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
-    let newcmdstart = substitute(cmdstart, '^.*'.a:char.'\zs.*', '', '')
-    let cmdend = strpart(getcmdline(), getcmdpos() - 1)
+    let cmdstart = substitute(cmdstart, '\V'.escape(a:char, '\').'\*\$', '', '')
+    let newcmdstart = strpart(cmdstart, 0, strridx(cmdstart, a:char) + 1)
+    let end = strpart(getcmdline(), getcmdpos() - 1)
     call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart))
-    return newcmdstart.cmdend
+    return newcmdstart.end
 endfunc
-cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('\/')<CR>
+cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
 inoremap <C-@> <Esc>vT/"_c
-cnoremap <M-w> <C-\>e<SID>DeleteUntilChar('\s')<CR>
+cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
 inoremap <M-w> <Esc>vT<Space>"_c
 
 " Stay at search result without completing search
@@ -944,14 +955,16 @@ endif
 " }}}2
 
 " Abbreviations for diff commands
-cnoreabbrev <expr> dt getcmdtype()==':'&&getcmdpos()<=3 ? 'windo diffthis':'dt'
-cnoreabbrev <expr> do getcmdtype()==':'&&getcmdpos()<=3 ? 'windo diffoff \|
-    \ windo set nowrap':'do'
+cnoreabbrev <expr> dt getcmdtype()==':'&&getcmdpos()<=3 ?
+    \ "execute &buftype == '' ? 'diffthis' : ''":'dt'
+cnoreabbrev <expr> do getcmdtype()==':'&&getcmdpos()<=3 ?
+    \ "execute &buftype == '' ? 'diffoff \| set nowrap' : '' ":'do'
 cnoreabbrev <expr> du getcmdtype()==':'&&getcmdpos()<=4 ? 'diffupdate':'du'
 cnoreabbrev <expr> vd getcmdtype()==':'&&getcmdpos()<=3 ? 'vert diffs':'vd'
 
 " Other abbreviations
 cnoreabbrev <expr> ve getcmdtype()==':'&&getcmdpos()<=3 ? 'verbose':'ve'
+cnoreabbrev <expr> so getcmdtype()==':'&&getcmdpos()<=3 ? 'source':'so'
 cnoreabbrev <expr> ec getcmdtype()=~'[:@>]'&&getcmdpos()<=3 ? 'echo':'ec'
 let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|\\@<=/)*\\@<!/'
 cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
@@ -1041,7 +1054,8 @@ augroup VimrcAutocmds
     " Load files with mixed line endings as DOS format
     autocmd BufReadPost * nested
         \ if !exists('b:reload_dos') && !&binary && &ff == 'unix'
-        \       && (0 < search('\r$', 'nc')) && &buftype == '' |
+        \       && (0 < search('\r$', 'nc')) && &buftype == ''
+        \       && expand('<afile>') !~? '\v\.(diff|rej|patch)$' |
         \     let b:reload_dos = 1 |
         \     e ++ff=dos |
         \ endif
@@ -1062,12 +1076,15 @@ augroup VimrcAutocmds
     " Save position of last text change
     autocmd TextChanged,TextChangedI *
         \ if &buflisted && &buftype == '' |
-        \     let g:last_change_pos = getpos("'.") |
         \     let g:last_change_buf = bufnr('%') |
         \ endif
 
     " Jump to quickfix result in previous window
     autocmd FileType qf nn <silent> <buffer> <CR> :exe "winc p \| ".line('.')."cc"<CR>zv
+
+    " Open files as read-only automatically
+    autocmd BufReadPre * silent swapname |
+        \ if v:statusmsg =~ '\.sw[^p]' | set readonly | endif
 augroup END
 
 " Define some useful constants
@@ -1210,10 +1227,17 @@ else
 endif
 
 " {{{2 Sneak settings
+let g:sneak#streak=1
 let g:sneak#use_ic_scs=1
-autocmd VimrcAutocmds ColorScheme * execute 'highlight! SneakPluginTarget'
-    \ .' term=reverse cterm=reverse ctermfg=4 ctermbg='
-    \ .(&bg == 'dark' ? '8' : '15').' gui=reverse guifg=#268bd2'
+autocmd VimrcAutocmds ColorScheme * call <SID>SneakHighlights()
+func! s:SneakHighlights()
+    let fg = &background == 'dark' ? 8 : 15 | let gui = 'gui=reverse guifg=#'
+    execute "highlight! SneakPluginTarget ctermfg=".fg." ctermbg=4 ".gui."268bd2"
+    execute "highlight! SneakStreakTarget ctermfg=".fg." ctermbg=2 ".gui."859900"
+    execute "highlight! SneakStreakCursor ctermfg=".fg." ctermbg=1 ".gui."dc322f"
+    highlight! link SneakStreakMask Normal
+    highlight! link SneakStreakStatusLine StatusLine
+endfunc
 func! s:SneakMaps()
     if exists('g:loaded_sneak_plugin')
         for mode in ['n', 'x', 'o']
@@ -1319,8 +1343,10 @@ func! s:UniteSettings()
     imap <buffer> <expr> ` '<Plug>(unite_exit)'
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
-    inor <buffer> <C-f> <C-o><C-d>
-    inor <buffer> <C-b> <C-o><C-u>
+    inor <buffer> <C-f> <Esc><C-d>
+    inor <buffer> <C-b> <Esc><C-u>
+    nmap <buffer> <C-f> <C-d>
+    nmap <buffer> <C-b> <C-u>
     nmap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
     imap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
     imap <buffer> <C-j> <Plug>(unite_select_next_line)
@@ -1357,7 +1383,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
 nn <silent> <M-p> :<C-u>Unite -prompt-direction=top neomru/directory<CR>
 nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
-nnoremap <silent> <Leader>w :ccl\|lcl\|sil! UniteClose<CR>
+nnoremap <silent> <Leader>w :ccl\|lcl\|winc z\|sil! UniteClose<CR>
 nnoremap <silent> ,u :UniteResume<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch()
@@ -1415,6 +1441,7 @@ func! UniteBufferCycle(resume)
         let s:buflist = unite#sources#buffer#get_unite_buffer_list()
         let s:bufnr = -2
         let s:startbuf = bufnr('%')
+        let s:startaltbuf = bufnr('#')
     endif
     let s:key = '['
     while s:key == '[' || s:key == ']'
@@ -1445,7 +1472,11 @@ func! UniteBufferCycle(resume)
     if index(['q', 'Q', "\<C-c>", "\<CR>", "\<Esc>"], s:key) < 0
         call feedkeys(s:key)
     endif
-    execute "buffer ".s:startbuf
+    if bufnr('%') != s:startbuf
+        execute "buffer ".s:startbuf
+    else
+        execute "buffer ".s:startaltbuf
+    endif
     buffer #
 endfunc
 nnoremap <silent> ]r :<C-u>call UniteBufferCycle(0)<CR>
@@ -1470,6 +1501,7 @@ endif
 
 " Surround settings
 xmap S <Plug>VSurround
+nnoremap <silent> ds<Space> F<Space>"_x,"_x:silent! call repeat#set('ds ')<CR>
 
 " Syntastic settings
 let g:syntastic_filetype_map={'arduino': 'cpp'}
@@ -1553,6 +1585,17 @@ command! -nargs=0 PrecededBy call vimtools#PrecededBy(0)
 command! -nargs=0 NotPrecededBy call vimtools#PrecededBy(1)
 autocmd VimrcAutocmds FileType c,cpp,*sh call vimtools#SectionJumpMaps()
 nnoremap <silent> g= :call vimtools#MakeParagraph()<CR>
+
+" python-mode settings
+let g:pymode_options = 0
+let g:pymode_lint_on_write = 0
+let g:pymode_breakpoint_cmd = 'import clewn.vim as vim; vim.pdb()'
+let g:pymode_trim_whitespaces = 0
+
+" VCSCommand settings
+let VCSCommandCVSExec = ''
+let VCSCommandBZRExec = ''
+let VCSCommandSVKExec = ''
 
 " Import scripts
 execute pathogen#infect()

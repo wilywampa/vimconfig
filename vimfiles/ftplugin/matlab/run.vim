@@ -121,6 +121,7 @@ nnoremap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>
 imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> <S-F5> :call <SID>UpdateDictionaryMATLAB()<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
+nnoremap <Plug>(matlab_update_dictionary) :call <SID>UpdateDictionaryMATLAB()<CR>
 
 augroup MATLAB
   autocmd!

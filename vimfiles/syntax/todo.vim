@@ -16,7 +16,7 @@ syn match todoCheckboxComplete '([\\✓])' nextgroup=todoStringComplete
 syn match todoCheckboxCancelled '(X)' nextgroup=todoStringCancelled
 syn match todoIndent '\s*' nextgroup=todoCheckboxIncomplete,todoCheckboxComplete,todoCheckboxCancelled
 syn match todoComment '[#@].*$' contained
-syn match todoSectionTitle '--.*--' contained
+syn match todoSectionTitle '--\s.*\s--' contained
 syn region todoLine start="^" end="$" fold transparent contains=ALL
 
 augroup todoSyntax

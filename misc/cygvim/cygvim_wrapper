@@ -2,5 +2,5 @@
 file=$(cygpath -ua "$@")
 vim --serverlist | grep -q '\bVIM\b' 2>&1 > /dev/null
 if [ $? -eq 1 ]; then
-  vim --servername VIM --remote "$file"
+  vim --servername $VIMSERVER --remote "$file"
 fi

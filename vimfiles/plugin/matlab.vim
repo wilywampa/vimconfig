@@ -17,6 +17,7 @@ if !exists('*<SID>ShowDictionary')
         setlocal buftype=nofile bufhidden=hide noswapfile
         nnoremap <buffer> q :bd<CR>
         nnoremap <buffer> Q :bd<CR>
+        nnoremap <buffer> <silent> <F5> :call <SID>UpdateDictionary()<CR>
         wincmd p
     endfunc
 endif
@@ -33,5 +34,12 @@ if !exists('*<SID>ToggleDictionary')
         endif
     endfunc
 endif
+
+func! s:UpdateDictionary()
+  call <SID>ToggleDictionary()
+  call <SID>ToggleDictionary()
+  wincmd p
+  execute "normal \<Plug>(matlab_update_dictionary)"
+endfunc
 
 nnoremap <silent> <Leader>m :call <SID>ToggleDictionary()<CR>

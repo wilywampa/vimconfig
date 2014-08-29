@@ -20,7 +20,7 @@ reverse_and_create_copycat_file() {
 	local copycat_file=$2
 	local grep_pattern="'$3'" # making sure grep regex is quoted
 	# The below line had to be eval-ed, otherwise it doesn't work
-	eval "(tac 2> /dev/null || tail -r) < "$file" | grep -oni "$grep_pattern" > "$copycat_file""
+	eval "(tac 2> /dev/null || tail -r) < "$file" | grep -oni "$grep_pattern" | sed -r 's/(^[0-9]+:)\s*(.*)$/\1\2/' > "$copycat_file""
 }
 
 delete_old_files() {
