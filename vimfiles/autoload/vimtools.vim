@@ -234,6 +234,7 @@ function! vimtools#MakeParagraph()
   let foldenable_save = &foldenable | set nofoldenable
   let l1 = nextnonblank(line("'["))
   let l2 = prevnonblank(line("']"))
+  let lines = l2 - l1 + 1
   let l3 = nextnonblank(l2 + 1)
   if l3 > l2
     silent execute "keeppatterns ".l2.",".l3."g/^\\s*$/d"
@@ -249,6 +250,15 @@ function! vimtools#MakeParagraph()
   else
     silent execute "keeppatterns 1,".l1."g/^\\s*$/d"
     call cursor(1, 0)
+  endif
+  if &filetype == 'python'
+    if getline('.') =~# '\v^\s*<(def|class)>' && line('.') > 1
+      call append(line('.') - 1, [""])
+    endif
+    if line('.') + lines < line('$') &&
+        \ getline(line('.') + lines + 1) =~# '\v^\s*<(def|class)>'
+      call append(line('.') + lines, [""])
+    end
   endif
   let &foldenable = foldenable_save
   call RestoreRegs()
@@ -316,11 +326,12 @@ function! vimtools#FuncAbbrevs()
   let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
   if getcmdtype() =~ '[:=]'
     let cmd = getcmdline()
-    if     cmdstart=~'\v<nr2%[cha]$' | return substitute(cmd,'\v<nr2%[cha]$','nr2char(','')
-    elseif cmdstart=~'\v<ch2%[nr]$'  | return substitute(cmd,'\v<ch2%[n]$','char2nr(','')
-    elseif cmdstart=~'\v<getl%[in]$' | return substitute(cmd,'\v<getl%[in]$','getline(','')
-    elseif cmdstart=~'\v<sys%[te]$'  | return substitute(cmd,'\v<sys%[te]$','system(','')
-    elseif cmdstart=~'\v<pr%[int]$'  | return substitute(cmd,'\v<pr%[int]$','printf(','')
+    if     cmdstart=~'\v<nr2%[cha]$'     | return substitute(cmd,'\v<nr2%[cha]$','nr2char(','')
+    elseif cmdstart=~'\v<ch2%[nr]$'      | return substitute(cmd,'\v<ch2%[n]$','char2nr(','')
+    elseif cmdstart=~'\v<getl%[in]$'     | return substitute(cmd,'\v<getl%[in]$','getline(','')
+    elseif cmdstart=~'\v<sys%[te]$'      | return substitute(cmd,'\v<sys%[te]$','system(','')
+    elseif cmdstart=~'\v<pr%[int]$'      | return substitute(cmd,'\v<pr%[int]$','printf(','')
+    elseif cmdstart=~'\v<s%[ubstitute]$' | return substitute(cmd,'\v<s%[ubstitute]$','substitute(','')
     endif
   endif
   let cmdend = strpart(getcmdline(), getcmdpos() - 1)

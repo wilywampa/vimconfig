@@ -4,7 +4,9 @@
 if &compatible | set nocompatible | endif
 
 " Reset autocommands when vimrc is re-sourced
-augroup VimrcAutocmds | silent! autocmd! | augroup END
+augroup VimrcAutocmds
+    autocmd!
+augroup END
 
 " Check if in read-only mode to disable unnecessary plugins
 if !exists('s:readonly') | let s:readonly = &readonly || exists('vimpager') | endif
@@ -466,9 +468,8 @@ nn g/ q/
 cm <C-p> <Up>
 cm <C-n> <Down>
 
-" Use _ instead of - and swap +/- because - is left of + like j/k
-nn _ +
-nn + -
+" - is used for file browser
+nn _ -
 
 " Go to most recent text change
 nn <silent> g. m':execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR>
@@ -486,14 +487,6 @@ if s:hasvimtools
 endif
 
 " {{{2 Cscope configuration
-" Abbreviations for cscope commands
-cnorea <expr> csa ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope add'    :'csa')
-cnorea <expr> csf ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope find'   :'csf')
-cnorea <expr> csk ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope kill -1':'csk')
-cnorea <expr> csr ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope reset'  :'csr')
-cnorea <expr> css ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope show'   :'css')
-cnorea <expr> csh ((getcmdtype()==':'&&getcmdpos()<=4)?'cscope help'   :'csh')
-
 " Mappings for cscope find commands
 no <M-\>s :cs find s <C-r>=expand("<cword>")<CR><CR>
 no <M-\>g :cs find g <C-r>=expand("<cword>")<CR><CR>
@@ -873,7 +866,7 @@ vn <silent> g<Space> :<C-u>call <SID>SpacesAround(1)<CR>
 func! s:EchoHistTime()
     let line = getline(search('^:\s*\d*:', 'bcnW')) | if !len(line) | return | endif
     redraw | let fmt = len($DATEFMT) ? $DATEFMT : '%a %d%b%y %T'
-    echo strftime(fmt, matchstr(line, ':\s\zs\d\+\ze:'))
+    echo strftime(fmt, line[2:11])
 endfunc
 autocmd VimrcAutocmds CursorMoved $HOME/.histfile call <SID>EchoHistTime()
 
@@ -954,37 +947,6 @@ endif
 
 " }}}2
 
-" Abbreviations for diff commands
-cnoreabbrev <expr> dt getcmdtype()==':'&&getcmdpos()<=3 ?
-    \ "execute &buftype == '' ? 'diffthis' : ''":'dt'
-cnoreabbrev <expr> do getcmdtype()==':'&&getcmdpos()<=3 ?
-    \ "execute &buftype == '' ? 'diffoff \| set nowrap' : '' ":'do'
-cnoreabbrev <expr> du getcmdtype()==':'&&getcmdpos()<=4 ? 'diffupdate':'du'
-cnoreabbrev <expr> vd getcmdtype()==':'&&getcmdpos()<=3 ? 'vert diffs':'vd'
-
-" Other abbreviations
-cnoreabbrev <expr> ve getcmdtype()==':'&&getcmdpos()<=3 ? 'verbose':'ve'
-cnoreabbrev <expr> so getcmdtype()==':'&&getcmdpos()<=3 ? 'source':'so'
-cnoreabbrev <expr> ec getcmdtype()=~'[:@>]'&&getcmdpos()<=3 ? 'echo':'ec'
-let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|\\@<=/)*\\@<!/'
-cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
-    \ \|\| (getcmdline() =~ g:global_command_pattern.'ex$') ? 'execute':'ex'
-cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
-    \ \|\| (getcmdline() =~ g:global_command_pattern.'no$') ? 'normal':'no'
-cnoreabbrev <expr> wi getcmdtype()==':'&&getcmdpos()<=3 ? 'windo':'wi'
-cnoreabbrev <expr> ca getcmdtype()==':'&&getcmdpos()<=3 ? 'call':'ca'
-cnoreabbrev <expr> pp getcmdtype()=='>'&&getcmdpos()<=3 ? 'PP':'pp'
-cnoreabbrev <expr> ls getcmdtype()==':' && getcmdline() == '!ls' ?
-    \ 'ls -h --color=auto'.(has('mac') ? ' --sort=none' : '') : 'ls'
-cnoreabbrev <expr> ll getcmdtype()==':' && getcmdline() == '!ll' ?
-    \ 'ls -lsh --color=auto'.(has('mac') ? ' --sort=none' : '') : 'll'
-cnoreabbrev <expr> lls getcmdtype()==':' && getcmdline() == '!lls' ?
-    \ 'ls -lshrt --color=auto' : 'lls'
-cnoreabbrev <expr> lla getcmdtype()==':' && getcmdline() == '!lla' ?
-    \ 'ls -lshA --color=auto'.(has('mac') ? ' --sort=none' : '') : 'lla'
-cnoreabbrev <expr> llas getcmdtype()==':' && getcmdline() == '!llas' ?
-    \ 'ls -lshrt --color=auto' : 'llas'
-
 " Create new buffer with filetype as (optional) argument
 command! -nargs=? New     new     | set filetype=<args>
 command! -nargs=? Enew    enew    | set filetype=<args>
@@ -1011,7 +973,7 @@ augroup VimrcAutocmds
 
     " Prefer single-line style comments and fix shell script comments
     autocmd FileType cpp,arduino setl commentstring=//%s
-    autocmd FileType python setl commentstring=#%s
+    autocmd FileType python,crontab setl commentstring=#%s
     autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
     autocmd FileType dosbatch setl commentstring=REM%s
     autocmd FileType autohotkey setl commentstring=;%s
@@ -1107,6 +1069,47 @@ let kg2slug = 1.0 / slug2kg
 let amps = 340.29
 let afps = amps * m2ft
 
+" Abbreviation template
+func! s:CreateAbbrev(lhs, rhs, cmdtype, ...)
+    if a:0
+        execute 'cnoreabbrev <expr> '.a:lhs.' getcmdtype() =~ "['.a:cmdtype
+            \ .']" && getcmdline() == '''.a:1.a:lhs.''' ? "'.a:rhs.'" : "'.a:lhs.'"'
+    else
+        execute 'cnoreabbrev <expr> '.a:lhs.' getcmdtype() =~ "['.a:cmdtype
+            \ .']" && getcmdpos() <= '.(len(a:lhs) + 1).' ? "'.a:rhs.'" : "'.a:lhs.'"'
+    endif
+endfunc
+let ls_sort = has('mac') ? ' --sort=none' : ''
+call <SID>CreateAbbrev('ve',   'verbose',                         ':'   )
+call <SID>CreateAbbrev('so',   'source',                          ':'   )
+call <SID>CreateAbbrev('ec',   'echo',                            ':@>' )
+call <SID>CreateAbbrev('dt',   'diffthis',                        ':'   )
+call <SID>CreateAbbrev('do',   'diffoff \| set nowrap',           ':'   )
+call <SID>CreateAbbrev('du',   'diffupdate',                      ':'   )
+call <SID>CreateAbbrev('vd',   'vertical diffsplit',              ':'   )
+call <SID>CreateAbbrev('wi',   'windo',                           ':'   )
+call <SID>CreateAbbrev('ca',   'call',                            ':'   )
+call <SID>CreateAbbrev('pp',   'PP',                              '>'   )
+call <SID>CreateAbbrev('csa',  'cscope add',                      ':'   )
+call <SID>CreateAbbrev('csf',  'cscope find',                     ':'   )
+call <SID>CreateAbbrev('csk',  'cscope kill -1',                  ':'   )
+call <SID>CreateAbbrev('csr',  'cscope reset',                    ':'   )
+call <SID>CreateAbbrev('css',  'cscope show',                     ':'   )
+call <SID>CreateAbbrev('csh',  'cscope help',                     ':'   )
+call <SID>CreateAbbrev('l',    'ls -h --color=auto'.ls_sort,      ':',  '!')
+call <SID>CreateAbbrev('ls',   'ls -h --color=auto'.ls_sort,      ':',  '!')
+call <SID>CreateAbbrev('ll',   'ls -lsh --color=auto'.ls_sort,    ':',  '!')
+call <SID>CreateAbbrev('lls',  'ls -lshrt --color=auto'.ls_sort,  ':',  '!')
+call <SID>CreateAbbrev('lla',  'ls -lshA --color=auto'.ls_sort,   ':',  '!')
+call <SID>CreateAbbrev('llas', 'ls -lshrtA --color=auto'.ls_sort, ':',  '!')
+
+" Other abbreviations
+let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|\\@<=/)*\\@<!/'
+cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
+    \ \|\| (getcmdline() =~ g:global_command_pattern.'ex$') ? 'execute':'ex'
+cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
+    \ \|\| (getcmdline() =~ g:global_command_pattern.'no$') ? 'normal':'no'
+
 " {{{1 Plugin configuration
 
 " Make empty list of disabled plugins
@@ -1143,8 +1146,9 @@ else
     let g:airline_powerline_fonts=1
 endif
 
-" Toggle warnings in airline
+" Configure airline whitespace warnings
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>:AirlineRefresh<CR>
+let g:airline#extensions#whitespace#show_message=0
 
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
@@ -1205,8 +1209,8 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         inoremap <expr> <C-e>   pumvisible() ? neocomplete#close_popup()
             \ : matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
-            \"\<Plug>(neosnippet_expand_or_jump)":
-            \neocomplete#close_popup()
+            \ "\<Plug>(neosnippet_expand_or_jump)":
+            \ (pumvisible() ? neocomplete#close_popup() : "\<C-d>")
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
         inoremap <expr> <C-f>   neocomplete#cancel_popup()
         inoremap <expr> <C-l>   neocomplete#complete_common_string()
@@ -1591,11 +1595,29 @@ let g:pymode_options = 0
 let g:pymode_lint_on_write = 0
 let g:pymode_breakpoint_cmd = 'import clewn.vim as vim; vim.pdb()'
 let g:pymode_trim_whitespaces = 0
+let g:pymode_run_bind = ',r'
+let g:pymode_breakpoint_bind = '<Leader>bb'
+let g:pymode_doc = 0
+let g:pymode_rope = 0
+let g:pymode_rope_completion = 0
 
 " VCSCommand settings
 let VCSCommandCVSExec = ''
 let VCSCommandBZRExec = ''
 let VCSCommandSVKExec = ''
+
+" jedi settings
+autocmd VimrcAutocmds FileType python setlocal omnifunc=jedi#completions
+let g:jedi#use_tabs_not_buffers = 0
+let g:jedi#popup_select_first = 0
+let g:jedi#completions_enabled = 0
+let g:jedi#auto_vim_configuration = 0
+let g:jedi#goto_definitions_command = '<Leader>jd'
+if !exists('g:neocomplete#force_omni_input_patterns')
+    let g:neocomplete#force_omni_input_patterns = {}
+endif
+let g:neocomplete#force_omni_input_patterns.python =
+    \ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
 
 " Import scripts
 execute pathogen#infect()

@@ -60,6 +60,8 @@ else
     endfunc
 
     func! s:RunLinesMATLAB(visual, ...)
+        let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+        if zoomed | call system("tmux resize-pane -Z") | endif
         call VimuxOpenRunner()
         if a:visual
             let start = line("'<")
@@ -73,6 +75,7 @@ else
             call VimuxSendText(getline(line))
             call VimuxSendKeys("\<CR>")
         endfor
+        if zoomed | call system("tmux resize-pane -Z") | endif
     endfunc
 
     func! s:UpdateDictionaryMATLAB()
