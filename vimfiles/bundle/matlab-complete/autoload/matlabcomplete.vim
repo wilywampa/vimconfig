@@ -28,3 +28,5 @@ function! matlabcomplete#complete(findstart, base)
     return l:results
   endif
 endfunction
+
+" vim:set et ts=2 sts=2 sw=2:

@@ -38,7 +38,7 @@ set display+=lastline           " Show as much as possible of the last line in a
 set autoread                    " Automatically load file if changed outside of vim
 set number                      " Turn on hybrid line numbers
 sil! set relativenumber
-set history=1000                " Remember more command history
+set history=5000                " Remember more command history
 set tabpagemax=20               " Allow more tabs
 set hidden                      " Allow switching buffer without saving changes first
 set wildmenu                    " Turn on autocompletion
@@ -278,14 +278,14 @@ nn <silent> <M-t> :tabnew<CR>
 nn <silent> <M-T> :tab split<CR>
 
 " Delete without yank by default, and <M-d> for delete with yank
-nn c "_c|nn <M-c> c|nn \\c c|vn c "_c|vn <M-c> c|vn \\c c
-nn C "_C|nn <M-C> C|nn \\C C|vn C "_C|vn <M-C> C|vn \\C C
-nn d "_d|nn <M-d> d|nn \\d d|vn d "_d|vn <M-d> d|vn \\d d
-nn D "_D|nn <M-D> D|nn \\D D|vn D "_D|vn <M-D> D|vn \\D D
-nn s "_s|nn <M-s> s|nn \\s s|vn s "_s|vn <M-s> s|vn \\s s
-nn S "_S|nn <M-S> S|nn \\S S|vn S "_S|vn <M-S> S|vn \\S S
-nn x "_x|nn <M-x> x|nn \\x x|vn x "_x|vn <M-x> x|vn \\x x
-nn X "_X|nn <M-X> X|nn \\X X|vn X "_X|vn <M-X> X|vn \\X X
+nn c "_c|nn <M-c> c|nn \\c c|xn c "_c|xn <M-c> c|xn \\c c
+nn C "_C|nn <M-C> C|nn \\C C|xn C "_C|xn <M-C> C|xn \\C C
+nn d "_d|nn <M-d> d|nn \\d d|xn d "_d|xn <M-d> d|xn \\d d
+nn D "_D|nn <M-D> D|nn \\D D|xn D "_D|xn <M-D> D|xn \\D D
+nn s "_s|nn <M-s> s|nn \\s s|xn s "_s|xn <M-s> s|xn \\s s
+nn S "_S|nn <M-S> S|nn \\S S|xn S "_S|xn <M-S> S|xn \\S S
+nn x "_x|nn <M-x> x|nn \\x x|xn x "_x|xn <M-x> x|xn \\x x
+nn X "_X|nn <M-X> X|nn \\X X|xn X "_X|xn <M-X> X|xn \\X X
 
 " Copy file/path with/without line number
 nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>:let @*=@+<CR>:let @"=@+<CR>
@@ -392,10 +392,16 @@ nn <silent> <Leader>x :exec getline('.')<CR>
 " Close quickfix window/location list
 nn <silent> <Leader>w :ccl\|lcl\|winc z<CR>
 
-" Switch to quickfix window
+" Switch to quickfix or location list window
 nn <silent> <C-w><Space> :copen<CR>
 nn <silent> <C-w><C-Space> :copen<CR>
 nn <silent> <C-w><C-@> :copen<CR>
+nn <silent> <C-w><C-g><Space> :lopen<CR>
+nn <silent> <C-w><C-g><C-Space> :lopen<CR>
+nn <silent> <C-w><C-g><C-@> :lopen<CR>
+nn <silent> <C-w>g<Space> :lopen<CR>
+nn <silent> <C-w>g<C-Space> :lopen<CR>
+nn <silent> <C-w>g<C-@> :lopen<CR>
 
 " Make current buffer a scratch buffer
 nn <silent> <Leader>s :set bt=nofile<CR>
@@ -794,8 +800,10 @@ vnoremap <expr> <silent> <C-e> <SID>EvalExpr()
 if s:hasvimtools
     command! -nargs=* KeepPatterns call vimtools#KeepPatterns(<q-args>)
     cnoremap / <C-\>evimtools#KeepPatternsSubstitute()<CR><Left><C-]><Right>
-    nnoremap <expr> & ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."\<CR>"
-    nnoremap <expr> g& ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."/".g:lsub_flags."\<CR>"
+    nnoremap <expr> & ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep
+        \ ."\<CR>:silent! call repeat#set('&')\<CR>"
+    nnoremap <expr> g& ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."/"
+        \ .g:lsub_flags."\<CR>:silent! call repeat#set('g&')\<CR>"
 endif
 
 " Function abbreviations

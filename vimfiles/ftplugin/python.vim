@@ -23,6 +23,7 @@ imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
 nnoremap <silent> <buffer> <S-F5> :up<CR>:exe "SyntasticCheck" \| exe "Errors"<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
+nnoremap <buffer> <silent> ,pl :<C-u>PymodeLintAuto<CR>
 
 " Move around functions
 nnoremap <silent> <buffer> [[ m':call search('^\s*def ', "bW")<CR>
