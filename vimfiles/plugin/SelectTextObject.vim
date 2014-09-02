@@ -24,11 +24,18 @@ func! s:SelectTextObject(obj,motion)
   endif
 
   let curpos = getpos('.')
+  let line = getline('.')
+
+  " Expand selection
+  if line("'<") == line('.') && line("'>") == line('.') &&
+      \ line[col("'<")-1] == left && line[col("'>")-1] == right
+    execute "normal! `<v`>loh\<Esc>"
+  endif
 
   while !<SID>CursorInPair(left,right)
-    if getline('.')[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
+    if line[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
       execute "normal! f".left
-    elseif getline('.')[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
+    elseif line[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
       execute "normal! F".right
     else
       call setpos('.',curpos)
@@ -38,10 +45,10 @@ func! s:SelectTextObject(obj,motion)
   endwhile
 
   if a:motion == 'i'
-    let curchar = getline('.')[col('.')-1]
-    if curchar == right && getline('.')[col('.')-2] == left
+    let curchar = line[col('.')-1]
+    if curchar == right && line[col('.')-2] == left
       execute "normal! i\<Space>\<Esc>"
-    elseif curchar == left && getline('.')[col('.')] == right
+    elseif curchar == left && line[col('.')] == right
       execute "normal! a\<Space>\<Esc>"
     elseif curchar != left
       execute "normal! F".left
@@ -121,20 +128,21 @@ xnoremap <silent> a> :<C-u>call <SID>SelectTextObject('<','a')<CR>
 xnoremap <silent> aa :<C-u>call <SID>SelectTextObject('<','a')<CR>
 
 func! s:SelectTextObjectQuote(obj,motion)
-  if getline('.') !~ a:obj.".*".a:obj
+  let line = getline('.')
+  if line !~ a:obj.".*".a:obj
     return
   endif
 
-  if getline('.')[col('.')-1:-1] !~ a:obj
+  if line[col('.')-1:-1] != a:obj
     execute "normal! F".a:obj
-  elseif getline('.')[0:col('.')-1] !~ a:obj
+  elseif line[0:col('.')-1] != a:obj
     execute "normal! f".a:obj
   endif
 
-  let curchar = getline('.')[col('.')-1]
-  if curchar == a:obj && getline('.')[col('.')-2] == a:obj
+  let curchar = line[col('.')-1]
+  if curchar == a:obj && line[col('.')-2] == a:obj
     execute "normal! i\<Space>\<Esc>"
-  elseif curchar == a:obj && getline('.')[col('.')] == a:obj
+  elseif curchar == a:obj && line[col('.')] == a:obj
     execute "normal! a\<Space>\<Esc>"
   endif
 
