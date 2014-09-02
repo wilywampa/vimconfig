@@ -33,3 +33,10 @@ vnoremap <silent> <buffer> ]] m':<C-U>exe "normal! gv"<Bar>call search('^\s*def 
 
 " Enable omni completion
 setlocal omnifunc=pythoncomplete#Complete
+
+" Use pymode's fold expression
+augroup py_ftplugin
+    autocmd!
+    autocmd SessionLoadPost <buffer> setlocal foldmethod=expr 
+        \ foldexpr=pymode#folding#expr(v:lnum) foldtext=pymode#folding#text()
+augroup END

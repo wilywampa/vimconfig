@@ -421,9 +421,9 @@ ino <M-p> <C-r>"
 " Go to older position in jump list
 nn <S-Tab> <C-o>
 
-" Make <C-d>/<C-u> scroll 1/4 page
-no <expr> <C-d> (v:count ? "" : (winheight('.')) / 4 + 1)."\<C-d>"
-no <expr> <C-u> (v:count ? "" : (winheight('.')) / 4 + 1)."\<C-u>"
+" Make <C-d>/<C-u> scroll 1/3 page
+no <expr> <C-d> (v:count ? "" : (winheight('.')) / 3 + 1)."\<C-d>"
+no <expr> <C-u> (v:count ? "" : (winheight('.')) / 3 + 1)."\<C-u>"
 
 " Highlight word without moving cursor
 nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>
@@ -553,6 +553,7 @@ func! s:CmdwinMappings()
 
     " Close window
     nnoremap <silent> <buffer> <Leader>w :q<CR>
+    nnoremap <silent> <buffer> ZZ :q<CR>
 endfunc
 
 " Delete hidden buffers
@@ -1076,6 +1077,7 @@ let slug2kg = 14.5939029
 let kg2slug = 1.0 / slug2kg
 let amps = 340.29
 let afps = amps * m2ft
+let assignments_pattern = '\v[=!]@<![+|&^]?\=[=~]@!'
 
 " Abbreviation template
 func! s:CreateAbbrev(lhs, rhs, cmdtype, ...)
@@ -1118,6 +1120,13 @@ cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
 cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
     \ \|\| (getcmdline() =~ g:global_command_pattern.'no$') ? 'normal':'no'
 
+" Don't clobber registers from select mode
+snoremap <Space> <C-g>"_c<Space>
+snoremap \| <C-g>"_c\|
+for c in range(33, 124) + [126]
+    execute "snoremap ".escape(nr2char(c), '|')." <C-g>\"_c".escape(nr2char(c), '|')
+endfor
+
 " {{{1 Plugin configuration
 
 " Make empty list of disabled plugins
@@ -1130,7 +1139,6 @@ if !hasWin | call extend(g:pathogen_disabled, ['misc','shell']) | endif
 
 " Disable some plugins if in read-only mode
 if s:readonly
-    call add(g:pathogen_disabled, 'gtfo')
     call add(g:pathogen_disabled, 'neocomplete')
     call add(g:pathogen_disabled, 'neosnippet-snippets')
     call add(g:pathogen_disabled, 'syntastic')
@@ -1601,13 +1609,14 @@ nnoremap <silent> g= :call vimtools#MakeParagraph()<CR>
 " python-mode settings
 let g:pymode_options = 0
 let g:pymode_lint_on_write = 0
-let g:pymode_breakpoint_cmd = 'import clewn.vim as vim; vim.pdb()'
+let g:pymode_breakpoint_cmd = "import clewn.vim as vim\rvim.pdb()"
 let g:pymode_trim_whitespaces = 0
 let g:pymode_run_bind = ',r'
 let g:pymode_breakpoint_bind = '<Leader>bb'
 let g:pymode_doc = 0
 let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
+let g:pymode_lint_ignore = "E501,E302"
 
 " VCSCommand settings
 let VCSCommandCVSExec = ''
