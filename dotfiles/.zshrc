@@ -1,10 +1,10 @@
 #[[[1 Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=99999
+SAVEHIST=50000
 setopt auto_cd beep extended_glob no_match notify no_beep share_history
 setopt inc_append_history extended_history interactive_comments
-setopt hist_expire_dups_first
+setopt hist_expire_dups_first hist_ignore_dups
 # End of lines configured by zsh-newuser-install
 
 #[[[1 Lines added by compinstall
@@ -33,6 +33,7 @@ alias so='source'
 alias wh='whence'
 alias reset='reset; source ~/.zshrc'
 alias com='command'
+alias killbg='kill ${${(v)jobstates#*:*:}%=*}'
 
 # grep
 alias grep='grep --color=auto'
@@ -66,8 +67,8 @@ alias loc='locate --regex'
 alias locate='locate --regex'
 
 # vim
-alias vim='vim --servername VIM'
-alias vit='vim --servername VIM --remote-tab'
+alias vim='vim --servername $VIMSERVER --cmd "set history=5000"'
+alias vit='vim --remote-tab'
 alias view='vim -R'
 alias e='vim'
 alias vims='vim -S ~/session.vis'
@@ -81,7 +82,10 @@ alias svnrevert="svn st | grep '^M' | awk '{print \$2}' | s | xargs svn revert"
 alias svnrm="svn st | grep '^?' | awk '{print \$2}' | s | xargs rm -r"
 alias svnst="svn st | g -v '\.git'"
 alias svndi="svnst | awk '{print \$2}' | s | xargs svn di"
-alias svndiff='svn di --diff-cmd diff | vim -c "set buftype=nowrite" -'
+alias slog="svn log -r 1:HEAD"
+alias srm="svn rm"
+local cmds=''"'"'+$ +/^Index:'"'"' =(svn di --diff-cmd diff)'
+alias svndiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
 svnexport() {
     mkdir -p "$1"
     svn st | grep '^[MA]' | awk '{print $2}' | xargs -I {} cp --parents {} "$1"
@@ -110,6 +114,9 @@ alias gst='git status'
 alias gadd='git add'
 alias glog='git log --reverse'
 alias gls='git ls-files'
+alias gg='git grep'
+alias grm='git rm'
+alias gpom='git pull origin master'
 
 # ls
 alias l='ls -h --color=auto'
@@ -127,19 +134,19 @@ alias tmx='tmux attach || tmux new'
 alias tma='tmux attach'
 alias bell='echo -ne "\007"'
 alias hist='history 1'
-alias csc='find . -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" \
-    | sed "s/.*/\"&\"/g" > csc.files ; cscope -R -b -i csc.files ; rm csc.files'
+alias csc='cscope -b $(ag -g "" --cc --silent $PWD) $(ag -g "" --cpp --silent $PWD)'
 alias ag="ag --color-line-number=';33' -S"
 alias a='ag'
 alias psg='ps aux | grep -i'
 alias awkp2="awk '{print \$2}'"
-alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q .'
+alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q --python-kinds=-i .'
 alias info='info --vi-keys'
 alias remake='make clean && make -j'
 alias d='dirs -v'
 alias h='head'
 alias t='tail'
 alias rename='export NOAUTONAME=1; tmux rename-window'
+alias pdb="vim -c 'Pyclewn pdb'"
 
 #[[[1 Global aliases
 alias -g LL='ls --color=auto -lsh'
@@ -227,20 +234,38 @@ abbrevs=(
 'gadd'  'git add'
 'glog'  'git log --reverse'
 'gls'   'git ls-files'
+'gg'    'git grep'
+'grm'   'git rm'
+'gpom'  'git pull origin master'
 'com'   'command'
+'sdi'   'svn di'
+'srm'   'svn rm'
+'sadd'  'svn add'
+'sco'   'svn co'
+'sci'   'svn ci'
+'sup'   'svn up'
+'sst'   'svn st'
+'slog'  'svn log -r 1:HEAD'
+'srm'   'svn rm'
 'ec'    'echo'
 'so'    'source'
+'ez'    'vim ~/.zshrc'
 'sz'    'source ~/.zshrc'
 'wh'    'whence'
 'g'     'grep'
 'gi'    'grep -i'
 'f'     'find .'
-'fa'    'find . | ag'
-'ffa'   'find . -type f | ag'
-'fda'   'find . -type d | ag'
+'fa'    'find . | a'
+'ff'    'find . -type f'
+'ffa'   'find . -type f | a'
+'ffn'   'find . -type f -iname'
+'fd'    'find . -type d'
+'fda'   'find . -type d | a'
+'fdn'   'find . -type d -iname'
 'loc'   'locate --regex'
 'co'    './configure'
 'cop'   './configure --prefix=$HOME/.local'
+'m'     'make'
 'min'   'make install'
 'mcl'   'make clean'
 'rem'   'make clean && make -j'
@@ -249,6 +274,9 @@ abbrevs=(
 'svd'   'svndiff'
 'vc'    'cd $VIMCONFIG'
 'vcb'   'cd $VIMCONFIG/vimfiles/bundle'
+'fmd'   'find . -maxdepth'
+'e'     'vim'
+'vp'    'vimpager'
 )
 
 # Post-modifier abbreviations
@@ -276,6 +304,8 @@ globalabbrevs=(
 'VC'  '$VIMCONFIG'
 'VCB' '$VIMCONFIG/vimfiles/bundle'
 'AG'  'ag -S'
+'/dn' '/dev/null'
+'DR'  '--dry-run'
 )
 
 magic-abbrev-expand() {
@@ -295,11 +325,10 @@ magic-abbrev-expand() {
         pre=${LBUFFER[$lastidx+1,-1]}
         left=${LBUFFER[1,$lastidx]}
         prevword=${left[(w)-1]}
-        mods=('xargs' 'unbuffer' 'time' 'noglob' 'nocorrect' 'exec' '&&' '||')
+        mods=('xargs' 'unbuffer' 'time' 'noglob' 'nocorrect' 'exec' '&&' '||' 'command')
         # Previous word is a modifier
         if (( ${mods[(i)$prevword]} <= ${#mods} )); then
-            doabbrev=1
-            dopostmod=1
+            doabbrev=1; dopostmod=1
         fi
         # Only one word in buffer
         (( ${(w)#LBUFFER} < 2 )) && doabbrev=1
@@ -331,6 +360,7 @@ zle -N no-magic-abbrev-expand
 bindkey -M viins " " magic-abbrev-expand
 bindkey -M viins "/" magic-abbrev-expand
 bindkey -M viins "|" magic-abbrev-expand
+bindkey -M viins ";" magic-abbrev-expand
 bindkey -M viins "^O" no-magic-abbrev-expand
 
 #[[[1 Functions
@@ -477,6 +507,8 @@ _escalate() {
         _escalate_whence
     elif [[ $history[$((HISTCMD-1))] =~ $r ]]; then
         _escalate-kill
+    elif [[ $BUFFER =~ "^find ." ]]; then
+        BUFFER=${BUFFER/find ./find \$PWD}; CURSOR=$(($CURSOR+3))
     fi
 }
 zle -N _escalate; vibindkey '^K' _escalate
@@ -488,8 +520,8 @@ _backward-delete-WORD () {
 zle -N _backward-delete-WORD; vibindkey '÷' _backward-delete-WORD
 
 _backward-delete-to-slash () {
-  local WORDCHARS=${WORDCHARS//\//}
-  zle backward-delete-word
+    local WORDCHARS=${WORDCHARS//\//}
+    zle backward-delete-word
 }
 zle -N _backward-delete-to-slash; vibindkey '^@' _backward-delete-to-slash
 
@@ -507,7 +539,7 @@ zle -N _time-command; vibindkey '^T' _time-command
 
 _vim-args() {
     # Try to set vim's search pattern if opening files from ag command
-    if [[ ${BUFFER[(w)1]} =~ ag? ]]; then
+    if [[ ${BUFFER[(w)1]} =~ ^ag?$ ]]; then
         # Extract string between quotes
         pat=$(echo $BUFFER | sed "s/[^']*'\([^']*\)'[^']*$/\1/")
         if (( ${#pat} == ${#BUFFER} )); then
@@ -517,8 +549,8 @@ _vim-args() {
             fi
         fi
         if (( ${#pat} < ${#BUFFER} )); then
-            BUFFER="vim -c \"let @/='\\v$pat'\" -c \"call histadd('/', @/)\" \$( "$BUFFER" )"
-            CURSOR=$(( $CURSOR + 51 + ${#pat} ))
+            BUFFER="vim +/'$pat' \$( "$BUFFER" )"
+            CURSOR=$(( $CURSOR + 12 + ${#pat} ))
             return
         fi
     fi
@@ -593,7 +625,7 @@ _tmux-name-auto() {
 add-zsh-hook precmd _tmux-name-win
 add-zsh-hook preexec _tmux-name-auto
 
-_reset-saved-buffer() { export BUFSAVE=; }
+_reset-saved-buffer() { BUFSAVE=; }
 add-zsh-hook precmd _reset-saved-buffer
 _list-choices-or-logout() {
     [[ -z $BUFFER ]] && { [[ -o login ]] && logout || exit; }
@@ -603,7 +635,7 @@ _list-choices-or-logout() {
             [[ -o login ]] && logout || exit
         fi
     fi
-    export BUFSAVE=$BUFFER
+    BUFSAVE=$BUFFER
     zle list-choices
 }
 zle -N _list-choices-or-logout; vibindkey '^D' _list-choices-or-logout
@@ -613,17 +645,20 @@ zle -N tmux-next; vibindkey '^[[27;5;9~' tmux-next
 tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
-vimblacklist=(syntastic vimshell processing over flake8 tmux-complete svndiff \
-    signify vcscommand)
+vimblacklist=(syntastic vimshell processing over flake8 tmux-complete vcscommand)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 
 vim-blacklist-add() {
-    vimblacklist=($vimblacklist "$1")
+    for i in "$@"; do
+        vimblacklist=($vimblacklist "$i")
+    done
     export VIMBLACKLIST=${(j:,:)vimblacklist}
 }
 
 vim-blacklist-remove() {
-    vimblacklist[${vimblacklist[(i)$1]}]=()
+    for i in "$@"; do
+        vimblacklist[${vimblacklist[(i)$i]}]=()
+    done
     export VIMBLACKLIST=${(j:,:)vimblacklist}
 }
 
@@ -672,7 +707,7 @@ _set-bar-cursor
 
 #[[[1 Environment variables
 export VIMPAGER="/bin/sh -c \"unset PAGER;col -b -x | \
-    vim -R -c 'set ft=man nomod noma nolist' --servername VIM \
+    vim -R -c 'set ft=man nomod noma nolist' --servername $VIMSERVER \
     -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 export PAGER=
 alias man='PAGER=$VIMPAGER man'
@@ -682,6 +717,8 @@ export KEYTIMEOUT=5
 [[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
 export FPATH
 export EDITOR=vim
+export DATEFMT='%a %d%b%y %T'
+export VIMSERVER=VIM
 
 #[[[1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
@@ -832,9 +869,72 @@ _linedown=$'\e[1B'
 PROMPT="
 %{$fg[blue]%}%n%{$reset_color%}@%{$fg[yellow]%}%m %{$fg[cyan]%}\$(_short-pwd)%{$reset_color%}
 [zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
-RPROMPT="%{${_lineup}%}%{$fg_bold[green]%}%T%{$reset_color%}"
+
+# Right prompt
+_svn_prompt_info() {
+    local info
+    info=$(svn info) 2> /dev/null
+
+    if [[ -n $info ]]; then
+        echo -ne '%F{4}(%F{10}svn %F{2}'$(_svn_current_branch_name $info)
+        echo -ne '%F{1}:%F{3}'$(_svn_current_revision $info)'%F{4})%f'
+    fi
+}
+
+_svn_current_branch_name() {
+    url=$(echo ${1[(fr)URL: *]})
+    if [[ $url =~ trunk ]]; then
+        wcopy=$(echo ${1[(fr)Working *]})
+        root=${${(s:/:)wcopy}[(w)-1]}
+        if [[ $root == 'trunk' ]]; then
+            echo ${${(s:/:)wcopy}[(w)-2]}
+        else
+            echo $root
+        fi
+    else
+        if [[ $url =~ branches ]]; then
+            end=$(echo ${url[${url[(i)branches]}+9,-1]})
+        else
+            end=$(echo ${url[${url[(i)tags]}+5,-1]})
+        fi
+        echo ${end[(ws:/:)1]}
+    fi
+}
+
+_svn_current_revision() {
+    rev=$(echo ${1[(fr)Revision: *]})
+    echo ${rev[(w)-1]}
+}
+
+zstyle ':vcs_info:*' actionformats '%F{4}(%F{10}%s %F{2}%r%F{1}:%F{3}%b %F{1}%a%u%c%F{4})%f'
+zstyle ':vcs_info:*' formats       '%F{4}(%F{10}%s %F{2}%r%F{1}:%F{3}%b%u%c%F{4})%f'
+zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{3}%r%f'
+zstyle ':vcs_info:*' enable git hg
+zstyle ':vcs_info:*' check-for-changes 0
+zstyle ':vcs_info:*' stagedstr "%F{2} ●"
+zstyle ':vcs_info:*' unstagedstr '%F{9} !'
+
+autoload -Uz vcs_info
+_prompt-update() {
+    vcs_info
+    psvar[1]=${vcs_info_msg_0_}
+    [[ -z $psvar[1] ]] && psvar[1]=$(_svn_prompt_info)
+    local zero='%([BSUbfksu]|([FB]|){*})'
+    export _PSVARLEN=${#${(S%%)psvar[1]//$~zero/}}
+}
+add-zsh-hook precmd _prompt-update
+if [[ -n $(battery 2> /dev/null) ]]; then
+    RPROMPT="%{${_lineup}%}%{$fg[yellow]%}[\${\$(battery)//%%/%%}] "
+else
+    RPROMPT="%{${_lineup}%}"
+fi
+RPROMPT=${RPROMPT}"%{$reset_color%}\$psvar[1]%1(V, ,)"
+RPROMPT=${RPROMPT}"%{$fg_bold[green]%}%T%{$reset_color%}"
 RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
+
+# Auto-correct prompt
 SPROMPT="Correct $fg[red]%R$reset_color to $fg[green]%r$reset_color? (Yes, No, Abort, Edit) "
+
 # Update prompt after TMOUT seconds and after hitting enter
 TMOUT=10
 TRAPALRM() { [[ -z $BUFFER ]] && zle reset-prompt }
@@ -851,7 +951,7 @@ vared() {
 #[[[1 Cygwin settings
 if [[ $OSTYPE == 'cygwin' ]]; then
     export GROFF_NO_SGR=1
-    alias man='export MANWIDTH=$(( $COLUMNS - 6 )); man'
+    alias man='MANWIDTH=$(( $COLUMNS - 6 )) man'
 
     zstyle ':completion:*:kill:*' command 'ps -u $USER -s'
     zstyle ':completion:*:*:kill:*:processes' list-colors "=(#b) #([0-9]#) #([^ ]#)*=33=31=34"
