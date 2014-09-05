@@ -125,7 +125,6 @@ else
     call VimuxSendKeys("\<CR>")
   endfunc
 
-  endfunc
   func! s:GetErrorMATLAB()
     let errorfile = expand('%:h').'/.matlaberror'
     if filereadable(errorfile)
