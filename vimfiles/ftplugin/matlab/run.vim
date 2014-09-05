@@ -57,12 +57,7 @@ else
     call VimuxOpenRunner()
     call VimuxSendKeys("\<C-c>")
     call VimuxSendText("clearfun; cd ".expand('%:p:h')."; try; "
-        \.expand('%:t:r')."; catch ME1; errfid = fopen('.matlaberror', 'w'); "
-        \."fprintf(errfid, '%s(%d): %s - %s\\n', ME1.stack(end).file, "
-        \."ME1.stack(end).line, ME1.stack(end).name, ME1.message); "
-        \."for erridx = length(ME1.stack)-1:-1:1; fprintf(errfid, "
-        \."'%s(%d): %s\\n', ME1.stack(erridx).file, ME1.stack(erridx).line, "
-        \."ME1.stack(erridx).name); end; fclose(errfid); rethrow(ME1); end")
+        \.expand('%:t:r')."; catch ME1; errorfile; end")
     call VimuxSendKeys("\<CR>")
     call VimuxSendText("clear errfid erridx ME1; gendict; clearfun")
     call VimuxSendKeys("\<CR>")
@@ -118,11 +113,19 @@ else
     normal! gvy
     call VimuxOpenRunner()
     call VimuxSendKeys("\<C-c>")
-    call VimuxSendText('size('.@".')'))
+    call VimuxSendText('size('.@".')')
     call VimuxSendKeys("\<CR>")
     call RestoreRegs()
   endfunc
 
+  func! s:CloseFiguresMATLAB()
+    call VimuxOpenRunner()
+    call VimuxSendKeys("\<C-c>")
+    call VimuxSendText("close all;")
+    call VimuxSendKeys("\<CR>")
+  endfunc
+
+  endfunc
   func! s:GetErrorMATLAB()
     let errorfile = expand('%:h').'/.matlaberror'
     if filereadable(errorfile)
@@ -146,6 +149,7 @@ else
   vnoremap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>
   vnoremap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarSizeMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>GetErrorMATLAB()<CR>
+  nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>CloseFiguresMATLAB()<CR>
 endif
 
 nnoremap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>

@@ -44,8 +44,9 @@ function gendictstruct(fid, var_in)
             hasStringFields = 1;
         else
             printvar(fid, [var_in '.' fields{j}]);
-            if evalin('base', ['exist(''' var_in '.' fields{j} ''', ''var'')'])
-                if isstruct(evalin('base', [var_in '.' fields{j}]))
+            try %#ok
+                var = evalin('base', [var_in '.' fields{j}]);
+                if isstruct(var)
                     gendictstruct(fid, [var_in '.' fields{j}]);
                 end
             end
@@ -64,15 +65,21 @@ function gendictcell(fid, var_in)
 
 function str = sizestr(varnamestr)
 
-    sizein = evalin('base', ['size(' varnamestr ')']);
-    str = strtrim(sprintf('%d ', sizein));
-    str = strrep(str, ' ', 'x');
+    try
+        var = evalin('base', varnamestr);
+        sizein = size(var);
+        str = strtrim(sprintf('%d ', sizein));
+        str = strrep(str, ' ', 'x');
+    catch
+        str = '? ?';
+    end
     return
 
 function printvar(fid, varnamestr)
 
     try
-        classstr = evalin('base', ['class(' varnamestr ')']);
+        var = evalin('base', varnamestr);
+        classstr = class(var);
         fprintf(fid, [varnamestr ' ' sizestr(varnamestr) ' ' classstr '\n']);
     catch %#ok<CTCH>
         fprintf(fid, [varnamestr ' ' sizestr(varnamestr) '\n']);
