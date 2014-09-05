@@ -43,3 +43,5 @@ func! s:UpdateDictionary()
 endfunc
 
 nnoremap <silent> <Leader>m :call <SID>ToggleDictionary()<CR>
+
+set errorformat+=Error:\ File:\ %f\ Line:\ %l\ Column:\ %c\ -\ %m

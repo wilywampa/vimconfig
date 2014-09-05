@@ -26,32 +26,36 @@ func! s:SelectTextObject(obj,motion)
   let curpos = getpos('.')
   let line = getline('.')
 
-  " Expand selection
-  if line("'<") == line('.') && line("'>") == line('.') &&
-      \ line[col("'<")-1] == left && line[col("'>")-1] == right
-    execute "normal! `<v`>loh\<Esc>"
-  endif
-
-  while !<SID>CursorInPair(left,right)
-    if line[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
-      execute "normal! f".left
-    elseif line[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
-      execute "normal! F".right
-    else
-      call setpos('.',curpos)
-      execute "normal! v\<Esc>"
-      return
+  if stridx(line, left) < strridx(line, right)
+    " Expand selection
+    let did_expand = 0
+    if line("'<") == line('.') && line("'>") == line('.') &&
+        \ line[col("'<")-2] == left && line[col("'>")] == right
+      execute "normal! `<v`>loh\<Esc>"
+      let did_expand = 1
     endif
-  endwhile
 
-  if a:motion == 'i'
-    let curchar = line[col('.')-1]
-    if curchar == right && line[col('.')-2] == left
-      execute "normal! i\<Space>\<Esc>"
-    elseif curchar == left && line[col('.')] == right
-      execute "normal! a\<Space>\<Esc>"
-    elseif curchar != left
-      execute "normal! F".left
+    while !<SID>CursorInPair(left,right)
+      if line[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
+        execute "normal! f".left
+      elseif line[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
+        execute "normal! F".right
+      else
+        call setpos('.',curpos)
+        execute "normal! v\<Esc>"
+        return
+      endif
+    endwhile
+
+    if a:motion == 'i'
+      let curchar = line[col('.')-1]
+      if curchar == right && line[col('.')-2] == left
+        execute "normal! i\<Space>\<Esc>"
+      elseif curchar == left && line[col('.')] == right
+        execute "normal! a\<Space>\<Esc>"
+      elseif line[col('.')-2] == left && did_expand
+        execute "normal! F".left
+      endif
     endif
   endif
 
@@ -133,9 +137,9 @@ func! s:SelectTextObjectQuote(obj,motion)
     return
   endif
 
-  if line[col('.')-1:-1] != a:obj
+  if stridx(line[col('.')-1:-1] ,a:obj) == -1
     execute "normal! F".a:obj
-  elseif line[0:col('.')-1] != a:obj
+  elseif stridx(line[0:col('.')-1], a:obj) == -1
     execute "normal! f".a:obj
   endif
 

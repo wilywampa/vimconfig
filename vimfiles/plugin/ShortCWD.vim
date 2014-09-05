@@ -92,6 +92,11 @@ function! ShortCWD()
     endif
     if s:cwd=='~/' | let s:cwd='~' | endif
 
+    if g:airline_powerline_fonts == 1 && exists('*fugitive#head')
+        \ && len(fugitive#head())
+        let s:cwd = nr2char(57504).s:cwd
+    endif
+
     if strlen(s:cwd) > s:cwdMaxLen
         let s:cwd=''
     endif
