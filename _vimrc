@@ -29,7 +29,6 @@ set smartcase
 set showmode                    " Show current mode
 set nrformats-=octal            " Don't treat numbers as octal when incrementing/decrementing
 set shortmess+=t                " Truncate filenames in messages when necessary
-set shortmess+=A                " Don't show swap file warning (open read-only via autocmd)
 set showmatch                   " Show matching brace after inserting
 set shiftround                  " Round indent to multiple of shiftwidth
 set scrolloff=2                 " Pad lines/columns with context around cursor
@@ -479,6 +478,9 @@ nn _ -
 
 " Go to most recent text change
 nn <silent> g. m':execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR>
+
+" Delete swap file and reload file
+nn <silent> <Leader>ds :<C-u>Redir swap<CR>:call system("rm <C-r>"<BS>p")<CR>:e<CR>
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -1051,11 +1053,11 @@ augroup VimrcAutocmds
         \ endif
 
     " Jump to quickfix result in previous window
-    autocmd FileType qf nn <silent> <buffer> <CR> :exe "winc p \| ".line('.')."cc"<CR>zv
+    autocmd FileType qf nn <silent> <buffer> <CR> :execute "wincmd p \| "
+        \ .line('.').(w:quickfix_title =~ "loc.*list" ? "ll" : "cc")<CR>zv
 
     " Open files as read-only automatically
-    autocmd BufReadPre * silent swapname |
-        \ if v:statusmsg =~ '\.sw[^p]' | set readonly | endif
+    autocmd SwapExists * let v:swapchoice = 'o'
 augroup END
 
 " Define some useful constants
@@ -1368,7 +1370,6 @@ func! s:UniteSettings()
     nmap <buffer> <C-f> <C-d>
     nmap <buffer> <C-b> <C-u>
     nmap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
-    imap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
     imap <buffer> <C-j> <Plug>(unite_select_next_line)
     imap <buffer> <C-k> <Plug>(unite_select_previous_line)
     nmap <buffer> <C-c> <Plug>(unite_exit)
@@ -1403,6 +1404,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
 nn <silent> <M-p> :<C-u>Unite -prompt-direction=top neomru/directory<CR>
 nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
+nn <silent> <F1> :<C-u>Unite -prompt-direction=top mapping<CR>
 nnoremap <silent> <Leader>w :ccl\|lcl\|winc z\|sil! UniteClose<CR>
 nnoremap <silent> ,u :UniteResume<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
@@ -1527,6 +1529,7 @@ nnoremap <silent> ds<Space> F<Space>"_x,"_x:silent! call repeat#set('ds ')<CR>
 let g:syntastic_filetype_map={'arduino': 'cpp'}
 let g:syntastic_mode_map={'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
 let g:airline#extensions#syntastic#enabled=0
+nnoremap ,sc :<C-u>execute "SyntasticCheck" \| execute "Errors" \| lfirst<CR>
 
 " Tabular settings
 let g:no_default_tabular_maps=1
@@ -1546,11 +1549,11 @@ func! s:AckCurrentSearch(ic)
     let view = winsaveview() | call SaveRegs()
     keepjumps normal gny
     call winrestview(view)
-    if a:ic == 0 | let cmd = "Ack! -s '".@"."'" | else
+    if a:ic == 0 | let cmd = "Ack! -s ".g:ag_flags." -- '".@"."'" | else
         if @/ =~ '\u'
-            let cmd = "Ack! '".@"."'"
+            let cmd = "Ack! ".g:ag_flags." -- '".@"."'"
         else
-            let cmd = "Ack! '".tolower(@")."'"
+            let cmd = "Ack! ".g:ag_flags." -- '".tolower(@")."'"
         endif
     endif
     let cmd = escape(cmd, '%#')
@@ -1560,6 +1563,7 @@ func! s:AckCurrentSearch(ic)
 endfunc
 nnoremap <silent> ga :<C-u>call <SID>AckCurrentSearch(1)<CR>
 nnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0)<CR>
+if !exists('g:ag_flags') | let g:ag_flags = '' | endif
 
 " tmux navigator settings
 let g:tmux_navigator_no_mappings=1
