@@ -67,9 +67,35 @@ function! s:Bclose(bang, buffer)
     endif
   endfor
   if buflisted(btarget)
+    if !exists('s:closed_buf_list') | let s:closed_buf_list = [] | endif
+    silent! call add(s:closed_buf_list, fnamemodify(bufname(btarget), ':p'))
     execute 'bdelete'.a:bang.' '.btarget
   endif
   execute wcurrent.'wincmd w'
 endfunction
 command! -bang -complete=buffer -nargs=? Bclose call s:Bclose('<bang>', '<args>')
-nnoremap <silent> <Leader>bd :Bclose<CR>
+nnoremap <silent> <Leader>bd :Bclose<CR>:silent! call repeat#set("\<Leader>bd")<CR>
+
+function! s:Bopen()
+  if !exists('s:closed_buf_list') || len(s:closed_buf_list) == 0
+    echo 'No closed buffers'
+    return
+  endif
+  for index in range(0, len(s:closed_buf_list) - 1)
+    echo index.' - '.s:closed_buf_list[index]
+  endfor
+  let choice = input('Choose file number: ')
+  if choice =~ '[0-9]' && matchstr(choice, '\v[0-9]+') < len(s:closed_buf_list)
+    if choice =~ '\v^[0-9]+$'
+      execute "edit ".s:closed_buf_list[choice]
+    elseif choice =~ '\v^[0-9]+s$'
+      execute "split ".s:closed_buf_list[choice]
+    elseif choice =~ '\v^[0-9]+v$'
+      execute "vsplit ".s:closed_buf_list[choice]
+    elseif choice =~ '\v^[0-9]+t$'
+      execute "tab split ".s:closed_buf_list[choice]
+    endif
+  endif
+endfunction
+command! -bang -complete=buffer -nargs=? Bopen call s:Bopen()
+nnoremap <silent> <Leader>bo :Bopen<CR>
