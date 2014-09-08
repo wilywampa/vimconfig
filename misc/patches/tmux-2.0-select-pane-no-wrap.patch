@@ -1,0 +1,140 @@
+diff --git a/.gitignore b/.gitignore
+index ba580ed..b8d26ea 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -17,3 +17,4 @@ Makefile
+ Makefile.in
+ configure
+ tmux.1.*
++cscope.out
+diff --git a/server-client.c b/server-client.c
+index e225de3..2a41d29 100644
+--- a/server-client.c
++++ b/server-client.c
+@@ -29,6 +29,9 @@
+ 
+ #include "tmux.h"
+ 
++#include <sys/ioctl.h>
++#include <unistd.h>
++
+ void	server_client_check_focus(struct window_pane *);
+ void	server_client_check_resize(struct window_pane *);
+ void	server_client_check_mouse(struct client *, struct window_pane *);
+@@ -564,6 +567,11 @@ server_client_check_focus(struct window_pane *wp)
+ 	u_int		 i;
+ 	struct client	*c;
+ 	int		 push;
++	/* int		 hTTY; */
++	FILE		*fid;
++	char		fname[256];
++	/* char const *argv[] = {"send-keys", "-t", "2", "\033[O"}; */
++	/* char const *argv2[] = {"send-keys", "-t", "2", "\033[I"}; */
+ 
+ 	/* Are focus events off? */
+ 	if (!options_get_number(&global_options, "focus-events"))
+@@ -605,13 +613,62 @@ server_client_check_focus(struct window_pane *wp)
+ 
+ not_focused:
+ 	if (push || (wp->flags & PANE_FOCUSED))
+-		bufferevent_write(wp->event, "\033[O", 3);
++	{
++		/* bufferevent_write(wp->event, "\033[O", 3); */
++		/* hTTY = open(wp->tty, O_WRONLY|O_NONBLOCK); */
++		sprintf(fname, "%s%s", getenv("HOME"), "/.cache/.tmuxlog");
++		fid = fopen(fname, "w");
++		/* if (fid) */
++		/* { */
++		/* 	 /1*  fprintf(fid, "unfocused hTTY = %d\n", hTTY);  *1/  */
++		/* } */
++		/* else */
++		/* { */
++		/* 	 /1*  fprintf(stderr, "Error opening file: %s\n", "/Users/jniehus/log.txt");  *1/  */
++		/* } */
++		/* fprintf(fid, "%d\n", ioctl(hTTY, TIOCSTI, "")); */
++		/* fprintf(fid, "%d\n", ioctl(hTTY, TIOCSTI, "[")); */
++		/* fprintf(fid, "%d\n", ioctl(hTTY, TIOCSTI, "O")); */
++		/* tty_raw(wp->tty, "\033[O"); */
++		/* fprintf(fid, "fid = %d\n", (int)fid); */
++		fprintf(fid, "%ld\n", write(wp->fd, "\033[O", 3));
++		/* write(wp->fd, "\033[O", 3); */
++		/* if (fork() == 0) */
++		/* 	exit(client_main(4, (char **)argv, CLIENT_UTF8)); */
++		fclose(fid);
++		/* close(hTTY); */
++	}
+ 	wp->flags &= ~PANE_FOCUSED;
+ 	return;
+ 
+ focused:
+ 	if (push || !(wp->flags & PANE_FOCUSED))
+-		bufferevent_write(wp->event, "\033[I", 3);
++	{
++		/* bufferevent_write(wp->event, "\033[I", 3); */
++		/* hTTY = open(wp->tty, O_WRONLY|O_NONBLOCK); */
++		sprintf(fname, "%s%s", getenv("HOME"), "/.cache/.tmuxlog");
++		fid = fopen(fname, "w");
++		/* if (fid) */
++		/* { */
++		/* 	 /1*  fprintf(fid, "focused hTTY = %d\n", hTTY);  *1/  */
++		/* } */
++		/* else */
++		/* { */
++		/* 	 /1*  fprintf(stderr, "Error opening file: %s\n", "/Users/jniehus/log.txt");  *1/  */
++		/* } */
++		/* fprintf(fid, "%d\n", ioctl(hTTY, TIOCSTI, "")); */
++		/* fprintf(fid, "%d\n", ioctl(hTTY, TIOCSTI, "[")); */
++		/* fprintf(fid, "%d\n", ioctl(hTTY, TIOCSTI, "I")); */
++		/* tty_raw(&wp->tty, "\033[I"); */
++		/* fprintf(fid, "fid = %d\n", (int)fid); */
++		fprintf(fid, "%ld\n", write(wp->fd, "\033[I", 3));
++		/* write(wp->fd, "\033[I", 3); */
++		/* if (fork() == 0) */
++		/* 	exit(client_main(4, (char **)argv2, CLIENT_UTF8)); */
++		fclose(fid);
++		/* close(hTTY); */
++		/* client_main(4, (char **)argv, CLIENT_UTF8); */
++	}
+ 	wp->flags |= PANE_FOCUSED;
+ }
+ 
+diff --git a/window.c b/window.c
+index d65bf50..8757b26 100644
+--- a/window.c
++++ b/window.c
+@@ -1187,7 +1187,7 @@ window_pane_find_up(struct window_pane *wp)
+ 
+ 	edge = wp->yoff;
+ 	if (edge == 0)
+-		edge = wp->window->sy + 1;
++		return wp;
+ 
+ 	left = wp->xoff;
+ 	right = wp->xoff + wp->sx;
+@@ -1230,7 +1230,7 @@ window_pane_find_down(struct window_pane *wp)
+ 
+ 	edge = wp->yoff + wp->sy + 1;
+ 	if (edge >= wp->window->sy)
+-		edge = 0;
++		return wp;
+ 
+ 	left = wp->xoff;
+ 	right = wp->xoff + wp->sx;
+@@ -1273,7 +1273,7 @@ window_pane_find_left(struct window_pane *wp)
+ 
+ 	edge = wp->xoff;
+ 	if (edge == 0)
+-		edge = wp->window->sx + 1;
++		return wp;
+ 
+ 	top = wp->yoff;
+ 	bottom = wp->yoff + wp->sy;
+@@ -1316,7 +1316,7 @@ window_pane_find_right(struct window_pane *wp)
+ 
+ 	edge = wp->xoff + wp->sx + 1;
+ 	if (edge >= wp->window->sx)
+-		edge = 0;
++		return wp;
+ 
+ 	top = wp->yoff;
+ 	bottom = wp->yoff + wp->sy;
