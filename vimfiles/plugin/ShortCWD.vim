@@ -65,12 +65,18 @@ function! ShortCWD()
         let s:wsPrev=''
     endif
 
+    let git = 0
+    if g:airline_powerline_fonts == 1 && exists('*fugitive#head')
+        \ && len(fugitive#head())
+        let git = 1
+    endif
+
     if &buftype == 'help'
-        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:t'))-40
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:t'))-40+(git?2:0)
     else
         let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)
-            \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-50
-            \-strlen(s:wsPrev)-(strlen(s:wsPrev)?3:0)
+            \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-43
+            \-strlen(s:wsPrev)-(strlen(s:wsPrev)?3:0)+(git?2:0)
     endif
 
     if strlen(s:cwd) > s:cwdMaxLen
@@ -92,10 +98,7 @@ function! ShortCWD()
     endif
     if s:cwd=='~/' | let s:cwd='~' | endif
 
-    if g:airline_powerline_fonts == 1 && exists('*fugitive#head')
-        \ && len(fugitive#head())
-        let s:cwd = nr2char(57504).s:cwd
-    endif
+    if git | let s:cwd = nr2char(57504).' '.s:cwd | endif
 
     if strlen(s:cwd) > s:cwdMaxLen
         let s:cwd=''

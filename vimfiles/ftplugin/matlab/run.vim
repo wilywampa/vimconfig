@@ -30,7 +30,7 @@ if has("win16") || has("win32") || has("win64")
     exec 'silent !start "'.g:runmatlab_exe.'" "'.g:matlab_path.'\clearfun.m"'
   endfunc
 
-elseif system('echo $OSTYPE') =~ 'cygwin'
+elseif has('win32unix') || has('win64unix')
 
   func! s:RunMATLAB()
     let l:fname=expand('%:p:h').'/RunMATLAB.m'

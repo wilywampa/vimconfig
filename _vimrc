@@ -66,7 +66,7 @@ set gdefault                    " Substitute all occurrences by default
 set nostartofline               " Don't jump to start of line for various motions
 
 " Ignore system files
-set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so
+set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store
 
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
@@ -121,7 +121,7 @@ nnoremap <silent> <M-'> '
 let hasMac=has("mac")
 let hasWin=has("win16") || has("win32") || has("win64")
 let hasSSH=!empty($SSH_CLIENT)
-let mobileSSH=hasMac && hasSSH && $MOBILE == 1
+let mobileSSH=hasMac && $MOBILE == 1
 
 if hasWin
     " Change where backups are saved
@@ -250,9 +250,6 @@ nn <silent> <C-w><C-]> :<C-u>execute "normal! :belowright vertical
     \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
 nn <silent> <C-w>] :<C-u>execute "normal! :belowright
     \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
-
-" Break <C-c> habit
-ino <C-c> <NOP>
 
 " Shortcuts for switching tab, including closing command window if it's open
 nn <silent> <expr> <C-Tab>   tabpagenr('$')==1 ?
@@ -802,11 +799,16 @@ vnoremap <expr> <silent> <C-e> <SID>EvalExpr()
 " Don't overwrite pattern with substitute command
 if s:hasvimtools
     command! -nargs=* KeepPatterns call vimtools#KeepPatterns(<q-args>)
-    cnoremap / <C-\>evimtools#KeepPatternsSubstitute()<CR><Left><C-]><Right>
+    " Complete wildmode with <C-e> if in wildmenu with a trailing slash
+    cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
+        \ "\<C-e>" : "\<C-\>evimtools#KeepPatternsSubstitute()\<CR>\<Left>\<C-]>\<Right>"
     nnoremap <expr> & ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep
         \ ."\<CR>:silent! call repeat#set('&')\<CR>"
     nnoremap <expr> g& ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."/"
         \ .g:lsub_flags."\<CR>:silent! call repeat#set('g&')\<CR>"
+else
+    cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
+        \ "\<C-e>" : '/'
 endif
 
 " Function abbreviations
@@ -838,6 +840,20 @@ func! s:QuitSearch()
 endfunc
 cnoremap <silent> <expr> <C-^> <SID>QuitSearch()
 cnoremap <silent> <expr> <C-CR> <SID>QuitSearch()
+
+" Unfold at incremental search match
+func! s:UnfoldSearch()
+    let type = getcmdtype()
+    if type !~ '[/?]' | return '' | endif
+    let visual = mode() =~? "[v\<C-v>]"
+    let cmd = getcmdline()
+    return "\<C-c>:\<C-u>let unfoldview = winsaveview()\<CR>"
+        \ .":call search('".cmd."', '".(type == '/' ? '' : 'b')."')\<CR>zv"
+        \ .":call winrestview(unfoldview)\<CR>:unlet unfoldview\<CR>zv"
+        \ .":call feedkeys('".(visual ? 'gv' : '')
+        \ .type."\<C-v>\<C-u>".cmd."', 't')\<CR>"
+endfunc
+cnoremap <silent> <expr> <C-o> <SID>UnfoldSearch()
 
 " Search without saving when in command line window
 func! s:SearchWithoutSave()
@@ -1150,10 +1166,13 @@ if s:readonly
     call add(g:pathogen_disabled, 'vimfiler')
 endif
 
-" Set airline color scheme
+" Airline configuration
 let g:airline_theme='solarized'
 au VimrcAutocmds TabEnter,FocusGained *
     \ silent! call airline#highlighter#highlight(['normal',&mod?'modified':''])
+nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>:AirlineRefresh<CR>
+let g:airline#extensions#whitespace#show_message=0
+let g:airline_section_y='%{&fileformat}'
 
 " Use powerline font unless in Mac SSH session or in old Vim
 if mobileSSH || v:version < 703
@@ -1163,10 +1182,6 @@ if mobileSSH || v:version < 703
 else
     let g:airline_powerline_fonts=1
 endif
-
-" Configure airline whitespace warnings
-nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>:AirlineRefresh<CR>
-let g:airline#extensions#whitespace#show_message=0
 
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
@@ -1237,6 +1252,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
                 \ pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
             autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab>
                 \ pumvisible() ? "\<C-p>" : neocomplete#start_manual_complete()
+            autocmd VimrcAutocmds CmdwinEnter : let b:neocomplete_sources=['vim', 'file']
             autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
         augroup END
     endif
@@ -1639,6 +1655,9 @@ if !exists('g:neocomplete#force_omni_input_patterns')
 endif
 let g:neocomplete#force_omni_input_patterns.python =
     \ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
+
+" DirDiff settings
+let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
 
 " Import scripts
 execute pathogen#infect()

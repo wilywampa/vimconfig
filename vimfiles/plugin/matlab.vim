@@ -1,9 +1,11 @@
 if !exists('g:matlab_dict')
   if has("mac") || has("win16") || has("win32") || has("win64")
     let g:matlab_dict = expand('~/Documents/MATLAB/dict.m')
-  elseif system('echo $OSTYPE') =~ 'cygwin'
-    let g:matlab_dict =
-        \ system('cygpath -u "$USERPROFILE/Documents/MATLAB/dict.m" | tr -d \\n')
+  elseif has('win32unix') || has('win64unix')
+    let g:matlab_dict = substitute($USERPROFILE, '\', '/', 'g')
+        \ ."/Documents/MATLAB/dict.m"
+    let g:matlab_dict = '/cygdrive/'.tolower(g:matlab_dict[0])
+        \ .g:matlab_dict[2:-1]
   else
     let g:matlab_dict = expand('~/MATLAB/dict.m')
   endif
