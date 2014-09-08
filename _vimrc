@@ -64,6 +64,7 @@ set makeprg=make\ -j            " Use multiple jobs in make by default
 set nojoinspaces                " Don't add two spaces after punctuation
 set gdefault                    " Substitute all occurrences by default
 set nostartofline               " Don't jump to start of line for various motions
+set isfname+={,}                " Interpret {} as part of a filename
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store

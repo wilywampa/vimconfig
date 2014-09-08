@@ -1,5 +1,7 @@
 errfid = fopen('.matlaberror', 'w');
-if numel(ME1.stack) > 0
+if numel(ME1.stack) == 0 || ~isempty(strfind(ME1.message, 'Error: File:'))
+    fprintf(errfid, '%s', strrep(ME1.message, sprintf('\n'), ' - '));
+else
     fprintf(errfid, '%s(%d): %s - %s\n', ...
         ME1.stack(end).file, ...
         ME1.stack(end).line, ...
@@ -11,8 +13,6 @@ if numel(ME1.stack) > 0
             ME1.stack(erridx).line, ...
             ME1.stack(erridx).name);
     end
-else
-    fprintf(errfid, '%s', strrep(ME1.message, sprintf('\n'), ' - '));
 end
 fclose(errfid);
 rethrow(ME1)
