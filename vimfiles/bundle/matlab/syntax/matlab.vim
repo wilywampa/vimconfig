@@ -11,7 +11,7 @@
 " For version 6.x: Quit when a syntax file was already loaded
 if version < 600
   syntax clear
-elseif exists("b:current_syntax_new")
+elseif exists("b:current_syntax") && exists("b:current_syntax_new")
   finish
 endif
 
