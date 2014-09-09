@@ -8,7 +8,7 @@ endif
 
 let SelectTextObjectLoaded=1
 
-func! SelectTextObject(obj, motion, visual)
+func! s:SelectTextObject(obj, motion, visual)
   if a:obj ==# 'b'
     let left = '('
     let right = ')'
@@ -85,67 +85,67 @@ func! s:CursorInPair(left, right)
   endif
 endfunc
 
-func! s:WrapSelectTextObject(obj, motion)
-  return ":"."\<C-u>call SelectTextObject('".
-      \ a:obj."','".a:motion."','".
-      \ (mode() =~? "[v\<C-v>]" ? 1 : 0)."')\<CR>"
+func! s:Vis()
+  return mode() =~? "[v\<C-v>]" ? 1 : 0
 endfunc
 
-onoremap <silent> <expr> ib <SID>WrapSelectTextObject('b','i')
-onoremap <silent> <expr> i( <SID>WrapSelectTextObject('b','i')
-onoremap <silent> <expr> i) <SID>WrapSelectTextObject('b','i')
-onoremap <silent> <expr> ab <SID>WrapSelectTextObject('b','a')
-onoremap <silent> <expr> a( <SID>WrapSelectTextObject('b','a')
-onoremap <silent> <expr> a) <SID>WrapSelectTextObject('b','a')
+let start = ":\<C-u>call \<SID>SelectTextObject("
 
-xnoremap <silent> <expr> ib <SID>WrapSelectTextObject('b','i')
-xnoremap <silent> <expr> i( <SID>WrapSelectTextObject('b','i')
-xnoremap <silent> <expr> i) <SID>WrapSelectTextObject('b','i')
-xnoremap <silent> <expr> ab <SID>WrapSelectTextObject('b','a')
-xnoremap <silent> <expr> a( <SID>WrapSelectTextObject('b','a')
-xnoremap <silent> <expr> a) <SID>WrapSelectTextObject('b','a')
+onoremap <expr> ib ":\<C-u>call \<SID>SelectTextObject('b','i',".<SID>Vis().")\<CR>"
+onoremap <expr> i( ":\<C-u>call \<SID>SelectTextObject('b','i',".<SID>Vis().")\<CR>"
+onoremap <expr> i) ":\<C-u>call \<SID>SelectTextObject('b','i',".<SID>Vis().")\<CR>"
+onoremap <expr> ab ":\<C-u>call \<SID>SelectTextObject('b','a',".<SID>Vis().")\<CR>"
+onoremap <expr> a( ":\<C-u>call \<SID>SelectTextObject('b','a',".<SID>Vis().")\<CR>"
+onoremap <expr> a) ":\<C-u>call \<SID>SelectTextObject('b','a',".<SID>Vis().")\<CR>"
 
-onoremap <silent> <expr> iB <SID>WrapSelectTextObject('B','i')
-onoremap <silent> <expr> i{ <SID>WrapSelectTextObject('B','i')
-onoremap <silent> <expr> i} <SID>WrapSelectTextObject('B','i')
-onoremap <silent> <expr> aB <SID>WrapSelectTextObject('B','a')
-onoremap <silent> <expr> a{ <SID>WrapSelectTextObject('B','a')
-onoremap <silent> <expr> a} <SID>WrapSelectTextObject('B','a')
+xnoremap <expr> ib ":\<C-u>call \<SID>SelectTextObject('b','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> i( ":\<C-u>call \<SID>SelectTextObject('b','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> i) ":\<C-u>call \<SID>SelectTextObject('b','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> ab ":\<C-u>call \<SID>SelectTextObject('b','a',".<SID>Vis().")\<CR>"
+xnoremap <expr> a( ":\<C-u>call \<SID>SelectTextObject('b','a',".<SID>Vis().")\<CR>"
+xnoremap <expr> a) ":\<C-u>call \<SID>SelectTextObject('b','a',".<SID>Vis().")\<CR>"
 
-xnoremap <silent> <expr> iB <SID>WrapSelectTextObject('B','i')
-xnoremap <silent> <expr> i{ <SID>WrapSelectTextObject('B','i')
-xnoremap <silent> <expr> i} <SID>WrapSelectTextObject('B','i')
-xnoremap <silent> <expr> aB <SID>WrapSelectTextObject('B','a')
-xnoremap <silent> <expr> a{ <SID>WrapSelectTextObject('B','a')
-xnoremap <silent> <expr> a} <SID>WrapSelectTextObject('B','a')
+onoremap <expr> iB ":\<C-u>call \<SID>SelectTextObject('B','i',".<SID>Vis().")\<CR>"
+onoremap <expr> i{ ":\<C-u>call \<SID>SelectTextObject('B','i',".<SID>Vis().")\<CR>"
+onoremap <expr> i} ":\<C-u>call \<SID>SelectTextObject('B','i',".<SID>Vis().")\<CR>"
+onoremap <expr> aB ":\<C-u>call \<SID>SelectTextObject('B','a',".<SID>Vis().")\<CR>"
+onoremap <expr> a{ ":\<C-u>call \<SID>SelectTextObject('B','a',".<SID>Vis().")\<CR>"
+onoremap <expr> a} ":\<C-u>call \<SID>SelectTextObject('B','a',".<SID>Vis().")\<CR>"
 
-onoremap <silent> <expr> i[ <SID>WrapSelectTextObject('[','i')
-onoremap <silent> <expr> i] <SID>WrapSelectTextObject('[','i')
-onoremap <silent> <expr> ir <SID>WrapSelectTextObject('[','i')
-onoremap <silent> <expr> a[ <SID>WrapSelectTextObject('[','a')
-onoremap <silent> <expr> a] <SID>WrapSelectTextObject('[','a')
-onoremap <silent> <expr> ar <SID>WrapSelectTextObject('[','a')
+xnoremap <expr> iB ":\<C-u>call \<SID>SelectTextObject('B','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> i{ ":\<C-u>call \<SID>SelectTextObject('B','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> i} ":\<C-u>call \<SID>SelectTextObject('B','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> aB ":\<C-u>call \<SID>SelectTextObject('B','a',".<SID>Vis().")\<CR>"
+xnoremap <expr> a{ ":\<C-u>call \<SID>SelectTextObject('B','a',".<SID>Vis().")\<CR>"
+xnoremap <expr> a} ":\<C-u>call \<SID>SelectTextObject('B','a',".<SID>Vis().")\<CR>"
 
-xnoremap <silent> <expr> i[ <SID>WrapSelectTextObject('[','i')
-xnoremap <silent> <expr> i] <SID>WrapSelectTextObject('[','i')
-xnoremap <silent> <expr> ir <SID>WrapSelectTextObject('[','i')
-xnoremap <silent> <expr> a[ <SID>WrapSelectTextObject('[','a')
-xnoremap <silent> <expr> a] <SID>WrapSelectTextObject('[','a')
-xnoremap <silent> <expr> ar <SID>WrapSelectTextObject('[','a')
+onoremap <expr> i[ ":\<C-u>call \<SID>SelectTextObject('[','i',".<SID>Vis().")\<CR>"
+onoremap <expr> i] ":\<C-u>call \<SID>SelectTextObject('[','i',".<SID>Vis().")\<CR>"
+onoremap <expr> ir ":\<C-u>call \<SID>SelectTextObject('[','i',".<SID>Vis().")\<CR>"
+onoremap <expr> a[ ":\<C-u>call \<SID>SelectTextObject('[','a',".<SID>Vis().")\<CR>"
+onoremap <expr> a] ":\<C-u>call \<SID>SelectTextObject('[','a',".<SID>Vis().")\<CR>"
+onoremap <expr> ar ":\<C-u>call \<SID>SelectTextObject('[','a',".<SID>Vis().")\<CR>"
 
-onoremap <silent> <expr> i< <SID>WrapSelectTextObject('<','i')
-onoremap <silent> <expr> i> <SID>WrapSelectTextObject('<','i')
-onoremap <silent> <expr> ia <SID>WrapSelectTextObject('<','i')
-onoremap <silent> <expr> a< <SID>WrapSelectTextObject('<','a')
-onoremap <silent> <expr> a> <SID>WrapSelectTextObject('<','a')
-onoremap <silent> <expr> aa <SID>WrapSelectTextObject('<','a')
+xnoremap <expr> i[ ":\<C-u>call \<SID>SelectTextObject('[','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> i] ":\<C-u>call \<SID>SelectTextObject('[','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> ir ":\<C-u>call \<SID>SelectTextObject('[','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> a[ ":\<C-u>call \<SID>SelectTextObject('[','a',".<SID>Vis().")\<CR>"
+xnoremap <expr> a] ":\<C-u>call \<SID>SelectTextObject('[','a',".<SID>Vis().")\<CR>"
+xnoremap <expr> ar ":\<C-u>call \<SID>SelectTextObject('[','a',".<SID>Vis().")\<CR>"
 
-xnoremap <silent> <expr> i< <SID>WrapSelectTextObject('<','i')
-xnoremap <silent> <expr> i> <SID>WrapSelectTextObject('<','i')
-xnoremap <silent> <expr> ia <SID>WrapSelectTextObject('<','i')
-xnoremap <silent> <expr> a< <SID>WrapSelectTextObject('<','a')
-xnoremap <silent> <expr> a> <SID>WrapSelectTextObject('<','a')
-xnoremap <silent> <expr> aa <SID>WrapSelectTextObject('<','a')
+onoremap <expr> i< ":\<C-u>call \<SID>SelectTextObject('<','i',".<SID>Vis().")\<CR>"
+onoremap <expr> i> ":\<C-u>call \<SID>SelectTextObject('<','i',".<SID>Vis().")\<CR>"
+onoremap <expr> ia ":\<C-u>call \<SID>SelectTextObject('<','i',".<SID>Vis().")\<CR>"
+onoremap <expr> a< ":\<C-u>call \<SID>SelectTextObject('<','a',".<SID>Vis().")\<CR>"
+onoremap <expr> a> ":\<C-u>call \<SID>SelectTextObject('<','a',".<SID>Vis().")\<CR>"
+onoremap <expr> aa ":\<C-u>call \<SID>SelectTextObject('<','a',".<SID>Vis().")\<CR>"
+
+xnoremap <expr> i< ":\<C-u>call \<SID>SelectTextObject('<','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> i> ":\<C-u>call \<SID>SelectTextObject('<','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> ia ":\<C-u>call \<SID>SelectTextObject('<','i',".<SID>Vis().")\<CR>"
+xnoremap <expr> a< ":\<C-u>call \<SID>SelectTextObject('<','a',".<SID>Vis().")\<CR>"
+xnoremap <expr> a> ":\<C-u>call \<SID>SelectTextObject('<','a',".<SID>Vis().")\<CR>"
+xnoremap <expr> aa ":\<C-u>call \<SID>SelectTextObject('<','a',".<SID>Vis().")\<CR>"
 
 func! s:SelectTextObjectQuote(obj, motion)
   let line = getline('.')

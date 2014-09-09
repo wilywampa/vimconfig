@@ -152,3 +152,10 @@ function! <SID>ParagFore()
 	return s:Unfold()
 	let &magic = l:magic
 endfunction
+
+augroup ipmotion
+	autocmd!
+	autocmd FileType fortran let b:ip_boundary = '[!C[:blank:]]*$'
+	autocmd FileType c,cpp,arduino let b:ip_boundary = '\s*\(//\)\?\s*$'
+	autocmd FileType matlab let b:ip_boundary = '[%[:blank:]]*$'
+augroup END

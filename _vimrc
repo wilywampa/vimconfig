@@ -825,9 +825,9 @@ func! s:DeleteUntilChar(char)
     return newcmdstart.end
 endfunc
 cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
-inoremap <C-@> <Esc>vT/"_c
+inoremap <C-@> <Esc>"_dT/"_s
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
-inoremap <M-w> <Esc>vT<Space>"_c
+inoremap <M-w> <Esc>"_dT<Space>"_s
 
 " Stay at search result without completing search
 func! s:QuitSearch()
@@ -1270,9 +1270,9 @@ autocmd VimrcAutocmds ColorScheme * call <SID>SneakHighlights()
 func! s:SneakHighlights()
     let fg = &background == 'dark' ? 8 : 15 | let gui = 'gui=reverse guifg=#'
     execute "highlight! SneakPluginTarget ctermfg=".fg." ctermbg=4 ".gui."268bd2"
-    execute "highlight! SneakStreakTarget ctermfg=".fg." ctermbg=2 ".gui."859900"
+    execute "highlight! SneakStreakTarget ctermfg="fg." ctermbg=2 ".gui."859900"
+    execute "highlight! SneakStreakMask ctermfg=".(fg-8)." ctermbg=2 ".gui."859900"
     execute "highlight! SneakStreakCursor ctermfg=".fg." ctermbg=1 ".gui."dc322f"
-    highlight! link SneakStreakMask Normal
     highlight! link SneakStreakStatusLine StatusLine
 endfunc
 func! s:SneakMaps()
