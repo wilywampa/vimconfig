@@ -78,6 +78,7 @@ function! ShortCWD()
             \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-43
             \-strlen(s:wsPrev)-(strlen(s:wsPrev)?3:0)+(git?2:0)
     endif
+    let s:cwdMaxLen -= len(FFinfo())
 
     if strlen(s:cwd) > s:cwdMaxLen
         let parts=split(s:cwd,pathSep)
@@ -105,4 +106,9 @@ function! ShortCWD()
     endif
 
     return s:cwd
+endfunction
+
+function! FFinfo()
+    return printf('%s%s', &fileencoding == 'utf-8' ? '' : &fileencoding,
+        \ &fileformat == 'unix' ? '' : '['.&fileformat.']')
 endfunction

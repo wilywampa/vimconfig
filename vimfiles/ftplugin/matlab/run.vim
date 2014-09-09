@@ -149,6 +149,7 @@ else
   vnoremap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarSizeMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>GetErrorMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>CloseFiguresMATLAB()<CR>
+  nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>CloseFiguresMATLAB()<CR>
 endif
 
 nnoremap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>

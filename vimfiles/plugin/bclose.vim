@@ -68,7 +68,12 @@ function! s:Bclose(bang, buffer)
   endfor
   if buflisted(btarget)
     if !exists('s:closed_buf_list') | let s:closed_buf_list = [] | endif
-    silent! call add(s:closed_buf_list, fnamemodify(bufname(btarget), ':p'))
+    let fname = fnamemodify(bufname(btarget), ':p')
+    let index = index(s:closed_buf_list, fname)
+    if index >= 0
+      silent! call remove(s:closed_buf_list, index)
+    endif
+    silent! call add(s:closed_buf_list, fname)
     execute 'bdelete'.a:bang.' '.btarget
   endif
   execute wcurrent.'wincmd w'
@@ -82,9 +87,9 @@ function! s:Bopen()
     return
   endif
   for index in range(0, len(s:closed_buf_list) - 1)
-    echo index.' - '.s:closed_buf_list[index]
+    echo len(s:closed_buf_list) - index.' - '.s:closed_buf_list[index]
   endfor
-  let choice = input('Choose file number: ')
+  let choice = len(s:closed_buf_list) - input('Choose file number: ')
   if choice =~ '[0-9]' && matchstr(choice, '\v[0-9]+') < len(s:closed_buf_list)
     if choice =~ '\v^[0-9]+$'
       execute "edit ".s:closed_buf_list[choice]

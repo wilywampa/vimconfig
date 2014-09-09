@@ -67,7 +67,7 @@ set nostartofline               " Don't jump to start of line for various motion
 set isfname+={,}                " Interpret {} as part of a filename
 
 " Ignore system files
-set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store
+set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc
 
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
@@ -696,12 +696,10 @@ cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 
 " Don't delete the v/V at the start of a search
 func! s:SearchCmdDelWord()
-    if getcmdtype() =~ '[/?]' && getcmdline() =~? '^\\v\k*$'
-        if getcmdline()[1] ==# 'v'
-            return "\<C-u>\\v"
-        else
-            return "\<C-u>\\V"
-        endif
+    let cmd = (getcmdtype() =~ '[/?]' ? '/' : '').
+        \ strpart(getcmdline(), 0, getcmdpos() - 1)
+    if cmd =~ '/\\v\k\+$'
+        return "\<C-w>".matchstr(cmd, '/\\\zsv\ze\k*$')
     endif
     return "\<C-w>"
 endfunc
@@ -835,9 +833,9 @@ inoremap <M-w> <Esc>vT<Space>"_c
 func! s:QuitSearch()
     if getcmdtype() !~ '[/?]' | return '' | endif
     let visual = mode() =~? "[v\<C-v>]"
-    return "\<C-e>\<C-u>\<C-c>:\<C-u>call search('".getcmdline()."', '".
-        \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv".
-        \ (visual ? 'm>gv' : "")
+    return "\<C-e>\<C-u>\<C-c>:\<C-u>call search('".
+        \ substitute(getcmdline(), "'", "''", 'g')."', '".
+        \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv".(visual ? 'm>gv' : "")
 endfunc
 cnoremap <silent> <expr> <C-^> <SID>QuitSearch()
 cnoremap <silent> <expr> <C-CR> <SID>QuitSearch()
@@ -847,7 +845,7 @@ func! s:UnfoldSearch()
     let type = getcmdtype()
     if type !~ '[/?]' | return '' | endif
     let visual = mode() =~? "[v\<C-v>]"
-    let cmd = getcmdline()
+    let cmd = substitute(getcmdline(), "'", "''", 'g')
     return "\<C-c>:\<C-u>let unfoldview = winsaveview()\<CR>"
         \ .":call search('".cmd."', '".(type == '/' ? '' : 'b')."')\<CR>zv"
         \ .":call winrestview(unfoldview)\<CR>:unlet unfoldview\<CR>zv"
@@ -1173,7 +1171,7 @@ au VimrcAutocmds TabEnter,FocusGained *
     \ silent! call airline#highlighter#highlight(['normal',&mod?'modified':''])
 nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>:AirlineRefresh<CR>
 let g:airline#extensions#whitespace#show_message=0
-let g:airline_section_y='%{&fileformat}'
+let g:airline_section_y='%{FFinfo()}'
 
 " Use powerline font unless in Mac SSH session or in old Vim
 if mobileSSH || v:version < 703
@@ -1531,6 +1529,7 @@ if has('python')
     nnoremap <silent> <Leader>u :GundoToggle<CR>
     let g:gundo_help=0
     let g:gundo_preview_bottom=1
+    let g:gundo_close_on_revert=1
 else
     call add(g:pathogen_disabled, 'Gundo')
     nnoremap <silent> <Leader>u :UndotreeToggle<CR>

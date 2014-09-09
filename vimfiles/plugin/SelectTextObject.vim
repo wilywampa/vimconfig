@@ -8,7 +8,7 @@ endif
 
 let SelectTextObjectLoaded=1
 
-func! s:SelectTextObject(obj,motion)
+func! SelectTextObject(obj, motion, visual)
   if a:obj ==# 'b'
     let left = '('
     let right = ')'
@@ -29,10 +29,12 @@ func! s:SelectTextObject(obj,motion)
   if stridx(line, left) < strridx(line, right)
     " Expand selection
     let did_expand = 0
-    if line("'<") == line('.') && line("'>") == line('.') &&
-        \ line[col("'<")-2] == left && line[col("'>")] == right
-      execute "normal! `<v`>loh\<Esc>"
-      let did_expand = 1
+    if a:visual && col("'<") != col("'>")
+      if line("'<") == line('.') && line("'>") == line('.') &&
+          \ line[col("'<")-1] == left && line[col("'>")+1] == right
+        execute "normal! `<v`>loh\<Esc>"
+        let did_expand = 1
+      endif
     endif
 
     while !<SID>CursorInPair(left,right)
@@ -59,10 +61,18 @@ func! s:SelectTextObject(obj,motion)
     endif
   endif
 
-  execute "normal! v".a:motion.a:obj
+  if line[col('.')-1] == left && line[col('.')+1] == right && a:motion == 'i'
+    execute "normal! lv"
+  elseif line[col('.')-2] == left && line[col('.')] == right && a:motion == 'i'
+    execute "normal! v"
+  elseif line[col('.')-3] == left && line[col('.')-1] == right && a:motion == 'i'
+    execute "normal! hv"
+  else
+    execute "normal! v".a:motion.a:obj
+  endif
 endfunc
 
-func! s:CursorInPair(left,right)
+func! s:CursorInPair(left, right)
   let curpos = getpos('.')
   execute "normal! v\<Esc>va".a:right."\<Esc>"
   call setpos('.',curpos)
@@ -75,63 +85,69 @@ func! s:CursorInPair(left,right)
   endif
 endfunc
 
-onoremap <silent> ib :<C-u>call <SID>SelectTextObject('b','i')<CR>
-onoremap <silent> i( :<C-u>call <SID>SelectTextObject('b','i')<CR>
-onoremap <silent> i) :<C-u>call <SID>SelectTextObject('b','i')<CR>
-onoremap <silent> ab :<C-u>call <SID>SelectTextObject('b','a')<CR>
-onoremap <silent> a( :<C-u>call <SID>SelectTextObject('b','a')<CR>
-onoremap <silent> a) :<C-u>call <SID>SelectTextObject('b','a')<CR>
+func! s:WrapSelectTextObject(obj, motion)
+  return ":"."\<C-u>call SelectTextObject('".
+      \ a:obj."','".a:motion."','".
+      \ (mode() =~? "[v\<C-v>]" ? 1 : 0)."')\<CR>"
+endfunc
 
-xnoremap <silent> ib :<C-u>call <SID>SelectTextObject('b','i')<CR>
-xnoremap <silent> i( :<C-u>call <SID>SelectTextObject('b','i')<CR>
-xnoremap <silent> i) :<C-u>call <SID>SelectTextObject('b','i')<CR>
-xnoremap <silent> ab :<C-u>call <SID>SelectTextObject('b','a')<CR>
-xnoremap <silent> a( :<C-u>call <SID>SelectTextObject('b','a')<CR>
-xnoremap <silent> a) :<C-u>call <SID>SelectTextObject('b','a')<CR>
+onoremap <silent> <expr> ib <SID>WrapSelectTextObject('b','i')
+onoremap <silent> <expr> i( <SID>WrapSelectTextObject('b','i')
+onoremap <silent> <expr> i) <SID>WrapSelectTextObject('b','i')
+onoremap <silent> <expr> ab <SID>WrapSelectTextObject('b','a')
+onoremap <silent> <expr> a( <SID>WrapSelectTextObject('b','a')
+onoremap <silent> <expr> a) <SID>WrapSelectTextObject('b','a')
 
-onoremap <silent> iB :<C-u>call <SID>SelectTextObject('B','i')<CR>
-onoremap <silent> i{ :<C-u>call <SID>SelectTextObject('B','i')<CR>
-onoremap <silent> i} :<C-u>call <SID>SelectTextObject('B','i')<CR>
-onoremap <silent> aB :<C-u>call <SID>SelectTextObject('B','a')<CR>
-onoremap <silent> a{ :<C-u>call <SID>SelectTextObject('B','a')<CR>
-onoremap <silent> a} :<C-u>call <SID>SelectTextObject('B','a')<CR>
+xnoremap <silent> <expr> ib <SID>WrapSelectTextObject('b','i')
+xnoremap <silent> <expr> i( <SID>WrapSelectTextObject('b','i')
+xnoremap <silent> <expr> i) <SID>WrapSelectTextObject('b','i')
+xnoremap <silent> <expr> ab <SID>WrapSelectTextObject('b','a')
+xnoremap <silent> <expr> a( <SID>WrapSelectTextObject('b','a')
+xnoremap <silent> <expr> a) <SID>WrapSelectTextObject('b','a')
 
-xnoremap <silent> iB :<C-u>call <SID>SelectTextObject('B','i')<CR>
-xnoremap <silent> i{ :<C-u>call <SID>SelectTextObject('B','i')<CR>
-xnoremap <silent> i} :<C-u>call <SID>SelectTextObject('B','i')<CR>
-xnoremap <silent> aB :<C-u>call <SID>SelectTextObject('B','a')<CR>
-xnoremap <silent> a{ :<C-u>call <SID>SelectTextObject('B','a')<CR>
-xnoremap <silent> a} :<C-u>call <SID>SelectTextObject('B','a')<CR>
+onoremap <silent> <expr> iB <SID>WrapSelectTextObject('B','i')
+onoremap <silent> <expr> i{ <SID>WrapSelectTextObject('B','i')
+onoremap <silent> <expr> i} <SID>WrapSelectTextObject('B','i')
+onoremap <silent> <expr> aB <SID>WrapSelectTextObject('B','a')
+onoremap <silent> <expr> a{ <SID>WrapSelectTextObject('B','a')
+onoremap <silent> <expr> a} <SID>WrapSelectTextObject('B','a')
 
-onoremap <silent> i[ :<C-u>call <SID>SelectTextObject('[','i')<CR>
-onoremap <silent> i] :<C-u>call <SID>SelectTextObject('[','i')<CR>
-onoremap <silent> ir :<C-u>call <SID>SelectTextObject('[','i')<CR>
-onoremap <silent> a[ :<C-u>call <SID>SelectTextObject('[','a')<CR>
-onoremap <silent> a] :<C-u>call <SID>SelectTextObject('[','a')<CR>
-onoremap <silent> ar :<C-u>call <SID>SelectTextObject('[','a')<CR>
+xnoremap <silent> <expr> iB <SID>WrapSelectTextObject('B','i')
+xnoremap <silent> <expr> i{ <SID>WrapSelectTextObject('B','i')
+xnoremap <silent> <expr> i} <SID>WrapSelectTextObject('B','i')
+xnoremap <silent> <expr> aB <SID>WrapSelectTextObject('B','a')
+xnoremap <silent> <expr> a{ <SID>WrapSelectTextObject('B','a')
+xnoremap <silent> <expr> a} <SID>WrapSelectTextObject('B','a')
 
-xnoremap <silent> i[ :<C-u>call <SID>SelectTextObject('[','i')<CR>
-xnoremap <silent> i] :<C-u>call <SID>SelectTextObject('[','i')<CR>
-xnoremap <silent> ir :<C-u>call <SID>SelectTextObject('[','i')<CR>
-xnoremap <silent> a[ :<C-u>call <SID>SelectTextObject('[','a')<CR>
-xnoremap <silent> a] :<C-u>call <SID>SelectTextObject('[','a')<CR>
-xnoremap <silent> ar :<C-u>call <SID>SelectTextObject('[','a')<CR>
+onoremap <silent> <expr> i[ <SID>WrapSelectTextObject('[','i')
+onoremap <silent> <expr> i] <SID>WrapSelectTextObject('[','i')
+onoremap <silent> <expr> ir <SID>WrapSelectTextObject('[','i')
+onoremap <silent> <expr> a[ <SID>WrapSelectTextObject('[','a')
+onoremap <silent> <expr> a] <SID>WrapSelectTextObject('[','a')
+onoremap <silent> <expr> ar <SID>WrapSelectTextObject('[','a')
 
-onoremap <silent> i< :<C-u>call <SID>SelectTextObject('<','i')<CR>
-onoremap <silent> i> :<C-u>call <SID>SelectTextObject('<','i')<CR>
-onoremap <silent> ia :<C-u>call <SID>SelectTextObject('<','i')<CR>
-onoremap <silent> a< :<C-u>call <SID>SelectTextObject('<','a')<CR>
-onoremap <silent> a> :<C-u>call <SID>SelectTextObject('<','a')<CR>
-onoremap <silent> aa :<C-u>call <SID>SelectTextObject('<','a')<CR>
+xnoremap <silent> <expr> i[ <SID>WrapSelectTextObject('[','i')
+xnoremap <silent> <expr> i] <SID>WrapSelectTextObject('[','i')
+xnoremap <silent> <expr> ir <SID>WrapSelectTextObject('[','i')
+xnoremap <silent> <expr> a[ <SID>WrapSelectTextObject('[','a')
+xnoremap <silent> <expr> a] <SID>WrapSelectTextObject('[','a')
+xnoremap <silent> <expr> ar <SID>WrapSelectTextObject('[','a')
 
-xnoremap <silent> i< :<C-u>call <SID>SelectTextObject('<','i')<CR>
-xnoremap <silent> i> :<C-u>call <SID>SelectTextObject('<','i')<CR>
-xnoremap <silent> ia :<C-u>call <SID>SelectTextObject('<','i')<CR>
-xnoremap <silent> a< :<C-u>call <SID>SelectTextObject('<','a')<CR>
-xnoremap <silent> a> :<C-u>call <SID>SelectTextObject('<','a')<CR>
-xnoremap <silent> aa :<C-u>call <SID>SelectTextObject('<','a')<CR>
+onoremap <silent> <expr> i< <SID>WrapSelectTextObject('<','i')
+onoremap <silent> <expr> i> <SID>WrapSelectTextObject('<','i')
+onoremap <silent> <expr> ia <SID>WrapSelectTextObject('<','i')
+onoremap <silent> <expr> a< <SID>WrapSelectTextObject('<','a')
+onoremap <silent> <expr> a> <SID>WrapSelectTextObject('<','a')
+onoremap <silent> <expr> aa <SID>WrapSelectTextObject('<','a')
 
-func! s:SelectTextObjectQuote(obj,motion)
+xnoremap <silent> <expr> i< <SID>WrapSelectTextObject('<','i')
+xnoremap <silent> <expr> i> <SID>WrapSelectTextObject('<','i')
+xnoremap <silent> <expr> ia <SID>WrapSelectTextObject('<','i')
+xnoremap <silent> <expr> a< <SID>WrapSelectTextObject('<','a')
+xnoremap <silent> <expr> a> <SID>WrapSelectTextObject('<','a')
+xnoremap <silent> <expr> aa <SID>WrapSelectTextObject('<','a')
+
+func! s:SelectTextObjectQuote(obj, motion)
   let line = getline('.')
   if line !~ a:obj.".*".a:obj
     return
