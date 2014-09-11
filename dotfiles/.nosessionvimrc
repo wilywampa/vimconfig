@@ -29,7 +29,6 @@ call add(g:pathogen_disabled, 'unite')
 call add(g:pathogen_disabled, 'vimfiler')
 call add(g:pathogen_disabled, 'vimproc')
 call add(g:pathogen_disabled, 'vimshell')
-call add(g:pathogen_disabled, 'vimux')
 
 source ~/.vimrc
 set noshowcmd

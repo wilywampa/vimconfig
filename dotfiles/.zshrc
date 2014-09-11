@@ -34,6 +34,8 @@ alias wh='whence'
 alias reset='reset; source ~/.zshrc'
 alias com='command'
 alias killbg='kill ${${(v)jobstates#*:*:}%=*}'
+alias whence='whence -f'
+alias zargs='autoload -U zargs; zargs'
 
 # grep
 alias grep='grep --color=auto'
@@ -46,8 +48,9 @@ alias gi='grep -i'
 alias f='find .'
 alias fa='find . | ag'
 alias ff='find . -type f'
+alias ffn='find . -type f -iname'
 alias ffa='find . -type f | ag'
-alias fn='find . -type f -iname'
+alias fn='find . -iname'
 alias fnc='find . -type f -name'
 alias fnr='find . -type f -iregex'
 alias fnrc='find . -type f -regex'
@@ -62,10 +65,6 @@ alias fsxg='fs | xargs grep'
 alias fsa='fs | ag'
 alias fsxa='fs | xargs ag'
 
-# locate
-alias loc='locate --regex'
-alias locate='locate --regex'
-
 # vim
 alias vim='vim --servername $VIMSERVER --cmd "set history=5000"'
 alias vit='vim --remote-tab'
@@ -75,6 +74,7 @@ alias vims='vim -S ~/session.vis'
 alias vimr='vim -S =(<~/periodic_session.vis)'
 alias gvims='gvim -S ~/session.vis'
 alias ez='vim ~/.zshrc'
+alias vno='vim -u NONE -i NONE'
 
 # svn
 alias svnadd="svn st | grep '^?' | awk '{print \$2}' | s | xargs svn add"
@@ -107,20 +107,25 @@ alias gci='git commit'
 alias gcl='git clone'
 alias gfe='git fetch'
 alias gdi='git diff'
+alias gdic='git diff --cached'
 alias gdit='git difftool'
 alias gpu='git pull'
 alias gco='git checkout'
 alias gst='git status'
-alias gadd='git add'
+alias gad='git add'
 alias glog='git log --reverse'
 alias gls='git ls-files'
 alias gg='git grep'
 alias grm='git rm'
 alias gpom='git pull origin master'
+alias gurl='git config --get remote.origin.url'
+local cmds=''"'"'+$ +/^diff --git'"'"' =(git diff --no-ext-diff)'
+alias gdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
 
 # ls
 alias l='ls -h --color=auto'
 alias ls='ls -h --color=auto'
+alias la='ls -hA --color=auto'
 alias ll='ls -lsh --color=auto'
 alias lls='ls -lshrt --color=auto'
 alias lla='ls -lshA --color=auto'
@@ -147,6 +152,7 @@ alias h='head'
 alias t='tail'
 alias rename='export NOAUTONAME=1; tmux rename-window'
 alias pdb="vim -c 'Pyclewn pdb'"
+alias loc='locate --regex -i'
 
 #[[[1 Global aliases
 alias -g LL='ls --color=auto -lsh'
@@ -201,6 +207,7 @@ bindkey -M isearch '^J' history-incremental-search-forward
 bindkey -M isearch '^E' accept-search
 bindkey -M isearch '^M' accept-search
 bindkey -M isearch '^[' accept-search
+bindkey -M isearch '/' accept-search
 # Ctrl + arrow keys
 vibindkey '^[[1;5A' up-line-or-beginning-search
 vibindkey '^[[1;5B' down-line-or-beginning-search
@@ -227,26 +234,32 @@ abbrevs=(
 'gcl'   'git clone'
 'gfe'   'git fetch'
 'gdi'   'git diff'
+'gdic'  'git diff --cached'
 'gdit'  'git difftool'
+'gdivp' 'git diff | vimpager'
 'gpu'   'git pull'
 'gst'   'git status'
 'gco'   'git checkout'
+'gad'   'git add'
 'gadd'  'git add'
 'glog'  'git log --reverse'
 'gls'   'git ls-files'
 'gg'    'git grep'
 'grm'   'git rm'
 'gpom'  'git pull origin master'
+'gurl'  'git config --get remote.origin.url'
+'ga.'   'git add .'
 'com'   'command'
-'sdi'   'svn di'
-'srm'   'svn rm'
+'sdi'   'svn diff'
+'sad'   'svn add'
 'sadd'  'svn add'
-'sco'   'svn co'
-'sci'   'svn ci'
-'sup'   'svn up'
-'sst'   'svn st'
+'sco'   'svn checkout'
+'sci'   'svn commit'
+'sup'   'svn update'
+'sst'   'svn status'
 'slog'  'svn log -r 1:HEAD'
 'srm'   'svn rm'
+'surl'  'info=$(svn info); echo ${${info[(fr)URL: *]}[(w)-1]}'
 'ec'    'echo'
 'so'    'source'
 'ez'    'vim ~/.zshrc'
@@ -255,6 +268,7 @@ abbrevs=(
 'g'     'grep'
 'gi'    'grep -i'
 'f'     'find .'
+'fn'    'find . -iname'
 'fa'    'find . | a'
 'ff'    'find . -type f'
 'ffa'   'find . -type f | a'
@@ -262,7 +276,8 @@ abbrevs=(
 'fd'    'find . -type d'
 'fda'   'find . -type d | a'
 'fdn'   'find . -type d -iname'
-'loc'   'locate --regex'
+'fmd'   'find . -maxdepth'
+'loc'   'locate --regex -i'
 'co'    './configure'
 'cop'   './configure --prefix=$HOME/.local'
 'm'     'make'
@@ -274,8 +289,8 @@ abbrevs=(
 'svd'   'svndiff'
 'vc'    'cd $VIMCONFIG'
 'vcb'   'cd $VIMCONFIG/vimfiles/bundle'
-'fmd'   'find . -maxdepth'
 'e'     'vim'
+'vno'   'vim -u NONE -i NONE'
 'vp'    'vimpager'
 )
 
@@ -288,6 +303,7 @@ pmabbrevs=(
 'fgrep' 'grep --color=auto -F'
 'gi'    'grep --color=auto -i'
 'ls'    'ls --color=auto -h'
+'la'    'ls -hA --color=auto'
 'll'    'ls --color=auto -lsh'
 'lla'   'ls --color=auto -lshA'
 'llsa'  'ls --color=auto -lshrtA'
@@ -305,15 +321,19 @@ globalabbrevs=(
 'VCB' '$VIMCONFIG/vimfiles/bundle'
 'AG'  'ag -S'
 '/dn' '/dev/null'
+'/DN' '/dev/null'
+'DN'  '/dev/null'
 'DR'  '--dry-run'
+'@@'  'jacob.niehus@gmail.com'
 )
 
 magic-abbrev-expand() {
-    local left pre mods prevword lastidx doabbrev=0 dopostmod=0
+    local left pre shellmods mods prevword lastidx doabbrev=0 dopostmod=0
     if [[ $KEYMAP == 'vicmd' ]]; then
         LBUFFER=$BUFFER
         RBUFFER=
     fi
+    lbuffer_start=$LBUFFER
     if [[ ${LBUFFER[-1]} != " " ]]; then
         # Get index of last space, pipe, semicolon, or $( before last word
         lastidx=${LBUFFER[(I) ]}
@@ -325,7 +345,12 @@ magic-abbrev-expand() {
         pre=${LBUFFER[$lastidx+1,-1]}
         left=${LBUFFER[1,$lastidx]}
         prevword=${left[(w)-1]}
-        mods=('xargs' 'unbuffer' 'time' 'noglob' 'nocorrect' 'exec' '&&' '||' 'command')
+        shellmods=('time' 'noglob' 'nocorrect' 'exec' '&&' '||' 'command')
+        if (( ${shellmods[(i)$prevword]} <= ${#shellmods} )); then
+            doabbrev=1
+        fi
+        mods=('xargs' 'unbuffer')
+        [[ ${LBUFFER[(w)1]} == "zargs" ]] && mods+=('--' '..')
         # Previous word is a modifier
         if (( ${mods[(i)$prevword]} <= ${#mods} )); then
             doabbrev=1; dopostmod=1
@@ -336,7 +361,9 @@ magic-abbrev-expand() {
         [[ ${prevword[-1]} == '|' ]] && doabbrev=1
         [[ ${prevword[-1]} == ';' ]] && doabbrev=1
         [[ ${prevword[-2,-1]} == '$(' ]] && doabbrev=1
-        if [[ $dopostmod == 1 ]] && [[ ${pmabbrevs[(i)$pre]} == $pre ]]; then
+        if [[ ${prevword[-2,-1]} == '$(' ]] && [[ $pre == 'wh' ]]; then
+            LBUFFER=$left'whence -p'
+        elif [[ $dopostmod == 1 ]] && [[ ${pmabbrevs[(i)$pre]} == $pre ]]; then
             LBUFFER=$left${pmabbrevs[$pre]:-$pre}
         elif [[ $doabbrev == 1 ]] && [[ ${abbrevs[(i)$pre]} == $pre ]]; then
             LBUFFER=$left${abbrevs[$pre]:-$pre}
@@ -347,11 +374,20 @@ magic-abbrev-expand() {
     if [[ $KEYS == " " ]]; then
         zle magic-space # Add space or do history expansion
     else
-        [[ $KEYS != $(echo '\015') ]] && LBUFFER=$LBUFFER$KEYS
+        [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]] && LBUFFER=$LBUFFER$KEYS
     fi
+    [[ $LBUFFER == $lbuffer_start ]] && return 1 || return 0
 }
 
 no-magic-abbrev-expand() { LBUFFER+=' ' }
+
+magic-abbrev-expand-or-complete-word() {
+    magic-abbrev-expand
+    [ $? -eq 1 ] && zle complete-word
+}
+zle -N magic-abbrev-expand-or-complete-word
+bindkey -M viins '^I' magic-abbrev-expand-or-complete-word
+bindkey -M vicmd '^I' magic-abbrev-expand-or-complete-word
 
 _accept-line() { magic-abbrev-expand; zle reset-prompt; zle accept-line }
 zle -N _accept-line; vibindkey '^M' _accept-line
@@ -487,11 +523,9 @@ _escalate_whence() {
     if [[ $BUFFER =~ "^whence [^- ]" ]]; then
         BUFFER=${BUFFER/whence /whence -a }
     elif [[ $BUFFER =~ "^whence -a" ]]; then
-        BUFFER=${BUFFER/whence -a/whence -f}
-    elif [[ $BUFFER =~ "^whence -f" ]]; then
-        BUFFER=${BUFFER/whence -f /which }
-    elif [[ $BUFFER =~ "^which" ]] && [[ ! $BUFFER =~ "^which -a" ]]; then
-        BUFFER=${BUFFER/which /which -a }
+        BUFFER=${BUFFER/whence -a /which }
+    elif [[ $BUFFER =~ "^which" ]] && [[ ! $BUFFER =~ "^where" ]]; then
+        BUFFER=${BUFFER/which /where }
     fi
     CURSOR=$#BUFFER
 }
@@ -499,16 +533,16 @@ zle -N _escalate_whence
 
 _escalate() {
     r="^kill"
-    if [[ $BUFFER =~ "^wh" ]]; then
+    if [[ ${BUFFER[1,2]} == "wh" ]]; then
         _escalate_whence
-    elif [[ $BUFFER =~ $r ]]; then
+    elif [[ ${BUFFER[1,4]} == "kill" ]]; then
         _escalate-kill
-    elif [[ $history[$((HISTCMD-1))] =~ "^wh" ]]; then
-        _escalate_whence
-    elif [[ $history[$((HISTCMD-1))] =~ $r ]]; then
-        _escalate-kill
-    elif [[ $BUFFER =~ "^find ." ]]; then
+    elif [[ ${BUFFER[1,6]} == "find ." ]]; then
         BUFFER=${BUFFER/find ./find \$PWD}; CURSOR=$(($CURSOR+3))
+    elif [[ ${history[$((HISTCMD-1))][1,2]} == "wh" ]]; then
+        _escalate_whence
+    elif [[ ${history[$((HISTCMD-1))][1,4]} == "kill" ]]; then
+        _escalate-kill
     fi
 }
 zle -N _escalate; vibindkey '^K' _escalate
@@ -541,15 +575,19 @@ _vim-args() {
     # Try to set vim's search pattern if opening files from ag command
     if [[ ${BUFFER[(w)1]} =~ ^ag?$ ]]; then
         # Extract string between quotes
-        pat=$(echo $BUFFER | sed "s/[^']*'\([^']*\)'[^']*$/\1/")
-        if (( ${#pat} == ${#BUFFER} )); then
+        pat=${BUFFER[${BUFFER[(i)']}'},${BUFFER[(I)']}'}]}; pat=${pat[2,-2]}
+        if [[ -z $pat ]]; then
             # If BUFFER is of the form 'ag pattern -l', extract pattern
             if (( ${(w)#BUFFER} == 3 )) && [[ ${BUFFER[(w)-1]} == "-l" ]]; then
                 pat=${BUFFER[(w)2]}
             fi
         fi
         if (( ${#pat} < ${#BUFFER} )); then
-            BUFFER="vim +/'$pat' \$( "$BUFFER" )"
+            if [[ $BUFFER == *-Q* ]]; then
+                BUFFER="vim +/'\\V$pat' \$( "$BUFFER" )"
+            else
+                BUFFER="vim +/'\\v$pat' \$( "$BUFFER" )"
+            fi
             CURSOR=$(( $CURSOR + 12 + ${#pat} ))
             return
         fi
@@ -678,6 +716,50 @@ make() {
     fi
 }
 
+_add-right-paren() {
+    zle self-insert
+    if [[ $LBUFFER == *\$\( ]] && [[ $RBUFFER == "" ]]; then
+        RBUFFER=")"
+    fi
+}
+zle -N _add-right-paren; bindkey -M viins '(' _add-right-paren
+
+_remove-right-paren() {
+    if [[ $RBUFFER == ")" ]] && [[ $LBUFFER == *\$\(* ]]; then
+        LBUFFER=$LBUFFER$RBUFFER
+        RBUFFER=
+    else
+        zle self-insert
+    fi
+}
+zle -N _remove-right-paren; bindkey -M viins ')' _remove-right-paren
+
+_remove-for-vared() {
+    zle self-insert
+    if [[ $LBUFFER == "vared !$" ]]; then
+        zle expand-history
+        LBUFFER=${LBUFFER/\$/}
+    fi
+}
+zle -N _remove-for-vared; bindkey -M viins '$' _remove-for-vared
+
+autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+add-zsh-hook chpwd chpwd_recent_dirs
+zstyle ':chpwd:*' recent-dirs-max 0
+zstyle ':completion:*:*:cdr:*:*' menu selection
+zstyle ':chpwd:*' recent-dirs-default true
+zstyle ':completion:*' recent-dirs-insert true
+
+_repeat-prev-command() {
+    if [[ $LBUFFER == "@" ]]; then
+        LBUFFER=$history[$((HISTCMD-1))]
+        zle accept-line
+    else
+        zle self-insert
+    fi
+}
+zle -N _repeat-prev-command; vibindkey ':' _repeat-prev-command
+
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
 _cursor_bar="\033[5 q"
@@ -735,6 +817,7 @@ bindkey -M menuselect '^M' .accept-line
 
 # Ctrl-E accepts current completion
 bindkey -M menuselect '^E' accept-search
+bindkey -M menuselect '/' accept-search
 
 # Faster! (?)
 zstyle ':completion::complete:*' use-cache 1

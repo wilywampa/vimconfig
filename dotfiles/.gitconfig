@@ -16,7 +16,7 @@
 	ci = commit -v
 	di = difftool -y
 	co = checkout -- .
-	new = log HEAD..origin
+	new = log HEAD..origin --reverse
 	up = pull origin master
 	url = config --get remote.origin.url
 	ls = ls-files
@@ -34,3 +34,6 @@
 [filter "media"]
 	clean = git-media-clean %f
 	smudge = git-media-smudge %f
+[merge]
+	tool = vimdiff
+	conflictstyle = diff3
