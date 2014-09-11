@@ -108,12 +108,12 @@ else
     call RestoreRegs()
   endfunc
 
-  func! s:PrintVarSizeMATLAB()
+  func! s:PrintVarInfoMATLAB()
     call SaveRegs()
     normal! gvy
     call VimuxOpenRunner()
     call VimuxSendKeys("\<C-c>")
-    call VimuxSendText('size('.@".')')
+    call VimuxSendText("varinfo('".substitute(@","'","''","g")."')")
     call VimuxSendKeys("\<CR>")
     call RestoreRegs()
   endfunc
@@ -146,7 +146,7 @@ else
   vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
   nnoremap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
   vnoremap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>
-  vnoremap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarSizeMATLAB()<CR>
+  vnoremap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarInfoMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>GetErrorMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>CloseFiguresMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>CloseFiguresMATLAB()<CR>

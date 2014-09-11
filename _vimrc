@@ -113,10 +113,13 @@ func! s:LastActiveWindow()
 endfunc
 autocmd VimrcAutocmds TabLeave * let g:lastTab=tabpagenr()
 nnoremap <silent> <expr> ` g:inCmdwin? ':q<CR>' : ':call <SID>LastActiveWindow()<CR>'
+xnoremap <silent> ` :<C-u>call <SID>LastActiveWindow()<CR>
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> <Leader>; :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> ' `
+xnoremap <silent> ' `
 nnoremap <silent> <M-'> '
+xnoremap <silent> <M-'> '
 
 " {{{2 Platform-specific configuration
 let hasMac=has("mac")
@@ -479,6 +482,18 @@ nn <silent> g. m':execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR
 
 " Delete swap file and reload file
 nn <silent> <Leader>ds :<C-u>Redir swap<CR>:call system("rm <C-r>"<BS>p")<CR>:e<CR>
+
+" Until opening pair, comma, or semicolon
+ono . :<C-u>call search('[[({<,;]')\|echo<CR>
+xno . <Esc>`>l:call search('[[({<,;]')\|echo<CR>v`<oh
+ono > t;
+xno > t;
+ono < :<C-u>execute "normal! %%"\|echo<CR>
+xno < :<C-u>execute "normal! %%"\|echo<CR>v`<oh
+
+
+" Update diff
+nn <silent> du :diffupdate<CR>
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -1125,6 +1140,7 @@ call <SID>CreateAbbrev('css',  'cscope show',                     ':'   )
 call <SID>CreateAbbrev('csh',  'cscope help',                     ':'   )
 call <SID>CreateAbbrev('l',    'ls -h --color=auto'.ls_sort,      ':',  '!')
 call <SID>CreateAbbrev('ls',   'ls -h --color=auto'.ls_sort,      ':',  '!')
+call <SID>CreateAbbrev('la',   'ls -hA --color=auto'.ls_sort,     ':',  '!')
 call <SID>CreateAbbrev('ll',   'ls -lsh --color=auto'.ls_sort,    ':',  '!')
 call <SID>CreateAbbrev('lls',  'ls -lshrt --color=auto'.ls_sort,  ':',  '!')
 call <SID>CreateAbbrev('lla',  'ls -lshA --color=auto'.ls_sort,   ':',  '!')
@@ -1270,7 +1286,7 @@ autocmd VimrcAutocmds ColorScheme * call <SID>SneakHighlights()
 func! s:SneakHighlights()
     let fg = &background == 'dark' ? 8 : 15 | let gui = 'gui=reverse guifg=#'
     execute "highlight! SneakPluginTarget ctermfg=".fg." ctermbg=4 ".gui."268bd2"
-    execute "highlight! SneakStreakTarget ctermfg="fg." ctermbg=2 ".gui."859900"
+    execute "highlight! SneakStreakTarget cterm=bold ctermfg="fg." ctermbg=2 ".gui."859900"
     execute "highlight! SneakStreakMask ctermfg=".(fg-8)." ctermbg=2 ".gui."859900"
     execute "highlight! SneakStreakCursor ctermfg=".fg." ctermbg=1 ".gui."dc322f"
     highlight! link SneakStreakStatusLine StatusLine
@@ -1642,6 +1658,7 @@ let g:pymode_lint_ignore = "E501,E302"
 let VCSCommandCVSExec = ''
 let VCSCommandBZRExec = ''
 let VCSCommandSVKExec = ''
+let VCSCommandDisableMappings = 1
 
 " jedi settings
 autocmd VimrcAutocmds FileType python setlocal omnifunc=jedi#completions
