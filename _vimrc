@@ -495,6 +495,10 @@ xno < :<C-u>execute "normal! %%"\|echo<CR>v`<oh
 " Update diff
 nn <silent> du :diffupdate<CR>
 
+" Move cursor in insert mode without splitting undo
+ino <Left>  <C-r>="\<lt>Left>"<CR>
+ino <Right> <C-r>="\<lt>Right>"<CR>
+
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     command! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
@@ -1152,6 +1156,9 @@ cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
     \ \|\| (getcmdline() =~ g:global_command_pattern.'ex$') ? 'execute':'ex'
 cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
     \ \|\| (getcmdline() =~ g:global_command_pattern.'no$') ? 'normal':'no'
+cnoreabbrev <expr> VC getcmdline() =~ '\v<VC' ? expand('$VIMCONFIG') : 'VC'
+cnoreabbrev <expr> VCB getcmdline() =~ '\v<VCB' ?
+    \ expand('$VIMCONFIG').'/vimfiles/bundle' : 'VCB'
 
 " Don't clobber registers from select mode
 snoremap <Space> <C-g>"_c<Space>
@@ -1577,15 +1584,19 @@ let g:ack_apply_lmappings=0
 let g:ack_apply_qmappings=0
 cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'A'
 cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'a'
-func! s:AckCurrentSearch(ic)
+func! s:AckCurrentSearch(ignorecase)
     let view = winsaveview() | call SaveRegs()
     keepjumps normal gny
     call winrestview(view)
-    if a:ic == 0 | let cmd = "Ack! -s ".g:ag_flags." -- '".@"."'" | else
+    let cmd = 'Ack! '
+    if @/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$'
+        let cmd .= '-w '
+    endif
+    if a:ignorecase == 0 | let cmd .= "-s ".g:ag_flags." -- '".@"."'" | else
         if @/ =~ '\u'
-            let cmd = "Ack! ".g:ag_flags." -- '".@"."'"
+            let cmd .= g:ag_flags." -- '".@"."'"
         else
-            let cmd = "Ack! ".g:ag_flags." -- '".tolower(@")."'"
+            let cmd .= g:ag_flags." -- '".tolower(@")."'"
         endif
     endif
     let cmd = escape(cmd, '%#')
