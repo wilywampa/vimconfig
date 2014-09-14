@@ -1259,20 +1259,20 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
                 return a:dir ? "\<Tab>" : "\<BS>"
             endif
         endfunc
-        inoremap <expr> <Tab>   <SID>StartManualComplete(1)
-        inoremap <expr> <S-Tab> <SID>StartManualComplete(0)
-        inoremap <expr> <C-e>   pumvisible() ? neocomplete#close_popup()
+        inoremap <silent> <expr> <Tab>   <SID>StartManualComplete(1)
+        inoremap <silent> <expr> <S-Tab> <SID>StartManualComplete(0)
+        inoremap <silent> <expr> <C-e>   pumvisible() ? neocomplete#close_popup()
             \ : matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
             \ "\<Plug>(neosnippet_expand_or_jump)":
             \ (pumvisible() ? neocomplete#close_popup() : "\<C-d>")
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
-        inoremap <expr> <C-f>   neocomplete#cancel_popup()
-        inoremap <expr> <C-l>   neocomplete#complete_common_string()
+        inoremap <silent> <expr> <C-f>   neocomplete#cancel_popup()
+        inoremap <silent> <expr> <C-l>   neocomplete#complete_common_string()
         augroup VimrcAutocmds
-            autocmd CmdwinEnter * inoremap <buffer> <expr> <Tab>
+            autocmd CmdwinEnter * inoremap <silent> <buffer> <expr> <Tab>
                 \ pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
-            autocmd CmdwinEnter * inoremap <buffer> <expr> <S-Tab>
+            autocmd CmdwinEnter * inoremap <silent> <buffer> <expr> <S-Tab>
                 \ pumvisible() ? "\<C-p>" : neocomplete#start_manual_complete()
             autocmd VimrcAutocmds CmdwinEnter : let b:neocomplete_sources=['vim', 'file']
             autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
@@ -1561,7 +1561,8 @@ else
 endif
 
 " Surround settings
-xmap S <Plug>VSurround
+xmap <expr> S (mode() == 'v' && col('.') == col('$') ?
+    \ "h" : "")."\<Plug>VSurround"
 nnoremap <silent> ds<Space> F<Space>"_x,"_x:silent! call repeat#set('ds ')<CR>
 
 " Syntastic settings
@@ -1672,7 +1673,11 @@ let VCSCommandSVKExec = ''
 let VCSCommandDisableMappings = 1
 
 " jedi settings
-autocmd VimrcAutocmds FileType python setlocal omnifunc=jedi#completions
+func! s:JediSetup()
+    setlocal omnifunc=jedi#completions
+    inoremap <silent> <buffer> . .<C-R>=jedi#complete_string(1)<CR>
+endfunc
+autocmd VimrcAutocmds FileType python call <SID>JediSetup()
 let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#popup_select_first = 0
 let g:jedi#completions_enabled = 0

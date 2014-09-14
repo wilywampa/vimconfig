@@ -55,7 +55,7 @@ else
     let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
     if zoomed | call system("tmux resize-pane -Z") | endif
     call VimuxOpenRunner()
-    call VimuxSendKeys("\<C-c>")
+    call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("clearfun; cd ".expand('%:p:h')."; try; "
         \.expand('%:t:r')."; catch ME1; errorfile; end")
     call VimuxSendKeys("\<CR>")
@@ -75,7 +75,7 @@ else
       let start = line('.')
       let end = a:1 ? line('.') + a:1 - 1 : start
     endif
-    call VimuxSendKeys("\<C-c>")
+    call VimuxSendKeys("\<C-e>\<C-u>")
     for line in range(start, end)
       call VimuxSendText(getline(line))
       call VimuxSendKeys("\<CR>")
@@ -85,14 +85,14 @@ else
 
   func! s:UpdateDictionaryMATLAB()
     call VimuxOpenRunner()
-    call VimuxSendKeys("\<C-c>")
+    call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("gendict")
     call VimuxSendKeys("\<CR>")
   endfunc
 
   func! s:GetHelpMATLAB()
     call VimuxOpenRunner()
-    call VimuxSendKeys("\<C-c>")
+    call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText('help '.expand('<cword>'))
     call VimuxSendKeys("\<CR>")
     VimuxZoomRunner
@@ -102,7 +102,7 @@ else
     call SaveRegs()
     normal! gvy
     call VimuxOpenRunner()
-    call VimuxSendKeys("\<C-c>")
+    call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText(@")
     call VimuxSendKeys("\<CR>")
     call RestoreRegs()
@@ -112,7 +112,7 @@ else
     call SaveRegs()
     normal! gvy
     call VimuxOpenRunner()
-    call VimuxSendKeys("\<C-c>")
+    call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("varinfo('".substitute(@","'","''","g")."')")
     call VimuxSendKeys("\<CR>")
     call RestoreRegs()
@@ -120,8 +120,15 @@ else
 
   func! s:CloseFiguresMATLAB()
     call VimuxOpenRunner()
-    call VimuxSendKeys("\<C-c>")
+    call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("close all;")
+    call VimuxSendKeys("\<CR>")
+  endfunc
+
+  func! s:ClearWorkspaceMATLAB()
+    call VimuxOpenRunner()
+    call VimuxSendKeys("\<C-e>\<C-u>")
+    call VimuxSendText("fclose all; close all; clear all;")
     call VimuxSendKeys("\<CR>")
   endfunc
 
@@ -150,6 +157,7 @@ else
   nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>GetErrorMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>CloseFiguresMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>CloseFiguresMATLAB()<CR>
+  nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>ClearWorkspaceMATLAB()<CR>
 endif
 
 nnoremap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>

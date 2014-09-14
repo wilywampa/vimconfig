@@ -1,0 +1,59 @@
+diff --git a/src/eval.c b/src/eval.c
+--- a/src/eval.c
++++ b/src/eval.c
+@@ -12372,6 +12372,7 @@
+     int		n = FALSE;
+     static char	*(has_list[]) =
+     {
++	"sys_echo_off",
+ #ifdef AMIGA
+ 	"amiga",
+ # ifdef FEAT_ARP
+@@ -18655,8 +18656,9 @@
+ 
+     /* Omit SHELL_COOKED when invoked with ":silent".  Avoids that the shell
+      * echoes typeahead, that messes up the display. */
+-    if (!msg_silent)
+-	flags += SHELL_COOKED;
++    flags += SHELL_COOKED;
++    if (msg_silent)
++	flags += SHELL_SLEEP;
+ 
+     if (retlist)
+     {
+diff --git a/src/os_unix.c b/src/os_unix.c
+--- a/src/os_unix.c
++++ b/src/os_unix.c
+@@ -4150,7 +4150,9 @@
+ 	goto error;
+ 
+     out_flush();
+-    if (options & SHELL_COOKED)
++    if (options & SHELL_SLEEP)
++	settmode(TMODE_SLEEP);		/* disable echo */
++    else if (options & SHELL_COOKED)
+ 	settmode(TMODE_COOK);		/* set to normal mode */
+ 
+     /*
+diff --git a/src/version.c b/src/version.c
+--- a/src/version.c
++++ b/src/version.c
+@@ -60,6 +60,7 @@
+ 
+ static char *(features[]) =
+ {
++	"+sys_echo_off",
+ #ifdef HAVE_ACL
+ 	"+acl",
+ #else
+diff --git a/src/vim.h b/src/vim.h
+--- a/src/vim.h
++++ b/src/vim.h
+@@ -969,6 +969,7 @@
+ #define SHELL_SILENT	16	/* don't print error returned by command */
+ #define SHELL_READ	32	/* read lines and insert into buffer */
+ #define SHELL_WRITE	64	/* write lines from buffer */
++#define SHELL_SLEEP	128	/* disable echo */
+ 
+ /* Values returned by mch_nodetype() */
+ #define NODE_NORMAL	0	/* file or directory, check with mch_isdir()*/

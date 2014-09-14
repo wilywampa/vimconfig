@@ -72,37 +72,37 @@ function! ShortCWD()
     endif
 
     if &buftype == 'help'
-        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:t'))-40+(git?2:0)
+        let s:cwdMaxLen=winwidth(0)-strlen(expand('%:t'))-37+(git?2:0)
     else
         let s:cwdMaxLen=winwidth(0)-strlen(expand('%:~:.'))-strlen(&filetype)
-            \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-43
+            \-strlen(s:tagPrev)-3*&mod-&ro-(strlen(s:tagPrev)?3:0)-40
             \-strlen(s:wsPrev)-(strlen(s:wsPrev)?3:0)+(git?2:0)
     endif
     let s:cwdMaxLen -= len(FFinfo())
 
-    if strlen(s:cwd) > s:cwdMaxLen
+    if strlen(s:cwd) + (git?2:0) > s:cwdMaxLen
         let parts=split(s:cwd,pathSep)
         if s:hasWin
             let partNum=1
         else
             let partNum=0
         endif
-        while (strlen(s:cwd) >= s:cwdMaxLen) && (partNum < len(parts)-1)
+        while (strlen(s:cwd) + (git?2:0) >= s:cwdMaxLen) && (partNum < len(parts)-1)
             let parts[partNum]=parts[partNum][0]
             let s:cwd=join(parts,pathSep)
             if !s:hasWin && parts[0] != '~' | let s:cwd='/'.s:cwd | endif
             let partNum=partNum+1
         endwhile
-        if strlen(s:cwd) > s:cwdMaxLen && exists('parts[-1]')
+        if strlen(s:cwd) + (git?2:0) > s:cwdMaxLen && exists('parts[-1]')
             let s:cwd=parts[-1]
         endif
     endif
     if s:cwd=='~/' | let s:cwd='~' | endif
 
-    if git | let s:cwd = nr2char(57504).' '.s:cwd | endif
-
-    if strlen(s:cwd) > s:cwdMaxLen
+    if strlen(s:cwd) + (git?2:0) > s:cwdMaxLen
         let s:cwd=''
+    else
+        if git | let s:cwd = nr2char(57504).' '.s:cwd | endif
     endif
 
     return s:cwd
