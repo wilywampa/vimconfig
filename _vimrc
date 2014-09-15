@@ -1218,7 +1218,8 @@ let g:tagbar_map_showproto='r'
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
 let OmniCpp_MayCompleteScope=1
-autocmd VimrcAutocmds CursorMovedI,InsertLeave * if pumvisible() == 0 | silent! pclose | endif
+autocmd VimrcAutocmds CursorMovedI,InsertLeave c,cpp
+    \ if pumvisible() == 0 | silent! pclose | endif
 
 " Commentary configuration
 let g:commentary_map_backslash=0
@@ -1235,6 +1236,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         let g:neocomplete#min_keyword_length=4
         let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
+        let g:neocomplete#enable_auto_close_preview=0
         let g:tmuxcomplete#trigger=''
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}

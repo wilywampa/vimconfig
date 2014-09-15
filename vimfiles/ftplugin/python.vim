@@ -23,7 +23,8 @@ imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
 nnoremap <silent> <buffer> <S-F5> :up<CR>:exe "SyntasticCheck" \| exe "Errors"<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
-nnoremap <buffer> <silent> ,pl :<C-u>PymodeLintAuto<CR>
+nnoremap <silent> <buffer> ,pl :<C-u>PymodeLintAuto<CR>
+nnoremap <silent> <buffer> ,ip :<C-u>IPython<CR>
 
 " Move around functions
 nnoremap <silent> <buffer> [[ m':call search('^\s*def ', "bW")<CR>
@@ -37,6 +38,6 @@ setlocal omnifunc=pythoncomplete#Complete
 " Use pymode's fold expression
 augroup py_ftplugin
     autocmd!
-    autocmd SessionLoadPost <buffer> setlocal foldmethod=expr 
+    autocmd SessionLoadPost <buffer> setlocal foldmethod=expr
         \ foldexpr=pymode#folding#expr(v:lnum) foldtext=pymode#folding#text()
 augroup END
