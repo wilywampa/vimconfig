@@ -199,25 +199,25 @@ endfunction
 function! vimtools#SectionJump(type, v)
   let l:count = v:count1
   let startpos = getpos('.')
-  keepjumps if a:v | exe "norm! gv" | endif
-while l:count
-  if a:type == '[['
-    keepjumps call search('{','b',1)
-    keepjumps normal! w99[{
-  elseif a:type == ']['
-    keepjumps call search('}','',line('$'))
-    keepjumps normal! b99]}
-  elseif a:type == ']]'
-    keepjumps normal j0[[%
-    keepjumps call search('{','',line('$'))
-  elseif a:type == '[]'
-    keepjumps normal k$][%
-    keepjumps call search('}','b',1)
-  endif
-  let l:count -= 1
-endwhile
-call setpos("''", startpos)
-normal! `'`'
+  if a:v | exe "keepjumps norm! gv" | endif
+  while l:count
+    if a:type == '[['
+      keepjumps call search('{','b',1)
+      keepjumps normal! w99[{
+    elseif a:type == ']['
+      keepjumps call search('}','',line('$'))
+      keepjumps normal! b99]}
+    elseif a:type == ']]'
+      keepjumps normal j0[[%
+      keepjumps call search('{','',line('$'))
+    elseif a:type == '[]'
+      keepjumps normal k$][%
+      keepjumps call search('}','b',1)
+    endif
+    let l:count -= 1
+  endwhile
+  call setpos("''", startpos)
+  normal! `'`'
 endfunction
 function! vimtools#SectionJumpMaps()
   if search('\m\C^\s*namespace', 'cnw') == 0 && search('\m\C^{', 'cnw') == 0
@@ -236,12 +236,14 @@ function! vimtools#MakeParagraph()
   let l2 = prevnonblank(line("']"))
   let lines = l2 - l1 + 1
   let l3 = nextnonblank(l2 + 1)
+
   if l3 > l2
     silent execute "keeppatterns ".l2.",".l3."g/^\\s*$/d"
     call append(l2, [""])
   else
     silent execute "keeppatterns ".line("']").",".line('$')."g/^\\s*$/d"
   endif
+
   let l4 = prevnonblank(l1 - 1)
   if l4 > 0
     silent execute "keeppatterns ".l4.",".l1."g/^\\s*$/d"
@@ -251,6 +253,7 @@ function! vimtools#MakeParagraph()
     silent execute "keeppatterns 1,".l1."g/^\\s*$/d"
     call cursor(1, 0)
   endif
+
   if &filetype == 'python'
     if getline('.') =~# '\v^\s*(<(def|class)>|\@[[:alnum:]_]+\s*$)' && line('.') > 1
       call append(line('.') - 1, [""])
@@ -260,6 +263,7 @@ function! vimtools#MakeParagraph()
       call append(line('.') + lines, [""])
     end
   endif
+
   let &foldenable = foldenable_save
   call RestoreRegs()
 endfunction
@@ -275,6 +279,7 @@ function! vimtools#FollowedBy(not) abort
   set nohlsearch | set hlsearch | redraw!
   echo '/'.@/
 endfunction
+
 function! vimtools#PrecededBy(not) abort
   let s1 = input("Main: ")
   let s1 = substitute(len(s1) ? s1 : @/,'\m\c^\\v','','')
@@ -309,6 +314,7 @@ function! vimtools#KeepPatterns(cmd)
     let @/ = pat
   endtry
 endfunction
+
 function! vimtools#KeepPatternsSubstitute()
   let cmdline = getcmdline()
   if getcmdtype() == ':'
