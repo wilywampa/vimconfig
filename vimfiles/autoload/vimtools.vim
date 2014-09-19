@@ -252,11 +252,11 @@ function! vimtools#MakeParagraph()
     call cursor(1, 0)
   endif
   if &filetype == 'python'
-    if getline('.') =~# '\v^\s*<(def|class)>' && line('.') > 1
+    if getline('.') =~# '\v^\s*(<(def|class)>|\@[[:alnum:]_]+\s*$)' && line('.') > 1
       call append(line('.') - 1, [""])
     endif
     if line('.') + lines < line('$') &&
-        \ getline(line('.') + lines + 1) =~# '\v^\s*<(def|class)>'
+        \ getline(line('.') + lines + 1) =~# '\v^\s*(<(def|class)>|\@[[:alnum:]_]+\s*$)'
       call append(line('.') + lines, [""])
     end
   endif
@@ -293,8 +293,13 @@ function! vimtools#KeepPatterns(cmd)
     execute a:cmd
     let g:lsub_pat = @/
     let l:subs_pat = '\v\C^[^/]*s%[ubstitute]/([^/]|\\@<=/)*\\@<!/'
-    let g:lsub_rep=substitute(a:cmd,l:subs_pat.'\v\ze([^/]|\\@<=/)*','','')
-    let g:lsub_rep=substitute(g:lsub_rep,'\v([^/]|\\@<=/)*\zs\\@<!/.{-}$','','')
+    if a:cmd =~ '\v\C^[^/]*s%[ubstitute]/([^/]|\\@<=/)[^/]*(\\@<!\/)?$'
+      " Command has form %s/pat or %s/pat/
+      let g:lsub_rep = ''
+    else
+      let g:lsub_rep=substitute(a:cmd,l:subs_pat.'\v\ze([^/]|\\@<=/)*','','')
+      let g:lsub_rep=substitute(g:lsub_rep,'\v([^/]|\\@<=/)*\zs\\@<!/.{-}$','','')
+    endif
     if a:cmd =~ '\v\\@<!/.*\\@<!/.*\\@<!/'
       let g:lsub_flags=substitute(a:cmd,'\v^.*\\@<!/\ze.{-}$','','')
     else

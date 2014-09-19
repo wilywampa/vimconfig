@@ -286,6 +286,7 @@ nn s "_s|nn <M-s> s|nn \\s s|xn s "_s|xn <M-s> s|xn \\s s
 nn S "_S|nn <M-S> S|nn \\S S|xn S "_S|xn <M-S> S|xn \\S S
 nn x "_x|nn <M-x> x|nn \\x x|xn x "_x|xn <M-x> x|xn \\x x
 nn X "_X|nn <M-X> X|nn \\X X|xn X "_X|xn <M-X> X|xn \\X X
+ono <M-d> d|ono <M-c> c
 
 " Copy file/path with/without line number
 nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>:let @*=@+<CR>:let @"=@+<CR>
@@ -486,11 +487,12 @@ nn <silent> <Leader>ds :<C-u>Redir swap<CR>:call system("rm <C-r>"<BS>p")<CR>:e<
 " Until opening pair, comma, or semicolon
 ono . :<C-u>call search('[[({<,;]')\|echo<CR>
 xno . <Esc>`>l:call search('[[({<,;]')\|echo<CR>v`<oh
-ono > t;
-xno > t;
+ono > vg_
+xno > g_h
 ono < :<C-u>execute "normal! %%"\|echo<CR>
 xno < :<C-u>execute "normal! %%"\|echo<CR>v`<oh
-
+nn << <<
+nn >> >>
 
 " Update diff
 nn <silent> du :diffupdate<CR>
@@ -820,9 +822,9 @@ if s:hasvimtools
     " Complete wildmode with <C-e> if in wildmenu with a trailing slash
     cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
         \ "\<C-e>" : "\<C-\>evimtools#KeepPatternsSubstitute()\<CR>\<Left>\<C-]>\<Right>"
-    nnoremap <expr> & ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep
+    nnoremap <silent> <expr> & ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep
         \ ."\<CR>:silent! call repeat#set('&')\<CR>"
-    nnoremap <expr> g& ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."/"
+    nnoremap <silent> <expr> g& ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."/"
         \ .g:lsub_flags."\<CR>:silent! call repeat#set('g&')\<CR>"
 else
     cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
@@ -1092,6 +1094,9 @@ augroup VimrcAutocmds
 
     " Open files as read-only automatically
     autocmd SwapExists * let v:swapchoice = 'o'
+
+    " Remove ':qa' from history
+    autocmd VimEnter * call histdel(':', '^qa$')
 augroup END
 
 " Define some useful constants
@@ -1563,8 +1568,8 @@ else
 endif
 
 " Surround settings
-xmap <expr> S (mode() == 'v' && col('.') == col('$') ?
-    \ "h" : "")."\<Plug>VSurround"
+autocmd VimrcAutocmds VimEnter xmap <expr> S
+    \ (mode() == 'v' && col('.') == col('$') ? "h" : "")."\<Plug>VSurround"
 nnoremap <silent> ds<Space> F<Space>"_x,"_x:silent! call repeat#set('ds ')<CR>
 
 " Syntastic settings
@@ -1676,8 +1681,10 @@ let VCSCommandDisableMappings = 1
 
 " jedi settings
 func! s:JediSetup()
-    setlocal omnifunc=jedi#completions
-    inoremap <silent> <buffer> . .<C-R>=jedi#complete_string(1)<CR>
+    if exists('*jedi#completions')
+        setlocal omnifunc=jedi#completions
+        inoremap <silent> <buffer> . .<C-R>=jedi#complete_string(1)<CR>
+    endif
 endfunc
 autocmd VimrcAutocmds FileType python call <SID>JediSetup()
 let g:jedi#use_tabs_not_buffers = 0
@@ -1685,6 +1692,7 @@ let g:jedi#popup_select_first = 0
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
 let g:jedi#goto_definitions_command = '<Leader>jd'
+let g:jedi#auto_close_doc = 0
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
 endif
