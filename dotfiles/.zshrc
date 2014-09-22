@@ -18,8 +18,9 @@ compinit -C
 # Automatically use directory stack
 setopt auto_pushd pushd_minus pushd_silent pushd_to_home pushd_ignoredups
 
-# Be able to use ^S and ^Q
+# Be able to use ^S and ^Q and rebind ^W
 stty -ixon -ixoff
+stty werase undef
 
 # Try to correct misspelled commands
 setopt CORRECT
@@ -36,6 +37,7 @@ alias com='command'
 alias killbg='kill ${${(v)jobstates#*:*:}%=*}'
 alias whence='whence -f'
 alias zargs='autoload -U zargs; zargs'
+alias zmv='autoload -U zmv; zmv'
 
 # grep
 alias grep='grep --color=auto'
@@ -114,6 +116,7 @@ alias gco='git checkout'
 alias gst='git status'
 alias gad='git add'
 alias glog='git log --reverse'
+alias glogv='git log --reverse --stat'
 alias gls='git ls-files'
 alias gg='git grep'
 alias grm='git rm'
@@ -121,6 +124,10 @@ alias gpom='git pull origin master'
 alias gurl='git config --get remote.origin.url'
 local cmds=''"'"'+$ +/^diff --git'"'"' =(git diff --no-ext-diff)'
 alias gdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
+local cmds=''"'"'+$ +/^diff --git'"'"' =(git diff --cached --no-ext-diff)'
+alias gdiffc='vim -c "set buftype=nowrite scrolloff=999" '$cmds
+local cmds=''"'"'+$ +/^diff --git'"'"' =(hg diff --git)'
+alias hgdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
 
 # ls
 alias l='ls -h --color=auto'
@@ -146,13 +153,15 @@ alias psg='ps aux | grep -i'
 alias awkp2="awk '{print \$2}'"
 alias mktags='ctags -R --sort=yes --c++-kinds=+p --fields=+iaS --extra=+q --python-kinds=-i .'
 alias info='info --vi-keys'
-alias remake='make clean && make -j'
+alias remake='make clean && make'
 alias d='dirs -v'
 alias h='head'
 alias t='tail'
 alias rename='export NOAUTONAME=1; tmux rename-window'
 alias pdb="vim -c 'Pyclewn pdb'"
 alias loc='locate --regex -i'
+alias ipy='ipython'
+alias pip='noglob pip'
 
 #[[[1 Global aliases
 alias -g LL='ls --color=auto -lsh'
@@ -243,6 +252,7 @@ abbrevs=(
 'gad'   'git add'
 'gadd'  'git add'
 'glog'  'git log --reverse'
+'glogd' 'git log --reverse --stat'
 'gls'   'git ls-files'
 'gg'    'git grep'
 'grm'   'git rm'
@@ -283,15 +293,20 @@ abbrevs=(
 'm'     'make'
 'min'   'make install'
 'mcl'   'make clean'
-'rem'   'make clean && make -j'
+'mdcl'  'make distclean'
+'rem'   'make clean && make'
+'remin' 'make clean && make install'
 'xa'    'xargs'
 'c'     'copy'
+'gid'   'gdiff'
+'gidc'  'gdiffc'
 'svd'   'svndiff'
 'vc'    'cd $VIMCONFIG'
 'vcb'   'cd $VIMCONFIG/vimfiles/bundle'
 'e'     'vim'
 'vno'   'vim -u NONE -i NONE'
 'vp'    'vimpager'
+'ipy'   'ipython'
 )
 
 # Post-modifier abbreviations
@@ -575,14 +590,14 @@ _vim-args() {
     # Try to set vim's search pattern if opening files from ag command
     if [[ ${BUFFER[(w)1]} =~ ^ag?$ ]]; then
         # Extract string between quotes
-        pat=${BUFFER[${BUFFER[(i)']}'},${BUFFER[(I)']}'}]}; pat=${pat[2,-2]}
+        [[ $BUFFER =~ "'(.*)'" ]]; pat=${${match[1]}:-""}
         if [[ -z $pat ]]; then
             # If BUFFER is of the form 'ag pattern -l', extract pattern
             if (( ${(w)#BUFFER} == 3 )) && [[ ${BUFFER[(w)-1]} == "-l" ]]; then
                 pat=${BUFFER[(w)2]}
             fi
         fi
-        if (( ${#pat} < ${#BUFFER} )); then
+        if [[ -n $pat ]]; then
             if [[ $BUFFER == *-Q* ]]; then
                 BUFFER="vim +/'\\V$pat' \$( "$BUFFER" )"
             else
@@ -683,7 +698,8 @@ zle -N tmux-next; vibindkey '^[[27;5;9~' tmux-next
 tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
-vimblacklist=(syntastic vimshell processing over flake8 tmux-complete vcscommand)
+vimblacklist=(syntastic vimshell processing over flake8 tmux-complete \
+    vcscommand fugitive indent-guides jedi)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 
 vim-blacklist-add() {
@@ -708,12 +724,9 @@ bindkey '^X' insert-last-command-output
 # https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/plugins/extract/extract.plugin.zsh
 [[ -e ~/.zsh/extract.plugin.zsh ]] && source ~/.zsh/extract.plugin.zsh
 
-make() {
-    if [[ $# == 0 ]]; then
-        command make -j
-    else
-        command make "$@"
-    fi
+unalias ipython >& /dev/null
+ipython() {
+    command ipython "$@" --pylab --autocall 2
 }
 
 _add-right-paren() {
@@ -759,6 +772,27 @@ _repeat-prev-command() {
     fi
 }
 zle -N _repeat-prev-command; vibindkey ':' _repeat-prev-command
+
+_check-previous-exit-code() {
+    if [[ $BUFFER == '&' ]]; then
+        BUFFER='[ $? -eq 0 ] &&'
+        CURSOR=${#BUFFER}
+    else
+        zle self-insert
+    fi
+}
+zle -N _check-previous-exit-code; bindkey '&' _check-previous-exit-code
+
+insert-home() {
+    if [[ $LBUFFER = *$ ]]; then
+        LBUFFER=${LBUFFER[1,-2]}$HOME
+    else
+        LBUFFER+=\~
+    fi
+}
+zle -N insert-home
+bindkey -M viins '~' insert-home
+bindkey -M isearch '~' self-insert
 
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
@@ -968,17 +1002,21 @@ _svn_current_branch_name() {
     url=$(echo ${1[(fr)URL: *]})
     if [[ $url =~ trunk ]]; then
         wcopy=$(echo ${1[(fr)Working *]})
-        root=${${(s:/:)wcopy}[(w)-1]}
+        root=${wcopy[(ws:/:)-1]}
         if [[ $root == 'trunk' ]]; then
-            echo ${${(s:/:)wcopy}[(w)-2]}
+            echo ${wcopy[(ws:/:)-2]}
         else
             echo $root
         fi
     else
         if [[ $url =~ branches ]]; then
             end=$(echo ${url[${url[(i)branches]}+9,-1]})
-        else
+        elif [[ $url =~ tags ]]; then
             end=$(echo ${url[${url[(i)tags]}+5,-1]})
+        elif [[ $url =~ svn ]]; then
+            end=$(echo ${url[${url[(i)svn]}+4,-1]})
+        else
+            end=${url[(ws:/:)-1]}
         fi
         echo ${end[(ws:/:)1]}
     fi
