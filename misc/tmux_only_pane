@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+tmux_info=$(tmux list-windows -F '#I#F')
+current_window=${${tmux_info[(fr)*\*]}[1,-2]}
+last_window=${${tmux_info[(fr)*-]}[1,-2]}
+tmux break-pane \; swap-window -t$current_window \; $([[ -n $last_window ]] \
+    && echo select-window -t$last_window \; select-window -t$current_window)

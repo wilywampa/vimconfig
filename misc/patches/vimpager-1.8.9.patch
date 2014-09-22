@@ -1,0 +1,41 @@
+diff --git a/Users/jniehus/Downloads/dev/vimpager/vimpager b/usr/local/bin/vimpager
+index ef59ef3..0e4bffe 100755
+--- a/Users/jniehus/Downloads/dev/vimpager/vimpager
++++ b/usr/local/bin/vimpager
+@@ -422,10 +422,6 @@ extract_bundled_scripts() {
+ 			mkdir syntax
+ 			(cd syntax; perldoc_vim)
+ 		fi
+-
+-		if [ -n "${use_ansiesc}" ]; then
+-			ansiesc_tar
+-		fi
+ 	)
+ }
+ 
+@@ -448,11 +444,8 @@ vim_less() {
+ # 'map h h' has to be the very last command in -c, to disable the less.vim help screen
+ 			${vim_cmd} \
+ 				-u "${vimrc}" \
+-				--cmd "set rtp^=${tmp}/extra_vim_home" \
+ 				--cmd 'let vimpager=1 | runtime! macros/less.vim | set nocp' \
+ 				-c "${ansi_command}" \
+-				-c "set scrolloff=${scrolloff:-5}" \
+-				-c "map h :normal! h<CR>" \
+ 				-c "set nomodeline fdl=9999 | silent! e ${filename}" \
+ 				"${@}"
+ 			;;
+@@ -471,12 +464,9 @@ vim_less() {
+ 
+ 			${vim_cmd} \
+ 				-u "${vimrc}" \
+-				--cmd "set rtp^=${tmp}/extra_vim_home" \
+ 				--cmd 'let vimpager=1 | runtime! macros/less.vim | set nocp' \
+ 				-c "${ansi_command}" \
+-				-c "set scrolloff=${scrolloff:-5} |
+-				    ${colors:-echo} | ${restore:-echo} | set lines=${lines} | set columns=${cols}" \
+-				-c "map h :normal! h<CR>" \
++				-c "set ${colors:-echo} | ${restore:-echo} | set lines=${lines} | set columns=${cols}" \
+ 				-c "set nomodeline fdl=9999 | silent! e ${filename}" \
+ 				"${@}" &
+ 			;;
