@@ -60,11 +60,11 @@ sil! set clipboard+=unnamedplus
 set mouse=                      " Disable mouse integration
 set cmdwinheight=15             " Increase command window height
 sil! set showbreak=↪            " Show character at start of wrapped lines
-set makeprg=make\ -j            " Use multiple jobs in make by default
 set nojoinspaces                " Don't add two spaces after punctuation
 set gdefault                    " Substitute all occurrences by default
 set nostartofline               " Don't jump to start of line for various motions
 set isfname+={,}                " Interpret {} as part of a filename
+sil! set breakindent            " Indent wrapped lines
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc
@@ -488,9 +488,7 @@ nn <silent> <Leader>ds :<C-u>Redir swap<CR>:call system("rm <C-r>"<BS>p")<CR>:e<
 ono . :<C-u>call search('[[({<,;]')\|echo<CR>
 xno . <Esc>`>l:call search('[[({<,;]')\|echo<CR>v`<oh
 ono > vg_
-xno > g_h
 ono < :<C-u>execute "normal! %%"\|echo<CR>
-xno < :<C-u>execute "normal! %%"\|echo<CR>v`<oh
 nn << <<
 nn >> >>
 
@@ -500,6 +498,10 @@ nn <silent> du :diffupdate<CR>
 " Move cursor in insert mode without splitting undo
 ino <Left>  <C-r>="\<lt>Left>"<CR>
 ino <Right> <C-r>="\<lt>Right>"<CR>
+
+" Insert home directory after typing $~
+ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".expand('~') : '~'
+cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".expand('~') : '~'
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -772,7 +774,7 @@ autocmd VimrcAutocmds QuickFixCmdPost * call <SID>Bell()
 
 " Setup for single-file C/C++ projects
 func! s:SingleFile()
-    execute 'setlocal makeprg=make\ -j8\ '.expand('%:r')
+    execute 'setlocal makeprg=make\ '.expand('%:r')
     nnoremap <buffer> <S-F5> :execute '!./'.expand('%:r')<CR>
     lcd! %:p:h
 endfunc
@@ -983,6 +985,9 @@ else
     let &t_SI = "\<Esc>[5 q"
     let &t_EI = "\<Esc>[1 q"
 
+    " Disable italics (set italics mode = italics end)
+    let &t_ZH = &t_ZR
+
     " Enable mouse for scrolling and window selection
     set mouse=nir
     noremap <F22> <NOP>
@@ -1184,12 +1189,18 @@ if !hasWin | call extend(g:pathogen_disabled, ['misc','shell']) | endif
 
 " Disable some plugins if in read-only mode
 if s:readonly
+    call add(g:pathogen_disabled, 'DirDiff')
+    call add(g:pathogen_disabled, 'easy-align')
+    call add(g:pathogen_disabled, 'fugitive')
     call add(g:pathogen_disabled, 'neocomplete')
     call add(g:pathogen_disabled, 'neosnippet-snippets')
+    call add(g:pathogen_disabled, 'pymode')
+    call add(g:pathogen_disabled, 'scriptease')
     call add(g:pathogen_disabled, 'syntastic')
     call add(g:pathogen_disabled, 'tabular')
     call add(g:pathogen_disabled, 'targets')
     call add(g:pathogen_disabled, 'unite')
+    call add(g:pathogen_disabled, 'vcscommand')
     call add(g:pathogen_disabled, 'vimfiler')
 endif
 
@@ -1568,8 +1579,6 @@ else
 endif
 
 " Surround settings
-autocmd VimrcAutocmds VimEnter xmap <expr> S
-    \ (mode() == 'v' && col('.') == col('$') ? "h" : "")."\<Plug>VSurround"
 nnoremap <silent> ds<Space> F<Space>"_x,"_x:silent! call repeat#set('ds ')<CR>
 
 " Syntastic settings
@@ -1701,6 +1710,10 @@ let g:neocomplete#force_omni_input_patterns.python =
 
 " DirDiff settings
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
+
+" EasyAlign settings
+vmap <CR> <Plug>(EasyAlign)
+vmap <C-^> <Plug>(LiveEasyAlign)
 
 " Import scripts
 execute pathogen#infect()
