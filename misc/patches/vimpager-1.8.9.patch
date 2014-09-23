@@ -1,8 +1,84 @@
-diff --git a/Users/jniehus/Downloads/dev/vimpager/vimpager b/usr/local/bin/vimpager
-index ef59ef3..0e4bffe 100755
---- a/Users/jniehus/Downloads/dev/vimpager/vimpager
-+++ b/usr/local/bin/vimpager
-@@ -422,10 +422,6 @@ extract_bundled_scripts() {
+diff --git a/vimpager b/vimpager
+index ef59ef3..99dd5c4 100755
+--- a/vimpager
++++ b/vimpager
+@@ -128,53 +128,7 @@ main() {
+ 		fi
+ 	fi
+ 	
+-	# read settings
+-	vim -u "${vimrc}" -E --cmd 'set nocp' -c '
+-		if !exists("vimpager_use_gvim")
+-			let vimpager_use_gvim=0
+-		endif
+-	
+-		if !exists("vimpager_disable_x11")
+-			let vimpager_disable_x11=0
+-		endif
+-	
+-		if !exists("vimpager_scrolloff")
+-			let vimpager_scrolloff=5
+-		endif
+-	
+-		if !exists("vimpager_passthrough")
+-			let vimpager_passthrough=0
+-		endif
+-
+-		let use_ansiesc = 0
+-
+-		if has("conceal") && (!exists("vimpager_disable_ansiesc") || vimpager_disable_ansiesc == 0)
+-			let use_ansiesc = 1
+-		endif
+-
+-		call writefile([ vimpager_use_gvim, vimpager_disable_x11, vimpager_scrolloff, vimpager_passthrough, use_ansiesc ], "'${tmp}'/vimpager_opts_'${$}'")
+-	
+-		quit
+-	' </dev/null
+-
+-	[ "$(head_n 1 < "${tmp}/vimpager_opts_${$}")" = 1 ] && use_gvim=1
+-	
+-	[ "$(head_n 2 < "${tmp}/vimpager_opts_${$}" | tail_n 1)" = 1 ] && disable_x11=1
+-	
+-	scrolloff=$(head_n 3 < "${tmp}/vimpager_opts_${$}" | tail_n 1)
+-	
+-	[ "$(head_n 4 < "${tmp}/vimpager_opts_${$}" | tail_n 1)" = 0 ] && no_pass_thru=1
+-	
+-	if [ "${no_pass_thru}" = 0 ]; then
+-		# check if arithmetic expansion works, passthrough mode relies on it
+-		if [ x$(echo $((2+2)) 2>/dev/null) != x4 ]; then
+-			no_pass_thru=1
+-		fi
+-	fi
+-
+-	[ "$(head_n 5 < "${tmp}/vimpager_opts_${$}" | tail_n 1)" != 0 ] && ansiesc_available=1
+-	
+-	rm -f "${tmp}/vimpager_opts_${$}"
++	ansiesc_available=1
+ 	
+ 	if [ -n "${msys}" -o -n "${cygwin}" ]; then
+ 		# msys/cygwin may be using a native vim, and if we're not in a real
+@@ -262,6 +216,7 @@ main() {
+ 	        case "$1" in
+ 	                "+G"|"+") vim_cmd="${vim_cmd} +"; shift ;;
+ 	                    "-c") shift; extra_c="$1"; shift ;;
++	                    "-X") disable_x11=1; shift ;;
+ 			    "--") shift; break ;;
+ 	                      -*) echo "bad option '$1'" ; exit 1 ;;
+ 	                       *) break ;;
+@@ -331,12 +286,6 @@ main() {
+ 		exit
+ 	fi
+ 	
+-	# On cygwin it might be the win32 gvim, but windows paths work for cygwin
+-	# vim just fine as well.
+-	if [ -n "${cygwin}" ]; then
+-		filename=$(cygpath -w "${filename}")
+-	fi
+-	
+ 	vim_less -c "${extra_c:-echo}" --cmd "${extra_cmd:-echo}" </dev/tty
+ 	
+ 	# Give gvim/mvim time to open the file.
+@@ -422,10 +371,6 @@ extract_bundled_scripts() {
  			mkdir syntax
  			(cd syntax; perldoc_vim)
  		fi
@@ -13,24 +89,26 @@ index ef59ef3..0e4bffe 100755
  	)
  }
  
-@@ -448,11 +444,8 @@ vim_less() {
+@@ -448,11 +393,8 @@ vim_less() {
  # 'map h h' has to be the very last command in -c, to disable the less.vim help screen
  			${vim_cmd} \
  				-u "${vimrc}" \
 -				--cmd "set rtp^=${tmp}/extra_vim_home" \
- 				--cmd 'let vimpager=1 | runtime! macros/less.vim | set nocp' \
+-				--cmd 'let vimpager=1 | runtime! macros/less.vim | set nocp' \
++				--cmd 'let vimpager=1 | set nocp' \
  				-c "${ansi_command}" \
 -				-c "set scrolloff=${scrolloff:-5}" \
 -				-c "map h :normal! h<CR>" \
  				-c "set nomodeline fdl=9999 | silent! e ${filename}" \
  				"${@}"
  			;;
-@@ -471,12 +464,9 @@ vim_less() {
+@@ -471,12 +413,9 @@ vim_less() {
  
  			${vim_cmd} \
  				-u "${vimrc}" \
 -				--cmd "set rtp^=${tmp}/extra_vim_home" \
- 				--cmd 'let vimpager=1 | runtime! macros/less.vim | set nocp' \
+-				--cmd 'let vimpager=1 | runtime! macros/less.vim | set nocp' \
++				--cmd 'let vimpager=1 | set nocp' \
  				-c "${ansi_command}" \
 -				-c "set scrolloff=${scrolloff:-5} |
 -				    ${colors:-echo} | ${restore:-echo} | set lines=${lines} | set columns=${cols}" \

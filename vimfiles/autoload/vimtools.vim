@@ -335,7 +335,7 @@ endfunction
 " Function abbreviations
 function! vimtools#FuncAbbrevs()
   let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
-  if getcmdtype() =~ '[:=]'
+  if getcmdtype() =~ '[:=>]'
     let cmd = getcmdline()
     if     cmdstart=~'\v<nr2%[cha]$'     | return substitute(cmd,'\v<nr2%[cha]$','nr2char(','')
     elseif cmdstart=~'\v<ch2%[nr]$'      | return substitute(cmd,'\v<ch2%[n]$','char2nr(','')

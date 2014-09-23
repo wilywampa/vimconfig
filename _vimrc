@@ -411,9 +411,11 @@ nn <silent> <Leader>s :set bt=nofile<CR>
 nn <silent> <Leader>y :<C-U>exe vimtools#EchoSyntax(v:count)<CR>
 
 " Change directory
-nn <silent> <Leader>cd :cd! %:p:h<CR>:pwd<CR>
+nn <silent> <expr> <Leader>cd ":windo cd! ".expand('%:p:h')."\<CR>:pwd\<CR>"
+    \ .winnr('#')."\<C-w>w".winnr()."\<C-w>w"
 nn <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
-nn <silent> <Leader>.. :cd ..<CR>:pwd<CR>:sil! call repeat#set("\<Leader>..")<CR>
+nn <silent> <expr> <Leader>.. ":windo cd! ".fnamemodify(getcwd(),':h')
+    \ ."\<CR>:pwd\<CR>".winnr('#')."\<C-w>w".winnr()."\<C-w>w"
 nn <silent> ,.. :lcd ..<CR>:pwd<CR>:sil! call repeat#set(",..")<CR>
 
 " Put from " register in insert mode
@@ -485,12 +487,12 @@ nn <silent> g. m':execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR
 nn <silent> <Leader>ds :<C-u>Redir swap<CR>:call system("rm <C-r>"<BS>p")<CR>:e<CR>
 
 " Until opening pair, comma, or semicolon
-ono . :<C-u>call search('[[({<,;]')\|echo<CR>
+ono . :<C-u>call search('[[({<,;:]')\|echo<CR>
 xno . <Esc>`>l:call search('[[({<,;]')\|echo<CR>v`<oh
-ono > vg_
-ono < :<C-u>execute "normal! %%"\|echo<CR>
-nn << <<
-nn >> >>
+ono g] vg_
+xno g] g_h
+ono g[ :<C-u>execute "normal! %%"\|echo<CR>
+xno g[ :<C-u>execute "normal! %%"\|echo<CR>v`<oh
 
 " Update diff
 nn <silent> du :diffupdate<CR>
@@ -502,6 +504,13 @@ ino <Right> <C-r>="\<lt>Right>"<CR>
 " Insert home directory after typing $~
 ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".expand('~') : '~'
 cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".expand('~') : '~'
+
+" Open folds recursively with zA and non-recursively with za
+nn za zA
+nn zA za
+
+" Make @: work immediately after restarting vim
+nn <silent> <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -791,6 +800,7 @@ func! s:SearchHandleKey(dir)
     elseif char == char2nr("\<C-v>")            | return a:dir."\\v\<C-r>+"
     elseif char == char2nr("\<C-x>")            | return a:dir.'\V'
     elseif char == "\<Up>"                      | return a:dir."\<Up>"
+    elseif char == "\<F24>" || char == "\<F25>" | return a:dir.'\v'
     elseif char == char2nr("/") && a:dir == '/' | return '//'
     else
         return a:dir.'\v'.(type(char) == type("") ? char : nr2char(char))
@@ -1579,6 +1589,7 @@ else
 endif
 
 " Surround settings
+xmap <expr> S (mode() == 'v' && col('.') == col('$') ? "h" : "")."\<Plug>VSurround"
 nnoremap <silent> ds<Space> F<Space>"_x,"_x:silent! call repeat#set('ds ')<CR>
 
 " Syntastic settings
@@ -1712,8 +1723,8 @@ let g:neocomplete#force_omni_input_patterns.python =
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
 
 " EasyAlign settings
-vmap <CR> <Plug>(EasyAlign)
-vmap <C-^> <Plug>(LiveEasyAlign)
+vmap <CR> <Plug>(LiveEasyAlign)
+vmap <C-^> <Plug>(EasyAlignRepeat)
 
 " Import scripts
 execute pathogen#infect()

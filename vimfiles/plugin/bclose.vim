@@ -48,7 +48,7 @@ function! s:Bclose(bang, buffer)
     let prevbuf = bufnr('#')
     if prevbuf > 0 && buflisted(prevbuf)
         \ && getbufvar(bufnr('#'), '&buftype') != 'quickfix'
-      buffer #
+      execute "normal <C-^>"
     else
       silent! bprevious
     endif
