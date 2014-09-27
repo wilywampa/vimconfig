@@ -83,6 +83,19 @@ else
     if zoomed | call system("tmux resize-pane -Z") | endif
   endfunc
 
+  func! s:RunMotionMATLAB(type)
+    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+    if zoomed | call system("tmux resize-pane -Z") | endif
+    call VimuxOpenRunner()
+    let input = s:opfunc(a:type)
+    call VimuxSendKeys("\<C-e>\<C-u>")
+    for line in split(input, '\r')
+      call VimuxSendText(line)
+      call VimuxSendKeys("\<CR>")
+    endfor
+    if zoomed | call system("tmux resize-pane -Z") | endif
+  endfunc
+
   func! s:UpdateDictionaryMATLAB()
     call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
@@ -149,7 +162,8 @@ else
     endif
   endfunc
 
-  nnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(0, v:count)<CR>
+  nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionMATLAB<CR>g@
+  nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionMATLAB<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
   nnoremap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
   vnoremap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>
@@ -175,5 +189,31 @@ augroup MATLAB
 augroup END
 
 set omnifunc=matlabcomplete#complete
+
+function! s:opfunc(type) abort
+  let sel_save = &selection
+  let cb_save = &clipboard
+  let reg_save = @@
+  try
+    set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
+    if a:type =~ '^\d\+$'
+      silent exe 'normal! ^v'.a:type.'$hy'
+    elseif a:type =~# '^.$'
+      silent exe "normal! `<" . a:type . "`>y"
+    elseif a:type ==# 'line'
+      silent exe "normal! '[V']y"
+    elseif a:type ==# 'block'
+      silent exe "normal! `[\<C-V>`]y"
+    else
+      silent exe "normal! `[v`]y"
+    endif
+    redraw
+    return @@
+  finally
+    let @@ = reg_save
+    let &selection = sel_save
+    let &clipboard = cb_save
+  endtry
+endfunction
 
 " vim:set et ts=2 sts=2 sw=2:

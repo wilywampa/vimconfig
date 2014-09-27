@@ -23,7 +23,7 @@ imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
 nnoremap <silent> <buffer> <S-F5> :up<CR>:exe "SyntasticCheck" \| exe "Errors"<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
-nnoremap <silent> <buffer> ,pl :<C-u>PymodeLintAuto<CR>
+nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
 nnoremap          <buffer> ,ip :<C-u>IPython<CR>
 
 " Move around functions
@@ -43,47 +43,84 @@ augroup py_ftplugin
 augroup END
 
 if !exists('*<SID>IPyRunPrompt')
-  function! s:IPyCheckInit()
+  function! s:IPyRunIPyInput()
     try
       silent python print IPython
     catch
       python km_from_string()
     endtry
     python km_from_string()
-  endfunction
-
-  function! s:IPyRunPrompt()
-    call <SID>IPyCheckInit()
-    let g:ipy_input = input('IPy: ')
     redraw
     python run_ipy_input()
-    let g:last_ipy_input = g:ipy_input
     unlet g:ipy_input
   endfunction
 
+  function! s:IPyRunPrompt()
+    let g:ipy_input = input('IPy: ')
+    let g:last_ipy_input = g:ipy_input
+    call <SID>IPyRunIPyInput()
+  endfunction
+
   function! s:IPyRepeatCommand()
-    call <SID>IPyCheckInit()
     if exists('g:last_ipy_input')
       let g:ipy_input = g:last_ipy_input
-      redraw
-      python run_ipy_input()
+      call <SID>IPyRunIPyInput()
     endif
   endfunction
 
   function! s:IPyClearWorkspace()
-    call <SID>IPyCheckInit()
     let g:ipy_input = 'from plottools import cl; cl()'."\n".'%reset -s -f'
-    redraw
-    python run_ipy_input()
-    unlet g:ipy_input
+    call <SID>IPyRunIPyInput()
   endfunction
 
   function! s:IPyCloseFigures()
-    call <SID>IPyCheckInit()
     let g:ipy_input = 'from plottools import cl; cl()'
-    redraw
-    python run_ipy_input()
-    unlet g:ipy_input
+    call <SID>IPyRunIPyInput()
+  endfunction
+
+  function! s:IPyPing()
+    let g:ipy_input = 'print "pong"'
+    call <SID>IPyRunIPyInput()
+  endfunction
+
+  function! s:IPyPrintVar()
+    call SaveRegs()
+    normal! gvy
+    let g:ipy_input = 'print '.@"
+    call RestoreRegs()
+    call <SID>IPyRunIPyInput()
+  endfunction
+
+  function! s:IPyVarInfo()
+    call SaveRegs()
+    normal! gvy
+    let g:ipy_input = 'from plottools import varinfo; varinfo('.@".')'
+    call RestoreRegs()
+    call <SID>IPyRunIPyInput()
+  endfunction
+
+  function! s:IPyRunMotion(type)
+    let g:ipy_input = s:opfunc(a:type)
+    if matchstr(g:ipy_input, '[[:print:]]\ze[^[:print:]]*$') == '?'
+      call setpos('.', getpos("']"))
+      python run_this_line(False)
+    else
+      call <SID>IPyRunIPyInput()
+    endif
+  endfunction
+
+  function! s:IPyScratchBuffer()
+    let scratch = bufnr('Python')
+    if scratch == -1
+      enew
+      set filetype=python
+      IPython
+      setlocal buftype=nofile bufhidden=hide noswapfile
+      file Python
+      nmap <buffer> <F5> ggVG<Leader>x
+    else
+      execute "buffer ".scratch
+    endif
   endfunction
 endif
 
@@ -95,6 +132,12 @@ nnoremap <silent> <buffer> g\| :<C-u>call <SID>IPyRunPrompt()<CR><C-f>
 nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>IPyClearWorkspace()<CR>
 nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>IPyCloseFigures()<CR>
 nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>IPyCloseFigures()<CR>
+nnoremap <silent>          ,pp :<C-u>call <SID>IPyPing()<CR>
+xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>IPyPrintVar()<CR>
+xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
+nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
+nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
 
 augroup python_ftplugin
   autocmd!
@@ -104,5 +147,31 @@ augroup python_ftplugin
       \     let &l:omnifunc = getbufvar(bufnr('#'), '&l:omnifunc') |
       \ endif
 augroup END
+
+function! s:opfunc(type) abort
+  let sel_save = &selection
+  let cb_save = &clipboard
+  let reg_save = @@
+  try
+    set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
+    if a:type =~ '^\d\+$'
+      silent exe 'normal! ^v'.a:type.'$hy'
+    elseif a:type =~# '^.$'
+      silent exe "normal! `<" . a:type . "`>y"
+    elseif a:type ==# 'line'
+      silent exe "normal! '[V']y"
+    elseif a:type ==# 'block'
+      silent exe "normal! `[\<C-V>`]y"
+    else
+      silent exe "normal! `[v`]y"
+    endif
+    redraw
+    return @@
+  finally
+    let @@ = reg_save
+    let &selection = sel_save
+    let &clipboard = cb_save
+  endtry
+endfunction
 
 " vim:set et ts=2 sts=2 sw=2:
