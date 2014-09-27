@@ -297,15 +297,16 @@ function! vimtools#KeepPatterns(cmd)
   try
     execute a:cmd
     let g:lsub_pat = @/
-    let l:subs_pat = '\v\C^[^/]*s%[ubstitute]/([^/]|\\@<=/)*\\@<!/'
-    if a:cmd =~ '\v\C^[^/]*s%[ubstitute]/([^/]|\\@<=/)[^/]*(\\@<!\/)?$'
+    let b = '((\\)@<!\\)' " Unescaped backslash
+    let l:subs_pat = '\v\C^[^/]*s%[ubstitute]/([^/]|'.b.'@<=/)*'.b.'@<!/'
+    if a:cmd =~ '\v\C^[^/]*s%[ubstitute]/([^/]|'.b.'@<=/)[^/]*('.b.'@<!\/)?$'
       " Command has form %s/pat or %s/pat/
       let g:lsub_rep = ''
     else
-      let g:lsub_rep=substitute(a:cmd,l:subs_pat.'\v\ze([^/]|\\@<=/)*','','')
-      let g:lsub_rep=substitute(g:lsub_rep,'\v([^/]|\\@<=/)*\zs\\@<!/.{-}$','','')
+      let g:lsub_rep=substitute(a:cmd,l:subs_pat.'\v\ze([^/]|'.b.'@<=/)*','','')
+      let g:lsub_rep=substitute(g:lsub_rep,'\v([^/]|'.b.'@<=/)*\zs'.b.'@<!/.{-}$','','')
     endif
-    if a:cmd =~ '\v\\@<!/.*\\@<!/.*\\@<!/'
+    if a:cmd =~ '\v'.b.'@<!/.*'.b.'@<!/.*'.b.'@<!/'
       let g:lsub_flags=substitute(a:cmd,'\v^.*\\@<!/\ze.{-}$','','')
     else
       let g:lsub_flags=''

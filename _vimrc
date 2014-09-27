@@ -67,7 +67,7 @@ set isfname+={,}                " Interpret {} as part of a filename
 sil! set breakindent            " Indent wrapped lines
 
 " Ignore system files
-set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc
+set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d
 
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
@@ -204,7 +204,7 @@ nn <Leader>a ggVG
 vn <Leader>a <C-c>ggVG
 
 " Toggle line numbers
-nn <silent> <F2> :se nu!<bar>sil! let &rnu=&nu<CR>
+nn <silent> <F2> :set number!<Bar>silent! let &relativenumber=&number<CR>
 vm <silent> <F2> <Esc><F2>gv
 im <F2> <C-o><F2>
 
@@ -414,8 +414,10 @@ nn <silent> <Leader>y :<C-U>exe vimtools#EchoSyntax(v:count)<CR>
 nn <silent> <expr> <Leader>cd ":windo cd! ".expand('%:p:h')."\<CR>:pwd\<CR>"
     \ .winnr('#')."\<C-w>w".winnr()."\<C-w>w"
 nn <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
-nn <silent> <expr> <Leader>.. ":windo cd! ".fnamemodify(getcwd(),':h')
-    \ ."\<CR>:pwd\<CR>".winnr('#')."\<C-w>w".winnr()."\<C-w>w"
+nn <silent> <expr> <Leader>.. (winnr('$') > 1 ? (":windo cd
+    \ ".fnamemodify(getcwd(),':h')."\<CR>".winnr('#')."\<C-w>w".winnr()
+    \ ."\<C-w>w:pwd\<CR>") : ":cd ..\<CR>").":sil! call
+    \ repeat#set".'("\<Leader>..")'."\<CR>"
 nn <silent> ,.. :lcd ..<CR>:pwd<CR>:sil! call repeat#set(",..")<CR>
 
 " Put from " register in insert mode
@@ -451,7 +453,7 @@ nn <silent> <F5> :update<CR>:make<CR><CR>
 im <F5> <Esc><F5>
 
 " Cycle through previous searches
-nn <silent> <expr> <C-k> (g:inCmdwin? '' : "/\<C-f>".v:count1)."k:let @/=getline('.')<CR>"
+nn <silent> <expr> <C-k> (g:inCmdwin? '' : "/\<C-f>".(v:count1 + 1))."k:let @/=getline('.')<CR>"
 nn <silent> <expr> <C-j> (g:inCmdwin? '' : "/\<C-f>".v:count1)."j:let @/=getline('.')<CR>"
 
 " Don't open fold when jumping to first or last line in diff mode
@@ -487,8 +489,8 @@ nn <silent> g. m':execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR
 nn <silent> <Leader>ds :<C-u>Redir swap<CR>:call system("rm <C-r>"<BS>p")<CR>:e<CR>
 
 " Until opening pair, comma, or semicolon
-ono . :<C-u>call search('[[({<,;:]')\|echo<CR>
-xno . <Esc>`>l:call search('[[({<,;]')\|echo<CR>v`<oh
+ono . :<C-u>call    search('[[({<,;:]')\|echo<CR>
+xno . <Esc>`>l:call search('[[({<,;:]')\|echo<CR>v`<oh
 ono g] vg_
 xno g] g_h
 ono g[ :<C-u>execute "normal! %%"\|echo<CR>
@@ -792,18 +794,19 @@ command! -nargs=0 SingleFile call <SID>SingleFile()
 " Use 'very magic' regex by default
 func! s:SearchHandleKey(dir)
     echo a:dir.'\v'
-    let char = getchar()
-    if     char =~ '`$' | let char = '' | endif
-    if     char == char2nr("\<CR>")             | return a:dir."\<CR>"
-    elseif char == char2nr("\<Esc>")            | return "\<C-l>"
-    elseif char == char2nr("\<C-c>")            | return "\<C-l>"
-    elseif char == char2nr("\<C-v>")            | return a:dir."\\v\<C-r>+"
-    elseif char == char2nr("\<C-x>")            | return a:dir.'\V'
-    elseif char == "\<Up>"                      | return a:dir."\<Up>"
-    elseif char == "\<F24>" || char == "\<F25>" | return a:dir.'\v'
-    elseif char == char2nr("/") && a:dir == '/' | return '//'
+    let c = getchar()
+    " CursorHold, FocusLost, FocusGained
+    if c == "\200\375`" || c == "\<F24>" || c == "\<F25>" | let c = '' | endif
+    if     c == char2nr("\<CR>")             | return a:dir."\<CR>"
+    elseif c == char2nr("\<Esc>")            | return "\<C-l>"
+    elseif c == char2nr("\<C-c>")            | return "\<C-l>"
+    elseif c == char2nr("\<C-x>")            | return a:dir.'\V'
+    elseif c == "\<Up>"                      | return a:dir."\<Up>"
+    elseif c == char2nr("/") && a:dir == '/' | return '//'
+    elseif c == char2nr("\<C-v>")            |
+        \ return a:dir."\\v\<C-r>=substitute(@+, '\\n', '', 'g')\<CR>"
     else
-        return a:dir.'\v'.(type(char) == type("") ? char : nr2char(char))
+        return a:dir.'\v'.(type(c) == type("") ? c : nr2char(c))
     endif
 endfunc
 noremap <expr> / <SID>SearchHandleKey('/')
@@ -1111,7 +1114,7 @@ augroup VimrcAutocmds
     autocmd SwapExists * let v:swapchoice = 'o'
 
     " Remove ':qa' from history
-    autocmd VimEnter * call histdel(':', '^qa$')
+    autocmd VimEnter * call histdel(':', '^qa!\=$')
 augroup END
 
 " Define some useful constants
@@ -1171,7 +1174,8 @@ call <SID>CreateAbbrev('lla',  'ls -lshA --color=auto'.ls_sort,   ':',  '!')
 call <SID>CreateAbbrev('llas', 'ls -lshrtA --color=auto'.ls_sort, ':',  '!')
 
 " Other abbreviations
-let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|\\@<=/)*\\@<!/'
+let b = '((\\)@<!\\)' " Unescaped backslash
+let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|'.b.'@<=/)*'.b.'@<!/'
 cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
     \ \|\| (getcmdline() =~ g:global_command_pattern.'ex$') ? 'execute':'ex'
 cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
@@ -1436,6 +1440,7 @@ func! s:UniteSettings()
     nmap <buffer> <C-f> <C-d>
     nmap <buffer> <C-b> <C-u>
     nmap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
+    imap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
     imap <buffer> <C-j> <Plug>(unite_select_next_line)
     imap <buffer> <C-k> <Plug>(unite_select_previous_line)
     nmap <buffer> <C-c> <Plug>(unite_exit)
@@ -1448,8 +1453,6 @@ func! s:UniteSettings()
     imap <buffer> <C-Space> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-@> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
-    inor <buffer> . \.
-    inor <buffer> \. .
     sil! nunmap <buffer> ?
 endfunc
 nn <silent> "" :<C-u>Unite -prompt-direction=top history/yank<CR>
@@ -1477,13 +1480,13 @@ if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch()
     if s:UnitePathSearchMode
         call unite#custom#source('buffer,neomru/file','matchers',
-            \ ['matcher_regexp'])
+            \ ['matcher_default'])
         call unite#custom#source('buffer,neomru/file','converters',
             \ ['converter_default'])
         let s:UnitePathSearchMode=0
     else
         call unite#custom#source('buffer,neomru/file','matchers',
-            \ ['converter_tail','matcher_regexp'])
+            \ ['converter_tail','matcher_default'])
         call unite#custom#source('buffer,neomru/file','converters',
             \ ['converter_file_directory'])
         let s:UnitePathSearchMode=1
@@ -1491,7 +1494,6 @@ func! s:UniteTogglePathSearch()
     return ''
 endfunc
 func! s:UniteSetup()
-    call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context', {'start_insert': 1})
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
@@ -1725,6 +1727,32 @@ let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
 " EasyAlign settings
 vmap <CR> <Plug>(LiveEasyAlign)
 vmap <C-^> <Plug>(EasyAlignRepeat)
+
+" C/C++ completion
+if match($VIMBLACKLIST, '\cclang_complete') == -1
+    call add(g:pathogen_disabled, 'OmniCppComplete')
+    if !exists('g:neocomplete#force_omni_input_patterns')
+        let g:neocomplete#force_omni_input_patterns = {}
+    endif
+    let g:neocomplete#force_overwrite_completefunc = 1
+    let g:neocomplete#force_omni_input_patterns.c =
+        \ '[^.[:digit:] *\t]\%(\.\|->\)\w*'
+    let g:neocomplete#force_omni_input_patterns.cpp =
+        \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+    let g:neocomplete#force_omni_input_patterns.objc =
+        \ '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)'
+    let g:neocomplete#force_omni_input_patterns.objcpp =
+        \ '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)\|\h\w*::\w*'
+    let g:clang_complete_auto = 0
+    let g:clang_auto_select = 0
+    let g:clang_use_library = 1
+    let g:clang_jumpto_declaration_key = 'g<M-]>'
+    let g:clang_jumpto_declaration_in_preview_key = '<C-w>g<M-]'
+    let g:clang_jumpto_back_key = '<M-T>'
+else
+    call add(g:pathogen_disabled, 'clang_complete')
+    let g:OmniCpp_LocalSearchDecl = 1
+endif
 
 " Import scripts
 execute pathogen#infect()
