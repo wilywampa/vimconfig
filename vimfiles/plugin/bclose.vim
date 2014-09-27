@@ -48,7 +48,11 @@ function! s:Bclose(bang, buffer)
     let prevbuf = bufnr('#')
     if prevbuf > 0 && buflisted(prevbuf)
         \ && getbufvar(bufnr('#'), '&buftype') != 'quickfix'
-      execute "normal <C-^>"
+      if exists('*UniteAlternateBuffer')
+        call UniteAlternateBuffer(1)
+      else
+        buffer #
+      endif
     else
       silent! bprevious
     endif
@@ -100,6 +104,7 @@ function! s:Bopen()
     elseif choice =~ '\v^[0-9]+t$'
       execute "tab split ".s:closed_buf_list[choice]
     endif
+    call remove(s:closed_buf_list, choice)
   endif
 endfunction
 command! -bang -complete=buffer -nargs=? Bopen call s:Bopen()
