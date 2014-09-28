@@ -21,3 +21,26 @@ def varinfo(var):
     pp.pprint(var)
     if type(var) is numpy.ndarray:
         print var.shape
+
+
+def dict2obj(dic):
+    from collections import namedtuple
+    from keyword import iskeyword
+    import re
+
+    seen = []
+    for key in dic.keys():
+        newkey = key
+        if iskeyword(key):
+            newkey = key + '_'
+        elif not key.isalnum():
+            newkey = re.sub('[^_0-9A-Za-z]', '_', key)
+        while newkey in seen:
+            newkey = newkey + '_'
+        seen.append(newkey)
+        if newkey != key:
+            dic[newkey] = dic.pop(key)
+
+    obj = namedtuple('obj', dic.keys())
+
+    return obj(**dic)

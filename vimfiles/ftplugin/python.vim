@@ -109,18 +109,32 @@ if !exists('*<SID>IPyRunPrompt')
     endif
   endfunction
 
+  function! s:IPyRunScratchBuffer()
+    let view = winsaveview()
+    call SaveRegs()
+    normal! gg0vG$y
+    let g:ipy_input = @@
+    call RestoreRegs()
+    call winrestview(view)
+    call <SID>IPyRunIPyInput()
+  endfunction
+
   function! s:IPyScratchBuffer()
-    let scratch = bufnr('Python')
+    let scratch = bufnr('--Python--')
     if scratch == -1
       enew
       set filetype=python
       IPython
       setlocal buftype=nofile bufhidden=hide noswapfile
-      file Python
-      nmap <buffer> <F5> ggVG<Leader>x
+      file --Python--
     else
       execute "buffer ".scratch
     endif
+    nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
+    inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
+    xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
+    map  <buffer> <C-s> <F5>
+    map! <buffer> <C-s> <F5>
   endfunction
 endif
 

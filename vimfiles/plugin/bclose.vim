@@ -46,15 +46,15 @@ function! s:Bclose(bang, buffer)
   for w in wnums
     execute w.'wincmd w'
     let prevbuf = bufnr('#')
-    if prevbuf > 0 && buflisted(prevbuf)
-        \ && getbufvar(bufnr('#'), '&buftype') != 'quickfix'
-      if exists('*UniteAlternateBuffer')
-        call UniteAlternateBuffer(1)
-      else
-        buffer #
-      endif
+    if exists('*UniteAlternateBuffer')
+      call UniteAlternateBuffer(1)
     else
-      silent! bprevious
+      if prevbuf > 0 && buflisted(prevbuf)
+          \ && getbufvar(bufnr('#'), '&buftype') != 'quickfix'
+        buffer #
+      else
+        silent! bprevious
+      endif
     endif
     if btarget == bufnr('%')
       " Numbers of listed buffers which are not the target to be deleted.

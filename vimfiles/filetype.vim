@@ -13,10 +13,10 @@ augroup filetypedetect
     autocmd! BufRead,BufNewFile [0-9]\\\{1,\}.*
        \ if getline(1) == 'To: vim_dev@googlegroups.com' | setf diff | endif
 
-    autocmd! BufRead *.svn-base if &diff && argc() == 2 |
+    autocmd! BufRead *.svn-base,svn-* if &diff && argc() == 2 |
         \     execute 'doautocmd filetypedetect BufRead '.argv(1) |
         \ endif
-    autocmd! BufNewFile *.svn-base if &diff && argc() == 2 |
+    autocmd! BufNewFile *.svn-base,svn-* if &diff && argc() == 2 |
         \     execute 'doautocmd filetypedetect BufNewFile '.argv(1) |
         \ endif
 augroup END

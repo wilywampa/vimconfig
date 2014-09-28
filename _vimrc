@@ -200,8 +200,8 @@ nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>
 nn <silent> <Leader>p :set paste!<CR>
 
 " Select all
-nn <Leader>a ggVG
-vn <Leader>a <C-c>ggVG
+nn <Leader>a gg0vG$
+vn <Leader>a <C-c>gg0vG$
 
 " Toggle line numbers
 nn <silent> <F2> :set number!<Bar>silent! let &relativenumber=&number<CR>
@@ -578,7 +578,7 @@ func! s:CmdwinMappings()
         \:exe 'tabe '.cfile<CR>
 
     " Delete item under cursor from history
-    nnoremap <silent> <buffer> DD :call histdel(g:cmdwinType,'\V\^'.
+    nnoremap <silent> <buffer> dD :call histdel(g:cmdwinType,'\V\^'.
         \escape(getline('.'),'\').'\$')<CR>:norm! "_dd<CR>
 
     " Resize window
@@ -1117,6 +1117,23 @@ augroup VimrcAutocmds
     autocmd VimEnter * call histdel(':', '^qa!\=$')
 augroup END
 
+" Match highlighting
+func! s:MatchHighlights()
+    for n in range(1, 5)
+        execute "highlight Match".n." ctermbg=".(&bg=='dark'?0:7)." ctermfg=".(7 - n).""
+    endfor
+endfunc
+func! s:MatchAdd(n)
+    call <SID>MatchHighlights()
+    autocmd VimrcAutocmds ColorScheme * call <SID>MatchHighlights()
+    execute "call matchadd('Match".a:n."',  '".(substitute(@/,
+        \ '^\\[vV]', '', '')=~'\u'?'':'\c').@/."', 0)"
+endfunc
+for n in range(1, 5)
+    execute 'nnoremap <silent> <Leader>h'.n.' :<C-u>call <SID>MatchAdd('.n.')<CR>'
+endfor
+nnoremap <Leader>hc :<C-u>call clearmatches()<CR>
+
 " Define some useful constants
 let pi = acos(-1.0)
 let d2r = pi / 180.0
@@ -1136,7 +1153,7 @@ let slug2kg = 14.5939029
 let kg2slug = 1.0 / slug2kg
 let amps = 340.29
 let afps = amps * m2ft
-let assignments_pattern = '\v[=!]@<![+|&^]?\=[=~]@!'
+let assignments_pattern = '\v[=!<>]@<![+|&^.]?\=[=~]@!'
 
 " Abbreviation template
 func! s:CreateAbbrev(lhs, rhs, cmdtype, ...)
@@ -1700,6 +1717,7 @@ let VCSCommandCVSExec = ''
 let VCSCommandBZRExec = ''
 let VCSCommandSVKExec = ''
 let VCSCommandDisableMappings = 1
+let VCSCommandCVSDiffOpt = '--internal-diff'
 
 " jedi settings
 func! s:JediSetup()
@@ -1748,7 +1766,7 @@ if match($VIMBLACKLIST, '\cclang_complete') == -1
     let g:clang_use_library = 1
     let g:clang_jumpto_declaration_key = 'g<M-]>'
     let g:clang_jumpto_declaration_in_preview_key = '<C-w>g<M-]'
-    let g:clang_jumpto_back_key = '<M-T>'
+    let g:clang_jumpto_back_key = 'g<C-t>'
 else
     call add(g:pathogen_disabled, 'clang_complete')
     let g:OmniCpp_LocalSearchDecl = 1
