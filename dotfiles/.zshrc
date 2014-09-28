@@ -364,7 +364,7 @@ magic-abbrev-expand() {
         if (( ${shellmods[(i)$prevword]} <= ${#shellmods} )); then
             doabbrev=1
         fi
-        mods=('xargs' 'unbuffer')
+        mods=('xargs' 'unbuffer' 'nohup')
         [[ ${LBUFFER[(w)1]} == "zargs" ]] && mods+=('--' '..')
         # Previous word is a modifier
         if (( ${mods[(i)$prevword]} <= ${#mods} )); then
@@ -699,7 +699,7 @@ tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
 vimblacklist=(syntastic vimshell processing over flake8 tmux-complete \
-    vcscommand fugitive indent-guides jedi)
+    vcscommand fugitive indent-guides jedi tabular clang_complete)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 
 vim-blacklist-add() {
@@ -1000,8 +1000,8 @@ _svn_prompt_info() {
 
 _svn_current_branch_name() {
     url=$(echo ${1[(fr)URL: *]})
-    if [[ $url =~ trunk ]]; then
-        wcopy=$(echo ${1[(fr)Working *]})
+    wcopy=$(echo ${1[(fr)Working *]})
+    if [[ $url =~ trunk ]] && [[ -n $wcopy ]]; then
         root=${wcopy[(ws:/:)-1]}
         if [[ $root == 'trunk' ]]; then
             echo ${wcopy[(ws:/:)-2]}
