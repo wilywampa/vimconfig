@@ -24,6 +24,11 @@ def varinfo(var):
 
 
 def dict2obj(dic):
+    """
+    Convert a dict to an object with the dictionary's keys as attributes.
+    Sanitizes illegal characters and keywords and resolves resulting
+    duplicates.
+    """
     from collections import namedtuple
     from keyword import iskeyword
     import re

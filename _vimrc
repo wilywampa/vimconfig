@@ -1288,6 +1288,8 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}
         endif
+        let g:neocomplete#keyword_patterns._ = '\w*'
+        let g:neocomplete#keyword_patterns['default'] = '\h\w*'
         let g:neocomplete#keyword_patterns.matlab =
             \ '\h\w*\(\(\.\((''\?\)\?\w*\('')\?\)\?\)\+'
             \ .'\|{\d\+}\(\.\((''\?\)\?\w*\('')\?\)\?\)\+'
@@ -1303,7 +1305,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             " Indent if only whitespace behind cursor
             if getline('.')[col('.')-2] =~ '\S'
                 return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
-                    \: neocomplete#start_manual_complete()
+                    \: "\<C-x>\<C-n>"
             else
                 return a:dir ? "\<Tab>" : "\<BS>"
             endif
@@ -1776,7 +1778,7 @@ endif
 execute pathogen#infect()
 
 " Add current directory and red arrow if ignorecase is not set to status line
-sil! call airline#parts#define('ic',{'condition': '!\&ic',
+sil! call airline#parts#define('ic',{'condition': '!&ic',
     \'text': nr2char(8593),'accent': 'red'})
 sil! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
 sil! let g:airline_section_c = airline#section#create(['ic', '%<', 'file',

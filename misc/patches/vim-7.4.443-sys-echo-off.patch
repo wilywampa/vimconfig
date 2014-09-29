@@ -16,7 +16,7 @@ diff --git a/src/eval.c b/src/eval.c
 -    if (!msg_silent)
 -	flags += SHELL_COOKED;
 +    flags += SHELL_COOKED;
-+    if (msg_silent)
++    if (msg_silent || (State & INSERT))
 +	flags += SHELL_SLEEP;
  
      if (retlist)
