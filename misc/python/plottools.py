@@ -40,6 +40,8 @@ def dict2obj(dic):
             newkey = key + '_'
         elif not key.isalnum():
             newkey = re.sub('[^_0-9A-Za-z]', '_', key)
+        if newkey.startswith('_'):
+            newkey = 'u' + newkey
         while newkey in seen:
             newkey = newkey + '_'
         seen.append(newkey)

@@ -200,8 +200,8 @@ nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>
 nn <silent> <Leader>p :set paste!<CR>
 
 " Select all
-nn <Leader>a gg0vG$
-vn <Leader>a <C-c>gg0vG$
+nn <Leader>a ggVG
+vn <Leader>a <Esc>ggVG
 
 " Toggle line numbers
 nn <silent> <F2> :set number!<Bar>silent! let &relativenumber=&number<CR>
@@ -245,9 +245,6 @@ nn <Leader>go :call setqflist([])<CR>:silent! Bufdo grepa '' %<C-Left><C-Left><R
 
 " Delete trailing whitespace
 nn <silent> <expr> ,ws ":keepj keepp sil! %s/\\s\\+$//".(&gdefault ? "" : "g")."\<CR>"
-
-" Open tag in vertical split with Alt-]
-nn <M-]> <C-w><C-]><C-w>L
 
 " Open tag vertically or below
 nn <silent> <C-w><C-]> :<C-u>execute "normal! :belowright vertical
@@ -388,7 +385,13 @@ nn <silent> ZA :wqall<CR>
 cno <expr> . (getcmdtype()==':'&&getcmdline()=~'[/ ]\.\.$')?'/..':'.'
 
 " Execute line under cursor
-nn <silent> <Leader>x :exec getline('.')<CR>
+if s:hasvimtools
+    nn <silent> <Leader>x  :<C-u>set opfunc=vimtools#SourceMotion<CR>g@
+    nn <silent> <Leader>xx :<C-u>set opfunc=vimtools#SourceMotion<Bar>exe
+        \ 'norm! 'v:count1.'g@_'<CR>
+else
+    nn <silent> <Leader>xx :exec getline('.')<CR>
+endif
 
 " Close quickfix window/location list
 nn <silent> <Leader>w :ccl\|lcl\|winc z<CR>
@@ -865,6 +868,16 @@ inoremap <C-@> <Esc>"_dT/"_s
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
 inoremap <M-w> <Esc>"_dT<Space>"_s
 
+" !$ inserts last WORD of previous command
+func! s:LastWord()
+    let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
+    let cmdstart = cmdstart[0:-2].matchstr(@:, '\v\S+$')
+    let end = strpart(getcmdline(), getcmdpos() - 1)
+    return cmdstart.end
+endfunc
+cnoremap <expr> $ getcmdline()[getcmdpos()-2] == '!' ?
+    \ "\<C-\>e\<SID>LastWord()\<CR>" : '$'
+
 " Stay at search result without completing search
 func! s:QuitSearch()
     if getcmdtype() !~ '[/?]' | return '' | endif
@@ -1305,7 +1318,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             " Indent if only whitespace behind cursor
             if getline('.')[col('.')-2] =~ '\S'
                 return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
-                    \: "\<C-x>\<C-n>"
+                    \: neocomplete#start_manual_complete()
             else
                 return a:dir ? "\<Tab>" : "\<BS>"
             endif
@@ -1472,6 +1485,8 @@ func! s:UniteSettings()
     imap <buffer> <C-Space> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-@> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
+    inor <buffer> . \.
+    inor <buffer> \. .
     sil! nunmap <buffer> ?
 endfunc
 nn <silent> "" :<C-u>Unite -prompt-direction=top history/yank<CR>
@@ -1499,13 +1514,13 @@ if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch()
     if s:UnitePathSearchMode
         call unite#custom#source('buffer,neomru/file','matchers',
-            \ ['matcher_default'])
+            \ ['matcher_regexp'])
         call unite#custom#source('buffer,neomru/file','converters',
             \ ['converter_default'])
         let s:UnitePathSearchMode=0
     else
         call unite#custom#source('buffer,neomru/file','matchers',
-            \ ['converter_tail','matcher_default'])
+            \ ['converter_tail','matcher_regexp'])
         call unite#custom#source('buffer,neomru/file','converters',
             \ ['converter_file_directory'])
         let s:UnitePathSearchMode=1
@@ -1513,6 +1528,7 @@ func! s:UniteTogglePathSearch()
     return ''
 endfunc
 func! s:UniteSetup()
+    call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context', {'start_insert': 1})
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
@@ -1766,8 +1782,8 @@ if match($VIMBLACKLIST, '\cclang_complete') == -1
     let g:clang_complete_auto = 0
     let g:clang_auto_select = 0
     let g:clang_use_library = 1
-    let g:clang_jumpto_declaration_key = 'g<M-]>'
-    let g:clang_jumpto_declaration_in_preview_key = '<C-w>g<M-]'
+    let g:clang_jumpto_declaration_key = '<M-]>'
+    let g:clang_jumpto_declaration_in_preview_key = '<C-w><M-]'
     let g:clang_jumpto_back_key = 'g<C-t>'
 else
     call add(g:pathogen_disabled, 'clang_complete')

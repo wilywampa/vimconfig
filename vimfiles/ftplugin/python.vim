@@ -100,7 +100,7 @@ if !exists('*<SID>IPyRunPrompt')
   endfunction
 
   function! s:IPyRunMotion(type)
-    let g:ipy_input = s:opfunc(a:type)
+    let g:ipy_input = vimtools#opfunc(a:type)
     if matchstr(g:ipy_input, '[[:print:]]\ze[^[:print:]]*$') == '?'
       call setpos('.', getpos("']"))
       python run_this_line(False)
@@ -123,13 +123,13 @@ if !exists('*<SID>IPyRunPrompt')
     let scratch = bufnr('--Python--')
     if scratch == -1
       enew
-      set filetype=python
       IPython
-      setlocal buftype=nofile bufhidden=hide noswapfile
       file --Python--
     else
       execute "buffer ".scratch
     endif
+    set filetype=python
+    setlocal buftype=nofile bufhidden=hide noswapfile
     nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
     inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
     xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
@@ -161,31 +161,5 @@ augroup python_ftplugin
       \     let &l:omnifunc = getbufvar(bufnr('#'), '&l:omnifunc') |
       \ endif
 augroup END
-
-function! s:opfunc(type) abort
-  let sel_save = &selection
-  let cb_save = &clipboard
-  let reg_save = @@
-  try
-    set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
-    if a:type =~ '^\d\+$'
-      silent exe 'normal! ^v'.a:type.'$hy'
-    elseif a:type =~# '^.$'
-      silent exe "normal! `<" . a:type . "`>y"
-    elseif a:type ==# 'line'
-      silent exe "normal! '[V']y"
-    elseif a:type ==# 'block'
-      silent exe "normal! `[\<C-V>`]y"
-    else
-      silent exe "normal! `[v`]y"
-    endif
-    redraw
-    return @@
-  finally
-    let @@ = reg_save
-    let &selection = sel_save
-    let &clipboard = cb_save
-  endtry
-endfunction
 
 " vim:set et ts=2 sts=2 sw=2:

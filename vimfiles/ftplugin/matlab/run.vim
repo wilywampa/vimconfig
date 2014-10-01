@@ -87,7 +87,7 @@ else
     let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
     if zoomed | call system("tmux resize-pane -Z") | endif
     call VimuxOpenRunner()
-    let input = s:opfunc(a:type)
+    let input = vimtools#opfunc(a:type)
     call VimuxSendKeys("\<C-e>\<C-u>")
     for line in split(input, '\r')
       call VimuxSendText(line)
@@ -189,31 +189,5 @@ augroup MATLAB
 augroup END
 
 set omnifunc=matlabcomplete#complete
-
-function! s:opfunc(type) abort
-  let sel_save = &selection
-  let cb_save = &clipboard
-  let reg_save = @@
-  try
-    set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
-    if a:type =~ '^\d\+$'
-      silent exe 'normal! ^v'.a:type.'$hy'
-    elseif a:type =~# '^.$'
-      silent exe "normal! `<" . a:type . "`>y"
-    elseif a:type ==# 'line'
-      silent exe "normal! '[V']y"
-    elseif a:type ==# 'block'
-      silent exe "normal! `[\<C-V>`]y"
-    else
-      silent exe "normal! `[v`]y"
-    endif
-    redraw
-    return @@
-  finally
-    let @@ = reg_save
-    let &selection = sel_save
-    let &clipboard = cb_save
-  endtry
-endfunction
 
 " vim:set et ts=2 sts=2 sw=2:
