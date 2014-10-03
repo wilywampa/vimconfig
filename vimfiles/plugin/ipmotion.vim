@@ -158,4 +158,6 @@ augroup ipmotion
 	autocmd FileType fortran let b:ip_boundary = '[!C[:blank:]]*$'
 	autocmd FileType c,cpp,arduino let b:ip_boundary = '\s*\(//\)\?\s*$'
 	autocmd FileType matlab let b:ip_boundary = '[%[:blank:]]*$'
+	autocmd FileType help let b:ip_boundary = '[<>[:blank:]]*$'
+	autocmd FileType gitcommit let b:ip_boundary = '[#[:blank:]]*$'
 augroup END

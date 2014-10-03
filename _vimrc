@@ -463,8 +463,9 @@ nn <silent> <expr> <C-j> (g:inCmdwin? '' : "/\<C-f>".v:count1)."j:let @/=getline
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
 nn <silent> <expr> G "G".(&diff ? "" : "zv")
 
-" [count]V always selects [count] lines
+" [count]V/v always selects [count] lines/characters
 nn <expr> V v:count ? "\<Esc>V".(v:count > 1 ? (v:count - 1).'j' : '') : 'V'
+nn <expr> v v:count ? "\<Esc>v".(v:count > 1 ? (v:count - 1).'l' : '') : 'v'
 
 " <Home> moves cursor after \v
 cno <expr> <Home> "\<Home>".(getcmdtype() =~ '[/?]' &&
@@ -654,13 +655,13 @@ nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 func! s:CycleSearchMode()
     let l:cmd = getcmdline()
     let l:pos = getcmdpos()
-    if l:cmd =~# '\v^(KeepPatterns [^/]*[sgv]\/)?\\v'
-        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?\\v','\1\\V','')
-    elseif l:cmd =~# '\v^(KeepPatterns [^/]*[sgv]\/)?\\V'
-        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?\\V','\1','')
+    if l:cmd =~# '\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?\\v'
+        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?\\v','\1\2\\V','')
+    elseif l:cmd =~# '\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?\\V'
+        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?\\V','\1\2','')
         call setcmdpos(l:pos - 2)
     else
-        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?','\1\\v','')
+        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?','\1\2\\v','')
         call setcmdpos(l:pos + 2)
     endif
     return l:cmd
@@ -735,8 +736,10 @@ cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 func! s:SearchCmdDelWord()
     let cmd = (getcmdtype() =~ '[/?]' ? '/' : '').
         \ strpart(getcmdline(), 0, getcmdpos() - 1)
-    if cmd =~ '/\\v\k\+$'
-        return "\<C-w>".matchstr(cmd, '/\\\zsv\ze\k*$')
+    if cmd =~# '\v/%(\\\%V)?\\[vV]\k+$'
+        return "\<C-w>".matchstr(cmd, '\v/%(\\\%V)?\\\zsv\ze\k*$')
+    elseif cmd =~# '\v/\\\%V\k+$'
+        return "\<C-w>V"
     endif
     return "\<C-w>"
 endfunc
@@ -759,6 +762,8 @@ func! s:OlderHistory()
         return "\<C-u>\<Up>"
     elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[sgv]/\\[vV]$'
         return "\<BS>\<BS>\<Up>"
+    elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[sgv]/\\\%V\\[vV]$'
+        return repeat("\<BS>", 5)."\<Up>"
     elseif s:hasvimtools
         return getcmdtype() == ':' && getcmdline() == 'h' ? "\<BS>H\<Up>" : "\<Up>"
     endif
@@ -928,14 +933,23 @@ nn <silent> <M-n> :call <SID>PrintCount()<CR>
 vn <silent> <M-n> :<C-u>call <SID>PrintCount()<CR>
 
 " Put spaces around a character/visual selection
-func! s:SpacesAround(visual)
+func! s:SpacesAround()
     call SaveRegs()
-    execute "normal! ".(a:visual ? "gv" : "")."s \<C-r>\" \<Esc>h"
+    if mode() == 'n'
+        let ret = "s \<C-r>\" \<Esc>h`["
+    elseif mode() =~# 'V'
+        let ret = "\<C-v>$A \<Esc>gv0I \<Esc>`<"
+    elseif mode() =~# 'v'
+        let ret = "s \<C-r>\" \<Esc>h`<"
+    elseif mode() == "\<C-v>"
+        let ret = "A \<Esc>gvI \<Esc>`<"
+    endif
     call RestoreRegs()
     silent! call repeat#set("g\<Space>")
+    return ret
 endfunc
-nn <silent> g<Space> :<C-u>call <SID>SpacesAround(0)<CR>
-vn <silent> g<Space> :<C-u>call <SID>SpacesAround(1)<CR>
+nn <silent> <expr> g<Space> <SID>SpacesAround()
+vn <silent> <expr> g<Space> <SID>SpacesAround()
 
 " Show human-readable timestamp in zsh history file
 func! s:EchoHistTime()
@@ -944,6 +958,15 @@ func! s:EchoHistTime()
     echo strftime(fmt, line[2:11])
 endfunc
 autocmd VimrcAutocmds CursorMoved $HOME/.histfile call <SID>EchoHistTime()
+
+" Insert search match (as opposed to <C-r>/)
+func! s:InsertSearchResult()
+    let view = winsaveview() | call SaveRegs()
+    keepjumps normal! gny
+    execute "normal! gi\<C-r>\""
+    call winrestview(view) | call RestoreRegs()
+endfunc
+inoremap <silent> <C-]> <Esc>:call <SID>InsertSearchResult()<CR>gi
 
 " {{{2 GUI configuration
 if has('gui_running')
@@ -1314,6 +1337,8 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             \ 'syntax', 'include', 'neosnippet', 'omni']
         let g:neocomplete#sources.matlab = ['file/include', 'member', 'buffer',
             \ 'syntax', 'include', 'neosnippet', 'omni', 'matlab-complete']
+        let g:neocomplete#sources.python = ['file/include', 'member', 'buffer',
+            \ 'syntax', 'include', 'neosnippet', 'omni', 'ipython-complete']
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
             if getline('.')[col('.')-2] =~ '\S'
@@ -1455,8 +1480,8 @@ func! s:UniteSettings()
     imap <buffer> <expr> <C-o><C-s> unite#do_action('split')
     imap <buffer> <expr> <C-o>t     unite#do_action('tabopen')
     imap <buffer> <expr> <C-o><C-t> unite#do_action('tabopen')
-    imap <buffer> <expr> <C-o>d     unite#do_action('tabdrop')
-    imap <buffer> <expr> <C-o><C-d> unite#do_action('tabdrop')
+    imap <buffer> <expr> <C-o>d     unite#do_action('tabswitch')
+    imap <buffer> <expr> <C-o><C-d> unite#do_action('tabswitch')
     imap <buffer> <expr> <C-o>o     unite#do_action('view')
     imap <buffer> <expr> <C-o><C-o> unite#do_action('view')
     imap <buffer> <expr> <C-o>r     unite#do_action('open')
@@ -1789,6 +1814,11 @@ else
     call add(g:pathogen_disabled, 'clang_complete')
     let g:OmniCpp_LocalSearchDecl = 1
 endif
+
+" FSwitch settings
+nnoremap g<C-^> :<C-u>FSHere<CR>
+nnoremap <C-w><C-^> :<C-u>FSSplitRight<CR>
+nnoremap <C-w>g<C-^> :<C-u>FSSplitBelow<CR>
 
 " Import scripts
 execute pathogen#infect()

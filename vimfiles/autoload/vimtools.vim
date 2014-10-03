@@ -322,9 +322,9 @@ function! vimtools#KeepPatternsSubstitute()
     let cmd = cmdline[match(cmdline,'\a')]
     if     cmdline =~# '\v^[sgv]$'       | return "KeepPatterns ".cmd."/\\v"
     elseif cmdline =~# '\v^\%[sgv]$'     | return "KeepPatterns %".cmd."/\\v"
-    elseif cmdline =~# "\\m^'<,'>[sgv]$" | return "KeepPatterns '<,'>".cmd."/\\v"
-    elseif cmdline =~# '\v^.*[sgv]/\\v$'
-      return substitute(cmdline, '\v(^.*[sgv]/)\\v', '\1/', '')
+    elseif cmdline =~# "\\m^'<,'>[sgv]$" | return "KeepPatterns '<,'>".cmd."/\\%V\\v"
+    elseif cmdline =~# '\v^.*[sgv]/%(\\\%V)?\\v$'
+      return substitute(cmdline, '\v(^.*[sgv]/)%(\\\%V)?\\v', '\1/', '')
     endif
   endif
   let cmdstart = strpart(cmdline, 0, getcmdpos() - 1)

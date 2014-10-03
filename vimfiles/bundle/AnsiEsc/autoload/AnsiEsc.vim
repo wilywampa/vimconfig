@@ -122,6 +122,15 @@ fun! AnsiEsc#AnsiEsc(rebuild)
   syn region ansiCyan		start="\e\[;\=0\{0,2};\=36m" end="\e\["me=e-2 contains=ansiConceal
   syn region ansiWhite		start="\e\[;\=0\{0,2};\=37m" end="\e\["me=e-2 contains=ansiConceal
 
+  syn region ansiBrightBlack	start="\e\[;\=0\{0,2};\=90m" end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiBrightRed	start="\e\[;\=0\{0,2};\=91m" end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiBrightGreen	start="\e\[;\=0\{0,2};\=92m" end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiBrightYellow	start="\e\[;\=0\{0,2};\=93m" end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiBrightBlue	start="\e\[;\=0\{0,2};\=94m" end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiBrightMagenta	start="\e\[;\=0\{0,2};\=95m" end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiBrightCyan	start="\e\[;\=0\{0,2};\=96m" end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiBrightWhite	start="\e\[;\=0\{0,2};\=97m" end="\e\["me=e-2 contains=ansiConceal
+
   syn region ansiBoldBlack	start="\e\[;\=0\{0,2};\=\%(1;30\|30;1\)m" end="\e\["me=e-2 contains=ansiConceal
   syn region ansiBoldRed	start="\e\[;\=0\{0,2};\=\%(1;31\|31;1\)m" end="\e\["me=e-2 contains=ansiConceal
   syn region ansiBoldGreen	start="\e\[;\=0\{0,2};\=\%(1;32\|32;1\)m" end="\e\["me=e-2 contains=ansiConceal
@@ -496,6 +505,15 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi ansiCyan              ctermfg=6          guifg=cyan                                         cterm=none         gui=none
    hi ansiWhite             ctermfg=7          guifg=white                                        cterm=none         gui=none
 
+   hi ansiBrightBlack       ctermfg=8          guifg=black                                        cterm=none         gui=none
+   hi ansiBrightRed         ctermfg=9          guifg=red                                          cterm=none         gui=none
+   hi ansiBrightGreen       ctermfg=10         guifg=green                                        cterm=none         gui=none
+   hi ansiBrightYellow      ctermfg=11         guifg=yellow                                       cterm=none         gui=none
+   hi ansiBrightBlue        ctermfg=12         guifg=blue                                         cterm=none         gui=none
+   hi ansiBrightMagenta     ctermfg=13         guifg=magenta                                      cterm=none         gui=none
+   hi ansiBrightCyan        ctermfg=14         guifg=cyan                                         cterm=none         gui=none
+   hi ansiBrightWhite       ctermfg=15         guifg=white                                        cterm=none         gui=none
+
    hi ansiBlackBg           ctermbg=0          guibg=black                                        cterm=none         gui=none
    hi ansiRedBg             ctermbg=1          guibg=red                                          cterm=none         gui=none
    hi ansiGreenBg           ctermbg=2          guibg=green                                        cterm=none         gui=none
@@ -674,6 +692,15 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi ansiMagenta           ctermfg=5          guifg=magenta                                      cterm=none         gui=none
    hi ansiCyan              ctermfg=6          guifg=cyan                                         cterm=none         gui=none
    hi ansiWhite             ctermfg=7          guifg=white                                        cterm=none         gui=none
+
+   hi ansiBrightBlack       ctermfg=8          guifg=black                                        cterm=none         gui=none
+   hi ansiBrightRed         ctermfg=9          guifg=red                                          cterm=none         gui=none
+   hi ansiBrightGreen       ctermfg=10         guifg=green                                        cterm=none         gui=none
+   hi ansiBrightYellow      ctermfg=11         guifg=yellow                                       cterm=none         gui=none
+   hi ansiBrightBlue        ctermfg=12         guifg=blue                                         cterm=none         gui=none
+   hi ansiBrightMagenta     ctermfg=13         guifg=magenta                                      cterm=none         gui=none
+   hi ansiBrightCyan        ctermfg=14         guifg=cyan                                         cterm=none         gui=none
+   hi ansiBrightWhite       ctermfg=15         guifg=white                                        cterm=none         gui=none
 
    hi ansiBlackBg           ctermbg=0          guibg=black                                        cterm=none         gui=none
    hi ansiRedBg             ctermbg=1          guibg=red                                          cterm=none         gui=none
