@@ -110,9 +110,8 @@ function! Return_key ()
     if buftype == "quickfix"
       execute "normal! \<CR>zv"
     else
-      unmap <CR>
       execute "normal! \<CR>"
-      nnoremap <silent> <CR> :call Return_key()<CR>
+      nnoremap <silent> <buffer> <CR> :call Return_key()<CR>
     endif
   elseif foldclosed(line('.')) > 0
     normal! zo

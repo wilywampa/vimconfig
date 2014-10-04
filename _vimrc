@@ -238,10 +238,10 @@ nn <silent> <C-n> :bn<CR>
 " Search recursively or non-recursively
 nn ,gr :vim // **/*<C-Left><C-Left><Right>
 nn ,gn :vim // *<C-Left><C-Left><Right>
-nn ,go :call setqflist([])<CR>:silent! Bufdo vimgrepa // %<C-Left><C-Left><Right>
+nn ,go :call setqflist([])<CR>:silent! Bufdo! vimgrepa // %<C-Left><C-Left><Right>
 nn <Leader>gr :grep **/*(D.) -e ''<Left>
 nn <Leader>gn :grep *(D.) -e ''<Left>
-nn <Leader>go :call setqflist([])<CR>:silent! Bufdo grepa '' %<C-Left><C-Left><Right>
+nn <Leader>go :call setqflist([])<CR>:silent! Bufdo! grepa '' %<C-Left><C-Left><Right>
 
 " Delete trailing whitespace
 nn <silent> <expr> ,ws ":keepj keepp sil! %s/\\s\\+$//".(&gdefault ? "" : "g")."\<CR>"
@@ -414,13 +414,10 @@ nn <silent> <Leader>s :set bt=nofile<CR>
 nn <silent> <Leader>y :<C-U>exe vimtools#EchoSyntax(v:count)<CR>
 
 " Change directory
-nn <silent> <expr> <Leader>cd ":windo cd! ".expand('%:p:h')."\<CR>:pwd\<CR>"
-    \ .winnr('#')."\<C-w>w".winnr()."\<C-w>w"
+nn <silent> <Leader>cd :execute "Windo cd ".expand('%:p:h')<CR>:echo getcwd()<CR>
 nn <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
-nn <silent> <expr> <Leader>.. (winnr('$') > 1 ? (":windo cd
-    \ ".fnamemodify(getcwd(),':h')."\<CR>".winnr('#')."\<C-w>w".winnr()
-    \ ."\<C-w>w:pwd\<CR>") : ":cd ..\<CR>").":sil! call
-    \ repeat#set".'("\<Leader>..")'."\<CR>"
+nn <silent> <Leader>.. :execute "Windo cd ".fnamemodify(getcwd(),':h')<CR>:
+    \ sil! call repeat#set("\<Leader>..")<CR>:echo getcwd()<CR>
 nn <silent> ,.. :lcd ..<CR>:pwd<CR>:sil! call repeat#set(",..")<CR>
 
 " Put from " register in insert mode
@@ -503,10 +500,6 @@ xno g[ :<C-u>execute "normal! %%"\|echo<CR>v`<oh
 " Update diff
 nn <silent> du :diffupdate<CR>
 
-" Move cursor in insert mode without splitting undo
-ino <Left>  <C-r>="\<lt>Left>"<CR>
-ino <Right> <C-r>="\<lt>Right>"<CR>
-
 " Insert home directory after typing $~
 ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".expand('~') : '~'
 cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".expand('~') : '~'
@@ -562,6 +555,16 @@ func! Bufdo(command, bang)
     execute 'buffer ' . currBuff
 endfunc
 command! -nargs=+ -bang -complete=command Bufdo call Bufdo(<q-args>, <bang>0)
+
+" Like windo but restore current and previous window
+func! Windo(command)
+    let cwin = winnr()
+    let pwin = winnr('#')
+    execute 'windo '.a:command
+    execute pwin.'wincmd w'
+    execute cwin.'wincmd w'
+endfunc
+command! -nargs=+ -complete=command Windo call Windo(<q-args>)
 
 " Function to set key codes for terminals
 func! s:KeyCodes()
@@ -968,6 +971,21 @@ func! s:InsertSearchResult()
 endfunc
 inoremap <silent> <C-]> <Esc>:call <SID>InsertSearchResult()<CR>gi
 
+" Move cursor in insert mode without splitting undo
+func! s:BackWord()
+    if col('.') > len(getline('.'))
+        let lastwordpat =  '\v.*\zs(<.+>$|.&\k@!&\s@!)'
+        let lastwordlen = len(matchstr(getline('.'), lastwordpat))
+        return repeat("\<C-r>=\"\\<Left>\"\<CR>", max([lastwordlen, 1]))
+    else
+        return "\<Esc>:silent! undojoin\<CR>lbi"
+    endif
+endfunc
+ino <Left>  <C-r>="\<lt>Left>"<CR>
+ino <Right> <C-r>="\<lt>Right>"<CR>
+ino <silent> <expr> <C-Left> <SID>BackWord()
+ino <silent> <C-Right> <Esc>:silent! undojoin<CR>lwi
+
 " {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
@@ -1209,7 +1227,7 @@ call <SID>CreateAbbrev('dt',   'diffthis',                        ':'   )
 call <SID>CreateAbbrev('do',   'diffoff \| set nowrap',           ':'   )
 call <SID>CreateAbbrev('du',   'diffupdate',                      ':'   )
 call <SID>CreateAbbrev('vd',   'vertical diffsplit',              ':'   )
-call <SID>CreateAbbrev('wi',   'windo',                           ':'   )
+call <SID>CreateAbbrev('wi',   'Windo',                           ':'   )
 call <SID>CreateAbbrev('ca',   'call',                            ':'   )
 call <SID>CreateAbbrev('pp',   'PP',                              '>'   )
 call <SID>CreateAbbrev('csa',  'cscope add',                      ':'   )
@@ -1324,7 +1342,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}
         endif
-        let g:neocomplete#keyword_patterns._ = '\w*'
+        let g:neocomplete#keyword_patterns._ = '\h\w*'
         let g:neocomplete#keyword_patterns['default'] = '\h\w*'
         let g:neocomplete#keyword_patterns.matlab =
             \ '\h\w*\(\(\.\((''\?\)\?\w*\('')\?\)\?\)\+'
@@ -1334,11 +1352,11 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             let g:neocomplete#sources = {}
         endif
         let g:neocomplete#sources._ = ['file/include', 'member', 'buffer',
-            \ 'syntax', 'include', 'neosnippet', 'omni']
+            \ 'syntax', 'include', 'neosnippet', 'omni', 'words']
         let g:neocomplete#sources.matlab = ['file/include', 'member', 'buffer',
-            \ 'syntax', 'include', 'neosnippet', 'omni', 'matlab-complete']
+            \ 'syntax', 'include', 'neosnippet', 'omni', 'matlab-complete', 'words']
         let g:neocomplete#sources.python = ['file/include', 'member', 'buffer',
-            \ 'syntax', 'include', 'neosnippet', 'omni', 'ipython-complete']
+            \ 'syntax', 'include', 'neosnippet', 'omni', 'ipython-complete', 'words']
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
             if getline('.')[col('.')-2] =~ '\S'
@@ -1564,7 +1582,7 @@ endfunc
 " Use Unite's MRU list for alternate buffer key
 func! UniteAlternateBuffer(count)
     let buf = bufnr('%')
-    if !exists(':Unite') || (a:count == 1 && buflisted(bufnr('#')))
+    if !exists(':Unite') || (a:count == 1 && buflisted(bufnr('#')) && bufnr('#') != bufnr('%'))
         try | execute "normal! \<C-^>" | catch | endtry
     else
         let buflist = unite#sources#buffer#get_unite_buffer_list()
