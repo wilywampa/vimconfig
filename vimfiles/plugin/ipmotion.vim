@@ -67,10 +67,14 @@ vnoremap <silent> } :<C-U>call <SID>SetCount()<Bar>exe "normal! gv"<Bar>call <SI
 onoremap <silent> { :<C-U>call <SID>SetCount()<Bar>call <SID>ParagBack()<CR>
 onoremap <silent> } :<C-U>call <SID>SetCount()<Bar>call <SID>ParagFore()<CR>
 
-function! s:Unfold()
+function! s:Unfold(fore)
 	while foldclosed('.') > 0
 		normal za
 	endwhile
+	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
+	if getline('.') !~ l:boundary
+		execute "normal! ".(a:fore ? '$' : '0')
+	endif
 endfunction
 
 function! s:SetCount()
@@ -78,18 +82,17 @@ function! s:SetCount()
 endfunction
 
 function! <SID>ParagBack()
-	let l:magic = &magic | set magic
 	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 	let l:notboundary=l:boundary.'\@!'
 	let l:res = search(l:notboundary, 'cWb')
 	if l:res <= 0
 		call cursor(1,1)
-		return s:Unfold()
+		return s:Unfold(0)
 	endif
 	let l:res = search(l:boundary, 'Wb')
 	if l:res <= 0
 		call cursor(1,1)
-		return s:Unfold()
+		return s:Unfold(0)
 	endif
 	if !g:ip_skipfold || foldclosed('.') < 0
 		let l:count = s:count1 - 1
@@ -102,7 +105,7 @@ function! <SID>ParagBack()
 		let l:res = search(l:boundary, 'Wb')
 		if l:res <= 0
 			call cursor(1,1)
-			return s:Unfold()
+			return s:Unfold(0)
 		endif
 		if !g:ip_skipfold || foldclosed('.') < 0
 			let l:count = l:count - 1
@@ -110,25 +113,23 @@ function! <SID>ParagBack()
 			call cursor(foldclosed('.'), 1)
 		endif
 	endwhile
-	return s:Unfold()
-	let &magic = l:magic
+	return s:Unfold(0)
 endfunction
 
 function! <SID>ParagFore()
-	let l:magic = &magic | set magic
 	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 	let l:notboundary=l:boundary.'\@!'
 	if getline('.') =~# l:boundary
 		let l:res = search(l:notboundary, 'W')
 		if l:res <= 0
 			call cursor(line('$'),1)
-			return s:Unfold()
+			return s:Unfold(1)
 		endif
 	endif
 	let l:res = search(l:boundary, 'W')
 	if l:res <= 0
 		call cursor(line('$'),1)
-		return s:Unfold()
+		return s:Unfold(1)
 	endif
 	if !g:ip_skipfold || foldclosedend('.') < 0
 		let l:count = s:count1 - 1
@@ -141,7 +142,7 @@ function! <SID>ParagFore()
 		let l:res = search(l:boundary, 'W')
 		if l:res <= 0
 			call cursor(line('$'),1)
-			return s:Unfold()
+			return s:Unfold(1)
 		endif
 		if !g:ip_skipfold || foldclosedend('.') < 0
 			let l:count = l:count - 1
@@ -149,8 +150,7 @@ function! <SID>ParagFore()
 			call cursor(foldclosedend('.'), 1)
 		endif
 	endwhile
-	return s:Unfold()
-	let &magic = l:magic
+	return s:Unfold(1)
 endfunction
 
 augroup ipmotion

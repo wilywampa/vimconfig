@@ -274,16 +274,14 @@ map! <F16> <C-S-Tab>
 nn <silent> <M-t> :tabnew<CR>
 nn <silent> <M-T> :tab split<CR>
 
-" Delete without yank by default, and <M-d> for delete with yank
-nn c "_c|nn <M-c> c|nn \\c c|xn c "_c|xn <M-c> c|xn \\c c
-nn C "_C|nn <M-C> C|nn \\C C|xn C "_C|xn <M-C> C|xn \\C C
-nn d "_d|nn <M-d> d|nn \\d d|xn d "_d|xn <M-d> d|xn \\d d
-nn D "_D|nn <M-D> D|nn \\D D|xn D "_D|xn <M-D> D|xn \\D D
-nn s "_s|nn <M-s> s|nn \\s s|xn s "_s|xn <M-s> s|xn \\s s
-nn S "_S|nn <M-S> S|nn \\S S|xn S "_S|xn <M-S> S|xn \\S S
-nn x "_x|nn <M-x> x|nn \\x x|xn x "_x|xn <M-x> x|xn \\x x
-nn X "_X|nn <M-X> X|nn \\X X|xn X "_X|xn <M-X> X|xn \\X X
-ono <M-d> d|ono <M-c> c
+" Delete without yank by default, and <M-d> or \\d for delete with yank
+if maparg('c', 'n') == ''
+    for k in ['c', 'd', 's', 'x', 'C', 'D', 'S', 'X']
+        for m in ['nnoremap', 'xnoremap']
+            exe m.' '.k.' "_'.k.'|'.m.' <M-'.k.'> '.k.'|'.m.' \\'.k.' '.k.'|ono <M-'.k.'> '.k
+        endfor
+    endfor
+endif
 
 " Copy file/path with/without line number
 nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>:let @*=@+<CR>:let @"=@+<CR>
@@ -966,10 +964,10 @@ autocmd VimrcAutocmds CursorMoved $HOME/.histfile call <SID>EchoHistTime()
 func! s:InsertSearchResult()
     let view = winsaveview() | call SaveRegs()
     keepjumps normal! gny
-    execute "normal! gi\<C-r>\""
+    execute "normal! gi\<BS>\<C-r>\""
     call winrestview(view) | call RestoreRegs()
 endfunc
-inoremap <silent> <C-]> <Esc>:call <SID>InsertSearchResult()<CR>gi
+inoremap <silent> <C-]> x<Esc>:call <SID>InsertSearchResult()<CR>gi
 
 " Move cursor in insert mode without splitting undo
 func! s:BackWord()
@@ -1001,7 +999,7 @@ if has('gui_running')
         endif
     elseif hasMac
         " Set font for MacVim
-        set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h12
+        let &guifont = 'DejaVu Sans Mono for Powerline:h12'
 
         " Start in fullscreen mode
         autocmd VimrcAutocmds VimEnter * sil! set fullscreen
@@ -1010,7 +1008,7 @@ if has('gui_running')
         set guioptions-=e
 
         " Set font for gVim
-        set guifont=Source\ Code\ Pro\ for\ Powerline\ Medium\ 9
+        let &guifont = 'DejaVu Sans Mono for Powerline 9'
     endif
 else
     " Make control + arrow keys work in terminal

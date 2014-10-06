@@ -19,7 +19,7 @@ words = set([])
 
 def add_words(buffer):
     global words
-    words = words.union(set(re.findall('\w+', ' '.join(buffer[:]))))
+    words = words.union(set(re.findall('\w{4,}', ' '.join(buffer[:]))))
 EOF
 
 function! s:UpdateWordList()

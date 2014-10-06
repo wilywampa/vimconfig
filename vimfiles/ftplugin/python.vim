@@ -51,6 +51,8 @@ if !exists('*<SID>IPyRunPrompt')
     endtry
     python km_from_string()
     redraw
+    " Remove leading and trailing blank lines
+    let g:ipy_input = join(split(g:ipy_input, "\n"), "\n")
     python run_ipy_input()
     unlet g:ipy_input
   endfunction
