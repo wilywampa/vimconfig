@@ -43,7 +43,7 @@ while socket.recv():
                                       msg['content']['data']['text/plain'])))
         elif msg['msg_type'] == 'pyerr':
             for line in msg['content']['traceback']:
-                sys.stdout.write(line + '\n')
+                sys.stdout.write('\n' + line)
         elif msg['msg_type'] == 'stream':
             sys.stdout.write('\n' + msg['content']['data'])
         elif msg['msg_type'] == 'shutdown_reply':
