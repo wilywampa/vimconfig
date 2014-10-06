@@ -1791,6 +1791,7 @@ let g:jedi#popup_select_first = 0
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
 let g:jedi#goto_definitions_command = '<Leader>jd'
+let g:jedi#rename_command = '<Leader>jr'
 let g:jedi#auto_close_doc = 0
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
