@@ -50,10 +50,13 @@ while socket.recv():
             sys.stdout.write(output + '\n')
             print_idle = True
         elif msg['msg_type'] == 'pyout':
-            sys.stdout.write(''.join(('\n\033[', colors['red'], 'm', 'Out [%d]:'
-                                      % msg['content']['execution_count'],
-                                      '\n\033[m%s' %
-                                      msg['content']['data']['text/plain'])))
+            prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
+            spaces = ' ' * len(prompt.rstrip()) + ' '
+            prompt = '\n\033[' + colors['red'] + 'm' + prompt + '\033[0m'
+            sys.stdout.write(prompt)
+            output = msg['content']['data']['text/plain'].rstrip() \
+                .replace('\n', '\n' + spaces)
+            sys.stdout.write(output)
         elif msg['msg_type'] == 'pyerr':
             for line in msg['content']['traceback']:
                 sys.stdout.write('\n' + line)

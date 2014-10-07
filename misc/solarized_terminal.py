@@ -27,7 +27,7 @@ light_colors = ["darkgray", "red", "green", "yellow", "blue",
 x = 30
 for d, l in zip(dark_colors, light_colors):
     codes[d] = esc + "%im" % x
-    codes[l] = esc + "%im" % x
+    codes[l] = esc + "%im" % (x + 60)
     x += 1
 
 del d, l, x
