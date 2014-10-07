@@ -3,7 +3,7 @@ from IPython.kernel import find_connection_file
 import sys
 from pygments import highlight
 from pygments.lexers import PythonLexer
-from pygments.formatters import TerminalFormatter
+from solarized_terminal import SolarizedTerminalFormatter
 
 colors = {
     'red':      '31',
@@ -32,7 +32,7 @@ if len(sys.argv) > 1:
     sys.stdout = term
 
 lexer = PythonLexer()
-formatter = TerminalFormatter()
+formatter = SolarizedTerminalFormatter()
 
 print_idle = False
 socket = km.connect_iopub()
