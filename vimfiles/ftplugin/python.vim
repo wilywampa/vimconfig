@@ -44,12 +44,6 @@ augroup END
 
 if !exists('*<SID>IPyRunPrompt')
   function! s:IPyRunIPyInput()
-    try
-      silent python print IPython
-    catch
-      python km_from_string()
-    endtry
-    python km_from_string()
     redraw
     " Remove leading and trailing blank lines
     let g:ipy_input = join(split(g:ipy_input, "\n"), "\n")

@@ -162,6 +162,37 @@ else
     endif
   endfunc
 
+  function! s:RunScratchBufferMATLAB()
+    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+    if zoomed | call system("tmux resize-pane -Z") | endif
+    call VimuxOpenRunner()
+    call VimuxSendKeys("\<C-e>\<C-u>")
+    for line in range(1, line('$'))
+      call VimuxSendText(getline(line))
+      call VimuxSendKeys("\<CR>")
+    endfor
+    if zoomed | call system("tmux resize-pane -Z") | endif
+  endfunction
+
+  if !exists('*<SID>ScratchBufferMATLAB')
+    function! s:ScratchBufferMATLAB()
+      let scratch = bufnr('--MATLAB--')
+      if scratch == -1
+        enew
+        file --MATLAB--
+      else
+        execute "buffer ".scratch
+      endif
+      set filetype=matlab
+      setlocal buftype=nofile bufhidden=hide noswapfile
+      nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>RunScratchBufferMATLAB()<CR>
+      inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>RunScratchBufferMATLAB()<CR>
+      xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>RunScratchBufferMATLAB()<CR>
+      map  <buffer> <C-s> <F5>
+      map! <buffer> <C-s> <F5>
+    endfunction
+  endif
+
   nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionMATLAB<CR>g@
   nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionMATLAB<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
@@ -172,6 +203,7 @@ else
   nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>CloseFiguresMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>CloseFiguresMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>ClearWorkspaceMATLAB()<CR>
+  nnoremap <silent>                 ,ms :<C-u>call <SID>ScratchBufferMATLAB()<CR>
 endif
 
 nnoremap <silent> <buffer> <F5> :update<CR>:call <SID>RunMATLAB()<CR>

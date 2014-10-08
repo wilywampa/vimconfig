@@ -3,7 +3,12 @@ from IPython.kernel import find_connection_file
 import sys
 from pygments import highlight
 from pygments.lexers import PythonLexer
-from solarized_terminal import SolarizedTerminalFormatter
+try:
+    from solarized_terminal import SolarizedTerminalFormatter \
+        as TerminalFormatter
+except ImportError:
+    print "Couldn't import solarized terminal formatter"
+    from pygments.formatters import TerminalFormatter
 
 colors = {
     'red':      '31',
@@ -32,7 +37,7 @@ if len(sys.argv) > 1:
     sys.stdout = term
 
 lexer = PythonLexer()
-formatter = SolarizedTerminalFormatter()
+formatter = TerminalFormatter()
 
 print_idle = False
 socket = km.connect_iopub()
@@ -49,6 +54,7 @@ while socket.recv():
             output = code.rstrip().replace('\n', '\n' + dots)
             sys.stdout.write(output + '\n')
             print_idle = True
+
         elif msg['msg_type'] == 'pyout':
             prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
             spaces = ' ' * len(prompt.rstrip()) + ' '
@@ -57,18 +63,23 @@ while socket.recv():
             output = msg['content']['data']['text/plain'].rstrip() \
                 .replace('\n', '\n' + spaces)
             sys.stdout.write(output)
+
         elif msg['msg_type'] == 'pyerr':
             for line in msg['content']['traceback']:
                 sys.stdout.write('\n' + line)
+
         elif msg['msg_type'] == 'stream':
             sys.stdout.write('\n' + msg['content']['data'])
+
         elif msg['msg_type'] == 'shutdown_reply':
             sys.exit(0)
+
         elif (msg['msg_type'] == 'status'
               and msg['content']['execution_state'] == 'idle'
               and print_idle):
             sys.stdout.write('\n' + 'idle')
             print_idle = False
+
         elif not msg['msg_type'] == 'status':
             print 'msg_type = %s' % str(msg['msg_type'])
             print 'msg = %s' % str(msg)

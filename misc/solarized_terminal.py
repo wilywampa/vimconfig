@@ -96,7 +96,7 @@ solarized_styles = {
     Operator:               ('blue',      'blue'),
     Operator.Word:          ('darkgreen', 'darkgreen'),
 
-    Name:                   ('turquoise', 'turquoise'),
+    Name:                   ('blue',      'blue'),
     Name.Attribute:         ('blue',      'blue'),
     Name.Builtin:           ('darkblue',  'darkblue'),
     Name.Builtin.Pseudo:    ('brown',     'brown'),

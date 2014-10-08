@@ -257,11 +257,10 @@ function! vimtools#MakeParagraph()
   if &filetype == 'python'
     if getline('.') =~# '\v^\s*(<(def|class)>|\@[[:alnum:]_]+\s*$)' && line('.') > 1
       call append(line('.') - 1, [""])
+      if line('.') + lines < line('$')
+        call append(line('.') + lines, [""])
+      end
     endif
-    if line('.') + lines < line('$') &&
-        \ getline(line('.') + lines + 1) =~# '\v^\s*(<(def|class)>|\@[[:alnum:]_]+\s*$)'
-      call append(line('.') + lines, [""])
-    end
   endif
 
   let &foldenable = foldenable_save
