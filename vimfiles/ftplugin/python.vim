@@ -42,6 +42,15 @@ augroup py_ftplugin
       \ foldexpr=pymode#folding#expr(v:lnum) foldtext=pymode#folding#text()
 augroup END
 
+let s:errorformat  = '%+GTraceback%.%#,'
+let s:errorformat .= '%E  File "%f"\, line %l\,%m%\C,'
+let s:errorformat .= '%E  File "%f"\, line %l%\C,'
+let s:errorformat .= '%C%p^,'
+let s:errorformat .= '%+C    %.%#,'
+let s:errorformat .= '%+C  %.%#,'
+let s:errorformat .= '%Z%\S%\&%m,'
+let s:errorformat .= '%-G%.%#'
+
 if !exists('*<SID>IPyRunPrompt')
   function! s:IPyRunIPyInput()
     redraw
@@ -53,8 +62,12 @@ if !exists('*<SID>IPyRunPrompt')
 
   function! s:IPyRunPrompt()
     let g:ipy_input = input('IPy: ')
-    let g:last_ipy_input = g:ipy_input
-    call <SID>IPyRunIPyInput()
+    if len(g:ipy_input)
+      let g:last_ipy_input = g:ipy_input
+      call <SID>IPyRunIPyInput()
+    else
+      unlet g:ipy_input
+    endif
   endfunction
 
   function! s:IPyRepeatCommand()
@@ -105,6 +118,42 @@ if !exists('*<SID>IPyRunPrompt')
     endif
   endfunction
 
+  function! s:IPyQuickFix()
+    let errorfile = expand('~/.pyerr')
+    if filereadable(errorfile)
+      let l:errorformat = &errorformat
+      try
+        let pyerr = join(filter(readfile(errorfile), 'v:val !~ "^\s*$"'), "\n")
+        if pyerr =~ 'ipython-input'
+          let pyerr = substitute(pyerr, '\v\cFile "\<ipython-input\S*\>", '.
+              \ 'line \zs\d+', '\=submatch(0) + line("''[") - 1', 'g')
+          let pyerr = substitute(pyerr, '\v\cFile "\zs\<ipython-input\S*\>\ze",',
+              \ expand('%:p'), 'g')
+        endif
+        let &errorformat = s:errorformat
+        cgetexpr(pyerr)
+        copen
+        for winnr in range(1, winnr('$'))
+          if getwinvar(winnr, '&buftype') ==# 'quickfix'
+            call setwinvar(winnr, 'quickfix_title', 'Python')
+          endif
+        endfor
+        try
+          " Go to last error in a listed buffer
+          let listed = reverse(map(getqflist(),
+              \ "v:val['bufnr'] > 0 && buflisted(v:val['bufnr'])"))
+          execute "cc ".(len(listed) - index(listed, 1))
+        catch
+          cfirst
+        endtry
+      finally
+        let &errorformat = l:errorformat
+      endtry
+    else
+      echo 'No error file found'
+    endif
+  endfunction
+
   function! s:IPyRunScratchBuffer()
     let view = winsaveview()
     call SaveRegs()
@@ -148,6 +197,7 @@ xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
+nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
 
 augroup python_ftplugin
   autocmd!

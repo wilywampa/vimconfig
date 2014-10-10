@@ -1379,7 +1379,8 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
                 \ pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
             autocmd CmdwinEnter * inoremap <silent> <buffer> <expr> <S-Tab>
                 \ pumvisible() ? "\<C-p>" : neocomplete#start_manual_complete()
-            autocmd VimrcAutocmds CmdwinEnter : let b:neocomplete_sources=['vim', 'file']
+            autocmd VimrcAutocmds CmdwinEnter : let b:neocomplete_sources =
+                \ ['vim', 'file', 'words', 'syntax', 'buffer']
             autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
         augroup END
     endif
@@ -1474,11 +1475,14 @@ augroup VimrcAutocmds
 augroup END
 func! s:UniteSettings()
     setlocal conceallevel=0
-    autocmd CursorMoved,CursorMovedI,BufEnter <buffer>
-        \ if exists('b:match') |
-        \     silent! call matchdelete(b:match) |
-        \ endif |
-        \ let b:match = matchadd('Search', (@/=~#'\\\@<!\u'?"":'\c').@/, 9999)
+    augroup vimrc_unite
+        autocmd CursorMoved,CursorMovedI,BufEnter <buffer>
+            \ if exists('b:match') |
+            \     silent! call matchdelete(b:match) |
+            \ endif |
+            \ let b:match = matchadd('Search', (@/=~#'\\\@<!\u'?"":'\c').@/, 9999)
+        autocmd BufLeave,BufHidden <buffer> autocmd! vimrc_unite
+    augroup END
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
         \."\<Plug>(unite_append_enter)"
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
