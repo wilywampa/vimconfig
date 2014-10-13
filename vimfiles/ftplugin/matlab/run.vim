@@ -195,6 +195,7 @@ else
 
   nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionMATLAB<CR>g@
   nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionMATLAB<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+  inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>RunMotionMATLAB<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
   nnoremap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
   vnoremap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>

@@ -384,8 +384,10 @@ cno <expr> . (getcmdtype()==':'&&getcmdline()=~'[/ ]\.\.$')?'/..':'.'
 
 " Execute line under cursor
 if s:hasvimtools
-    nn <silent> <Leader>x  :<C-u>set opfunc=vimtools#SourceMotion<CR>g@
-    nn <silent> <Leader>xx :<C-u>set opfunc=vimtools#SourceMotion<Bar>exe
+    nno <silent> <Leader>x  :<C-u>set opfunc=vimtools#SourceMotion<CR>g@
+    nno <silent> <Leader>xx :<C-u>set opfunc=vimtools#SourceMotion<Bar>exe
+        \ 'norm! 'v:count1.'g@_'<CR>
+    ino <silent> <Leader>x  <Esc>:<C-u>set opfunc=vimtools#SourceMotion<Bar>exe
         \ 'norm! 'v:count1.'g@_'<CR>
 else
     nn <silent> <Leader>xx :exec getline('.')<CR>
@@ -1770,7 +1772,8 @@ let g:pymode_breakpoint_cmd = "import clewn.vim as vim\rvim.pdb()"
 let g:pymode_trim_whitespaces = 0
 let g:pymode_run_bind = ',r'
 let g:pymode_breakpoint_bind = '<Leader>bb'
-let g:pymode_doc = 0
+let g:pymode_doc = 1
+let g:pymode_doc_bind = 'gK'
 let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
 let g:pymode_lint_ignore = "E501,E302"
@@ -1794,7 +1797,8 @@ let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#popup_select_first = 0
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
-let g:jedi#goto_definitions_command = '<Leader>jd'
+let g:jedi#goto_definitions_command = ''
+nnoremap <Leader>jd :<C-u>call jedi#goto_definitions()<CR>zv
 let g:jedi#rename_command = '<Leader>jr'
 let g:jedi#auto_close_doc = 0
 if !exists('g:neocomplete#force_omni_input_patterns')

@@ -12,23 +12,28 @@ except ImportError:
     from pygments.formatters import TerminalFormatter
 
 colors = {
+    'black':    '30',
     'red':      '31',
-    'orange':   '31;1',
     'green':    '32',
     'yellow':   '33',
     'blue':     '34',
     'magenta':  '35',
-    'purple':   '35;1',
     'cyan':     '36',
     'white':    '37',
-    'black':    '30',
-    'none':     '32;1',
 }
 
 connected = False
+km = None
+kc = None
 while not connected:
-    if 'km' in globals(): del(km)
-    fullpath = find_connection_file('kernel*')
+    try:
+        fullpath = find_connection_file('kernel*')
+    except IOError:
+        continue
+    if km is not None:
+        del(km)
+    if kc is not None:
+        del(kc)
     km = KernelManager(connection_file=fullpath)
     km.load_connection_file()
 
@@ -39,6 +44,9 @@ while not connected:
     try:
         msg = kc.shell_channel.get_msg(timeout=1)
         connected = True
+        print 'IPython monitor connected successfully'
+    except KeyboardInterrupt:
+        sys.exit(1)
     except:
         pass
 
@@ -69,6 +77,19 @@ def handle_error():
             awaiting_msg = True
 
 
+def colorize(string, color, bold=False):
+    return ''.join(['\033[', colors[color], ';1' if bold else '', 'm',
+                    string, '\033[0m'])
+
+
+def print_prompt(color):
+    l = prompt.index('[')
+    r = prompt.index(']')
+    sys.stdout.write(colorize(prompt[:l+1], color))
+    sys.stdout.write(colorize(prompt[l+1:r], color, bold=True))
+    sys.stdout.write(colorize(prompt[r:], color))
+
+
 print_idle = False
 socket = km.connect_iopub()
 awaiting_msg = False
@@ -81,8 +102,8 @@ while socket.recv():
         if msg['msg_type'] == 'pyin':
             prompt = ''.join('In [%d]: ' % msg['content']['execution_count'])
             dots = '.' * len(prompt.rstrip()) + ' '
-            prompt = '\n\033[' + colors['green'] + 'm' + prompt + '\033[0m'
-            sys.stdout.write(prompt)
+            sys.stdout.write('\r')
+            print_prompt('green')
             code = highlight(msg['content']['code'], lexer, formatter)
             output = code.rstrip().replace('\n', '\n' + dots)
             sys.stdout.write(output)
@@ -91,8 +112,8 @@ while socket.recv():
         elif msg['msg_type'] == 'pyout':
             prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
             spaces = ' ' * len(prompt.rstrip()) + ' '
-            prompt = '\n\033[' + colors['red'] + 'm' + prompt + '\033[0m'
-            sys.stdout.write(prompt)
+            sys.stdout.write('\n')
+            print_prompt('red')
             output = msg['content']['data']['text/plain'].rstrip() \
                 .replace('\n', '\n' + spaces)
             sys.stdout.write(output)

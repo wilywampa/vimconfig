@@ -13,7 +13,7 @@ endif
 
 if !exists('*<SID>ShowDictionary')
     func s:ShowDictionary()
-        execute "silent keepalt botright 50vertical split ".g:matlab_dict
+        execute "silent keepalt botright vertical 50 split ".g:matlab_dict
         setlocal winfixwidth readonly nomodifiable nobuflisted
         setlocal buftype=nofile bufhidden=hide noswapfile
         nnoremap <buffer> q :bd<CR>
