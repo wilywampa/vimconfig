@@ -8,19 +8,19 @@ from pygments.util import get_choice_opt
 
 esc = "\x1b["
 
-codes = {}
-codes[""]          = ""
-codes["reset"]     = esc + "39;49;00m"
+codes = {
+    "reset":     esc + "39;49;00m",
+    "bold":      esc + "01m",
+    "faint":     esc + "02m",
+    "standout":  esc + "03m",
+    "underline": esc + "04m",
+    "blink":     esc + "05m",
+    "overline":  esc + "06m",
+    "":          "",
+}
 
-codes["bold"]      = esc + "01m"
-codes["faint"]     = esc + "02m"
-codes["standout"]  = esc + "03m"
-codes["underline"] = esc + "04m"
-codes["blink"]     = esc + "05m"
-codes["overline"]  = esc + "06m"
-
-dark_colors  = ["black", "darkred", "darkgreen", "brown", "darkblue",
-                "purple", "teal", "lightgray"]
+dark_colors = ["black", "darkred", "darkgreen", "brown", "darkblue",
+               "purple", "teal", "lightgray"]
 light_colors = ["darkgray", "red", "green", "yellow", "blue",
                 "fuchsia", "turquoise", "white"]
 
@@ -32,10 +32,12 @@ for d, l in zip(dark_colors, light_colors):
 
 del d, l, x
 
-codes["darkteal"]   = codes["turquoise"]
-codes["darkyellow"] = codes["brown"]
-codes["fuscia"]     = codes["fuchsia"]
-codes["white"]      = codes["bold"]
+codes.update({
+    "darkteal":   codes["turquoise"],
+    "darkyellow": codes["brown"],
+    "fuscia":     codes["fuchsia"],
+    "white":      codes["bold"],
+})
 
 
 def reset_color():

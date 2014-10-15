@@ -75,6 +75,8 @@ def handle_error():
                 '%xmode Plain', '%colors NoColor', '%tb']),
                 silent=True)
             awaiting_msg = True
+        else:
+            awaiting_msg = False  # Missed the message
 
 
 def colorize(string, color, bold=False):

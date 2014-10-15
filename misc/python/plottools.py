@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import pprint
+from pprint import pprint
 import numpy
 
 
@@ -17,8 +17,7 @@ def cl():
 
 def varinfo(var):
     print type(var)
-    pp = pprint.PrettyPrinter()
-    pp.pprint(var)
+    pprint(var)
     if type(var) is numpy.ndarray:
         print var.shape
 

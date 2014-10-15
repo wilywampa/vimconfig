@@ -205,6 +205,7 @@ augroup python_ftplugin
       \ if getbufvar(bufnr('#'), '&filetype') == 'python' |
       \     let &filetype = 'python' |
       \     let &l:omnifunc = getbufvar(bufnr('#'), '&l:omnifunc') |
+      \     execute "nnoremap <buffer> S ^C" |
       \ endif
 augroup END
 

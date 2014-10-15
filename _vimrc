@@ -511,6 +511,9 @@ nn zA za
 " Make @: work immediately after restarting vim
 nn <silent> <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
 
+" Reload undofile for current file
+nn <Leader><Leader>r :<C-u>execute 'rundo '.fnameescape(undofile(expand('%:p')))<CR>
+
 " {{{2 Abbreviations to open help
 if s:hasvimtools
     command! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
@@ -986,6 +989,12 @@ ino <Right> <C-r>="\<lt>Right>"<CR>
 ino <silent> <expr> <C-Left> <SID>BackWord()
 ino <silent> <C-Right> <Esc>:silent! undojoin<CR>lwi
 
+" Check if location list (rather than quickfix)
+func! s:IsLocationList()
+    redir => l:filename | file | redir END
+    return match(l:filename, 'Location List') > -1
+endfunc
+
 " {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
@@ -1162,7 +1171,7 @@ augroup VimrcAutocmds
 
     " Jump to quickfix result in previous window
     autocmd FileType qf nn <silent> <buffer> <CR> :execute "wincmd p \| "
-        \ .line('.').(w:quickfix_title =~ "loc.*list" ? "ll" : "cc")<CR>zv
+        \ .line('.').(<SID>IsLocationList() ? "ll" : "cc")<CR>zv
 
     " Open files as read-only automatically
     autocmd SwapExists * let v:swapchoice = 'o'
@@ -1205,8 +1214,8 @@ let nmi2km = 1.852
 let km2nmi = 1.0 / nmi2km
 let slug2kg = 14.5939029
 let kg2slug = 1.0 / slug2kg
-let amps = 340.29
-let afps = amps * m2ft
+let vsound = 340.29
+let vsoundfps = vsound * m2ft
 let assignments_pattern = '\v[=!<>]@<![+|&^.]?\=[=~]@!'
 
 " Abbreviation template
@@ -1553,6 +1562,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ ? "buffers/" : "")."neomru ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
 nn <silent> <M-p> :<C-u>Unite -prompt-direction=top neomru/directory<CR>
+nn <silent> <C-o> :<C-u>Unite -prompt-direction=top file<CR>
 nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite -prompt-direction=top mapping<CR>
 nnoremap <silent> <Leader>w :ccl\|lcl\|winc z\|sil! UniteClose<CR>
@@ -1578,6 +1588,7 @@ func! s:UniteSetup()
     call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context', {'start_insert': 1})
+    call unite#custom#source('file', 'ignore_pattern', '.*\.un\~$')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor
@@ -1800,6 +1811,7 @@ let g:jedi#auto_vim_configuration = 0
 let g:jedi#goto_definitions_command = ''
 nnoremap <Leader>jd :<C-u>call jedi#goto_definitions()<CR>zv
 let g:jedi#rename_command = '<Leader>jr'
+let g:jedi#usages_command = '<Leader>ju'
 let g:jedi#auto_close_doc = 0
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
