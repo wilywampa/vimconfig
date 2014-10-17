@@ -65,7 +65,8 @@ nnoremap <silent> } :<C-U>call <SID>SetCount()<Bar>call <SID>ParagFore()<CR>
 vnoremap <silent> { :<C-U>call <SID>SetCount()<Bar>exe "normal! gv"<Bar>call <SID>ParagBack()<CR>
 vnoremap <silent> } :<C-U>call <SID>SetCount()<Bar>exe "normal! gv"<Bar>call <SID>ParagFore()<CR>
 onoremap <silent> { :<C-U>call <SID>SetCount()<Bar>call <SID>ParagBack()<CR>
-onoremap <silent> } :<C-U>call <SID>SetCount()<Bar>call <SID>ParagFore()<CR>
+onoremap <silent> <expr> } <SID>CheckForLastLine("\<SID>ParagFore")
+" onoremap <silent> } :<C-U>call <SID>SetCount()<Bar>call <SID>ParagFore()<CR>
 
 function! s:Unfold(fore)
 	while foldclosed('.') > 0
@@ -73,7 +74,7 @@ function! s:Unfold(fore)
 	endwhile
 	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 	if getline('.') !~ l:boundary
-		execute "normal! ".(a:fore ? '$' : '0')
+		execute "normal! ".(a:fore ? 'g_' : '0')
 	endif
 endfunction
 
@@ -151,6 +152,33 @@ function! <SID>ParagFore()
 		endif
 	endwhile
 	return s:Unfold(1)
+endfunction
+
+" Fix last character missing from last line
+function! <SID>CheckForLastLine(func)
+	call <SID>SetCount()
+	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
+	let nblanks = 0
+	let start = line('.')
+	while start <= line('$') && getline(start) =~# l:boundary
+		let start += 1
+	endwhile
+	if start > line('$') | return "}" | endif
+	let last_blank = -1
+	for line in range(start, line('$'))
+		if getline(line) =~# l:boundary && (!g:ip_skipfold || foldclosed(line) == -1)
+			" Treat consecutive blanks as a single blank
+			if line != last_blank + 1
+				let nblanks += 1
+			endif
+			let last_blank = line
+		endif
+	endfor
+	if nblanks < s:count1
+		return '}'
+	else
+		return ":\<C-U>call ".a:func."()\<CR>"
+	endif
 endfunction
 
 augroup ipmotion

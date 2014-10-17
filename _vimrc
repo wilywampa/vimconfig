@@ -30,7 +30,6 @@ set showmode                    " Show current mode
 set nrformats-=octal            " Don't treat numbers as octal when incrementing/decrementing
 set shortmess+=t                " Truncate filenames in messages when necessary
 set showmatch                   " Show matching brace after inserting
-set shiftround                  " Round indent to multiple of shiftwidth
 set scrolloff=2                 " Pad lines/columns with context around cursor
 set sidescrolloff=5
 set display+=lastline           " Show as much as possible of the last line in a window
@@ -197,7 +196,7 @@ nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>
     \:set ws<CR>:let @q=substitute(@q,'\(^.*\)@q','\1','')<CR>
 
 " Toggle paste mode
-nn <silent> <Leader>p :set paste!<CR>
+nn <silent> <Leader>pp :set paste!<CR>
 
 " Select all
 nn <Leader>a ggVG
@@ -1588,7 +1587,7 @@ func! s:UniteSetup()
     call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context', {'start_insert': 1})
-    call unite#custom#source('file', 'ignore_pattern', '.*\.un\~$')
+    call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\)$')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor

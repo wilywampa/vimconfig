@@ -12,14 +12,14 @@ except ImportError:
     from pygments.formatters import TerminalFormatter
 
 colors = {
-    'black':    '30',
-    'red':      '31',
-    'green':    '32',
-    'yellow':   '33',
-    'blue':     '34',
-    'magenta':  '35',
-    'cyan':     '36',
-    'white':    '37',
+    'black':    0,
+    'red':      1,
+    'green':    2,
+    'yellow':   3,
+    'blue':     4,
+    'magenta':  5,
+    'cyan':     6,
+    'white':    7,
 }
 
 connected = False
@@ -79,9 +79,19 @@ def handle_error():
             awaiting_msg = False  # Missed the message
 
 
-def colorize(string, color, bold=False):
-    return ''.join(['\033[', colors[color], ';1' if bold else '', 'm',
-                    string, '\033[0m'])
+def handle_stream():
+    global last_msg_type
+    if last_msg_type != 'stream':
+        sys.stdout.write('\n')
+    if not received_msg:
+        sys.stdout.write(colorize(msg['content']['data'],
+                                  'cyan', bold=True, bright=True))
+        last_msg_type = msg['msg_type']
+
+
+def colorize(string, color, bold=False, bright=False):
+    return ''.join(['\033[', str(colors[color] + (90 if bright else 30)),
+                    ';1' if bold else '', 'm', string, '\033[0m'])
 
 
 def print_prompt(color):
@@ -96,6 +106,7 @@ print_idle = False
 socket = km.connect_iopub()
 awaiting_msg = False
 msg_id = None
+last_msg_type = None  # Only set when text written to stdout
 while socket.recv():
     kc.iopub_channel.flush()
     msgs = kc.iopub_channel.get_msgs()
@@ -110,6 +121,7 @@ while socket.recv():
             output = code.rstrip().replace('\n', '\n' + dots)
             sys.stdout.write(output)
             print_idle = True
+            last_msg_type = msg['msg_type']
 
         elif msg['msg_type'] == 'pyout':
             prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
@@ -119,13 +131,14 @@ while socket.recv():
             output = msg['content']['data']['text/plain'].rstrip() \
                 .replace('\n', '\n' + spaces)
             sys.stdout.write(output)
+            last_msg_type = msg['msg_type']
 
         elif msg['msg_type'] == 'pyerr':
             handle_error()
+            last_msg_type = msg['msg_type']
 
         elif msg['msg_type'] == 'stream':
-            if not received_msg:
-                sys.stdout.write('\n' + msg['content']['data'])
+            handle_stream()
 
         elif msg['msg_type'] == 'shutdown_reply':
             sys.exit(0)

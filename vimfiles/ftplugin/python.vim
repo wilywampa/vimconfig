@@ -198,6 +198,7 @@ nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
 nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
+nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>
 
 augroup python_ftplugin
   autocmd!

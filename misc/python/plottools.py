@@ -2,9 +2,14 @@ import matplotlib.pyplot as plt
 from pprint import pprint
 import numpy
 
+__all__ = ['fig', 'cl', 'savepdf', 'varinfo', 'dict2obj']
 
-def fig(num=1):
-    plt.figure(num - 1)
+
+def fig(num=0):
+    """
+    Raise figure to foreground
+    """
+    plt.figure(num)
     if plt.get_backend()[0:2].lower() == 'qt':
         plt.get_current_fig_manager().window.activateWindow()
     elif plt.get_backend()[0:2].lower() == 'wx':
@@ -13,6 +18,14 @@ def fig(num=1):
 
 def cl():
     plt.close('all')
+
+
+def savepdf(filename):
+    from matplotlib.backends.backend_pdf import PdfPages
+    with PdfPages(filename) as pp:
+        figs = [plt.figure(n) for n in plt.get_fignums()]
+        for f in figs:
+            f.savefig(pp, format='pdf')
 
 
 def varinfo(var):
