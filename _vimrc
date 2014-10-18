@@ -26,7 +26,7 @@ set hlsearch                    " Highlight search terms
 set incsearch                   " Incremental searching
 set ignorecase                  " Make search case-insensitive and smart
 set smartcase
-set showmode                    " Show current mode
+set noshowmode                  " Don't show current mode
 set nrformats-=octal            " Don't treat numbers as octal when incrementing/decrementing
 set shortmess+=t                " Truncate filenames in messages when necessary
 set showmatch                   " Show matching brace after inserting
@@ -1778,7 +1778,7 @@ nnoremap <silent> g= :call vimtools#MakeParagraph()<CR>
 " python-mode settings
 let g:pymode_options = 0
 let g:pymode_lint_on_write = 0
-let g:pymode_breakpoint_cmd = "import clewn.vim as vim\rvim.pdb()"
+let g:pymode_breakpoint_cmd = "import clewn.vim\rclewn.vim.pdb()"
 let g:pymode_trim_whitespaces = 0
 let g:pymode_run_bind = ',r'
 let g:pymode_breakpoint_bind = '<Leader>bb'
@@ -1800,6 +1800,7 @@ func! s:JediSetup()
     if exists('*jedi#completions')
         setlocal omnifunc=jedi#completions
         inoremap <silent> <buffer> . .<C-R>=jedi#complete_string(1)<CR>
+        nnoremap <buffer> <Leader>jd :<C-u>call jedi#goto_definitions()<CR>zv
     endif
 endfunc
 autocmd VimrcAutocmds FileType python call <SID>JediSetup()
@@ -1808,7 +1809,6 @@ let g:jedi#popup_select_first = 0
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
 let g:jedi#goto_definitions_command = ''
-nnoremap <Leader>jd :<C-u>call jedi#goto_definitions()<CR>zv
 let g:jedi#rename_command = '<Leader>jr'
 let g:jedi#usages_command = '<Leader>ju'
 let g:jedi#auto_close_doc = 0

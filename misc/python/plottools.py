@@ -12,6 +12,7 @@ def fig(num=0):
     plt.figure(num)
     if plt.get_backend()[0:2].lower() == 'qt':
         plt.get_current_fig_manager().window.activateWindow()
+        plt.get_current_fig_manager().window.raise_()
     elif plt.get_backend()[0:2].lower() == 'wx':
         plt.get_current_fig_manager().window.Raise()
 

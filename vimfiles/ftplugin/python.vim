@@ -95,7 +95,7 @@ if !exists('*<SID>IPyRunPrompt')
   function! s:IPyPrintVar()
     call SaveRegs()
     normal! gvy
-    let g:ipy_input = 'print '.@"
+    let g:ipy_input = 'from pprint import pprint; pprint('.@".')'
     call RestoreRegs()
     call <SID>IPyRunIPyInput()
   endfunction
@@ -199,6 +199,25 @@ nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe
 nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
 nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
 nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>
+nnoremap <buffer> <expr>   <Leader>po <SID>ToggleOmnifunc()
+
+function! s:ToggleOmnifunc()
+  if &l:omnifunc == 'CompleteIPython'
+    setlocal omnifunc=jedi#completions
+    autocmd python_ftplugin BufEnter *
+        \ if &filetype == 'python' |
+        \   setlocal omnifunc=jedi#completions |
+        \ endif
+    echo 'jedi#completions'
+  else
+    setlocal omnifunc=CompleteIPython
+    autocmd python_ftplugin BufEnter *
+        \ if &filetype == 'python' |
+        \   setlocal omnifunc=CompleteIPython |
+        \ endif
+    echo 'CompleteIPython'
+  endif
+endfunction
 
 augroup python_ftplugin
   autocmd!
