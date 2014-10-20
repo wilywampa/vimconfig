@@ -342,6 +342,7 @@ function! vimtools#FuncAbbrevs()
     elseif cmdstart=~'\v<getl%[in]$'     | return substitute(cmd,'\v<getl%[in]$','getline(','')
     elseif cmdstart=~'\v<sys%[te]$'      | return substitute(cmd,'\v<sys%[te]$','system(','')
     elseif cmdstart=~'\v<pr%[int]$'      | return substitute(cmd,'\v<pr%[int]$','printf(','')
+    elseif cmdstart=~'\v<ex%[pand]$'     | return substitute(cmd,'\v<ex%[pand]$','expand(','')
     elseif cmdstart=~'\v<s%[ubstitute]$' | return substitute(cmd,'\v<s%[ubstitute]$','substitute(','')
     endif
   endif

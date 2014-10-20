@@ -84,7 +84,7 @@ if !exists("syntax_on") | syntax enable | endif
 let g:vim_indent_cont=4
 
 " Session settings
-set sessionoptions=buffers,curdir,folds,help,tabpages,winsize
+set sessionoptions=buffers,curdir,help,tabpages,winsize
 nnoremap <silent> ,l :source ~/session.vis<CR>
 if !s:readonly && !exists('g:no_session')
     augroup VimrcAutocmds
@@ -503,12 +503,14 @@ nn <silent> du :diffupdate<CR>
 ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".expand('~') : '~'
 cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".expand('~') : '~'
 
-" Open folds recursively with zA and non-recursively with za
+" Open folds recursively with z[ao] and non-recursively with z[AO]
 nn za zA
 nn zA za
+nn zo zczA
+nn zO zo
 
 " Make @: work immediately after restarting vim
-nn <silent> <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
+nn <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
 
 " Reload undofile for current file
 nn <Leader><Leader>r :<C-u>execute 'rundo '.fnameescape(undofile(expand('%:p')))<CR>
@@ -739,6 +741,7 @@ cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 
 " Don't delete the v/V at the start of a search
 func! s:SearchCmdDelWord()
+    let l:iskeyword = &l:iskeyword | setlocal iskeyword&
     let cmd = (getcmdtype() =~ '[/?]' ? '/' : '').
         \ strpart(getcmdline(), 0, getcmdpos() - 1)
     if cmd =~# '\v/%(\\\%V)?\\[vV]\k+$'
@@ -746,6 +749,7 @@ func! s:SearchCmdDelWord()
     elseif cmd =~# '\v/\\\%V\k+$'
         return "\<C-w>V"
     endif
+    let &l:iskeyword = l:iskeyword
     return "\<C-w>"
 endfunc
 cnoremap <expr> <C-w> <SID>SearchCmdDelWord()
@@ -1812,6 +1816,7 @@ let g:jedi#goto_definitions_command = ''
 let g:jedi#rename_command = '<Leader>jr'
 let g:jedi#usages_command = '<Leader>ju'
 let g:jedi#auto_close_doc = 0
+let g:jedi#show_call_signatures = 1
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
 endif
