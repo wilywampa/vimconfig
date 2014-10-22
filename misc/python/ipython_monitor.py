@@ -81,7 +81,7 @@ def handle_error():
 
 def handle_stream():
     global last_msg_type
-    if last_msg_type != 'stream':
+    if last_msg_type != 'stream' and last_msg_type != 'pyerr':
         sys.stdout.write('\n')
     if not received_msg:
         sys.stdout.write(colorize(msg['content']['data'],

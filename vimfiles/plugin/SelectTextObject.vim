@@ -9,71 +9,73 @@ endif
 let SelectTextObjectLoaded=1
 
 func! s:SelectTextObject(obj, motion, visual)
-  if a:obj ==# 'b'
-    let left = '('
-    let right = ')'
-  elseif a:obj ==# 'B'
-    let left = '{'
-    let right = '}'
-  elseif a:obj == '['
-    let left = '['
-    let right = ']'
-  elseif a:obj == '<'
-    let left = '<'
-    let right = '>'
-  endif
+  try
+    if a:obj ==# 'b'
+      let left = '('
+      let right = ')'
+    elseif a:obj ==# 'B'
+      let left = '{'
+      let right = '}'
+    elseif a:obj == '['
+      let left = '['
+      let right = ']'
+    elseif a:obj == '<'
+      let left = '<'
+      let right = '>'
+    endif
 
-  let curpos = getpos('.')
-  let line = getline('.')
+    let curpos = getpos('.')
+    let line = getline('.')
 
-  if stridx(line, left) < strridx(line, right)
-    " Expand selection
-    let did_expand = 0
-    if a:visual && col("'<") != col("'>")
-      if line("'<") == line('.') && line("'>") == line('.') &&
-          \ line[col("'<")-1] == left && line[col("'>")-1] == right
-        execute "normal! `<v`>loh\<Esc>"
-        let did_expand = 1
+    if stridx(line, left) < strridx(line, right)
+      " Expand selection
+      let did_expand = 0
+      if a:visual && col("'<") != col("'>")
+        if line("'<") == line('.') && line("'>") == line('.') &&
+            \ line[col("'<")-1] == left && line[col("'>")-1] == right
+          execute "normal! `<v`>loh\<Esc>"
+          let did_expand = 1
+        endif
+      endif
+
+      while !<SID>CursorInPair(left,right)
+        if line[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
+          execute "normal! f".left
+        elseif line[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
+          execute "normal! F".right
+        else
+          call setpos('.',curpos)
+          execute "normal! v\<Esc>"
+          return
+        endif
+      endwhile
+
+      " Handle empty pair by inserting a space
+      if a:motion == 'i'
+        let curchar = line[col('.')-1]
+        if curchar == right && line[col('.')-2] == left
+          execute "normal! i\<Space>\<Esc>"
+        elseif curchar == left && line[col('.')] == right
+          execute "normal! a\<Space>\<Esc>"
+        elseif line[col('.')-2] == left && did_expand
+          execute "normal! F".left
+        endif
       endif
     endif
 
-    while !<SID>CursorInPair(left,right)
-      if line[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
-        execute "normal! f".left
-      elseif line[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
-        execute "normal! F".right
-      else
-        call setpos('.',curpos)
-        execute "normal! v\<Esc>"
-        echo
-        return
-      endif
-    endwhile
-
-    " Handle empty pair by inserting a space
-    if a:motion == 'i'
-      let curchar = line[col('.')-1]
-      if curchar == right && line[col('.')-2] == left
-        execute "normal! i\<Space>\<Esc>"
-      elseif curchar == left && line[col('.')] == right
-        execute "normal! a\<Space>\<Esc>"
-      elseif line[col('.')-2] == left && did_expand
-        execute "normal! F".left
-      endif
+    " Need to manually select character if single character in pair for inner motion
+    if a:motion == 'i' && line[col('.')-1] == left && line[col('.')+1] == right
+      execute "normal! lv"
+    elseif a:motion == 'i' && line[col('.')-2] == left && line[col('.')] == right
+      execute "normal! v"
+    elseif a:motion == 'i' && line[col('.')-3] == left && line[col('.')-1] == right
+      execute "normal! hv"
+    else
+      execute "normal! v".a:motion.a:obj
     endif
-  endif
-
-  " Need to manually select character if single character in pair for inner motion
-  if a:motion == 'i' && line[col('.')-1] == left && line[col('.')+1] == right
-    execute "normal! lv"
-  elseif a:motion == 'i' && line[col('.')-2] == left && line[col('.')] == right
-    execute "normal! v"
-  elseif a:motion == 'i' && line[col('.')-3] == left && line[col('.')-1] == right
-    execute "normal! hv"
-  else
-    execute "normal! v".a:motion.a:obj
-  endif
-  echo
+  finally
+    echo
+  endtry
 endfunc
 
 func! s:CursorInPair(left, right)
@@ -146,26 +148,29 @@ xnoremap a> :<C-u>call <SID>SelectTextObject('<','a',1)<CR>
 xnoremap aa :<C-u>call <SID>SelectTextObject('<','a',1)<CR>
 
 func! s:SelectTextObjectQuote(obj, motion)
-  let line = getline('.')
-  if line !~ a:obj.".*".a:obj
-    return
-  endif
+  try
+    let line = getline('.')
+    if line !~ a:obj.".*".a:obj
+      return
+    endif
 
-  if stridx(line[col('.')-1:-1] ,a:obj) == -1
-    execute "normal! F".a:obj
-  elseif stridx(line[0:col('.')-1], a:obj) == -1
-    execute "normal! f".a:obj
-  endif
+    if stridx(line[col('.')-1:-1] ,a:obj) == -1
+      execute "normal! F".a:obj
+    elseif stridx(line[0:col('.')-1], a:obj) == -1
+      execute "normal! f".a:obj
+    endif
 
-  let curchar = line[col('.')-1]
-  if curchar == a:obj && line[col('.')-2] == a:obj
-    execute "normal! i\<Space>\<Esc>"
-  elseif curchar == a:obj && line[col('.')] == a:obj
-    execute "normal! a\<Space>\<Esc>"
-  endif
+    let curchar = line[col('.')-1]
+    if curchar == a:obj && line[col('.')-2] == a:obj
+      execute "normal! i\<Space>\<Esc>"
+    elseif curchar == a:obj && line[col('.')] == a:obj
+      execute "normal! a\<Space>\<Esc>"
+    endif
 
-  execute "normal! v".a:motion.a:obj
-  echo
+    execute "normal! v".a:motion.a:obj
+  finally
+    echo
+  endtry
 endfunc
 
 onoremap i" :<C-u>call <SID>SelectTextObjectQuote('"','i')<CR>

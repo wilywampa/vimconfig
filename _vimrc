@@ -1079,10 +1079,11 @@ endif
 " }}}2
 
 " Create new buffer with filetype as (optional) argument
-command! -nargs=? New     new     | set filetype=<args>
-command! -nargs=? Enew    enew    | set filetype=<args>
-command! -nargs=? Vnew    vnew    | set filetype=<args>
-command! -nargs=? Tabedit tabedit | set filetype=<args>
+for cmd in ['new', 'enew', 'vnew', 'tabedit']
+    execute "command! -nargs=? ".toupper(cmd[0]).cmd[1:]." ".cmd." | ".
+        \ "if !empty('<args>') | set filetype=<args> | "
+        \ "else | let &filetype= getbufvar('#', '&filetype') | endif"
+endfor
 
 " Increase time allowed for keycode mappings over SSH
 if mobileSSH
@@ -1816,7 +1817,7 @@ let g:jedi#goto_definitions_command = ''
 let g:jedi#rename_command = '<Leader>jr'
 let g:jedi#usages_command = '<Leader>ju'
 let g:jedi#auto_close_doc = 0
-let g:jedi#show_call_signatures = 1
+let g:jedi#show_call_signatures = 2
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
 endif
