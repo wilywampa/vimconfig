@@ -4,10 +4,10 @@
 [core]
 	excludesfile = /Users/jniehus/.gitignore_global
 	editor = vim
-	pager = 
+	pager =
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
+	path =
 [mergetool "sourcetree"]
 	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
@@ -35,5 +35,9 @@
 	clean = git-media-clean %f
 	smudge = git-media-smudge %f
 [merge]
-	tool = vimdiff
+	tool = diffconflicts
 	conflictstyle = diff3
+[mergetool "diffconflicts"]
+	cmd = diffconflicts vim $BASE $LOCAL $REMOTE $MERGED
+	trustExitCode = true
+	keepBackup = false

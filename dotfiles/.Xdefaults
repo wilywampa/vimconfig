@@ -1,6 +1,6 @@
 XTerm*termName: xterm-256color
-XTerm*faceName: Meslo LG S for Powerline
-XTerm*faceSize: 9.2
+XTerm*faceName: DejaVu Sans Mono for Powerline
+XTerm*faceSize: 11.5
 XTerm*metaSendsEscape: false
 XTerm*altSendsEscape: false
 XTerm*reverseVideo: false
@@ -14,6 +14,7 @@ XTerm*visualBellDelay: 0
 XTerm*bellIsUrgent: true
 XTerm*scrollBar: false
 XTerm*fullscreen: always
+XTerm*boldColors: false
 
 *allowWindowOps: true
 *allowTitleOps: true
@@ -73,8 +74,10 @@ Ctrl <Key>8: string("8") \n\
 Ctrl <Key>9: string("9") \n\
 Ctrl ~Shift <Key>Tab: string(0x1b) string("[27;5;9~") \n\
 Ctrl Shift <Key>Tab: string(0x1b) string("[27;6;9~") \n\
+~Ctrl Shift <Key>Tab: string(0x1b) string("[Z") \n\
 Ctrl ~Shift <Key>`: string(0x1e) \n\
 Ctrl Shift <Key>`: string(0x1e) \n\
+Ctrl <Key>Return: string(0x1e) \n\
 Ctrl ~Shift <Key>-: string(0x1f) \n\
 Ctrl Shift <Key>-: string(0x1f) \n\
 Meta <Key>-: smaller-vt-font() \n\

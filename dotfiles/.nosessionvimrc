@@ -46,7 +46,7 @@ nmap ZZ ZA
 
 set complete+=k
 set dictionary=~/.tmuxwords_no_escape.zsh
-set wrap
+set wrap linebreak
 let g:neocomplete#sources#dictionary#dictionaries = { 'zsh' : '~/.tmuxwords_no_escape.zsh' }
 let g:neocomplete#use_vimproc = 0
 

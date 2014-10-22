@@ -86,7 +86,7 @@ alias svnst="svn st | g -v '\.git'"
 alias svndi="svnst | awk '{print \$2}' | s | xargs svn di"
 alias slog="svn log -r 1:HEAD"
 alias srm="svn rm"
-local cmds=''"'"'+$ +/^Index:'"'"' =(svn di --diff-cmd diff)'
+local cmds=''"'"'+/^Index:'"'"' "+1" =(svn di --diff-cmd diff)'
 alias svndiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
 svnexport() {
     mkdir -p "$1"
@@ -120,13 +120,14 @@ alias glogv='git log --reverse --stat'
 alias gls='git ls-files'
 alias gg='git grep'
 alias grm='git rm'
+alias gfom='git fetch origin master'
 alias gpom='git pull origin master'
 alias gurl='git config --get remote.origin.url'
-local cmds=''"'"'+$ +/^diff --git'"'"' =(git diff --no-ext-diff)'
+local cmds=''"'"'+/^diff --git'"'"' "+1" =(git diff --no-ext-diff)'
 alias gdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
-local cmds=''"'"'+$ +/^diff --git'"'"' =(git diff --cached --no-ext-diff)'
+local cmds=''"'"'+/^diff --git'"'"' "+1" =(git diff --cached --no-ext-diff)'
 alias gdiffc='vim -c "set buftype=nowrite scrolloff=999" '$cmds
-local cmds=''"'"'+$ +/^diff --git'"'"' =(hg diff --git)'
+local cmds=''"'"'+/^diff --git'"'"' "+1" =(hg diff --git)'
 alias hgdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
 
 # ls
@@ -207,7 +208,7 @@ bindkey -M vicmd 'gcc' vi-pound-insert
 bindkey -M vicmd 'Y' vi-yank-eol
 bindkey -M vicmd 'yy' vi-yank-whole-line
 bindkey '^R' history-incremental-search-backward
-bindkey 'ò' history-incremental-search-backward
+bindkey 'ò' history-incremental-search-backward  # <M-r>
 bindkey '^S' history-incremental-search-forward
 bindkey -M isearch '^R' history-incremental-search-backward
 bindkey -M isearch '^S' history-incremental-search-forward
@@ -267,6 +268,7 @@ abbrevs=(
 'sci'   'svn commit'
 'sup'   'svn update'
 'sst'   'svn status'
+'sre'   'svn revert'
 'slog'  'svn log -r 1:HEAD'
 'srm'   'svn rm'
 'surl'  'info=$(svn info); echo ${${info[(fr)URL: *]}[(w)-1]}'
@@ -274,6 +276,7 @@ abbrevs=(
 'so'    'source'
 'ez'    'vim ~/.zshrc'
 'sz'    'source ~/.zshrc'
+'szv'   'source ~/.zshrc; vims'
 'wh'    'whence'
 'g'     'grep'
 'gi'    'grep -i'
@@ -298,6 +301,7 @@ abbrevs=(
 'remin' 'make clean && make install'
 'xa'    'xargs'
 'c'     'copy'
+'p'     'path'
 'gid'   'gdiff'
 'gidc'  'gdiffc'
 'svd'   'svndiff'
@@ -307,6 +311,7 @@ abbrevs=(
 'vno'   'vim -u NONE -i NONE'
 'vp'    'vimpager'
 'ipy'   'ipython'
+'xt'    'xclip -o >& /dev/null || echo -n "not "; echo connected'
 )
 
 # Post-modifier abbreviations
@@ -529,14 +534,16 @@ _escalate-kill() {
 }
 zle -N _escalate-kill
 
-_escalate_whence() {
+_escalate-whence() {
     if [[ ! $BUFFER =~ "^wh" ]] && [[ $history[$((HISTCMD-1))] =~ "^wh" ]]; then
         BUFFER=$history[$((HISTCMD-1))]
     elif [[ ! $BUFFER =~ "^wh" ]]; then
         return
     fi
     if [[ $BUFFER =~ "^whence [^- ]" ]]; then
-        BUFFER=${BUFFER/whence /whence -a }
+        BUFFER=${BUFFER/whence /whence -p }
+    elif [[ $BUFFER =~ "^whence -p" ]]; then
+        BUFFER=${BUFFER/whence -p /whence -a }
     elif [[ $BUFFER =~ "^whence -a" ]]; then
         BUFFER=${BUFFER/whence -a /which }
     elif [[ $BUFFER =~ "^which" ]] && [[ ! $BUFFER =~ "^where" ]]; then
@@ -544,18 +551,18 @@ _escalate_whence() {
     fi
     CURSOR=$#BUFFER
 }
-zle -N _escalate_whence
+zle -N _escalate-whence
 
 _escalate() {
     r="^kill"
     if [[ ${BUFFER[1,2]} == "wh" ]]; then
-        _escalate_whence
+        _escalate-whence
     elif [[ ${BUFFER[1,4]} == "kill" ]]; then
         _escalate-kill
     elif [[ ${BUFFER[1,6]} == "find ." ]]; then
         BUFFER=${BUFFER/find ./find \$PWD}; CURSOR=$(($CURSOR+3))
     elif [[ ${history[$((HISTCMD-1))][1,2]} == "wh" ]]; then
-        _escalate_whence
+        _escalate-whence
     elif [[ ${history[$((HISTCMD-1))][1,4]} == "kill" ]]; then
         _escalate-kill
     fi
@@ -563,10 +570,10 @@ _escalate() {
 zle -N _escalate; vibindkey '^K' _escalate
 
 _backward-delete-WORD () {
-    local WORDCHARS=${WORDCHARS}"\"\`'\@"
+    local WORDCHARS=${WORDCHARS}"\"\`'\@,"
     zle backward-delete-word
 }
-zle -N _backward-delete-WORD; vibindkey '÷' _backward-delete-WORD
+zle -N _backward-delete-WORD; vibindkey '÷' _backward-delete-WORD  # <M-w>
 
 _backward-delete-to-slash () {
     local WORDCHARS=${WORDCHARS//\//}
@@ -591,6 +598,7 @@ _vim-args() {
     if [[ ${BUFFER[(w)1]} =~ ^ag?$ ]]; then
         # Extract string between quotes
         [[ $BUFFER =~ "'(.*)'" ]]; pat=${${match[1]}:-""}
+        pat=${${pat//</\\<}//>/\\>}; pat=${pat//\\b/(<|>)}
         if [[ -z $pat ]]; then
             # If BUFFER is of the form 'ag pattern -l', extract pattern
             if (( ${(w)#BUFFER} == 3 )) && [[ ${BUFFER[(w)-1]} == "-l" ]]; then
@@ -927,7 +935,11 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 zle -C complete-files menu-complete _generic
 zstyle ':completion:complete-files:*' completer _files
 zstyle ':completion:complete-files:*' menu 'select=0'
-bindkey '^^' complete-files
+_complete-files-or-previous-dir() {
+    [[ -z $BUFFER ]] && {cd "$OLDPWD"; zle reset-prompt} || zle complete-files
+}
+zle -N _complete-files-or-previous-dir
+bindkey '^^' _complete-files-or-previous-dir
 
 #[[[1 Prompt stuff
 export _PSVARLEN=0
@@ -1098,5 +1110,12 @@ fi
 
 #[[[1 Machine-specific settings
 [[ -e ~/.zshrclocal ]] && source ~/.zshrclocal
+
+# Check if important variables have been set
+_unset=()
+for _var in VIMCONFIG FPATH FZF_RUBY_EXEC; do
+    [[ -z $(eval echo "\${$_var}") ]] && _unset+=($_var)
+done
+[[ -n $_unset ]] && echo "Unset variables:" ${(j/, /)_unset}
 
 # vim: set fdm=marker fdl=1 et sw=4 fmr=[[[,]]]:

@@ -6,3 +6,5 @@ cscope.out
 .cache
 .cpan
 .cachetmp
+*.pdf
+*.mat
