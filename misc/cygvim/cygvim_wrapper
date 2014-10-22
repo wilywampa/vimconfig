@@ -1,6 +1,6 @@
 #!/bin/sh
 file=$(cygpath -ua "$@")
 vim --serverlist | grep -q '\bVIM\b' 2>&1 > /dev/null
-if [ $? -eq 1 ]; then
+if [ $? -eq 0 ]; then
   vim --servername $VIMSERVER --remote "$file"
 fi
