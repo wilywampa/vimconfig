@@ -66,7 +66,7 @@ set isfname+={,}                " Interpret {} as part of a filename
 sil! set breakindent            " Indent wrapped lines
 
 " Ignore system files
-set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d
+set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe
 
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
@@ -493,8 +493,6 @@ ono . :<C-u>call    search('[[({<,;:]')\|echo<CR>
 xno . <Esc>`>l:call search('[[({<,;:]')\|echo<CR>v`<oh
 ono g] vg_
 xno g] g_h
-ono g[ :<C-u>execute "normal! %%"\|echo<CR>
-xno g[ :<C-u>execute "normal! %%"\|echo<CR>v`<oh
 
 " Update diff
 nn <silent> du :diffupdate<CR>
@@ -997,6 +995,36 @@ func! s:IsLocationList()
     redir => l:filename | file | redir END
     return match(l:filename, 'Location List') > -1
 endfunc
+
+" Operator map to move to opening pair if outside pair else closing pair
+func! s:ToPair(visual)
+    let l:matchpairs = &matchpairs
+    let &matchpairs = '(:),{:},[:],<:>'
+    try
+        if a:visual
+            call setpos('.', getpos("'>"))
+        endif
+        let pos = getpos('.')
+        let lpos = getpos("'<")
+        normal! %
+        if getpos('.') != pos
+            normal! %
+        else
+            let quote = searchpos('[''"]', 'n', line('.'))
+            if quote[0] == line('.')
+                execute "normal! ".quote[1]."|"
+            endif
+        endif
+        if a:visual && getpos('.') != pos
+            execute "normal! ".getpos("'<")[2]."|v".getpos(".")[2]."|h"
+        endif
+    finally
+        let &matchpairs = l:matchpairs
+        echo
+    endtry
+endfunc
+onoremap <silent> g[ :<C-u>call <SID>ToPair(0)<CR>
+xnoremap <silent> g[ :<C-u>call <SID>ToPair(1)<CR>
 
 " {{{2 GUI configuration
 if has('gui_running')
@@ -1769,7 +1797,7 @@ nnoremap <silent> <M-f> :FZF<CR>
 
 " eunuch settings
 cnoreabbrev <expr> loc getcmdtype() == ':' && getcmdpos() <= 4 ?
-    \ 'Locate! --regex' : 'loc'
+    \ 'Locate! --regex -i' : 'loc'
 
 " vimtools functions
 command! -nargs=? -complete=dir Tree call vimtools#Tree(<f-args>)
@@ -1861,6 +1889,13 @@ endif
 nnoremap g<C-^> :<C-u>FSHere<CR>
 nnoremap <C-w><C-^> :<C-u>FSSplitRight<CR>
 nnoremap <C-w>g<C-^> :<C-u>FSSplitBelow<CR>
+
+" Scriptease settings
+func! s:ScripteaseMaps()
+    nnoremap <buffer> <Leader>bb :<C-u>Breakadd<CR>
+    nnoremap <buffer> <Leader>bc :<C-u>Breakdel *<CR>
+endfunc
+autocmd VimrcAutocmds FileType vim call <SID>ScripteaseMaps()
 
 " Import scripts
 execute pathogen#infect()

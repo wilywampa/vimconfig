@@ -5,7 +5,7 @@ import numpy
 __all__ = ['fig', 'cl', 'savepdf', 'varinfo', 'dict2obj']
 
 
-def fig(num=0):
+def fig(num=1):
     """
     Raise figure to foreground
     """

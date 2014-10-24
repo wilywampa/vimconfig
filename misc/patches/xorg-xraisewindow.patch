@@ -1,0 +1,50 @@
+diff --git a/hw/xwin/winmultiwindowwindow.c b/hw/xwin/winmultiwindowwindow.c
+index 956a9a5..22390b3 100644
+--- a/hw/xwin/winmultiwindowwindow.c
++++ b/hw/xwin/winmultiwindowwindow.c
+@@ -465,6 +465,7 @@ winRestackWindowMultiWindow (WindowPtr pWin, WindowPtr pOldNextSib)
+   HWND			hInsertAfter;
+   HWND                  hWnd = NULL;
+ #endif
++  static Bool fRestacking = FALSE; /* Avoid recusive calls to this function */
+   ScreenPtr		pScreen = pWin->drawable.pScreen;
+   winScreenPriv(pScreen);
+ 
+@@ -472,10 +473,27 @@ winRestackWindowMultiWindow (WindowPtr pWin, WindowPtr pOldNextSib)
+   winTrace ("winRestackMultiWindow - %08x\n", pWin);
+ #endif
+   
++  if (fRestacking)
++    {
++      /* It is a recusive call so immediately exit */
++#if CYGWINDOWING_DEBUG
++      ErrorF ("winRestackWindowMultiWindow - "
++	      "exit because fRestacking == TRUE\n");
++#endif
++      return;
++    }
++  fRestacking = TRUE;
++
+    WIN_UNWRAP(RestackWindow);
+    if (pScreen->RestackWindow) 
+      (*pScreen->RestackWindow)(pWin, pOldNextSib);
+    WIN_WRAP(RestackWindow, winRestackWindowMultiWindow);
++
++  if (isToplevelWindow(pWin) && pWin->prevSib == NULL)
++    {
++      winWindowPriv(pWin);
++      SetForegroundWindow(pWinPriv->hWnd);
++    }
+   
+ #if 1
+   /*
+@@ -538,6 +556,8 @@ winRestackWindowMultiWindow (WindowPtr pWin, WindowPtr pOldNextSib)
+ 		0, 0,
+ 		uFlags);
+ #endif
++
++  fRestacking = FALSE;
+ }
+ 
+ static void
+
