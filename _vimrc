@@ -58,7 +58,7 @@ set clipboard=unnamed           " Yank to system clipboard
 sil! set clipboard+=unnamedplus
 set mouse=                      " Disable mouse integration
 set cmdwinheight=15             " Increase command window height
-sil! set showbreak=↪            " Show character at start of wrapped lines
+sil! set showbreak=↪\           " Show character at start of wrapped lines
 set nojoinspaces                " Don't add two spaces after punctuation
 set gdefault                    " Substitute all occurrences by default
 set nostartofline               " Don't jump to start of line for various motions
@@ -1270,6 +1270,8 @@ call <SID>CreateAbbrev('du',   'diffupdate',                      ':'   )
 call <SID>CreateAbbrev('vd',   'vertical diffsplit',              ':'   )
 call <SID>CreateAbbrev('wi',   'Windo',                           ':'   )
 call <SID>CreateAbbrev('ca',   'call',                            ':'   )
+call <SID>CreateAbbrev('m',    'make',                            ':'   )
+call <SID>CreateAbbrev('mcl',  'make clean',                      ':'   )
 call <SID>CreateAbbrev('pp',   'PP',                              '>'   )
 call <SID>CreateAbbrev('csa',  'cscope add',                      ':'   )
 call <SID>CreateAbbrev('csf',  'cscope find',                     ':'   )

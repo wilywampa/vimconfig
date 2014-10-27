@@ -111,7 +111,10 @@ while socket.recv():
     kc.iopub_channel.flush()
     msgs = kc.iopub_channel.get_msgs()
     for msg in msgs:
-        received_msg = msg_id and msg['parent_header']['msg_id'] == msg_id
+        try:
+            received_msg = msg_id and msg['parent_header']['msg_id'] == msg_id
+        except KeyError:
+            received_msg = False
         if msg['msg_type'] == 'pyin':
             prompt = ''.join('In [%d]: ' % msg['content']['execution_count'])
             dots = '.' * len(prompt.rstrip()) + ' '

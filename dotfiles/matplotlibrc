@@ -1,0 +1,8 @@
+backend : qt4agg
+axes.grid : True
+legend.loc : best
+legend.fontsize : small
+figure.autolayout : True
+figure.max_open_warning : 100
+figure.facecolor : white
+axes.formatter.useoffset : False
