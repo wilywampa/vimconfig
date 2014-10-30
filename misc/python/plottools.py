@@ -1,35 +1,54 @@
-import matplotlib.pyplot as plt
-from pprint import pprint
-import numpy
-
-__all__ = ['fig', 'cl', 'savepdf', 'varinfo', 'dict2obj']
+import matplotlib.pyplot as _plt
 
 
-def fig(num=1):
+def fg(fig):
     """
     Raise figure to foreground
     """
-    plt.figure(num)
-    if plt.get_backend()[0:2].lower() == 'qt':
-        plt.get_current_fig_manager().window.activateWindow()
-        plt.get_current_fig_manager().window.raise_()
-    elif plt.get_backend()[0:2].lower() == 'wx':
-        plt.get_current_fig_manager().window.Raise()
+    _plt.figure(fig.number)
+    if _plt.get_backend()[0:2].lower() == 'qt':
+        _plt.get_current_fig_manager().window.activateWindow()
+        _plt.get_current_fig_manager().window.raise_()
+    elif _plt.get_backend()[0:2].lower() == 'wx':
+        _plt.get_current_fig_manager().window.Raise()
+
+
+def fig(num=1):
+    fg(_plt.figure(num))
+
+
+def figdo(*args):
+    """
+    Apply functions to all open figures
+    """
+    [func(_plt.figure(n)) for n in _plt.get_fignums() for func in args]
+
+
+def resize(width, height):
+    _plt.get_current_fig_manager().resize(width, height)
 
 
 def cl():
-    plt.close('all')
+    _plt.close('all')
 
 
 def savepdf(filename):
     from matplotlib.backends.backend_pdf import PdfPages
     with PdfPages(filename) as pp:
-        figs = [plt.figure(n) for n in plt.get_fignums()]
+        figs = [_plt.figure(n) for n in _plt.get_fignums()]
         for f in figs:
             f.savefig(pp, format='pdf')
 
 
+def savesvg(basename):
+    figs = [_plt.figure(n) for n in _plt.get_fignums()]
+    for f in figs:
+        f.savefig(basename + str(f.number) + '.svg', format='svg')
+
+
 def varinfo(var):
+    from pprint import pprint
+    import numpy
     print type(var)
     pprint(var)
     if type(var) is numpy.ndarray:

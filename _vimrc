@@ -192,8 +192,8 @@ nn <silent> <C-l> :nohl<CR><C-l>
 nm Q @q
 
 " Execute q macro recursively
-nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>:norm @q<CR>
-    \:set ws<CR>:let @q=substitute(@q,'\(^.*\)@q','\1','')<CR>
+nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>@q:set ws<CR>:let
+    \ @q=substitute(@q, '\(^.*\)@q', '\1', '')<CR>
 
 " Toggle paste mode
 nn <silent> <Leader>pp :set paste!<CR>
@@ -1622,7 +1622,8 @@ func! s:UniteSetup()
     call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context', {'start_insert': 1})
-    call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\)$')
+    call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
+    call unite#custom#source('buffer,file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor
