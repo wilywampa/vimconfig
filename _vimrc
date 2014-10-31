@@ -338,7 +338,7 @@ no <C-q> <C-v>
 nn <Leader>dl <C-w>t<C-w>s<C-w>J<C-w>t<C-w>l<C-w>s<C-w>J<C-w>t:res<CR><C-w>b
 
 " Make Y behave like other capital letters
-map Y y$
+nn Y y$
 
 " Navigate windows/tabs with arrow keys
 no <Down>  <C-w>j
@@ -1484,20 +1484,18 @@ autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
 func! s:VimfilerSettings()
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
     nmap <buffer> <M-m> <Plug>(vimfiler_move_file)
-    nmap <buffer> e     <Plug>(vimfiler_execute)
     nmap <buffer> <BS>  <Plug>(vimfiler_close)
     nmap <buffer> -     <Plug>(vimfiler_switch_to_parent_directory)
     nmap <buffer> <F1>  <Plug>(vimfiler_help)
-    nmap <buffer> <expr> <CR> vimfiler#smart_cursor_map(
-        \"\<Plug>(vimfiler_expand_tree)","\<Plug>(vimfiler_edit_file)")
+    nmap <buffer> <CR>  <Plug>(vimfiler_expand_or_edit)
+    nmap <buffer> e     <Plug>(vimfiler_cd_or_edit)
     nmap <buffer> D     <Plug>(vimfiler_delete_file)
     nmap <buffer> <C-s> <Plug>(vimfiler_select_sort_type)
     nmap <buffer> S     <Plug>(vimfiler_select_sort_type)
     nmap <buffer> <Tab> <Plug>(vimfiler_choose_action)
     nmap <buffer> gN    <Plug>(vimfiler_new_file)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
-    exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> ?"
-    exe "nunmap <buffer> N"
+    exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> N"
 endfunc
 
 " {{{2 Unite settings
@@ -1597,6 +1595,8 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
 nn <silent> <M-p> :<C-u>Unite -prompt-direction=top neomru/directory<CR>
 nn <silent> <C-o> :<C-u>Unite -prompt-direction=top file<CR>
+nn <silent> <M-/> :<C-u>Unite -prompt-direction=top line:forward<CR>
+nn <silent> <M-/> :<C-u>Unite -prompt-direction=top line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite -prompt-direction=top mapping<CR>
 nnoremap <silent> <Leader>w :ccl\|lcl\|winc z\|sil! UniteClose<CR>
@@ -1623,7 +1623,7 @@ func! s:UniteSetup()
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context', {'start_insert': 1})
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
-    call unite#custom#source('buffer,file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
+    call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor

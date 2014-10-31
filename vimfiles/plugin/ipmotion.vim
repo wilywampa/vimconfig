@@ -133,10 +133,10 @@ function! <SID>ParagFore()
 		return s:Unfold(1)
 	endif
 	if !g:ip_skipfold || foldclosedend('.') < 0
-		let l:count = s:count1 - 1
+		let l:count = s:count1 - 2
 	else
 		call cursor(foldclosedend('.'), 1)
-		let l:count = s:count1
+		let l:count = s:count1 - 1
 	endif
 	while l:count > 0
 		let l:res = search(l:notboundary, 'cW')
@@ -145,12 +145,14 @@ function! <SID>ParagFore()
 			call cursor(line('$'),1)
 			return s:Unfold(1)
 		endif
-		if !g:ip_skipfold || foldclosedend('.') < 0
-			let l:count = l:count - 1
-		else
+		let l:count = l:count - 1
+		if g:ip_skipfold && foldclosedend('.') < 0
 			call cursor(foldclosedend('.'), 1)
 		endif
 	endwhile
+	if foldclosedend('.') == line('.')
+		normal! j
+	endif
 	return s:Unfold(1)
 endfunction
 
