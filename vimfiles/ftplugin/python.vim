@@ -51,7 +51,7 @@ let s:errorformat .= '%+C  %.%#,'
 let s:errorformat .= '%Z%\S%\&%m,'
 let s:errorformat .= '%-G%.%#'
 
-if !exists('*<SID>IPyRunPrompt')
+if !exists('*s:IPyRunPrompt')
   function! s:IPyRunIPyInput()
     redraw
     " Remove leading and trailing blank lines
@@ -64,7 +64,7 @@ if !exists('*<SID>IPyRunPrompt')
     let g:ipy_input = input('IPy: ')
     if len(g:ipy_input)
       let g:last_ipy_input = g:ipy_input
-      call <SID>IPyRunIPyInput()
+      call s:IPyRunIPyInput()
     else
       unlet g:ipy_input
     endif
@@ -73,23 +73,23 @@ if !exists('*<SID>IPyRunPrompt')
   function! s:IPyRepeatCommand()
     if exists('g:last_ipy_input')
       let g:ipy_input = g:last_ipy_input
-      call <SID>IPyRunIPyInput()
+      call s:IPyRunIPyInput()
     endif
   endfunction
 
   function! s:IPyClearWorkspace()
     let g:ipy_input = 'from plottools import cl; cl()'."\n".'%reset -s -f'
-    call <SID>IPyRunIPyInput()
+    call s:IPyRunIPyInput()
   endfunction
 
   function! s:IPyCloseFigures()
     let g:ipy_input = 'from plottools import cl; cl()'
-    call <SID>IPyRunIPyInput()
+    call s:IPyRunIPyInput()
   endfunction
 
   function! s:IPyPing()
     let g:ipy_input = 'print "pong"'
-    call <SID>IPyRunIPyInput()
+    call s:IPyRunIPyInput()
   endfunction
 
   function! s:IPyPrintVar()
@@ -97,7 +97,7 @@ if !exists('*<SID>IPyRunPrompt')
     normal! gvy
     let g:ipy_input = 'from pprint import pprint; pprint('.@".')'
     call RestoreRegs()
-    call <SID>IPyRunIPyInput()
+    call s:IPyRunIPyInput()
   endfunction
 
   function! s:IPyVarInfo()
@@ -105,7 +105,7 @@ if !exists('*<SID>IPyRunPrompt')
     normal! gvy
     let g:ipy_input = 'from plottools import varinfo; varinfo('.@".')'
     call RestoreRegs()
-    call <SID>IPyRunIPyInput()
+    call s:IPyRunIPyInput()
   endfunction
 
   function! s:IPyRunMotion(type)
@@ -114,7 +114,7 @@ if !exists('*<SID>IPyRunPrompt')
       call setpos('.', getpos("']"))
       python run_this_line(False)
     else
-      call <SID>IPyRunIPyInput()
+      call s:IPyRunIPyInput()
     endif
   endfunction
 
@@ -161,7 +161,7 @@ if !exists('*<SID>IPyRunPrompt')
     let g:ipy_input = @@
     call RestoreRegs()
     call winrestview(view)
-    call <SID>IPyRunIPyInput()
+    call s:IPyRunIPyInput()
   endfunction
 
   function! s:IPyScratchBuffer()

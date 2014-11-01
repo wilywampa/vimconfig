@@ -82,7 +82,7 @@ function! s:SetCount()
 	let s:count1=v:count1
 endfunction
 
-function! <SID>ParagBack()
+function! s:ParagBack()
 	try
 		let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 		let l:notboundary=l:boundary.'\@!'
@@ -121,7 +121,7 @@ function! <SID>ParagBack()
 	endtry
 endfunction
 
-function! <SID>ParagFore()
+function! s:ParagFore()
 	try
 		let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 		let l:notboundary=l:boundary.'\@!'
@@ -170,8 +170,8 @@ function! <SID>ParagFore()
 endfunction
 
 " Fix last character missing from last line
-function! <SID>CheckForLastLine(func)
-	call <SID>SetCount()
+function! s:CheckForLastLine(func)
+	call s:SetCount()
 	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
 	let nblanks = 0
 	let start = line('.')

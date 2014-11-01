@@ -160,7 +160,7 @@ if s:inside_iterm
 
     augroup vitality
         autocmd!
-        autocmd QuickFixCmdPre  * call <SID>DisableFocusEvents()
-        autocmd QuickFixCmdPost * call <SID>EnableFocusEvents()
+        autocmd QuickFixCmdPre  * call s:DisableFocusEvents()
+        autocmd QuickFixCmdPost * call s:EnableFocusEvents()
     augroup END
 endif

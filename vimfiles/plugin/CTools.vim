@@ -319,10 +319,10 @@ func! s:FormatC()
     call winrestview(l:winSave)
 endfunc
 
-com! StripComments call <SID>StripComments()
-com! ToggleFindInComments call <SID>ToggleFindInComments()
-com! AlignUnterminatedAssignment call <SID>AlignUnterminatedAssignment()
-com! FormatC call <SID>FormatC()
+command! StripComments call s:StripComments()
+command! ToggleFindInComments call s:ToggleFindInComments()
+command! AlignUnterminatedAssignment call s:AlignUnterminatedAssignment()
+command! FormatC call s:FormatC()
 
 nnoremap ,cc :ToggleFindInComments<CR>
 

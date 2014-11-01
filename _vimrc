@@ -191,10 +191,6 @@ nn <silent> <C-l> :nohl<CR><C-l>
 " Execute q macro
 nm Q @q
 
-" Execute q macro recursively
-nn <silent> <Leader>q :set nows<CR>:let @q=@q."@q"<CR>@q:set ws<CR>:let
-    \ @q=substitute(@q, '\(^.*\)@q', '\1', '')<CR>
-
 " Toggle paste mode
 nn <silent> <Leader>pp :set paste!<CR>
 
@@ -1032,6 +1028,21 @@ endfunc
 onoremap <silent> g[ :<C-u>call <SID>ToPair(0)<CR>
 xnoremap <silent> g[ :<C-u>call <SID>ToPair(1)<CR>
 
+" Execute q macro recursively
+func! s:RecursiveQ()
+    let wrapscan = &wrapscan
+    let l:q = getreg('q')
+    try
+        set nowrapscan
+        let @q = @q . "@q"
+        normal! @q
+    finally
+        call setreg('q', l:q)
+        let &wrapscan = wrapscan
+    endtry
+endfunc
+nnoremap <silent> <Leader>q :<C-u>call <SID>RecursiveQ()<CR>
+
 " {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
@@ -1255,12 +1266,9 @@ let kg2slug = 1.0 / slug2kg
 let vsound = 340.29
 let vsoundfps = vsound * m2ft
 let assignments_pattern = '\v[=!<>]@<![+|&^.]?\=[=~]@!'
-let maps_pattern = '\v<(cm%[ap]|cmapc%[lear]|cno%[remap]|cu%[nmap]|im%[ap]|'.
-    \'imapc%[lear]|ino%[remap]|iu%[nmap]|lm%[ap]|lmapc%[lear]|ln%[oremap]|'.
-    \'lu%[nmap]|map|mapc%[lear]|nm%[ap]|nmapc%[lear]|nn%[oremap]|no%[remap]|'.
-    \'nun%[map]|om%[ap]|omapc%[lear]|ono%[remap]|ou%[nmap]|sm%[ap]|smap|'.
-    \'smapc%[lear]|snor%[emap]|sunm%[ap]|unm%[ap]|vm%[ap]|vmapc%[lear]|vn%['.
-    \'oremap]|vu%[nmap]|xm%[ap]|xmapc%[lear]|xn%[oremap]|xu%[nmap])>'
+let maps_pattern = '\v<([lnvx]n%[oremap]|([cilovx]u)%[nmap]|'.
+    \'(no|[cio]no)%[remap]|([cilnosvx]?mapc)%[lear]|'.
+    \'([cilnosvx]|un|sun)m%[ap]|map|nun%[map]|smap|snor%[emap])>'
 
 " Abbreviation template
 func! s:CreateAbbrev(lhs, rhs, cmdtype, ...)

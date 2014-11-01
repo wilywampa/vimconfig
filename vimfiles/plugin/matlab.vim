@@ -11,7 +11,7 @@ if !exists('g:matlab_dict')
   endif
 endif
 
-if !exists('*<SID>ShowDictionary')
+if !exists('*s:ShowDictionary')
     func s:ShowDictionary()
         execute "silent keepalt botright vertical 50 split ".g:matlab_dict
         setlocal winfixwidth readonly nomodifiable nobuflisted
@@ -23,7 +23,7 @@ if !exists('*<SID>ShowDictionary')
     endfunc
 endif
 
-if !exists('*<SID>ToggleDictionary')
+if !exists('*s:ToggleDictionary')
     func! s:ToggleDictionary()
         let win = bufwinnr(g:matlab_dict)
         if win != -1
@@ -31,14 +31,14 @@ if !exists('*<SID>ToggleDictionary')
             bdelete
             wincmd p
         else
-            call <SID>ShowDictionary()
+            call s:ShowDictionary()
         endif
     endfunc
 endif
 
 func! s:UpdateDictionary()
-  call <SID>ToggleDictionary()
-  call <SID>ToggleDictionary()
+  call s:ToggleDictionary()
+  call s:ToggleDictionary()
   wincmd p
   execute "normal \<Plug>(matlab_update_dictionary)"
 endfunc

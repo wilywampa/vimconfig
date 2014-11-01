@@ -21,7 +21,7 @@ syn region todoLine start="^" end="$" fold transparent contains=ALL
 
 augroup todoSyntax
     autocmd!
-    autocmd ColorScheme * call <SID>SetHighlights()
+    autocmd ColorScheme * call s:SetHighlights()
 augroup END
 
 func! s:SetHighlights()
@@ -34,4 +34,4 @@ func! s:SetHighlights()
     hi def link todoSectionTitle Type
     hi def link todoComment Comment
 endfunc
-call <SID>SetHighlights()
+call s:SetHighlights()

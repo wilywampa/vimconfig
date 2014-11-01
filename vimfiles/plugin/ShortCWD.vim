@@ -37,7 +37,7 @@ endfunction
 function! ShortCWD()
     if (getcwd() == s:cwdPrev) && (@% == s:bufNamePrev)
         \ && (winwidth(0) == s:winWidthPrev) && (&mod == s:bufModPrev)
-        \ && <SID>TagbarSame() && <SID>WhitespaceSame()
+        \ && s:TagbarSame() && s:WhitespaceSame()
         return s:cwd
     endif
 

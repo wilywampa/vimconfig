@@ -174,7 +174,7 @@ else
     if zoomed | call system("tmux resize-pane -Z") | endif
   endfunction
 
-  if !exists('*<SID>ScratchBufferMATLAB')
+  if !exists('*s:ScratchBufferMATLAB')
     function! s:ScratchBufferMATLAB()
       let scratch = bufnr('--MATLAB--')
       if scratch == -1

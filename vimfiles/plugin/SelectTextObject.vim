@@ -38,7 +38,7 @@ func! s:SelectTextObject(obj, motion, visual)
         endif
       endif
 
-      while !<SID>CursorInPair(left,right)
+      while !s:CursorInPair(left,right)
         if line[col('.'):-1] =~ escape(left,'[]').'.*'.escape(right,'[]')
           execute "normal! f".left
         elseif line[0:col('.')-2] =~ escape(left,'[]').'.*'.escape(right,'[]')
