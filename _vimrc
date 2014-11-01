@@ -449,6 +449,7 @@ nn <silent> <C-w>f :belowright wincmd f<CR>
 
 " Default make key
 nn <silent> <F5> :update<CR>:make<CR><CR>
+nn <silent> g<F5> :update<CR>:make clean<CR><CR>
 im <F5> <Esc><F5>
 
 " Cycle through previous searches
@@ -510,8 +511,13 @@ nn zO zo
 " Make @: work immediately after restarting vim
 nn <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
 
-" Reload undofile for current file
-nn <Leader><Leader>r :<C-u>execute 'rundo '.fnameescape(undofile(expand('%:p')))<CR>
+" Discard changes and reload undofile for current file
+nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels<bar>
+    \ while &modified<bar>silent earlier<bar>endwhile<bar>
+    \ execute 'rundo '.fnameescape(undofile(expand('%:p')))<CR>
+
+" Don't save omaps to command history
+silent! nn <unique> . .
 
 " {{{2 Abbreviations to open help
 if s:hasvimtools
@@ -796,7 +802,7 @@ func! s:Bell()
     execute "normal! \<Esc>"
     let &visualbell = visualbell_save
 endfunc
-autocmd VimrcAutocmds QuickFixCmdPost * call <SID>Bell()
+autocmd VimrcAutocmds QuickFixCmdPost * call s:Bell()
 
 " Setup for single-file C/C++ projects
 func! s:SingleFile()
@@ -804,7 +810,7 @@ func! s:SingleFile()
     nnoremap <buffer> <S-F5> :execute '!./'.expand('%:r')<CR>
     lcd! %:p:h
 endfunc
-command! -nargs=0 SingleFile call <SID>SingleFile()
+command! -nargs=0 SingleFile call s:SingleFile()
 
 " Use 'very magic' regex by default
 func! s:SearchHandleKey(dir)
@@ -964,7 +970,7 @@ func! s:EchoHistTime()
     redraw | let fmt = len($DATEFMT) ? $DATEFMT : '%a %d%b%y %T'
     echo strftime(fmt, line[2:11])
 endfunc
-autocmd VimrcAutocmds CursorMoved $HOME/.histfile call <SID>EchoHistTime()
+autocmd VimrcAutocmds CursorMoved $HOME/.histfile call s:EchoHistTime()
 
 " Insert search match (as opposed to <C-r>/)
 func! s:InsertSearchResult()
@@ -985,10 +991,10 @@ func! s:BackWord()
         return "\<Esc>:silent! undojoin\<CR>lbi"
     endif
 endfunc
-ino <Left>  <C-r>="\<lt>Left>"<CR>
-ino <Right> <C-r>="\<lt>Right>"<CR>
-ino <silent> <expr> <C-Left> <SID>BackWord()
-ino <silent> <C-Right> <Esc>:silent! undojoin<CR>lwi
+inoremap <Left>  <C-r>="\<lt>Left>"<CR>
+inoremap <Right> <C-r>="\<lt>Right>"<CR>
+inoremap <silent> <expr> <C-Left> <SID>BackWord()
+inoremap <silent> <C-Right> <Esc>:silent! undojoin<CR>lwi
 
 " Check if location list (rather than quickfix)
 func! s:IsLocationList()
@@ -1158,7 +1164,7 @@ augroup VimrcAutocmds
     " Use to check if inside command window
     au VimEnter,CmdwinLeave * let g:inCmdwin=0
     au CmdwinEnter * let g:inCmdwin=1 | let g:cmdwinType = expand('<afile>')
-    au CmdwinEnter * call <SID>CmdwinMappings()
+    au CmdwinEnter * call s:CmdwinMappings()
 
     " Enforce cmdwinheight when quickfix window is open
     au CmdwinEnter * if winheight(0) > &cmdwinheight | exe "norm! "
@@ -1219,8 +1225,8 @@ func! s:MatchHighlights()
     endfor
 endfunc
 func! s:MatchAdd(n)
-    call <SID>MatchHighlights()
-    autocmd VimrcAutocmds ColorScheme * call <SID>MatchHighlights()
+    call s:MatchHighlights()
+    autocmd VimrcAutocmds ColorScheme * call s:MatchHighlights()
     execute "call matchadd('Match".a:n."',  '".(substitute(@/,
         \ '^\\[vV]', '', '')=~'\u'?'':'\c').@/."', 0)"
 endfunc
@@ -1249,6 +1255,12 @@ let kg2slug = 1.0 / slug2kg
 let vsound = 340.29
 let vsoundfps = vsound * m2ft
 let assignments_pattern = '\v[=!<>]@<![+|&^.]?\=[=~]@!'
+let maps_pattern = '\v<(cm%[ap]|cmapc%[lear]|cno%[remap]|cu%[nmap]|im%[ap]|'.
+    \'imapc%[lear]|ino%[remap]|iu%[nmap]|lm%[ap]|lmapc%[lear]|ln%[oremap]|'.
+    \'lu%[nmap]|map|mapc%[lear]|nm%[ap]|nmapc%[lear]|nn%[oremap]|no%[remap]|'.
+    \'nun%[map]|om%[ap]|omapc%[lear]|ono%[remap]|ou%[nmap]|sm%[ap]|smap|'.
+    \'smapc%[lear]|snor%[emap]|sunm%[ap]|unm%[ap]|vm%[ap]|vmapc%[lear]|vn%['.
+    \'oremap]|vu%[nmap]|xm%[ap]|xmapc%[lear]|xn%[oremap]|xu%[nmap])>'
 
 " Abbreviation template
 func! s:CreateAbbrev(lhs, rhs, cmdtype, ...)
@@ -1261,31 +1273,31 @@ func! s:CreateAbbrev(lhs, rhs, cmdtype, ...)
     endif
 endfunc
 let ls_sort = has('mac') ? ' --sort=none' : ''
-call <SID>CreateAbbrev('ve',   'verbose',                         ':'   )
-call <SID>CreateAbbrev('so',   'source',                          ':'   )
-call <SID>CreateAbbrev('ec',   'echo',                            ':@>' )
-call <SID>CreateAbbrev('dt',   'diffthis',                        ':'   )
-call <SID>CreateAbbrev('do',   'diffoff \| set nowrap',           ':'   )
-call <SID>CreateAbbrev('du',   'diffupdate',                      ':'   )
-call <SID>CreateAbbrev('vd',   'vertical diffsplit',              ':'   )
-call <SID>CreateAbbrev('wi',   'Windo',                           ':'   )
-call <SID>CreateAbbrev('ca',   'call',                            ':'   )
-call <SID>CreateAbbrev('m',    'make',                            ':'   )
-call <SID>CreateAbbrev('mcl',  'make clean',                      ':'   )
-call <SID>CreateAbbrev('pp',   'PP',                              '>'   )
-call <SID>CreateAbbrev('csa',  'cscope add',                      ':'   )
-call <SID>CreateAbbrev('csf',  'cscope find',                     ':'   )
-call <SID>CreateAbbrev('csk',  'cscope kill -1',                  ':'   )
-call <SID>CreateAbbrev('csr',  'cscope reset',                    ':'   )
-call <SID>CreateAbbrev('css',  'cscope show',                     ':'   )
-call <SID>CreateAbbrev('csh',  'cscope help',                     ':'   )
-call <SID>CreateAbbrev('l',    'ls -h --color=auto'.ls_sort,      ':',  '!')
-call <SID>CreateAbbrev('ls',   'ls -h --color=auto'.ls_sort,      ':',  '!')
-call <SID>CreateAbbrev('la',   'ls -hA --color=auto'.ls_sort,     ':',  '!')
-call <SID>CreateAbbrev('ll',   'ls -lsh --color=auto'.ls_sort,    ':',  '!')
-call <SID>CreateAbbrev('lls',  'ls -lshrt --color=auto'.ls_sort,  ':',  '!')
-call <SID>CreateAbbrev('lla',  'ls -lshA --color=auto'.ls_sort,   ':',  '!')
-call <SID>CreateAbbrev('llas', 'ls -lshrtA --color=auto'.ls_sort, ':',  '!')
+call s:CreateAbbrev('ve',   'verbose',                         ':'   )
+call s:CreateAbbrev('so',   'source',                          ':'   )
+call s:CreateAbbrev('ec',   'echo',                            ':@>' )
+call s:CreateAbbrev('dt',   'diffthis',                        ':'   )
+call s:CreateAbbrev('do',   'diffoff \| set nowrap',           ':'   )
+call s:CreateAbbrev('du',   'diffupdate',                      ':'   )
+call s:CreateAbbrev('vd',   'vertical diffsplit',              ':'   )
+call s:CreateAbbrev('wi',   'Windo',                           ':'   )
+call s:CreateAbbrev('ca',   'call',                            ':'   )
+call s:CreateAbbrev('m',    'make',                            ':'   )
+call s:CreateAbbrev('mcl',  'make clean',                      ':'   )
+call s:CreateAbbrev('pp',   'PP',                              ':>'  )
+call s:CreateAbbrev('csa',  'cscope add',                      ':'   )
+call s:CreateAbbrev('csf',  'cscope find',                     ':'   )
+call s:CreateAbbrev('csk',  'cscope kill -1',                  ':'   )
+call s:CreateAbbrev('csr',  'cscope reset',                    ':'   )
+call s:CreateAbbrev('css',  'cscope show',                     ':'   )
+call s:CreateAbbrev('csh',  'cscope help',                     ':'   )
+call s:CreateAbbrev('l',    'ls -h --color=auto'.ls_sort,      ':',  '!')
+call s:CreateAbbrev('ls',   'ls -h --color=auto'.ls_sort,      ':',  '!')
+call s:CreateAbbrev('la',   'ls -hA --color=auto'.ls_sort,     ':',  '!')
+call s:CreateAbbrev('ll',   'ls -lsh --color=auto'.ls_sort,    ':',  '!')
+call s:CreateAbbrev('lls',  'ls -lshrt --color=auto'.ls_sort,  ':',  '!')
+call s:CreateAbbrev('lla',  'ls -lshA --color=auto'.ls_sort,   ':',  '!')
+call s:CreateAbbrev('llas', 'ls -lshrtA --color=auto'.ls_sort, ':',  '!')
 
 " Other abbreviations
 let b = '((\\)@<!\\)' " Unescaped backslash
@@ -1440,7 +1452,7 @@ endif
 " {{{2 Sneak settings
 let g:sneak#streak=1
 let g:sneak#use_ic_scs=1
-autocmd VimrcAutocmds ColorScheme * call <SID>SneakHighlights()
+autocmd VimrcAutocmds ColorScheme * call s:SneakHighlights()
 func! s:SneakHighlights()
     let fg = &background == 'dark' ? 8 : 15 | let gui = 'gui=reverse guifg=#'
     execute "highlight! SneakPluginTarget ctermfg=".fg." ctermbg=4 ".gui."268bd2"
@@ -1464,8 +1476,8 @@ func! s:SneakMaps()
         nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
     endif
 endfunc
-autocmd VimrcAutocmds VimEnter * call <SID>SneakMaps()
-call <SID>SneakMaps()
+autocmd VimrcAutocmds VimEnter * call s:SneakMaps()
+call s:SneakMaps()
 
 " {{{2 VimFiler settings
 nnoremap <silent> - :VimFilerBufferDir -find<CR>
@@ -1512,8 +1524,8 @@ endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
 augroup VimrcAutocmds
-    autocmd VimEnter * if exists(':Unite') | call <SID>UniteSetup() | endif
-    autocmd FileType unite call <SID>UniteSettings()
+    autocmd VimEnter * if exists(':Unite') | call s:UniteSetup() | endif
+    autocmd FileType unite call s:UniteSettings()
     autocmd CursorHold * silent! call unite#sources#history_yank#_append()
 augroup END
 func! s:UniteSettings()
@@ -1628,79 +1640,6 @@ func! s:UniteSetup()
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor
 endfunc
-
-" Use Unite's MRU list for alternate buffer key
-func! UniteAlternateBuffer(count)
-    let buf = bufnr('%')
-    if !exists(':Unite') || (a:count == 1 && buflisted(bufnr('#')) && bufnr('#') != bufnr('%'))
-        try | execute "normal! \<C-^>" | catch | endtry
-    else
-        let buflist = unite#sources#buffer#get_unite_buffer_list()
-        if exists('buflist['.(a:count-1).']')
-            execute "buffer ".buflist[(a:count-1)]['action__buffer_nr']
-        elseif exists("buflist[-2]")
-            execute "buffer ".buflist[-2]['action__buffer_nr']
-        else
-            execute "normal! \<C-^>"
-        endif
-    endif
-    execute "normal! zv"
-    if bufnr('%') == buf | echo "No alternate buffer" | endif
-endfunc
-nnoremap <silent> <C-^> :<C-u>call UniteAlternateBuffer(v:count1)<CR>
-
-" Cycle through Unite's MRU list
-func! UniteBufferCycle(resume)
-    if a:resume && !exists('s:buflist')
-        call feedkeys("\<C-^>") | return
-    endif
-    let s:UBCActive = 1
-    if !a:resume
-        let s:buflist = unite#sources#buffer#get_unite_buffer_list()
-        let s:bufnr = -2
-        let s:startbuf = bufnr('%')
-        let s:startaltbuf = bufnr('#')
-    endif
-    let s:key = '['
-    while s:key == '[' || s:key == ']'
-        if s:bufnr == -2
-            let s:key = ']'
-            let s:bufnr = -1
-        endif
-        let s:bufnr = s:bufnr + (s:key == ']' ? 1 : -1)
-        if s:bufnr >= -1 && s:bufnr < len(s:buflist) - 1
-            execute "buffer ".s:buflist[s:bufnr]['action__buffer_nr']
-            redraw
-            let s = ''
-            if s:bufnr >= 0
-                let s .= 'Previous: "'.fnamemodify(bufname(
-                    \ s:buflist[s:bufnr-1]['action__buffer_nr']), ':t').'" '
-            endif
-            if s:bufnr < len(s:buflist) - 2
-                let s .= 'Next: "'.fnamemodify(bufname(
-                    \ s:buflist[s:bufnr+1]['action__buffer_nr']), ':t').'"'
-            endif
-            echo s
-        else
-            let s:bufnr = s:bufnr - (s:key == ']' ? 1 : -1)
-        endif
-        let s:key = nr2char(getchar())
-    endwhile
-    let s:UBCActive = 0
-    if index(['q', 'Q', "\<C-c>", "\<CR>", "\<Esc>"], s:key) < 0
-        call feedkeys(s:key)
-    endif
-    if bufnr('%') != s:startbuf
-        execute "buffer ".s:startbuf
-    else
-        execute "buffer ".s:startaltbuf
-    endif
-    buffer #
-endfunc
-nnoremap <silent> ]r :<C-u>call UniteBufferCycle(0)<CR>
-nnoremap <silent> [r :<C-u>call UniteBufferCycle(1)<CR>
-let s:UBCActive = 0
-autocmd VimrcAutocmds BufEnter * if !s:UBCActive | sil! unlet s:buflist | endif
 
 " }}}2
 
@@ -1839,7 +1778,7 @@ func! s:JediSetup()
         nnoremap <buffer> <Leader>jd :<C-u>call jedi#goto_definitions()<CR>zv
     endif
 endfunc
-autocmd VimrcAutocmds FileType python call <SID>JediSetup()
+autocmd VimrcAutocmds FileType python call s:JediSetup()
 let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#popup_select_first = 0
 let g:jedi#completions_enabled = 0
@@ -1863,7 +1802,7 @@ vmap <CR> <Plug>(LiveEasyAlign)
 vmap <C-^> <Plug>(EasyAlignRepeat)
 
 " C/C++ completion
-if match($VIMBLACKLIST, '\cclang_complete') == -1
+if stridx($VIMBLACKLIST, 'clang_complete') == -1
     call add(g:pathogen_disabled, 'OmniCppComplete')
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
@@ -1898,7 +1837,7 @@ func! s:ScripteaseMaps()
     nnoremap <buffer> <Leader>bb :<C-u>Breakadd<CR>
     nnoremap <buffer> <Leader>bc :<C-u>Breakdel *<CR>
 endfunc
-autocmd VimrcAutocmds FileType vim call <SID>ScripteaseMaps()
+autocmd VimrcAutocmds FileType vim call s:ScripteaseMaps()
 
 " Import scripts
 execute pathogen#infect()

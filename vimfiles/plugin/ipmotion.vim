@@ -83,77 +83,90 @@ function! s:SetCount()
 endfunction
 
 function! <SID>ParagBack()
-	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
-	let l:notboundary=l:boundary.'\@!'
-	let l:res = search(l:notboundary, 'cWb')
-	if l:res <= 0
-		call cursor(1,1)
-		return s:Unfold(0)
-	endif
-	let l:res = search(l:boundary, 'Wb')
-	if l:res <= 0
-		call cursor(1,1)
-		return s:Unfold(0)
-	endif
-	if !g:ip_skipfold || foldclosed('.') < 0
-		let l:count = s:count1 - 1
-	else
-		call cursor(foldclosed('.'), 1)
-		let l:count = s:count1
-	endif
-	while l:count > 0
+	try
+		let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
+		let l:notboundary=l:boundary.'\@!'
 		let l:res = search(l:notboundary, 'cWb')
+		if l:res <= 0
+			call cursor(1,1)
+			return s:Unfold(0)
+		endif
 		let l:res = search(l:boundary, 'Wb')
 		if l:res <= 0
 			call cursor(1,1)
 			return s:Unfold(0)
 		endif
 		if !g:ip_skipfold || foldclosed('.') < 0
-			let l:count = l:count - 1
+			let l:count = s:count1 - 1
 		else
 			call cursor(foldclosed('.'), 1)
+			let l:count = s:count1
 		endif
-	endwhile
-	return s:Unfold(0)
+		while l:count > 0
+			let l:res = search(l:notboundary, 'cWb')
+			let l:res = search(l:boundary, 'Wb')
+			if l:res <= 0
+				call cursor(1,1)
+				return s:Unfold(0)
+			endif
+			if !g:ip_skipfold || foldclosed('.') < 0
+				let l:count = l:count - 1
+			else
+				call cursor(foldclosed('.'), 1)
+			endif
+		endwhile
+		return s:Unfold(0)
+	finally
+		echo
+	endtry
 endfunction
 
 function! <SID>ParagFore()
-	let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
-	let l:notboundary=l:boundary.'\@!'
-	if getline('.') =~# l:boundary
-		let l:res = search(l:notboundary, 'W')
-		if l:res <= 0
-			call cursor(line('$'),1)
-			return s:Unfold(1)
+	try
+		let l:boundary='^\%('.(exists('b:ip_boundary') ? b:ip_boundary : g:ip_boundary).'\)'
+		let l:notboundary=l:boundary.'\@!'
+		if getline('.') =~# l:boundary
+			let l:res = search(l:notboundary, 'W')
+			if l:res <= 0
+				call cursor(line('$'),1)
+				return s:Unfold(1)
+			endif
 		endif
-	endif
-	let l:res = search(l:boundary, 'W')
-	if l:res <= 0
-		call cursor(line('$'),1)
-		return s:Unfold(1)
-	endif
-	if !g:ip_skipfold || foldclosedend('.') < 0
-		let l:count = s:count1 - 2
-	else
-		call cursor(foldclosedend('.'), 1)
-		let l:count = s:count1 - 1
-	endif
-	while l:count > 0
-		let l:res = search(l:notboundary, 'cW')
 		let l:res = search(l:boundary, 'W')
 		if l:res <= 0
 			call cursor(line('$'),1)
 			return s:Unfold(1)
 		endif
-		let l:count = l:count - 1
-		if g:ip_skipfold && foldclosedend('.') < 0
+		if !g:ip_skipfold || foldclosedend('.') < 0
+			let l:count = s:count1 - 2
+		else
 			call cursor(foldclosedend('.'), 1)
+			let l:count = s:count1 - 1
 		endif
-	endwhile
-	if foldclosedend('.') == line('.')
-		normal! j
-	endif
-	return s:Unfold(1)
+		if foldclosed(foldclosedend(line('.') + 1) + 1) > 0
+			let l:count += 1
+		endif
+		while l:count > 0
+			let l:res = search(l:notboundary, 'cW')
+			let l:res = search(l:boundary, 'W')
+			if l:res <= 0
+				call cursor(line('$'),1)
+				return s:Unfold(1)
+			endif
+			if !g:ip_skipfold || foldclosed('.') < 0
+				let l:count = l:count - 1
+			endif
+			if g:ip_skipfold && foldclosedend('.') < 0
+				call cursor(foldclosedend('.'), 1)
+			endif
+		endwhile
+		if foldclosedend('.') == line('.')
+			normal! j
+		endif
+		return s:Unfold(1)
+	finally
+		echo
+	endtry
 endfunction
 
 " Fix last character missing from last line
