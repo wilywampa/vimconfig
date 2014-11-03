@@ -255,7 +255,7 @@ function! vimtools#MakeParagraph()
   endif
 
   if &filetype == 'python'
-    if getline('.') =~# '\v^\s*(<(def|class)>|\@[[:alnum:]_]+\s*$)' && line('.') > 1
+    if getline('.') =~# '\v^\s*(<(def|class)>|\@[[:alnum:]_]+)' && line('.') > 1
       call append(line('.') - 1, [""])
       if line('.') + lines < line('$')
         call append(line('.') + lines, [""])
@@ -291,14 +291,14 @@ function! vimtools#PrecededBy(not) abort
 endfunction
 
 " Don't overwrite pattern with substitute command
-function! vimtools#KeepPatterns(cmd)
+function! vimtools#KeepPatterns(line1, line2, cmd)
   let pat = @/
   try
-    execute a:cmd
+    execute a:line1.','.a:line2.a:cmd
     let g:lsub_pat = @/
     let b = '((\\)@<!\\)' " Unescaped backslash
-    let l:subs_pat = '\v\C^[^/]*s%[ubstitute]/([^/]|'.b.'@<=/)*'.b.'@<!/'
-    if a:cmd =~ '\v\C^[^/]*s%[ubstitute]/([^/]|'.b.'@<=/)[^/]*('.b.'@<!\/)?$'
+    let l:subs_pat = '\v\C^s%[ubstitute]/([^/]|'.b.'@<=/)*'.b.'@<!/'
+    if a:cmd =~ '\v\C^s%[ubstitute]/([^/]|'.b.'@<=/)[^/]*('.b.'@<!\/)?$'
       " Command has form %s/pat or %s/pat/
       let g:lsub_rep = ''
     else
@@ -320,8 +320,8 @@ function! vimtools#KeepPatternsSubstitute()
   if getcmdtype() == ':'
     let cmd = cmdline[match(cmdline,'\a')]
     if     cmdline =~# '\v^[sgv]$'       | return "KeepPatterns ".cmd."/\\v"
-    elseif cmdline =~# '\v^\%[sgv]$'     | return "KeepPatterns %".cmd."/\\v"
-    elseif cmdline =~# "\\m^'<,'>[sgv]$" | return "KeepPatterns '<,'>".cmd."/\\%V\\v"
+    elseif cmdline =~# '\v^\%[sgv]$'     | return "%KeepPatterns ".cmd."/\\v"
+    elseif cmdline =~# "\\m^'<,'>[sgv]$" | return "'<,'>KeepPatterns ".cmd."/\\%V\\v"
     elseif cmdline =~# '\v^.*[sgv]/%(\\\%V)?\\v$'
       return substitute(cmdline, '\v(^.*[sgv]/)%(\\\%V)?\\v', '\1/', '')
     endif
@@ -365,6 +365,8 @@ function! vimtools#opfunc(type) abort
       silent exe "normal! '[V']y"
     elseif a:type ==# 'block'
       silent exe "normal! `[\<C-V>`]y"
+    elseif a:type ==# 'visual'
+      silent exe "normal! gvy"
     else
       silent exe "normal! `[v`]y"
     endif

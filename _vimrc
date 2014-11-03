@@ -384,6 +384,7 @@ if s:hasvimtools
         \ 'norm! 'v:count1.'g@_'<CR>
     ino <silent> <Leader>x  <Esc>:<C-u>set opfunc=vimtools#SourceMotion<Bar>exe
         \ 'norm! 'v:count1.'g@_'<CR>
+    xno <silent> <Leader>x  :<C-u>call vimtools#SourceMotion('visual')<CR>
 else
     nn <silent> <Leader>xx :exec getline('.')<CR>
 endif
@@ -662,13 +663,13 @@ nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 func! s:CycleSearchMode()
     let l:cmd = getcmdline()
     let l:pos = getcmdpos()
-    if l:cmd =~# '\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?\\v'
-        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?\\v','\1\2\\V','')
-    elseif l:cmd =~# '\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?\\V'
-        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?\\V','\1\2','')
+    if l:cmd =~# '\v(KeepPatterns [sgv]\/)?(\\\%V)?\\v'
+        let l:cmd = substitute(l:cmd,'\v(KeepPatterns [sgv]\/)?(\\\%V)?\\v','\1\2\\V','')
+    elseif l:cmd =~# '\v(KeepPatterns [sgv]\/)?(\\\%V)?\\V'
+        let l:cmd = substitute(l:cmd,'\v(KeepPatterns [sgv]\/)?(\\\%V)?\\V','\1\2','')
         call setcmdpos(l:pos - 2)
     else
-        let l:cmd = substitute(l:cmd,'\v^(KeepPatterns [^/]*[sgv]\/)?(\\\%V)?','\1\2\\v','')
+        let l:cmd = substitute(l:cmd,'\v(^.*KeepPatterns [sgv]\/)?(\\\%V)?','\1\2\\v','')
         call setcmdpos(l:pos + 2)
     endif
     return l:cmd
@@ -850,7 +851,8 @@ vnoremap <expr> <silent> <C-e> <SID>EvalExpr()
 
 " Don't overwrite pattern with substitute command
 if s:hasvimtools
-    command! -nargs=* KeepPatterns call vimtools#KeepPatterns(<q-args>)
+    command! -range -nargs=* KeepPatterns
+        \ call vimtools#KeepPatterns(<line1>, <line2>, <q-args>)
     " Complete wildmode with <C-e> if in wildmenu with a trailing slash
     cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
         \ "\<C-e>" : "\<C-\>evimtools#KeepPatternsSubstitute()\<CR>\<Left>\<C-]>\<Right>"
@@ -1299,6 +1301,8 @@ call s:CreateAbbrev('csk',  'cscope kill -1',                  ':'   )
 call s:CreateAbbrev('csr',  'cscope reset',                    ':'   )
 call s:CreateAbbrev('css',  'cscope show',                     ':'   )
 call s:CreateAbbrev('csh',  'cscope help',                     ':'   )
+call s:CreateAbbrev('vc',   'cd $VIMCONFIG',                   ':'   )
+call s:CreateAbbrev('vcb',  'cd $VIMCONFIG/vimfiles/bundle',   ':'   )
 call s:CreateAbbrev('l',    'ls -h --color=auto'.ls_sort,      ':',  '!')
 call s:CreateAbbrev('ls',   'ls -h --color=auto'.ls_sort,      ':',  '!')
 call s:CreateAbbrev('la',   'ls -hA --color=auto'.ls_sort,     ':',  '!')
@@ -1769,7 +1773,6 @@ let g:pymode_doc = 1
 let g:pymode_doc_bind = 'gK'
 let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
-let g:pymode_lint_ignore = "E501,E302"
 
 " VCSCommand settings
 let VCSCommandCVSExec = ''

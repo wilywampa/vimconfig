@@ -64,25 +64,6 @@ else
     if zoomed | call system("tmux resize-pane -Z") | endif
   endfunc
 
-  func! s:RunLinesMATLAB(visual, ...)
-    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
-    if zoomed | call system("tmux resize-pane -Z") | endif
-    call VimuxOpenRunner()
-    if a:visual
-      let start = line("'<")
-      let end = line("'>")
-    else
-      let start = line('.')
-      let end = a:1 ? line('.') + a:1 - 1 : start
-    endif
-    call VimuxSendKeys("\<C-e>\<C-u>")
-    for line in range(start, end)
-      call VimuxSendText(getline(line))
-      call VimuxSendKeys("\<CR>")
-    endfor
-    if zoomed | call system("tmux resize-pane -Z") | endif
-  endfunc
-
   func! s:RunMotionMATLAB(type)
     let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
     if zoomed | call system("tmux resize-pane -Z") | endif
@@ -196,7 +177,7 @@ else
   nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionMATLAB<CR>g@
   nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionMATLAB<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>RunMotionMATLAB<Bar>exe 'norm! 'v:count1.'g@_'<CR>
-  vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunLinesMATLAB(1)<CR>
+  vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunMotionMATLAB('visual')<CR>
   nnoremap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
   vnoremap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>
   vnoremap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarInfoMATLAB()<CR>

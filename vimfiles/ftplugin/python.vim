@@ -109,12 +109,35 @@ if !exists('*s:IPyRunPrompt')
   endfunction
 
   function! s:IPyRunMotion(type)
-    let g:ipy_input = vimtools#opfunc(a:type)
-    if matchstr(g:ipy_input, '[[:print:]]\ze[^[:print:]]*$') == '?'
-      call setpos('.', getpos("']"))
-      python run_this_line(False)
+    let input = vimtools#opfunc(a:type)
+    if exists('b:did_ipython')
+      let g:ipy_input = vimtools#opfunc(a:type)
+      if matchstr(g:ipy_input, '[[:print:]]\ze[^[:print:]]*$') == '?'
+        call setpos('.', getpos("']"))
+        python run_this_line(False)
+      else
+        call s:IPyRunIPyInput()
+      endif
     else
-      call s:IPyRunIPyInput()
+      let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+      if zoomed | call system("tmux resize-pane -Z") | endif
+      call VimuxOpenRunner()
+      call VimuxSendKeys("q C-u")
+      for line in split(input, '\n')
+        if line =~ '\S'
+          if line =~ '^\s*@'
+            call VimuxSendKeys("\<CR>")
+          endif
+          call VimuxSendText(line)
+          call VimuxSendKeys("\<CR>")
+          " Whole function definition on single line
+          if line =~ '^\s*def.*:\s*\S'
+            call VimuxSendKeys("\<CR>")
+          endif
+        endif
+      endfor
+      call VimuxSendKeys("\<CR>")
+      if zoomed | call system("tmux resize-pane -Z") | endif
     endif
   endfunction
 
@@ -196,6 +219,8 @@ xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>IPyPrintVar()<CR>
 xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion(<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>IPyRunMotion('visual')<CR>
 nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
 nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
 nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>
