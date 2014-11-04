@@ -153,16 +153,19 @@ function! s:ParagFore()
 				call cursor(line('$'),1)
 				return s:Unfold(1)
 			endif
-			if !g:ip_skipfold || foldclosed('.') < 0
-				let l:count = l:count - 1
-			endif
 			if g:ip_skipfold && foldclosedend('.') < 0
 				call cursor(foldclosedend('.'), 1)
 			endif
+			if !g:ip_skipfold || foldclosed('.') < 0 || foldclosedend('.') == line('.')
+				let l:count = l:count - 1
+			endif
+			while foldclosed('.') > 0
+				normal! j
+			endwhile
 		endwhile
-		if foldclosedend('.') == line('.')
+		while foldclosed('.') > 0
 			normal! j
-		endif
+		endwhile
 		return s:Unfold(1)
 	finally
 		echo

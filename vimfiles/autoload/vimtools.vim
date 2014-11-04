@@ -294,7 +294,11 @@ endfunction
 function! vimtools#KeepPatterns(line1, line2, cmd)
   let pat = @/
   try
-    execute a:line1.','.a:line2.a:cmd
+    if (a:cmd[0] == 'g' || a:cmd[0] == 'v') && a:line1 == a:line2
+      execute a:cmd
+    else
+      execute a:line1.','.a:line2.a:cmd
+    endif
     let g:lsub_pat = @/
     let b = '((\\)@<!\\)' " Unescaped backslash
     let l:subs_pat = '\v\C^s%[ubstitute]/([^/]|'.b.'@<=/)*'.b.'@<!/'
