@@ -1,0 +1,98 @@
+diff --git a/src/auto/configure b/src/auto/configure
+--- a/src/auto/configure
++++ b/src/auto/configure
+@@ -9478,7 +9478,7 @@
+ $as_echo "yes" >&6; }
+                 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CYGWIN clipboard support" >&5
+ $as_echo_n "checking for CYGWIN clipboard support... " >&6; }
+-                if test "x$with_x" = "xno" ; then
++                if [ 1 ]; then
+                   OS_EXTRA_SRC=winclip.c; OS_EXTRA_OBJ=objects/winclip.o
+                   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+diff --git a/src/gui_gtk_x11.c b/src/gui_gtk_x11.c
+--- a/src/gui_gtk_x11.c
++++ b/src/gui_gtk_x11.c
+@@ -5646,6 +5646,8 @@
+     check_copy_area();
+ }
+ 
++#ifndef FEAT_CYGWIN_WIN32_CLIPBOARD
++
+ /*
+  * X Selection stuff, for cutting and pasting text to other windows.
+  */
+@@ -5715,6 +5717,8 @@
+ {
+ }
+ 
++#endif /* FEAT_CYGWIN_WIN32_CLIPBOARD */
++
+     int
+ clip_gtk_owner_exists(VimClipboard *cbd)
+ {
+diff --git a/src/os_unix.c b/src/os_unix.c
+--- a/src/os_unix.c
++++ b/src/os_unix.c
+@@ -71,7 +71,13 @@
+ 				 * for cygwin_conv_path() */
+ #  ifdef FEAT_CYGWIN_WIN32_CLIPBOARD
+ #   define WIN32_LEAN_AND_MEAN
+-#   include <windows.h>
++#   if defined(FEAT_GUI) || defined(FEAT_XCLIPBOARD)
++#    include <X11/Xwindows.h>
++#    define WINBYTE wBYTE
++#   else
++#    include <windows.h>
++#    define WINBYTE BYTE
++#   endif
+ #   include "winclip.pro"
+ #  endif
+ # endif
+diff --git a/src/ui.c b/src/ui.c
+--- a/src/ui.c
++++ b/src/ui.c
+@@ -20,7 +20,13 @@
+ 
+ #ifdef FEAT_CYGWIN_WIN32_CLIPBOARD
+ # define WIN32_LEAN_AND_MEAN
+-# include <windows.h>
++# if defined(FEAT_GUI) || defined(FEAT_XCLIPBOARD)
++#  include <X11/Xwindows.h>
++#  define WINBYTE wBYTE
++# else
++#  include <windows.h>
++#  define WINBYTE BYTE
++# endif
+ # include "winclip.pro"
+ #endif
+ 
+diff --git a/src/version.c b/src/version.c
+--- a/src/version.c
++++ b/src/version.c
+@@ -60,6 +60,7 @@
+ 
+ static char *(features[]) =
+ {
++	"+win32_clipboard",
+ #ifdef HAVE_ACL
+ 	"+acl",
+ #else
+diff --git a/src/winclip.c b/src/winclip.c
+--- a/src/winclip.c
++++ b/src/winclip.c
+@@ -33,7 +33,13 @@
+ #ifdef FEAT_CYGWIN_WIN32_CLIPBOARD
+ # define WIN3264
+ # define WIN32_LEAN_AND_MEAN
+-# include <windows.h>
++# if defined(FEAT_GUI) || defined(FEAT_XCLIPBOARD)
++#  include <X11/Xwindows.h>
++#  define WINBYTE wBYTE
++# else
++#  include <windows.h>
++#  define WINBYTE BYTE
++# endif
+ # include "winclip.pro"
+ #endif
+ 
