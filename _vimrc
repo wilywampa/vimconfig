@@ -219,6 +219,7 @@ nn <silent> ,em :<C-u>edit ~/.minttyrc<CR>:norm! zv<CR>
 nn <silent> ,es :<C-u>edit ~/.screenrc<CR>:norm! zv<CR>
 nn <silent> ,et :<C-u>if expand('%') =~ "\.tmux\.conf$" \| edit
     \ ~/.tmux-local.conf \| else \| edit ~/.tmux.conf \| endif<CR>:norm! zv<CR>
+nn <silent> ,eu :<C-u>edit ~/.muttrc<CR>:norm! zv<CR>
 nn <silent> ,ev :<C-u>edit $MYVIMRC<CR>:norm! zv<CR>
 nn <silent> ,ex :<C-u>edit ~/.Xdefaults<CR>:norm! zv<CR>
 nn <silent> ,ez :<C-u>edit ~/.zshrc<CR>:norm! zv<CR>
@@ -509,9 +510,9 @@ nn zO zo
 nn <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
 
 " Discard changes and reload undofile for current file
-nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels<bar>
-    \ while &modified<bar>silent earlier<bar>endwhile<bar>
-    \ execute 'rundo '.fnameescape(undofile(expand('%:p')))<CR>
+nn <silent> <Leader><Leader>r :<C-u>execute "silent keepjumps later ".&undolevels
+    \<bar>while &modified<bar>silent keepjumps earlier<bar>endwhile
+    \<bar>execute 'rundo '.fnameescape(undofile(expand('%:p')))<CR>
 
 " Don't save omaps to command history
 silent! nn <unique> . .
@@ -1032,16 +1033,12 @@ xnoremap <silent> g[ :<C-u>call <SID>ToPair(1)<CR>
 
 " Execute q macro recursively
 func! s:RecursiveQ()
-    let wrapscan = &wrapscan
     let l:q = getreg('q')
-    try
-        set nowrapscan
-        let @q = @q . "@q"
-        normal! @q
-    finally
-        call setreg('q', l:q)
-        let &wrapscan = wrapscan
-    endtry
+    set nowrapscan
+    let @q = @q.'@q'
+    normal! @q
+    call setreg('q', l:q)
+    set wrapscan
 endfunc
 nnoremap <silent> <Leader>q :<C-u>call <SID>RecursiveQ()<CR>
 
