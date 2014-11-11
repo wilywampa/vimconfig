@@ -65,7 +65,7 @@ function! s:get_buflist()
 endfunction
 
 " Use Unite's MRU list for alternate buffer key
-func! UniteAlternateBuffer(count)
+function! s:UniteAlternateBuffer(count)
   let buf = bufnr('%')
   if !exists(':Unite') || (a:count == 1 && buflisted(bufnr('#')) && bufnr('#') != bufnr('%'))
     try | execute "normal! \<C-^>" | catch | endtry
@@ -81,11 +81,11 @@ func! UniteAlternateBuffer(count)
   endif
   execute "normal! zv"
   if bufnr('%') == buf | echo "No alternate buffer" | endif
-endfunc
-nnoremap <silent> <C-^> :<C-u>call UniteAlternateBuffer(v:count1)<CR>
+endfunction
+nnoremap <silent> <C-^> :<C-u>call <SID>UniteAlternateBuffer(v:count1)<CR>
 
 " Cycle through Unite's MRU list
-func! UniteBufferCycle(resume)
+function! s:UniteBufferCycle(resume)
   if a:resume && !exists('s:buflist')
     call feedkeys("\<C-^>") | return
   endif
@@ -131,10 +131,10 @@ func! UniteBufferCycle(resume)
     execute "buffer ".s:startaltbuf
   endif
   buffer #
-endfunc
-nnoremap <silent> ]r :<C-u>call UniteBufferCycle(0)<CR>
-nnoremap <silent> [r :<C-u>call UniteBufferCycle(1)<CR>
+endfunction
+nnoremap <silent> ]r :<C-u>call <SID>UniteBufferCycle(0)<CR>
+nnoremap <silent> [r :<C-u>call <SID>UniteBufferCycle(1)<CR>
 let s:UBCActive = 0
-autocmd VimrcAutocmds BufEnter * if !s:UBCActive | sil! unlet s:buflist | endif
+autocmd unite_recent BufEnter * if !s:UBCActive | sil! unlet s:buflist | endif
 
 " vim:set et ts=2 sts=2 sw=2:
