@@ -51,35 +51,32 @@ def varinfo(var):
     import numpy
     print type(var)
     pprint(var)
-    if type(var) is numpy.ndarray:
+    if isinstance(var, numpy.ndarray):
         print var.shape
 
 
-def dict2obj(dic):
+class dict2obj(dict):
+
     """
     Convert a dict to an object with the dictionary's keys as attributes.
-    Sanitizes illegal characters and keywords and resolves resulting
-    duplicates.
     """
-    from collections import namedtuple
-    from keyword import iskeyword
-    import re
 
-    seen = []
-    for key in dic.keys():
-        newkey = key
-        if iskeyword(key):
-            newkey = key + '_'
-        elif not key.isalnum():
-            newkey = re.sub('[^_0-9A-Za-z]', '_', key)
-        if newkey.startswith('_'):
-            newkey = 'u' + newkey
-        while newkey in seen:
-            newkey = newkey + '_'
-        seen.append(newkey)
-        if newkey != key:
-            dic[newkey] = dic.pop(key)
+    def __init__(self, d=None, **kwargs):
+        if d is None:
+            d = {}
+        if kwargs:
+            d.update(**kwargs)
+        for key, val in d.items():
+            setattr(self, key, val)
+        for key in self.__class__.__dict__.keys():
+            if not (key.startswith('__') and key.endswith('__')):
+                setattr(self, key, getattr(self, key))
 
-    obj = namedtuple('obj', dic.keys())
-
-    return obj(**dic)
+    def __setattr__(self, name, value):
+        if isinstance(value, (list, tuple)):
+            value = [self.__class__(x)
+                     if isinstance(x, dict) else x for x in value]
+        else:
+            value = self.__class__(value) if isinstance(value, dict) else value
+        super(dict2obj, self).__setattr__(name, value)
+        self[name] = value
