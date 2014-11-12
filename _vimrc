@@ -383,8 +383,8 @@ if s:hasvimtools
     nno <silent> <Leader>x  :<C-u>set opfunc=vimtools#SourceMotion<CR>g@
     nno <silent> <Leader>xx :<C-u>set opfunc=vimtools#SourceMotion<Bar>exe
         \ 'norm! 'v:count1.'g@_'<CR>
-    ino <silent> <Leader>x  <Esc>:<C-u>set opfunc=vimtools#SourceMotion<Bar>exe
-        \ 'norm! 'v:count1.'g@_'<CR>
+    autocmd VimrcAutocmds FileType vim ino <silent> <Leader>x  <Esc>:<C-u>set
+        \ opfunc=vimtools#SourceMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
     xno <silent> <Leader>x  :<C-u>call vimtools#SourceMotion('visual')<CR>
 else
     nn <silent> <Leader>xx :exec getline('.')<CR>
@@ -985,13 +985,13 @@ func! s:BackWord()
     if col('.') > len(getline('.'))
         let lastwordpat =  '\v.*\zs(<.+>$|.&\k@!&\s@!)'
         let lastwordlen = len(matchstr(getline('.'), lastwordpat))
-        return repeat("\<C-r>=\"\\<Left>\"\<CR>", max([lastwordlen, 1]))
+        return "\<C-r>=\"".repeat("\\<Left>", max([lastwordlen, 1]))."\"\<CR>"
     else
         return "\<Esc>:silent! undojoin\<CR>lbi"
     endif
 endfunc
-inoremap <Left>  <C-r>="\<lt>Left>"<CR>
-inoremap <Right> <C-r>="\<lt>Right>"<CR>
+inoremap <silent> <Left>  <C-r>="\<lt>Left>"<CR>
+inoremap <silent> <Right> <C-r>="\<lt>Right>"<CR>
 inoremap <silent> <expr> <C-Left> <SID>BackWord()
 inoremap <silent> <C-Right> <Esc>:silent! undojoin<CR>lwi
 
