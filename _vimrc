@@ -383,8 +383,8 @@ if s:hasvimtools
     nno <silent> <Leader>x  :<C-u>set opfunc=vimtools#SourceMotion<CR>g@
     nno <silent> <Leader>xx :<C-u>set opfunc=vimtools#SourceMotion<Bar>exe
         \ 'norm! 'v:count1.'g@_'<CR>
-    autocmd VimrcAutocmds FileType vim ino <silent> <Leader>x  <Esc>:<C-u>set
-        \ opfunc=vimtools#SourceMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+    autocmd VimrcAutocmds FileType vim ino <silent> <buffer> <Leader>x <Esc>:
+        \ <C-u>set opfunc=vimtools#SourceMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
     xno <silent> <Leader>x  :<C-u>call vimtools#SourceMotion('visual')<CR>
 else
     nn <silent> <Leader>xx :exec getline('.')<CR>

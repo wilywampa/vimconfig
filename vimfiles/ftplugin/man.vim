@@ -32,6 +32,7 @@ function! s:ManFold(lnum)
     endif
 endfunction
 setlocal foldmethod=expr foldexpr=s:ManFold(v:lnum) foldlevel=1
+nnoremap G G
 
 " Set tmux window title to title of man page
 function! s:SetTmuxTitle()

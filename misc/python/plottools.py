@@ -55,28 +55,42 @@ def varinfo(var):
         print var.shape
 
 
-class dict2obj(dict):
+try:
+    from attrdict import AttrDict as dict2obj
+except ImportError:
+    class dict2obj(dict):
 
-    """
-    Convert a dict to an object with the dictionary's keys as attributes.
-    """
+        """
+        Convert a dict to an object with the dictionary's keys as attributes.
+        """
 
-    def __init__(self, d=None, **kwargs):
-        if d is None:
-            d = {}
-        if kwargs:
-            d.update(**kwargs)
-        for key, val in d.items():
-            setattr(self, key, val)
-        for key in self.__class__.__dict__.keys():
-            if not (key.startswith('__') and key.endswith('__')):
-                setattr(self, key, getattr(self, key))
+        def __init__(self, d=None, **kwargs):
+            if d is None:
+                d = {}
+            if kwargs:
+                d.update(**kwargs)
+            for key, val in d.items():
+                setattr(self, key, val)
+            for key in self.__class__.__dict__.keys():
+                if not (key.startswith('__') and key.endswith('__')):
+                    setattr(self, key, getattr(self, key))
 
-    def __setattr__(self, name, value):
-        if isinstance(value, (list, tuple)):
-            value = [self.__class__(x)
-                     if isinstance(x, dict) else x for x in value]
-        else:
-            value = self.__class__(value) if isinstance(value, dict) else value
-        super(dict2obj, self).__setattr__(name, value)
-        self[name] = value
+        def __setattr__(self, name, value):
+            if isinstance(value, (list, tuple)):
+                value = [self.__class__(x)
+                         if isinstance(x, dict) else x for x in value]
+            else:
+                if isinstance(value, dict):
+                    value = self.__class__(value)
+            super(dict2obj, self).__setattr__(name, value)
+            self[name] = value
+
+else:
+    import sys
+    _STRING = basestring if sys.version_info < (3,) else str
+
+    # Make invalid attribute names still show up in IPython completion
+    def _valid_name(cls, name):
+        return isinstance(name, _STRING) and not hasattr(cls, name)
+
+    dict2obj._valid_name = _valid_name
