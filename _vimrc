@@ -500,12 +500,6 @@ nn <silent> du :diffupdate<CR>
 ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".expand('~') : '~'
 cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".expand('~') : '~'
 
-" Open folds recursively with z[ao] and non-recursively with z[AO]
-nn za zA
-nn zA za
-nn zo zczA
-nn zO zo
-
 " Make @: work immediately after restarting vim
 nn <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
 

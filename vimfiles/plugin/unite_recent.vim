@@ -65,7 +65,7 @@ function! s:get_buflist()
 endfunction
 
 " Use Unite's MRU list for alternate buffer key
-function! s:UniteAlternateBuffer(count)
+function! UniteAlternateBuffer(count)
   let buf = bufnr('%')
   if !exists(':Unite') || (a:count == 1 && buflisted(bufnr('#')) && bufnr('#') != bufnr('%'))
     try | execute "normal! \<C-^>" | catch | endtry
@@ -82,7 +82,7 @@ function! s:UniteAlternateBuffer(count)
   execute "normal! zv"
   if bufnr('%') == buf | echo "No alternate buffer" | endif
 endfunction
-nnoremap <silent> <C-^> :<C-u>call <SID>UniteAlternateBuffer(v:count1)<CR>
+nnoremap <silent> <C-^> :<C-u>call UniteAlternateBuffer(v:count1)<CR>
 
 " Cycle through Unite's MRU list
 function! s:UniteBufferCycle(resume)

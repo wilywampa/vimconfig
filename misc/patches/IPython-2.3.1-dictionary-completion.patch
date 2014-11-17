@@ -1,7 +1,7 @@
-diff --git a/Users/jniehus/temp/completer.py b/usr/local/lib/python2.7/site-packages/IPython/core/completer.py
+diff --git a/IPython/core/completer.py b/IPython/core/completer.py
 index b1bc646..5758917 100644
---- a/Users/jniehus/temp/completer.py
-+++ b/usr/local/lib/python2.7/site-packages/IPython/core/completer.py
+--- a/IPython/core/completer.py
++++ b/IPython/core/completer.py
 @@ -79,7 +79,6 @@ from IPython.config.configurable import Configurable
  from IPython.core.error import TryNext
  from IPython.core.inputsplitter import ESC_MAGIC
@@ -89,7 +89,7 @@ index b1bc646..5758917 100644
                           ]
  
      def all_completions(self, text):
-@@ -804,6 +861,76 @@ class IPCompleter(Completer):
+@@ -804,6 +861,77 @@ class IPCompleter(Completer):
                      argMatches.append("%s=" %namedArg)
          return argMatches
  
@@ -97,7 +97,8 @@ index b1bc646..5758917 100644
 +        def get_keys(obj):
 +            # Only allow completion for known in-memory dict-like types
 +            if isinstance(obj, dict) or\
-+               _safe_isinstance(obj, 'pandas', 'DataFrame'):
++               _safe_isinstance(obj, 'pandas', 'DataFrame') or\
++               _safe_isinstance(obj, 'attrdict', 'AttrDict'):
 +                try:
 +                    return list(obj.keys())
 +                except Exception:

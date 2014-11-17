@@ -50,5 +50,5 @@ call s:SetTmuxTitle()
 
 augroup man_tmux_title
     autocmd!
-    autocmd BufEnter * if &filetype == 'man' | call SetTmuxTitle() | endif
+    autocmd BufEnter * if &filetype == 'man' | call s:SetTmuxTitle() | endif
 augroup END

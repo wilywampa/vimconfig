@@ -319,6 +319,7 @@ function! vimtools#KeepPatterns(line1, line2, cmd)
   endtry
 endfunction
 
+let s:range_pattern = '((\d+|\.|\$|''\a)(,(\d+|\.|\$|''\a))?)'
 function! vimtools#KeepPatternsSubstitute()
   let cmdline = getcmdline()
   if getcmdtype() == ':'
@@ -328,6 +329,8 @@ function! vimtools#KeepPatternsSubstitute()
     elseif cmdline =~# "\\m^'<,'>[sgv]$" | return "'<,'>KeepPatterns ".cmd."/\\%V\\v"
     elseif cmdline =~# '\v^.*[sgv]/%(\\\%V)?\\v$'
       return substitute(cmdline, '\v(^.*[sgv]/)%(\\\%V)?\\v', '\1/', '')
+    elseif cmdline =~# '\v^'.s:range_pattern.'[sgv]$'
+      return matchstr(cmdline, '\v^'.s:range_pattern)."KeepPatterns ".cmd."/\\v"
     endif
   endif
   let cmdstart = strpart(cmdline, 0, getcmdpos() - 1)
