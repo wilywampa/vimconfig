@@ -19,6 +19,7 @@
 	new = log HEAD..origin --reverse
 	up = pull origin master
 	url = config --get remote.origin.url
+	amend = commit --amend --no-edit
 	ls = ls-files
 [color]
 	diff = auto

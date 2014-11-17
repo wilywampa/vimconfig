@@ -76,7 +76,7 @@ alias vims='vim -S ~/session.vis'
 alias vimr='vim -S =(<~/periodic_session.vis)'
 alias gvims='gvim -S ~/session.vis'
 alias ez='vim ~/.zshrc'
-alias vno='vim -u NONE -i NONE'
+alias vno='vim -u NONE -i NONE -N'
 
 # svn
 alias svnadd="svn st | grep '^?' | awk '{print \$2}' | s | xargs svn add"
@@ -127,6 +127,8 @@ local cmds=''"'"'+/^diff --git'"'"' "+1" =(git diff --no-ext-diff)'
 alias gdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
 local cmds=''"'"'+/^diff --git'"'"' "+1" =(git diff --cached --no-ext-diff)'
 alias gdiffc='vim -c "set buftype=nowrite scrolloff=999" '$cmds
+local cmds=''"'"'+/^diff --git'"'"' "+1" =(git diff --no-ext-diff origin)'
+alias gnew='vim -c "set buftype=nowrite scrolloff=999" '$cmds
 local cmds=''"'"'+/^diff --git'"'"' "+1" =(hg diff --git)'
 alias hgdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
 
@@ -278,6 +280,7 @@ abbrevs=(
 'sz'    'source ~/.zshrc'
 'szv'   'source ~/.zshrc; vims'
 'wh'    'whence'
+'w'     'whence'
 'g'     'grep'
 'gi'    'grep -i'
 'f'     'find .'
@@ -293,6 +296,8 @@ abbrevs=(
 'loc'   'locate --regex -i'
 'co'    './configure'
 'cop'   './configure --prefix=$HOME/.local'
+'.co'   '../configure'
+'.cop'  '../configure --prefix=$HOME/.local'
 'm'     'make'
 'min'   'make install'
 'mcl'   'make clean'
@@ -305,13 +310,21 @@ abbrevs=(
 'gid'   'gdiff'
 'gidc'  'gdiffc'
 'svd'   'svndiff'
+'hgd'   'hgdiff'
 'vc'    'cd $VIMCONFIG'
 'vcb'   'cd $VIMCONFIG/vimfiles/bundle'
+'v'     'vim'
 'e'     'vim'
-'vno'   'vim -u NONE -i NONE'
+'vno'   'vim -u NONE -i NONE -N'
 'vp'    'vimpager'
 'ipy'   'ipython'
 'xt'    'xclip -o >& /dev/null || echo -n "not "; echo connected'
+'vba'   'vim-blacklist-add'
+'vbr'   'vim-blacklist-remove'
+'k'     'kill'
+'o'     'open'
+'py'    'python'
+'ex'    'export'
 )
 
 # Post-modifier abbreviations
@@ -354,7 +367,7 @@ magic-abbrev-expand() {
         RBUFFER=
     fi
     lbuffer_start=$LBUFFER
-    if [[ ${LBUFFER[-1]} != " " ]]; then
+    if [[ ${LBUFFER[-1]} != " " ]] && [[ ! ${RBUFFER[1]} =~ [[:alnum:]_] ]]; then
         # Get index of last space, pipe, semicolon, or $( before last word
         lastidx=${LBUFFER[(I) ]}
         (( ${LBUFFER[(I)\|]} > $lastidx )) && lastidx=${LBUFFER[(I)\|]}
@@ -369,7 +382,7 @@ magic-abbrev-expand() {
         if (( ${shellmods[(i)$prevword]} <= ${#shellmods} )); then
             doabbrev=1
         fi
-        mods=('xargs' 'unbuffer' 'nohup')
+        mods=('xargs' 'unbuffer' 'nohup' 'sudo')
         [[ ${LBUFFER[(w)1]} == "zargs" ]] && mods+=('--' '..')
         # Previous word is a modifier
         if (( ${mods[(i)$prevword]} <= ${#mods} )); then
@@ -381,7 +394,7 @@ magic-abbrev-expand() {
         [[ ${prevword[-1]} == '|' ]] && doabbrev=1
         [[ ${prevword[-1]} == ';' ]] && doabbrev=1
         [[ ${prevword[-2,-1]} == '$(' ]] && doabbrev=1
-        if [[ ${prevword[-2,-1]} == '$(' ]] && [[ $pre == 'wh' ]]; then
+        if [[ ${prevword[-2,-1]} == '$(' ]] && [[ $pre =~ wh? ]]; then
             LBUFFER=$left'whence -p'
         elif [[ $dopostmod == 1 ]] && [[ ${pmabbrevs[(i)$pre]} == $pre ]]; then
             LBUFFER=$left${pmabbrevs[$pre]:-$pre}
@@ -429,24 +442,24 @@ b2h() {
 echo "test" | sort -h >& /dev/null
 if [ $? -eq 0 ]; then
     bigdirs() {
-        du -h . | sort -h | tail -n ${1:-$(( $LINES - 6 ))}
+        du -h $PWD | sort -h | tail -n ${1:-$(( $LINES - 6 ))}
     }
     bigfiles() {
-        find . -type f -exec du -h {} + | sort -h \
+        find $PWD -type f -exec du -h {} + | sort -h \
             | tail -n ${1:-$(( $LINES - 6 ))}
     }
 else
     bigdirs() {
-        du --block-size=1 . | sort -n | tail -n ${1:-$(( $LINES - 6 ))} | b2h
+        du --block-size=1 $PWD | sort -n | tail -n ${1:-$(( $LINES - 6 ))} | b2h
     }
     bigfiles() {
-        find . -type f -exec du -b {} + | sort -n \
+        find $PWD -type f -exec du -b {} + | sort -n \
             | tail -n ${1:-$(( $LINES - 6 ))} | b2h
     }
 fi
 
 _cygyank() {
-    CUTBUFFER=$(cat /dev/clipboard | sed 's/\x0//g')
+    CUTBUFFER=$(< /dev/clipboard | sed 's/\x0//g')
     zle yank
 }
 zle -N _cygyank
@@ -468,6 +481,12 @@ _cyg-list-expand-or-copy-cwd() {
     fi
 }
 zle -N _cyg-list-expand-or-copy-cwd
+_cyg-path() {
+    echo $(readlink -f "$1") | tr -d '\n' > /dev/clipboard
+}
+_cyg-copy() {
+    noglob echo "$@" | tr -d '\n' > /dev/clipboard
+}
 
 _xclipyank() {
     CUTBUFFER=$(xclip -o -sel c | sed 's/\x0//g')
@@ -495,26 +514,20 @@ _xclip-list-expand-or-copy-cwd() {
     fi
 }
 zle -N _xclip-list-expand-or-copy-cwd
-
-if type xclip >& /dev/null ; then
-    vibindkey '^V' _xclipyank
-    bindkey -M vicmd 'y' _xclip-vi-yank
-    bindkey -M vicmd 'Y' _xclip-vi-yank-eol
-    vibindkey '^G' _xclip-list-expand-or-copy-cwd
-else
-    vibindkey '^V' _cygyank
-    bindkey -M vicmd 'y' _cyg-vi-yank
-    bindkey -M vicmd 'Y' _cyg-vi-yank-eol
-    vibindkey '^G' _cyg-list-expand-or-copy-cwd
-fi
-
-path() {
+_xclip-path() {
     echo $(readlink -f "$1") | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
 }
-
-copy() {
-    echo "$@" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+_xclip-copy() {
+    noglob echo "$@" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
 }
+
+
+vibindkey '^V' _xclipyank
+bindkey -M vicmd 'y' _xclip-vi-yank
+bindkey -M vicmd 'Y' _xclip-vi-yank-eol
+vibindkey '^G' _xclip-list-expand-or-copy-cwd
+path() {_xclip-path "$@"}
+copy() {_xclip-copy "$@"}
 
 _escalate-kill() {
     r="^kill"
@@ -596,6 +609,8 @@ zle -N _time-command; vibindkey '^T' _time-command
 _vim-args() {
     # Try to set vim's search pattern if opening files from ag command
     if [[ ${BUFFER[(w)1]} =~ ^ag?$ ]]; then
+        # Append "-l" if it's not present
+        [[ ! $BUFFER =~ ' -l( |$)' ]] && BUFFER=${BUFFER}' -l'
         # Extract string between quotes
         [[ $BUFFER =~ "'(.*)'" ]]; pat=${${match[1]}:-""}
         pat=${${pat//</\\<}//>/\\>}; pat=${pat//\\b/(<|>)}
@@ -611,7 +626,7 @@ _vim-args() {
             else
                 BUFFER="vim +/'\\v$pat' \$( "$BUFFER" )"
             fi
-            CURSOR=$(( $CURSOR + 12 + ${#pat} ))
+            CURSOR=$(( $CURSOR + 14 + ${#pat} ))
             return
         fi
     fi
@@ -802,6 +817,11 @@ zle -N insert-home
 bindkey -M viins '~' insert-home
 bindkey -M isearch '~' self-insert
 
+za() {
+    local mandir=${$(readlink -f $(man -w zsh)):h}
+    ag "$@" -- ${mandir}/z*(.)
+}
+
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
 _cursor_bar="\033[5 q"
@@ -980,7 +1000,24 @@ zle-keymap-select() {
     else
         _set-block-cursor
     fi
+
+    # Fix disappearing terminal lines
+    # See oh-my-zsh/plugins/vi-mode/vi-mode.plugin.zsh
+    if (( $+terminfo[smkx] && $+terminfo[rmkx] )); then
+        case "$0" in
+            (zle-line-init)
+                # Enable terminal application mode.
+                echoti smkx
+                ;;
+            (zle-line-finish)
+                # Disable terminal application mode.
+                echoti rmkx
+                ;;
+        esac
+    fi
+
     zle reset-prompt
+    zle -R
 }
 zle -N zle-keymap-select
 zle-line-finish() { _vim_mode=$_vim_ins_mode }
@@ -995,8 +1032,9 @@ zle -N edit-command-line
 vibindkey '^F' edit-command-line
 _lineup=$'\e[1A'
 _linedown=$'\e[1B'
+[[ -n $SSH_CLIENT ]] && _hostcolor=9 || _hostcolor=3
 PROMPT="
-%{$fg[blue]%}%n%{$reset_color%}@%{$fg[yellow]%}%m %{$fg[cyan]%}\$(_short-pwd)%{$reset_color%}
+%{$fg[blue]%}%n%{$reset_color%}@%F{$_hostcolor}%m%f %{$fg[cyan]%}\$(_short-pwd)%{$reset_color%}
 [zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
 
 # Right prompt
@@ -1012,7 +1050,7 @@ _svn_prompt_info() {
 
 _svn_current_branch_name() {
     url=$(echo ${1[(fr)URL: *]})
-    wcopy=$(echo ${1[(fr)Working *]})
+    wcopy=$(echo ${1[(fr)Working *]})/trunk
     if [[ $url =~ trunk ]] && [[ -n $wcopy ]]; then
         root=${wcopy[(ws:/:)-1]}
         if [[ $root == 'trunk' ]]; then
@@ -1106,6 +1144,14 @@ if [[ $OSTYPE == 'cygwin' ]]; then
         autocutsel -selection PRIMARY -fork
         autocutsel -selection CLIPBOARD -fork
     fi
+
+    # Use Cygwin clipboard in case X11 is not running
+    vibindkey '^V' _cygyank
+    bindkey -M vicmd 'y' _cyg-vi-yank
+    bindkey -M vicmd 'Y' _cyg-vi-yank-eol
+    vibindkey '^G' _cyg-list-expand-or-copy-cwd
+    path() {_cyg-path "$@"}
+    copy() {_cyg-copy "$@"}
 fi
 
 #[[[1 Machine-specific settings
@@ -1113,9 +1159,11 @@ fi
 
 # Check if important variables have been set
 _unset=()
-for _var in VIMCONFIG FPATH FZF_RUBY_EXEC; do
+typeset -U _unset
+for _var in VIMCONFIG FPATH FZF_RUBY_EXEC FZF_DEFAULT_OPTS FZF_DEFAULT_COMMAND; do
     [[ -z $(eval echo "\${$_var}") ]] && _unset+=($_var)
 done
+[[ ! $FPATH =~ 'misc' ]] && _unset+=(FPATH)
 [[ -n $_unset ]] && echo "Unset variables:" ${(j/, /)_unset}
 
 # vim: set fdm=marker fdl=1 et sw=4 fmr=[[[,]]]:
