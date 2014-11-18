@@ -1286,6 +1286,7 @@ call s:CreateAbbrev('ca',   'call',                            ':'   )
 call s:CreateAbbrev('m',    'make',                            ':'   )
 call s:CreateAbbrev('mcl',  'make clean',                      ':'   )
 call s:CreateAbbrev('pp',   'PP',                              ':>'  )
+call s:CreateAbbrev('bd',   'breakdel',                        '>'   )
 call s:CreateAbbrev('csa',  'cscope add',                      ':'   )
 call s:CreateAbbrev('csf',  'cscope find',                     ':'   )
 call s:CreateAbbrev('csk',  'cscope kill -1',                  ':'   )
@@ -1774,7 +1775,7 @@ let VCSCommandCVSDiffOpt = '--internal-diff'
 
 " jedi settings
 func! s:JediSetup()
-    if exists('*jedi#completions')
+    if exists('*jedi#completions') && &omnifunc != 'CompleteIPython'
         setlocal omnifunc=jedi#completions
         inoremap <silent> <buffer> . .<C-R>=jedi#complete_string(1)<CR>
         nnoremap <buffer> <Leader>jd :<C-u>call jedi#goto_definitions()<CR>zv
