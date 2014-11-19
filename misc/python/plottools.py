@@ -59,7 +59,6 @@ try:
     from attrdict import AttrDict as dict2obj
 except ImportError:
     class dict2obj(dict):
-
         """
         Convert a dict to an object with the dictionary's keys as attributes.
         """

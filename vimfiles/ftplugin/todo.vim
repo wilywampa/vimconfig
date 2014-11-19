@@ -40,11 +40,10 @@ nnoremap <silent> <buffer> \xx :<C-u>call <SID>SetC('X')<Bar>set opfunc=<SID>DoI
 nnoremap <silent> <buffer> \x  :<C-u>call <SID>SetC('X')<Bar>set opfunc=<SID>DoIt<CR>g@
 xnoremap <silent> <buffer> \x  :<C-u>call <SID>SetC('X')<Bar>call <SID>DoIt(line("'<"),line("'>"))<CR>
 
-nnoremap <buffer> ,o o(O)<Space>
-nnoremap <buffer> ,O O(O)<Space>
+nnoremap <expr> <buffer> ,o line('.') == 1 && getline('.') == '' ? 'i(O)<Space>' : 'o(O)<Space>'
+nnoremap <expr> <buffer> ,O line('.') > 1 ? 'ko(O)<Space>' : 'O(O)<Space>'
 
 nnoremap <buffer> ]] zj
 nnoremap <buffer> [[ zk
 
-setlocal wrap linebreak
-setlocal commentstring=#%s
+setlocal wrap linebreak commentstring=#%s

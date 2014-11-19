@@ -198,6 +198,7 @@ if !exists('*s:IPyRunPrompt')
     endif
     set filetype=python
     setlocal buftype=nofile bufhidden=hide noswapfile
+    setlocal omnifunc=CompleteIPython
     nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
     inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
     xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
