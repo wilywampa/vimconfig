@@ -1287,6 +1287,7 @@ call s:CreateAbbrev('m',    'make',                            ':'   )
 call s:CreateAbbrev('mcl',  'make clean',                      ':'   )
 call s:CreateAbbrev('pp',   'PP',                              ':>'  )
 call s:CreateAbbrev('bd',   'breakdel',                        '>'   )
+call s:CreateAbbrev('bc',   'breakdel *',                      '>'   )
 call s:CreateAbbrev('csa',  'cscope add',                      ':'   )
 call s:CreateAbbrev('csf',  'cscope find',                     ':'   )
 call s:CreateAbbrev('csk',  'cscope kill -1',                  ':'   )
@@ -1664,6 +1665,9 @@ endif
 " Surround settings
 xmap <expr> S (mode() == 'v' && col('.') == col('$') ? "h" : "")."\<Plug>VSurround"
 nnoremap <silent> ds<Space> F<Space>"_x,"_x:silent! call repeat#set('ds ')<CR>
+" Make d surround with ['...'] and D with ["..."]
+let g:surround_100 = "['\r']"
+let g:surround_68 = "[\"\r\"]"
 
 " Syntastic settings
 let g:syntastic_filetype_map={'arduino': 'cpp'}
