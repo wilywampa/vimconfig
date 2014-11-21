@@ -267,15 +267,16 @@ augroup END
 
 if has('python') && !exists('*PEP8()')
   let s:script_dir = escape(expand('<sfile>:p:h' ), '\')
-  let s:python_script_dir = s:script_dir . '/../python'
+  let s:python_script_dir = s:script_dir . '/python'
 python << EOF
 import vim
 import sys
-import autopep8_vim
 
 SCRIPT_DIR = vim.eval('s:python_script_dir')
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
+
+import autopep8_vim
 
 
 class Options(object):
