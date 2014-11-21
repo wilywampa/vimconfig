@@ -265,4 +265,49 @@ augroup python_ftplugin
       \ endif
 augroup END
 
+if has('python') && !exists('*PEP8()')
+  let s:script_dir = escape(expand('<sfile>:p:h' ), '\')
+  let s:python_script_dir = s:script_dir . '/../python'
+python << EOF
+import vim
+import sys
+import autopep8_vim
+
+SCRIPT_DIR = vim.eval('s:python_script_dir')
+if SCRIPT_DIR not in sys.path:
+    sys.path.insert(0, SCRIPT_DIR)
+
+
+class Options(object):
+    aggressive = 2
+    diff = False
+    experimental = True
+    ignore = None
+    in_place = False
+    indent_size = autopep8_vim.DEFAULT_INDENT_SIZE
+    line_range = None
+    max_line_length = 79
+    pep8_passes = 100
+    recursive = False
+    select = None
+    verbose = 0
+
+EOF
+function! PEP8()
+python << EOF
+import vim
+
+start = vim.vvars['lnum'] - 1
+end = vim.vvars['lnum'] + vim.vvars['count'] - 1
+lines = vim.current.buffer[start:end]
+
+lines = autopep8_vim.fix_lines(lines, Options)
+vim.current.buffer[start:end] = lines.split('\n')[:-1]
+EOF
+endfunction
+endif
+if has('python')
+  setlocal formatexpr=PEP8()
+endif
+
 " vim:set et ts=2 sts=2 sw=2:
