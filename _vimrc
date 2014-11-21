@@ -1036,6 +1036,14 @@ func! s:RecursiveQ()
 endfunc
 nnoremap <silent> <Leader>q :<C-u>call <SID>RecursiveQ()<CR>
 
+" Replace : with newlines and do the opposite before exiting
+func! s:Vared()
+    execute 'keeppatterns s/:/\r/'.(&gdefault ? '' : 'g')
+    execute 'autocmd VimLeavePre * execute "keeppatterns '.
+        \ '1,$-1s/\\n\\ze\\s*\\S/:'.(&gdefault ? '' : 'g').'" | wq'
+endfunc
+command! -nargs=0 Vared call s:Vared()
+
 " {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
