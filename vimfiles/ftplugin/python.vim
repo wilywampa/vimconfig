@@ -226,6 +226,8 @@ nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
 nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
 nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>
 nnoremap <buffer> <expr>   <Leader>po <SID>ToggleOmnifunc()
+nnoremap <buffer>          <Leader>pf :<C-u>set foldmethod=expr
+    \ foldexpr=pymode#folding#expr(v:lnum) <Bar> silent! FastFoldUpdate<CR>
 
 function! s:ToggleOmnifunc()
   if &l:omnifunc == 'CompleteIPython'
@@ -271,12 +273,14 @@ if has('python') && !exists('*PEP8()')
 python << EOF
 import vim
 import sys
+import re
 
 SCRIPT_DIR = vim.eval('s:python_script_dir')
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
-import autopep8_vim
+import autopep8
+import docformatter
 
 
 class Options(object):
@@ -285,7 +289,7 @@ class Options(object):
     experimental = True
     ignore = None
     in_place = False
-    indent_size = autopep8_vim.DEFAULT_INDENT_SIZE
+    indent_size = autopep8.DEFAULT_INDENT_SIZE
     line_range = None
     max_line_length = 79
     pep8_passes = 100
@@ -293,17 +297,39 @@ class Options(object):
     select = None
     verbose = 0
 
+doc_start = re.compile('^\s*[ur]?("""|' + (3 * "'") + ').*')
+doc_end = re.compile('.*("""|' + (3 * "'") + ')' + '\s*$')
+
 EOF
 function! PEP8()
 python << EOF
-import vim
-
 start = vim.vvars['lnum'] - 1
 end = vim.vvars['lnum'] + vim.vvars['count'] - 1
-lines = vim.current.buffer[start:end]
 
-lines = autopep8_vim.fix_lines(lines, Options)
-vim.current.buffer[start:end] = lines.split('\n')[:-1]
+doc_string = False
+if (doc_start.match(vim.current.buffer[start])
+        and doc_end.match(vim.current.buffer[end - 1])):
+    doc_string = True
+else:
+    # Don't remove trailing blank lines except at end of file
+    while (end < len(vim.current.buffer)
+           and re.match('^\s*$', vim.current.buffer[end - 1])):
+        end += 1
+
+lines = vim.current.buffer[start:end]
+lines = [unicode(line, 'utf-8') for line in lines]
+
+if doc_string:
+    new_lines = docformatter.format_code(u'\n'.join(lines))
+else:
+    new_lines = autopep8.fix_lines(lines, Options)
+
+new_lines = new_lines.encode(vim.eval('&encoding') or 'utf-8')
+new_lines = new_lines.split('\n')[: None if doc_string else -1]
+
+if new_lines != lines:
+    vim.current.buffer[start:end] = new_lines
+
 EOF
 endfunction
 endif
