@@ -299,6 +299,7 @@ class Options(object):
 
 doc_start = re.compile('^\s*[ur]?("""|' + (3 * "'") + ').*')
 doc_end = re.compile('.*("""|' + (3 * "'") + ')' + '\s*$')
+blank = re.compile('^\s*$')
 
 EOF
 function! PEP8()
@@ -306,9 +307,26 @@ python << EOF
 start = vim.vvars['lnum'] - 1
 end = vim.vvars['lnum'] + vim.vvars['count'] - 1
 
+first_non_blank = None
+cur = start
+while cur < end and blank.match(vim.current.buffer[cur]):
+    cur += 1
+else:
+    if cur < end:
+        first_non_blank = cur
+
+last_non_blank = None
+cur = end - 1
+while cur >= start and blank.match(vim.current.buffer[cur]):
+    cur -= 1
+else:
+    if cur >= start:
+        last_non_blank = cur
+
 doc_string = False
-if (doc_start.match(vim.current.buffer[start])
-        and doc_end.match(vim.current.buffer[end - 1])):
+if (first_non_blank is not None
+        and doc_start.match(vim.current.buffer[first_non_blank])
+        and doc_end.match(vim.current.buffer[last_non_blank])):
     doc_string = True
 else:
     # Don't remove trailing blank lines except at end of file
