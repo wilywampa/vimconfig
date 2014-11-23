@@ -230,18 +230,25 @@ nnoremap <buffer>          <Leader>pf :<C-u>set foldmethod=expr
     \ foldexpr=pymode#folding#expr(v:lnum) <Bar> silent! FastFoldUpdate<CR>
 
 " Operator map to select a docstring
-function! s:SelectDocString()
+function! s:SelectDocString(forward)
   let search = getreg('/')
   try
-    let @/ = '\v^\s*[uU]?[rR]?("""\_.{-}"""|''''''\_.{-}'''''')'
-    normal! gn
+    let @/ = '\v^\s*[uU]?[rR]?("""\_.{-}"""|''''''\_.{-}'''''')\s*$'
+    execute "normal! m'g".(a:forward ? 'n' : 'N')."\<Esc>"
+    if getpos("'<")[1] == getpos("'>")[1] && getline('.') !~ '\v""".*"""|''''''.*......'
+      normal! gvN
+    else
+      normal! gv
+    endif
   finally
     call setreg('/', search)
     echo
   endtry
 endfunction
-onoremap <buffer> ad :<C-u>call <SID>SelectDocString()<CR>
-vnoremap <buffer> ad :<C-u>call <SID>SelectDocString()<CR>
+onoremap <buffer> aD :<C-u>call <SID>SelectDocString(0)<CR>
+vnoremap <buffer> aD :<C-u>call <SID>SelectDocString(0)<CR>
+onoremap <buffer> ad :<C-u>call <SID>SelectDocString(1)<CR>
+vnoremap <buffer> ad :<C-u>call <SID>SelectDocString(1)<CR>
 
 function! s:ToggleOmnifunc()
   if &l:omnifunc == 'CompleteIPython'
@@ -316,7 +323,6 @@ class Options(object):
 
 doc_start = re.compile('^\s*[ur]?("""|' + (3 * "'") + ').*')
 doc_end = re.compile('.*("""|' + (3 * "'") + ')' + '\s*$')
-blank = re.compile('^\s*$')
 
 EOF
 function! PEP8()
@@ -324,24 +330,11 @@ python << EOF
 start = vim.vvars['lnum'] - 1
 end = vim.vvars['lnum'] + vim.vvars['count'] - 1
 
-first_non_blank = None
-cur = start
-while cur < end and blank.match(vim.current.buffer[cur]):
-    cur += 1
-else:
-    if cur < end:
-        first_non_blank = cur
-
-last_non_blank = None
-cur = end - 1
-while cur >= start and blank.match(vim.current.buffer[cur]):
-    cur -= 1
-else:
-    if cur >= start:
-        last_non_blank = cur
+first_non_blank = int(vim.eval('nextnonblank(v:lnum)')) - 1
+last_non_blank = int(vim.eval('prevnonblank(v:lnum + v:count - 1)')) - 1
 
 doc_string = False
-if (first_non_blank is not None
+if (first_non_blank >= 0
         and doc_start.match(vim.current.buffer[first_non_blank])
         and doc_end.match(vim.current.buffer[last_non_blank])):
     doc_string = True
