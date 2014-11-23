@@ -229,6 +229,20 @@ nnoremap <buffer> <expr>   <Leader>po <SID>ToggleOmnifunc()
 nnoremap <buffer>          <Leader>pf :<C-u>set foldmethod=expr
     \ foldexpr=pymode#folding#expr(v:lnum) <Bar> silent! FastFoldUpdate<CR>
 
+" Operator map to select a docstring
+function! s:SelectDocString()
+  let search = getreg('/')
+  try
+    let @/ = '\v^\s*[uU]?[rR]?("""\_.{-}"""|''''''\_.{-}'''''')'
+    normal! gn
+  finally
+    call setreg('/', search)
+    echo
+  endtry
+endfunction
+onoremap <buffer> ad :<C-u>call <SID>SelectDocString()<CR>
+vnoremap <buffer> ad :<C-u>call <SID>SelectDocString()<CR>
+
 function! s:ToggleOmnifunc()
   if &l:omnifunc == 'CompleteIPython'
     setlocal omnifunc=jedi#completions
@@ -270,6 +284,9 @@ augroup END
 if has('python') && !exists('*PEP8()')
   let s:script_dir = escape(expand('<sfile>:p:h' ), '\')
   let s:python_script_dir = s:script_dir . '/python'
+  if !exists('g:pep8_force_wrap')
+    let g:pep8_force_wrap = 1
+  endif
 python << EOF
 import vim
 import sys
@@ -338,7 +355,9 @@ lines = vim.current.buffer[start:end]
 lines = [unicode(line, 'utf-8') for line in lines]
 
 if doc_string:
-    new_lines = docformatter.format_code(u'\n'.join(lines))
+    new_lines = docformatter.format_code(
+        u'\n'.join(lines),
+        force_wrap=True if int(vim.eval('g:pep8_force_wrap')) else False)
 else:
     new_lines = autopep8.fix_lines(lines, Options)
 
