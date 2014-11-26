@@ -28,9 +28,9 @@ nnoremap          <buffer> ,ip :<C-u>IPython<CR>
 
 " Move around functions
 nnoremap <silent> <buffer> [[ m':call search('^\s*def ', "bW")<CR>
-vnoremap <silent> <buffer> [[ m':<C-U>exe "normal! gv"<Bar>call search('^\s*def ', "bW")<CR>
+xnoremap <silent> <buffer> [[ m':<C-U>exe "normal! gv"<Bar>call search('^\s*def ', "bW")<CR>
 nnoremap <silent> <buffer> ]] m':call search('^\s*def ', "W")<CR>
-vnoremap <silent> <buffer> ]] m':<C-U>exe "normal! gv"<Bar>call search('^\s*def ', "W")<CR>
+xnoremap <silent> <buffer> ]] m':<C-U>exe "normal! gv"<Bar>call search('^\s*def ', "W")<CR>
 
 " Enable omni completion
 setlocal omnifunc=pythoncomplete#Complete
@@ -221,7 +221,7 @@ xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
-vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>IPyRunMotion('visual')<CR>
+xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>IPyRunMotion('visual')<CR>
 nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
 nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
 nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>
@@ -246,9 +246,9 @@ function! s:SelectDocString(forward)
   endtry
 endfunction
 onoremap <buffer> aD :<C-u>call <SID>SelectDocString(0)<CR>
-vnoremap <buffer> aD :<C-u>call <SID>SelectDocString(0)<CR>
+xnoremap <buffer> aD :<C-u>call <SID>SelectDocString(0)<CR>
 onoremap <buffer> ad :<C-u>call <SID>SelectDocString(1)<CR>
-vnoremap <buffer> ad :<C-u>call <SID>SelectDocString(1)<CR>
+xnoremap <buffer> ad :<C-u>call <SID>SelectDocString(1)<CR>
 
 function! s:ToggleOmnifunc()
   if &l:omnifunc == 'CompleteIPython'
@@ -350,7 +350,9 @@ lines = [unicode(line, 'utf-8') for line in lines]
 if doc_string:
     new_lines = docformatter.format_code(
         u'\n'.join(lines),
-        force_wrap=True if int(vim.eval('g:pep8_force_wrap')) else False)
+        force_wrap=True if int(vim.eval('g:pep8_force_wrap')) else False,
+        post_description_blank=False,
+        pre_summary_newline=True)
 else:
     new_lines = autopep8.fix_lines(lines, Options)
 

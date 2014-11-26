@@ -338,11 +338,11 @@ nn <Leader>dl <C-w>t<C-w>s<C-w>J<C-w>t<C-w>l<C-w>s<C-w>J<C-w>t:res<CR><C-w>b
 " Make Y behave like other capital letters
 nn Y y$
 
-" Navigate windows/tabs with arrow keys
+" Navigate windows with arrow keys
 no <Down>  <C-w>j
 no <Up>    <C-w>k
-no <silent> <Left>  :<C-u>let w=winnr()<CR><C-w>h:if w==winnr()\|exe "norm! gT"\|en<CR>
-no <silent> <Right> :<C-u>let w=winnr()<CR><C-w>l:if w==winnr()\|exe "norm! gt"\|en<CR>
+no <Left>  <C-w>h
+no <Right> <C-w>l
 
 " Change window size with control + arrow keys
 no <silent> <C-Down>  :<C-u>call vimtools#ResizeWindow('down')<CR>
@@ -498,8 +498,8 @@ xno g] g_h
 nn <silent> du :diffupdate<CR>
 
 " Insert home directory after typing $~
-ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".expand('~') : '~'
-cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".expand('~') : '~'
+ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".$HOME : '~'
+cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".$HOME : '~'
 
 " Make @: work immediately after restarting vim
 nn <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
@@ -1039,9 +1039,9 @@ nnoremap <silent> <Leader>q :<C-u>call <SID>RecursiveQ()<CR>
 
 " Replace : with newlines and do the opposite before exiting
 func! s:Vared() " {{{
-    execute 'keeppatterns s/:/\r/'.(&gdefault ? '' : 'g')
-    execute 'autocmd VimLeavePre * execute "keeppatterns '.
-        \ '1,$-1s/\\n\\ze\\s*\\S/:'.(&gdefault ? '' : 'g').'" | wq'
+    execute 'keeppatterns s/:/\r/e'.(&gdefault ? '' : 'g')
+    execute 'autocmd VimLeavePre * execute "silent! keeppatterns 1,$-1s'.
+        \ '/\\n\\ze\\s*\\S/:/'.(&gdefault ? '' : 'g').'e" | wq'
 endfunc " }}}
 command! -nargs=0 Vared call s:Vared()
 
