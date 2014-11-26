@@ -230,21 +230,79 @@ nnoremap <buffer>          <Leader>pf :<C-u>set foldmethod=expr
     \ foldexpr=pymode#folding#expr(v:lnum) <Bar> silent! FastFoldUpdate<CR>
 
 " Operator map to select a docstring
-function! s:SelectDocString(forward)
-  let search = getreg('/')
-  try
-    let @/ = '\v^\s*[uU]?[rR]?("""\_.{-}"""|''''''\_.{-}'''''')\s*$'
-    execute "normal! m'g".(a:forward ? 'n' : 'N')."\<Esc>"
-    if getpos("'<")[1] == getpos("'>")[1] && getline('.') !~ '\v""".*"""|''''''.*......'
-      normal! gvN
-    else
-      normal! gv
+if has('python')
+python << EOF
+import cStringIO
+import tokenize
+import vim
+
+
+def get_docstrings(source):
+    io_obj = cStringIO.StringIO(source)
+    prev_toktype = tokenize.INDENT
+    docstrings = []
+    for tok in tokenize.generate_tokens(io_obj.readline):
+        token_type = tok[0]
+        start_line = tok[2][0]
+        end_line = tok[3][0]
+        if token_type == tokenize.STRING:
+            if prev_toktype == tokenize.INDENT:
+                docstrings.append((start_line, end_line))
+
+        prev_toktype = token_type
+
+    return docstrings
+
+
+def find_docstring(line, next=True):
+    docstrings = get_docstrings('\n'.join([b for b in vim.current.buffer]))
+    for d in docstrings:
+        if line in range(d[0], d[1] + 1):
+            return d
+
+    if next:
+        for d in docstrings:
+            if d[0] > line:
+                return d
+    else:
+        docstrings.reverse()
+        for d in docstrings:
+            if d[1] < line:
+                return d
+
+    return docstrings[-1]
+EOF
+  function! s:SelectDocString(forward)
+python << EOF
+start, end = find_docstring(int(vim.eval('line(".")')),
+                            next=True if int(vim.eval('a:forward')) else False)
+if start is not None:
+    vim.command('let start = %d' % start)
+    vim.command('let end = %d' % end)
+EOF
+    if exists('start')
+      call cursor(start, 0)
+      normal! V
+      call cursor(end, 0)
     endif
-  finally
-    call setreg('/', search)
-    echo
-  endtry
-endfunction
+  endfunction
+else
+  function! s:SelectDocString(forward)
+    let search = getreg('/')
+    try
+      let @/ = '\v^\s*[uU]?[rR]?("""\_.{-}"""|''''''\_.{-}'''''')\s*$'
+      execute "normal! m'g".(a:forward ? 'n' : 'N')."\<Esc>"
+      if getpos("'<")[1] == getpos("'>")[1] && getline('.') !~ '\v""".*"""|''''''.*......'
+        normal! gvN
+      else
+        normal! gv
+      endif
+    finally
+      call setreg('/', search)
+      echo
+    endtry
+  endfunction
+endif
 onoremap <buffer> aD :<C-u>call <SID>SelectDocString(0)<CR>
 xnoremap <buffer> aD :<C-u>call <SID>SelectDocString(0)<CR>
 onoremap <buffer> ad :<C-u>call <SID>SelectDocString(1)<CR>
