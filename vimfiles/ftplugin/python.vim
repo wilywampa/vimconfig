@@ -292,7 +292,10 @@ if has('python') && !exists('*PEP8()')
   let s:script_dir = escape(expand('<sfile>:p:h' ), '\')
   let s:python_script_dir = s:script_dir . '/python'
   if !exists('g:pep8_force_wrap')
-    let g:pep8_force_wrap = 1
+    let g:pep8_force_wrap = 0
+  endif
+  if !exists('g:pep8_indent_only')
+    let g:pep8_indent_only = 0
   endif
 python << EOF
 import vim
@@ -350,11 +353,14 @@ lines = [unicode(line, 'utf-8') for line in lines]
 if doc_string:
     new_lines = docformatter.format_code(
         u'\n'.join(lines),
-        force_wrap=True if int(vim.eval('g:pep8_force_wrap')) else False,
+        force_wrap=True if vim.vars['pep8_force_wrap'] else False,
         post_description_blank=False,
         pre_summary_newline=True)
 else:
-    new_lines = autopep8.fix_lines(lines, Options)
+    options = Options()
+    if vim.vars['pep8_indent_only']:
+        options.select = ['E1', 'W1']
+    new_lines = autopep8.fix_lines(lines, options)
 
 new_lines = new_lines.encode(vim.eval('&encoding') or 'utf-8')
 new_lines = new_lines.split('\n')[: None if doc_string else -1]
