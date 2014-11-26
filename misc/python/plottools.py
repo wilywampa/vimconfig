@@ -2,9 +2,7 @@ import matplotlib.pyplot as _plt
 
 
 def fg(fig):
-    """
-    Raise figure to foreground
-    """
+    """Raise figure to foreground."""
     _plt.figure(fig.number)
     if _plt.get_backend()[0:2].lower() == 'qt':
         _plt.get_current_fig_manager().window.activateWindow()
@@ -14,25 +12,27 @@ def fg(fig):
 
 
 def fig(num=1):
+    """Raise a figure to foreground by number with 1 as default."""
     fg(_plt.figure(num))
 
 
 def figdo(*args):
-    """
-    Apply functions to all open figures
-    """
+    """Apply functions to all open figures."""
     [func(_plt.figure(n)) for n in _plt.get_fignums() for func in args]
 
 
 def resize(width, height):
+    """Resize the active figure window."""
     _plt.get_current_fig_manager().resize(width, height)
 
 
 def cl():
+    """Close all figures."""
     _plt.close('all')
 
 
 def savepdf(filename):
+    """Save all open figures to a PDF file."""
     from matplotlib.backends.backend_pdf import PdfPages
     with PdfPages(filename) as pp:
         figs = [_plt.figure(n) for n in _plt.get_fignums()]
@@ -41,12 +41,14 @@ def savepdf(filename):
 
 
 def savesvg(basename):
+    """Save all open figures to SVG files."""
     figs = [_plt.figure(n) for n in _plt.get_fignums()]
     for f in figs:
         f.savefig(basename + str(f.number) + '.svg', format='svg')
 
 
 def varinfo(var):
+    """Pretty print information about a variable."""
     from pprint import pprint
     import numpy
     print type(var)
@@ -59,9 +61,8 @@ try:
     from attrdict import AttrDict as dict2obj
 except ImportError:
     class dict2obj(dict):
-        """
-        Convert a dict to an object with the dictionary's keys as attributes.
-        """
+
+        """Add attribute-style access to a dictionary."""
 
         def __init__(self, d=None, **kwargs):
             if d is None:
