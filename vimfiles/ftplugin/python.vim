@@ -273,6 +273,7 @@ def find_docstring(line, next=True):
     return docstrings[-1]
 EOF
   function! s:SelectDocString(forward)
+    try
 python << EOF
 start, end = find_docstring(int(vim.eval('line(".")')),
                             next=True if int(vim.eval('a:forward')) else False)
@@ -280,11 +281,14 @@ if start is not None:
     vim.command('let start = %d' % start)
     vim.command('let end = %d' % end)
 EOF
-    if exists('start')
-      call cursor(start, 0)
-      normal! V
-      call cursor(end, 0)
-    endif
+      if exists('start')
+        call cursor(start, 0)
+        normal! V
+        call cursor(end, 0)
+      endif
+    finally
+      echo
+    endtry
   endfunction
 else
   function! s:SelectDocString(forward)
