@@ -108,6 +108,14 @@ if !exists('*s:IPyRunPrompt')
     call s:IPyRunIPyInput()
   endfunction
 
+  function! s:IPyGetHelp()
+    call SaveRegs()
+    normal! gvy
+    let g:ipy_input = 'help('.@".')'
+    call RestoreRegs()
+    call s:IPyRunIPyInput()
+  endfunction
+
   function! s:IPyRunMotion(type)
     let input = vimtools#opfunc(a:type)
     if exists('b:did_ipython')
@@ -218,6 +226,7 @@ nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>IPyCloseFigures()<CR>
 nnoremap <silent>          ,pp :<C-u>call <SID>IPyPing()<CR>
 xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>IPyPrintVar()<CR>
 xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
+xnoremap <silent> <buffer> K     :<C-u>call <SID>IPyGetHelp()<CR>
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>

@@ -505,8 +505,8 @@ cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".$HOME : '~'
 nn <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
 
 " Discard changes and reload undofile for current file
-nn <silent> <Leader><Leader>r :<C-u>execute "silent keepjumps later ".&undolevels
-    \<bar>while &modified<bar>silent keepjumps earlier<bar>endwhile
+nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels
+    \<bar>while &modified<bar>silent earlier<bar>endwhile
     \<bar>execute 'rundo '.fnameescape(undofile(expand('%:p')))<CR>
 
 " Don't save omaps to command history
@@ -1294,6 +1294,8 @@ call s:CreateAbbrev('wi',   'Windo',                           ':'   )
 call s:CreateAbbrev('ca',   'call',                            ':'   )
 call s:CreateAbbrev('m',    'make',                            ':'   )
 call s:CreateAbbrev('mcl',  'make clean',                      ':'   )
+call s:CreateAbbrev('min',  'make install',                    ':'   )
+call s:CreateAbbrev('mup',  'make upload',                     ':'   )
 call s:CreateAbbrev('pp',   'PP',                              ':>'  )
 call s:CreateAbbrev('bd',   'breakdel',                        '>'   )
 call s:CreateAbbrev('bc',   'breakdel *',                      '>'   )
@@ -1312,6 +1314,9 @@ call s:CreateAbbrev('ll',   'ls -lsh --color=auto'.ls_sort,    ':',  '!')
 call s:CreateAbbrev('lls',  'ls -lshrt --color=auto'.ls_sort,  ':',  '!')
 call s:CreateAbbrev('lla',  'ls -lshA --color=auto'.ls_sort,   ':',  '!')
 call s:CreateAbbrev('llas', 'ls -lshrtA --color=auto'.ls_sort, ':',  '!')
+if has('win32unix') || has('win64unix')
+    call s:CreateAbbrev('open', 'cygstart', ':', '!')
+endif
 
 " Other abbreviations
 let b = '((\\)@<!\\)' " Unescaped backslash
@@ -1825,9 +1830,9 @@ if stridx($VIMBLACKLIST, 'clang_complete') == -1
     endif
     let g:neocomplete#force_overwrite_completefunc = 1
     let g:neocomplete#force_omni_input_patterns.c =
-        \ '[^.[:digit:] *\t]\%(\.\|->\)\w*'
+        \ '\([^.[:digit:] *\t]\|\w\d\)\%(\.\|->\)\w*'
     let g:neocomplete#force_omni_input_patterns.cpp =
-        \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*'
+        \ '\([^.[:digit:] *\t]\|\w\d\)\%(\.\|->\)\w*\|\h\w*::\w*'
     let g:neocomplete#force_omni_input_patterns.objc =
         \ '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)'
     let g:neocomplete#force_omni_input_patterns.objcpp =
