@@ -1,9 +1,9 @@
 import matplotlib.pyplot as _plt
 
 
-def fg(fig):
+def fg(fig=None):
     """Raise figure to foreground."""
-    _plt.figure(fig.number)
+    _plt.figure((fig or _plt.gcf()).number)
     if _plt.get_backend()[0:2].lower() == 'qt':
         _plt.get_current_fig_manager().window.activateWindow()
         _plt.get_current_fig_manager().window.raise_()

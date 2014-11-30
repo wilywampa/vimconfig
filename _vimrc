@@ -1512,6 +1512,7 @@ let g:vimfiler_tree_opened_icon='▼'
 let g:vimfiler_tree_closed_icon='▶'
 let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_ignore_pattern='^\.\|\.[do]$\|\.pyc$'
+let g:vimfiler_restore_alternate_file=0
 autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
 func! s:VimfilerSettings() " {{{
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
