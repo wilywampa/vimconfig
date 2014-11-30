@@ -1157,6 +1157,8 @@ augroup VimrcAutocmds
     autocmd FileType dosbatch setl commentstring=REM%s
     autocmd FileType autohotkey setl commentstring=;%s
 
+    " Settings for git commit messages
+    autocmd FileType gitcommit setlocal spell colorcolumn=50
     " Highlight current line in active window but not in insert mode
     autocmd BufRead,BufNewFile,VimEnter * set cul
     autocmd InsertLeave,WinEnter,FocusGained * set cul
@@ -1509,7 +1511,6 @@ let g:vimfiler_file_icon='-'
 let g:vimfiler_tree_opened_icon='▼'
 let g:vimfiler_tree_closed_icon='▶'
 let g:vimfiler_marked_file_icon='✓'
-let g:vimfiler_restore_alternate_file=1
 let g:vimfiler_ignore_pattern='^\.\|\.[do]$\|\.pyc$'
 autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
 func! s:VimfilerSettings() " {{{
@@ -1754,6 +1755,9 @@ let g:targets_aiAI = 'ai  '
 let g:targets_nlNL = '    '
 let g:targets_pairs = ''
 let g:targets_quotes = ''
+let g:targets_argTrigger = 'A'
+let g:targets_argOpening = '[([{"]'
+let g:targets_argClosing = '[])}"]'
 
 " fuzzyfinder settings
 set runtimepath+=~/.fzf
@@ -1796,7 +1800,7 @@ func! s:JediSetup() " {{{
     if exists('*jedi#completions') && &omnifunc != 'CompleteIPython'
         setlocal omnifunc=jedi#completions
         inoremap <silent> <buffer> . .<C-R>=jedi#complete_string(1)<CR>
-        nnoremap <buffer> <Leader>jd :<C-u>call jedi#goto_definitions()<CR>zv
+        nnoremap <buffer> <M-]> :<C-u>call jedi#goto_definitions()<CR>zv
     endif
 endfunc " }}}
 autocmd VimrcAutocmds FileType python call s:JediSetup()
@@ -1812,8 +1816,7 @@ let g:jedi#show_call_signatures = 2
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
 endif
-let g:neocomplete#force_omni_input_patterns.python =
-    \ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
+let g:neocomplete#force_omni_input_patterns.python = '\%([^. \t]\.\|^\s*@\)\w*'
 
 " DirDiff settings
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
