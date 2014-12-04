@@ -57,6 +57,15 @@ def varinfo(var):
         print var.shape
 
 
+def pad(array, length, filler=float('nan')):
+    """Extend a 1D array to `length` by appending `filler` values."""
+    import numpy
+    if not isinstance(array, numpy.ndarray):
+        return array
+    return numpy.pad(array, ((0, length - array.shape[0]),) * array.ndim,
+                     mode='constant', constant_values=(filler,))
+
+
 try:
     from attrdict import AttrDict as dict2obj
 except ImportError:

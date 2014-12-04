@@ -81,11 +81,11 @@ solarized_styles = {
     Error:                  ('darkred',   'darkred'),
     Other:                  ('blue',      'blue'),
 
-    Comment:                ('*green*',   '*green*'),
-    Comment.Multiline:      ('*green*',   '*green*'),
-    Comment.Preproc:        ('*green*',   '*green*'),
-    Comment.Single:         ('*green*',   '*green*'),
-    Comment.Special:        ('*green*',   '*green*'),
+    Comment:                ('green',     'green'),
+    Comment.Multiline:      ('green',     'green'),
+    Comment.Preproc:        ('green',     'green'),
+    Comment.Single:         ('green',     'green'),
+    Comment.Special:        ('green',     'green'),
 
     Keyword:                ('darkgreen', 'darkgreen'),
     Keyword.Constant:       ('darkgreen', 'darkgreen'),

@@ -107,6 +107,7 @@ socket = km.connect_iopub()
 awaiting_msg = False
 msg_id = None
 last_msg_type = None  # Only set when text written to stdout
+last_execution_count = None
 while socket.recv():
     kc.iopub_channel.flush()
     msgs = kc.iopub_channel.get_msgs()
@@ -117,6 +118,7 @@ while socket.recv():
             received_msg = False
         if msg['msg_type'] == 'pyin':
             prompt = ''.join('In [%d]: ' % msg['content']['execution_count'])
+            last_execution_count = msg['content']['execution_count']
             dots = '.' * len(prompt.rstrip()) + ' '
             sys.stdout.write('\r')
             print_prompt('green')
@@ -128,6 +130,7 @@ while socket.recv():
 
         elif msg['msg_type'] == 'pyout':
             prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
+            last_execution_count = msg['content']['execution_count']
             spaces = ' ' * len(prompt.rstrip()) + ' '
             sys.stdout.write('\n')
             print_prompt('red')
@@ -149,7 +152,8 @@ while socket.recv():
         elif (msg['msg_type'] == 'status'
               and msg['content']['execution_state'] == 'idle'
               and print_idle):
-            sys.stdout.write('\n' + 'idle')
+            prompt = '\n' + ''.join('In [%d]: ' % (last_execution_count + 1))
+            print_prompt('green')
             print_idle = False
 
         elif not msg['msg_type'] == 'status':

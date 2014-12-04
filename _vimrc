@@ -486,7 +486,8 @@ nn _ -
 nn <silent> g. m':execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR>
 
 " Delete swap file and reload file
-nn <silent> <Leader>ds :<C-u>Redir swap<CR>:call system("rm <C-r>"<BS>p")<CR>:e<CR>
+nn <silent> <Leader>ds :<C-u>call SaveRegs()<CR>:Redir swapname<CR>:call
+    \ system("rm <C-r>"<BS>p")<CR>:e<CR>:call RestoreRegs()<CR>
 
 " Until opening pair, comma, or semicolon
 ono . :<C-u>call    search('[[({<,;:]')\|echo<CR>
@@ -700,7 +701,7 @@ noremap <C-v> "+gP
 cnoremap <expr> <C-v> getcmdtype() == '=' ?
     \ "\<C-r>+" : "\<C-r>=substitute(@+, '\\n', '', 'g')\<CR>"
 imap <expr> <C-v> <SID>Paste()
-exe 'vnoremap <script> <C-v> '.paste#paste_cmd['v']
+exe 'vnoremap <silent> <script> <C-v> '.paste#paste_cmd['v']
 
 " Make last search a whole word
 func! s:SearchWholeWord(dir) " {{{
@@ -1231,6 +1232,11 @@ augroup VimrcAutocmds
 
     " Remove ':qa' from history
     autocmd VimEnter * call histdel(':', '^qa!\=$')
+
+    " Preserve previous window when preview window opens during completion
+    autocmd InsertEnter * let s:nwins = winnr('$') | let s:prevwin = winnr('#')
+    autocmd InsertLeave * if exists('s:nwins') && s:nwins > 1 && winnr('$') >
+        \ s:nwins && s:prevwin != winnr() | execute s:prevwin.'wincmd w' | wincmd p
 augroup END
 
 " Match highlighting
@@ -1301,6 +1307,8 @@ call s:CreateAbbrev('mup',  'make upload',                     ':'   )
 call s:CreateAbbrev('pp',   'PP',                              ':>'  )
 call s:CreateAbbrev('bd',   'breakdel',                        '>'   )
 call s:CreateAbbrev('bc',   'breakdel *',                      '>'   )
+call s:CreateAbbrev('Qa',    'qa',                             ':'   )
+call s:CreateAbbrev('E',     'e',                              ':'   )
 call s:CreateAbbrev('csa',  'cscope add',                      ':'   )
 call s:CreateAbbrev('csf',  'cscope find',                     ':'   )
 call s:CreateAbbrev('csk',  'cscope kill -1',                  ':'   )
@@ -1501,8 +1509,8 @@ autocmd VimrcAutocmds VimEnter * call s:SneakMaps()
 call s:SneakMaps()
 
 " {{{2 VimFiler settings
-nnoremap <silent> - :VimFilerBufferDir -find<CR>
-nnoremap <silent> <C-_> :VimFilerCurrentDir -find<CR>
+nnoremap <silent> - :VimFilerBufferDir -force-quit -find<CR>
+nnoremap <silent> <C-_> :VimFilerCurrentDir -force-quit -find<CR>
 let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
 nn <silent> gx :call netrw#NetrwBrowseX(expand("<cfile>"),0)<CR>
@@ -1817,7 +1825,7 @@ let g:jedi#show_call_signatures = 2
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
 endif
-let g:neocomplete#force_omni_input_patterns.python = '\%([^. \t]\.\|^\s*@\)\w*'
+let g:neocomplete#force_omni_input_patterns.python = '\%([^(). \t]\.\|^\s*@\)\w*'
 
 " DirDiff settings
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
