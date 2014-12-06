@@ -136,6 +136,6 @@ endfunction
 nnoremap <silent> ]r :<C-u>call <SID>UniteBufferCycle(0)<CR>
 nnoremap <silent> [r :<C-u>call <SID>UniteBufferCycle(1)<CR>
 let s:UBCActive = 0
-autocmd unite_recent BufEnter * if !s:UBCActive | sil! unlet s:buflist | endif
+autocmd unite_recent BufEnter * if !s:UBCActive && exists('s:buflist') | unlet s:buflist | endif
 
 " vim:set et ts=2 sts=2 sw=2:

@@ -1330,7 +1330,7 @@ endif
 
 " Other abbreviations
 let b = '((\\)@<!\\)' " Unescaped backslash
-let g:global_command_pattern = '\v\C^[^/]*v?g%[lobal]!?/([^/]|'.b.'@<=/)*'.b.'@<!/'
+let g:global_command_pattern = '\v\C^[^/]*(v?g%[lobal]|v)!?/([^/]|'.b.'@<=/)*'.b.'@<!/'
 cnoreabbrev <expr> ex (getcmdtype()==':'&&getcmdpos()<=3)
     \ \|\| (getcmdline() =~ g:global_command_pattern.'ex$') ? 'execute':'ex'
 cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
