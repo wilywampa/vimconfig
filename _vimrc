@@ -1767,6 +1767,7 @@ let g:targets_quotes = ''
 let g:targets_argTrigger = 'A'
 let g:targets_argOpening = '[([{"]'
 let g:targets_argClosing = '[])}"]'
+let g:targets_separators = ', . ; : + - = ~ _ * # / \ | & $ %'
 
 " fuzzyfinder settings
 set runtimepath+=~/.fzf
