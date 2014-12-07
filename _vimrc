@@ -221,7 +221,7 @@ nn <silent> ,es :<C-u>edit ~/.screenrc<CR>:norm! zv<CR>
 nn <silent> ,et :<C-u>if expand('%') =~ "\.tmux\.conf$" \| edit
     \ ~/.tmux-local.conf \| else \| edit ~/.tmux.conf \| endif<CR>:norm! zv<CR>
 nn <silent> ,eu :<C-u>edit ~/.muttrc<CR>:norm! zv<CR>
-nn <silent> ,ev :<C-u>edit $MYVIMRC<CR>:norm! zv<CR>
+nn <silent> ,ev :<C-u>execute "edit ".resolve(expand('$MYVIMRC'))<CR>:norm! zv<CR>
 nn <silent> ,ex :<C-u>edit ~/.Xdefaults<CR>:norm! zv<CR>
 nn <silent> ,ez :<C-u>edit ~/.zshrc<CR>:norm! zv<CR>
 
