@@ -106,8 +106,8 @@ function! plug#begin(...)
   if !empty($VIMBLACKLIST)
     let split = split($VIMBLACKLIST, '\\\@<!\%(\\\\\)*\zs,')
     let s:blacklist = map(split, 'substitute(v:val,''\\\([\\,]\)'',''\1'',"g")')
-    let s:blacklist += get(g:, 'pathogen_disabled', [])
   endif
+  let s:blacklist += get(g:, 'pathogen_disabled', [])
 
   call s:define_commands()
   return 1
