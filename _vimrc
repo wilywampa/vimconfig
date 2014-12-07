@@ -1940,6 +1940,9 @@ Plug 'wilywampa/vimshell.vim'
 Plug 'wilywampa/vimux'
 Plug 'jgors/vimux-ipy'
 Plug 'triglav/vim-visual-increment', {'on': ['<Plug>VisualIncrement', '<Plug>VisualDecrement']}
+Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
+Plug '$VIMCONFIG/vimfiles/bundle/matlab'
+Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
 call plug#end()
 
 " Add current directory and red arrow if ignorecase is not set to status line
