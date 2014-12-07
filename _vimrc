@@ -1873,6 +1873,11 @@ func! s:ScripteaseMaps() " {{{
 endfunc " }}}
 autocmd VimrcAutocmds FileType vim call s:ScripteaseMaps()
 
+" Unmap DirDiff unique maps
+for m in ['Get', 'Put', 'Next', 'Prev', 'Quit']
+    silent! execute 'unmap <Plug>DirDiff'.m
+endfor
+
 " Import scripts
 execute pathogen#infect()
 
