@@ -400,11 +400,11 @@ function! s:add(repo, ...)
   try
     let repo = s:trim(a:repo)
     let name = fnamemodify(repo, ':t:s?\.git$??:s?vim-??:s?.vim??')
-    let spec = extend(s:infer_properties(name, repo),
-                    \ a:0 == 1 ? s:parse_options(a:1) : s:base_spec)
-    if index(s:blacklist, spec.dir) != -1
+    if index(s:blacklist, name) != -1
       return
     endif
+    let spec = extend(s:infer_properties(name, repo),
+                    \ a:0 == 1 ? s:parse_options(a:1) : s:base_spec)
     let g:plugs[name] = spec
     let g:plugs_order += [name]
     let s:loaded[name] = 0
