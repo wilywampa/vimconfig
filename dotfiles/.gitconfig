@@ -42,3 +42,5 @@
 	cmd = diffconflicts vim $BASE $LOCAL $REMOTE $MERGED
 	trustExitCode = true
 	keepBackup = false
+[credential]
+	helper = osxkeychain

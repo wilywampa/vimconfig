@@ -246,12 +246,14 @@ abbrevs=(
 'gcl'   'git clone'
 'gfe'   'git fetch'
 'gdi'   'git diff'
+'gd'    'git diff'
 'gdic'  'git diff --cached'
 'gdit'  'git difftool'
 'gdivp' 'git diff | vimpager'
 'gpu'   'git pull'
 'gst'   'git status'
 'gco'   'git checkout'
+'ga'    'git add'
 'gad'   'git add'
 'gadd'  'git add'
 'glog'  'git log --reverse'
@@ -325,6 +327,7 @@ abbrevs=(
 'o'     'open'
 'py'    'python'
 'ex'    'export'
+'ip'    'python $VIMCONFIG/misc/python/ipython_monitor.py &; ipython console'
 )
 
 # Post-modifier abbreviations
@@ -583,7 +586,7 @@ _escalate() {
 zle -N _escalate; vibindkey '^K' _escalate
 
 _backward-delete-WORD () {
-    local WORDCHARS=${WORDCHARS}"\"\`'\@,"
+    local WORDCHARS=${WORDCHARS}"\"\`'\@,:"
     zle backward-delete-word
 }
 zle -N _backward-delete-WORD; vibindkey '÷' _backward-delete-WORD  # <M-w>
@@ -749,7 +752,9 @@ bindkey '^X' insert-last-command-output
 
 unalias ipython >& /dev/null
 ipython() {
-    command ipython "$@" --pylab --autocall 2
+    export LINES
+    export COLUMNS
+    command ipython "$@" --pylab --autocall 1
 }
 
 _add-right-paren() {
@@ -806,21 +811,38 @@ _check-previous-exit-code() {
 }
 zle -N _check-previous-exit-code; bindkey '&' _check-previous-exit-code
 
-insert-home() {
-    if [[ $LBUFFER = *$ ]]; then
+_insert-home() {
+    if [[ $LBUFFER[-1] == '$' ]]; then
         LBUFFER=${LBUFFER[1,-2]}$HOME
     else
         LBUFFER+=\~
     fi
 }
-zle -N insert-home
-bindkey -M viins '~' insert-home
+zle -N _insert-home
+bindkey -M viins '~' _insert-home
 bindkey -M isearch '~' self-insert
 
 za() {
     local mandir=${$(readlink -f $(man -w zsh)):h}
     ag "$@" -- ${mandir}/z*(.)
 }
+
+_edit-command-line() {
+    local tmpfile=${TMPPREFIX:-/tmp/zsh}ecl$$
+    print -R - "$PREBUFFER$BUFFER" >$tmpfile
+    exec </dev/tty
+    vim -u NONE -i NONE -N --cmd 'set clipboard=' $tmpfile
+    print -Rz - "$(<$tmpfile)" 
+    command rm -f $tmpfile
+    zle send-break		# Force reload from the buffer stack
+}
+zle -N _edit-command-line; bindkey -M vicmd 'v' _edit-command-line
+
+_vared-vipe() {
+    LBUFFER='export '${LBUFFER//=/}'="$(echo $'${LBUFFER//=/}' | vipe)"'
+    zle accept-line
+}
+zle -N _vared-vipe; vibindkey 'å' _vared-vipe  # <M-e>
 
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
