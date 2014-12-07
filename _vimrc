@@ -1879,7 +1879,64 @@ for m in ['Get', 'Put', 'Next', 'Prev', 'Quit']
 endfor
 
 " Import scripts
-execute pathogen#infect()
+call plug#begin('$VIMCONFIG/vimfiles/bundle')
+Plug 'vim-scripts/DirDiff.vim'
+Plug 'Konfekt/FastFold'
+Plug 'wilywampa/Gundo', {'branch': 'dev'}
+Plug 'LaTeX-Box-Team/LaTeX-Box'
+Plug 'vim-scripts/OmniCppComplete'
+Plug 'tpope/vim-abolish'
+Plug 'mileszs/ack.vim'
+Plug 'wilywampa/vim-airline'
+Plug 'sjl/badwolf'
+Plug 'wilywampa/clang_complete'
+Plug 'wilywampa/vim-commentary'
+Plug 'wilywampa/vim-dispatch'
+Plug 'wilywampa/vim-easy-align'
+Plug 'wilywampa/vim-eunuch'
+Plug 'tommcdo/vim-exchange'
+Plug 'nvie/vim-flake8'
+Plug 'wilywampa/vim-fswitch'
+Plug 'wilywampa/vim-fugitive'
+Plug 'wilywampa/gitv'
+Plug 'wilywampa/vim-gtfo'
+Plug 'wilywampa/vim-indent-guides'
+Plug 'wilywampa/vim-ipython', {'branch': 'dev'}
+Plug 'wilywampa/jedi-vim', {'branch': 'dev'}
+Plug 'xolox/vim-misc'
+Plug 'Shougo/neocomplete.vim'
+Plug 'wilywampa/neomru.vim'
+Plug 'wilywampa/neosnippet.vim'
+Plug 'wilywampa/neosnippet-snippets'
+Plug 'osyo-manga/vim-over'
+Plug 'wilywampa/patchreview-vim'
+Plug 'sophacles/vim-processing'
+Plug 'wilywampa/python-mode', {'branch': 'develop'}
+Plug 'wilywampa/vim-repeat'
+Plug 'wilywampa/vim-scriptease'
+Plug 'xolox/vim-shell'
+Plug 'wilywampa/vim-sleuth'
+Plug 'wilywampa/vim-sneak'
+Plug 'wilywampa/vim-colors-solarized', {'dir': '$VIMCONFIG/vimfiles/bundle/solarized'}
+Plug 'ervandew/supertab'
+Plug 'wilywampa/vim-surround'
+Plug 'scrooloose/syntastic'
+Plug 'wilywampa/tabular'
+Plug 'wilywampa/tagbar'
+Plug 'wellle/targets.vim'
+Plug 'wilywampa/tmux-complete.vim'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'mbbill/undotree'
+Plug 'wilywampa/vim-unimpaired'
+Plug 'wilywampa/unite.vim'
+Plug 'wilywampa/vcscommand.vim'
+Plug 'wilywampa/vimfiler.vim'
+Plug 'Shougo/vimproc.vim'
+Plug 'wilywampa/vimshell.vim'
+Plug 'wilywampa/vimux'
+Plug 'jgors/vimux-ipy'
+Plug 'triglav/vim-visual-increment'
+call plug#end()
 
 " Add current directory and red arrow if ignorecase is not set to status line
 sil! call airline#parts#define('ic',{'condition': '!&ic',
