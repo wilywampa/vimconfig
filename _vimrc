@@ -1878,6 +1878,10 @@ for m in ['Get', 'Put', 'Next', 'Prev', 'Quit']
     silent! execute 'unmap <Plug>DirDiff'.m
 endfor
 
+" Visual increment maps
+vmap <C-a> <Plug>VisualIncrement
+vmap <C-x> <Plug>VisualDecrement
+
 " Import scripts
 call plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
