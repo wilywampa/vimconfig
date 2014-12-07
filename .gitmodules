@@ -1,0 +1,224 @@
+[submodule "vimfiles/bundle/DirDiff"]
+	path = vimfiles/bundle/DirDiff
+	url = https://github.com/vim-scripts/DirDiff.vim.git
+	branch = master
+[submodule "vimfiles/bundle/FastFold"]
+	path = vimfiles/bundle/FastFold
+	url = https://github.com/Konfekt/FastFold.git
+	branch = master
+[submodule "vimfiles/bundle/Gundo"]
+	path = vimfiles/bundle/Gundo
+	url = https://github.com/wilywampa/Gundo.git
+	branch = dev
+[submodule "vimfiles/bundle/LaTeX-Box"]
+	path = vimfiles/bundle/LaTeX-Box
+	url = https://github.com/LaTeX-Box-Team/LaTeX-Box.git
+	branch = master
+[submodule "vimfiles/bundle/OmniCppComplete"]
+	path = vimfiles/bundle/OmniCppComplete
+	url = https://github.com/vim-scripts/OmniCppComplete.git
+	branch = master
+[submodule "vimfiles/bundle/abolish"]
+	path = vimfiles/bundle/abolish
+	url = https://github.com/tpope/vim-abolish.git
+	branch = master
+[submodule "vimfiles/bundle/ack"]
+	path = vimfiles/bundle/ack
+	url = https://github.com/mileszs/ack.vim.git
+	branch = master
+[submodule "vimfiles/bundle/airline"]
+	path = vimfiles/bundle/airline
+	url = https://github.com/wilywampa/vim-airline.git
+	branch = master
+[submodule "vimfiles/bundle/badwolf"]
+	path = vimfiles/bundle/badwolf
+	url = https://github.com/sjl/badwolf.git
+	branch = master
+[submodule "vimfiles/bundle/clang_complete"]
+	path = vimfiles/bundle/clang_complete
+	url = https://github.com/wilywampa/clang_complete.git
+	branch = master
+[submodule "vimfiles/bundle/commentary"]
+	path = vimfiles/bundle/commentary
+	url = https://github.com/wilywampa/vim-commentary.git
+	branch = master
+[submodule "vimfiles/bundle/dispatch"]
+	path = vimfiles/bundle/dispatch
+	url = https://github.com/wilywampa/vim-dispatch.git
+	branch = master
+[submodule "vimfiles/bundle/easy-align"]
+	path = vimfiles/bundle/easy-align
+	url = https://github.com/wilywampa/vim-easy-align.git
+	branch = master
+[submodule "vimfiles/bundle/eunuch"]
+	path = vimfiles/bundle/eunuch
+	url = https://github.com/wilywampa/vim-eunuch.git
+	branch = master
+[submodule "vimfiles/bundle/exchange"]
+	path = vimfiles/bundle/exchange
+	url = https://github.com/tommcdo/vim-exchange.git
+	branch = master
+[submodule "vimfiles/bundle/flake8"]
+	path = vimfiles/bundle/flake8
+	url = https://github.com/nvie/vim-flake8.git
+	branch = master
+[submodule "vimfiles/bundle/fswitch"]
+	path = vimfiles/bundle/fswitch
+	url = https://github.com/wilywampa/vim-fswitch.git
+	branch = master
+[submodule "vimfiles/bundle/fugitive"]
+	path = vimfiles/bundle/fugitive
+	url = https://github.com/wilywampa/vim-fugitive.git
+	branch = master
+[submodule "vimfiles/bundle/gitv"]
+	path = vimfiles/bundle/gitv
+	url = https://github.com/wilywampa/gitv.git
+	branch = master
+[submodule "vimfiles/bundle/gtfo"]
+	path = vimfiles/bundle/gtfo
+	url = https://github.com/wilywampa/vim-gtfo.git
+	branch = master
+[submodule "vimfiles/bundle/indent-guides"]
+	path = vimfiles/bundle/indent-guides
+	url = https://github.com/wilywampa/vim-indent-guides.git
+	branch = master
+[submodule "vimfiles/bundle/ipython"]
+	path = vimfiles/bundle/ipython
+	url = https://github.com/wilywampa/vim-ipython.git
+	branch = dev
+[submodule "vimfiles/bundle/jedi"]
+	path = vimfiles/bundle/jedi
+	url = https://github.com/wilywampa/jedi-vim.git
+	branch = dev
+[submodule "vimfiles/bundle/misc"]
+	path = vimfiles/bundle/misc
+	url = https://github.com/xolox/vim-misc.git
+	branch = master
+[submodule "vimfiles/bundle/neocomplete"]
+	path = vimfiles/bundle/neocomplete
+	url = https://github.com/Shougo/neocomplete.vim.git
+	branch = master
+[submodule "vimfiles/bundle/neomru"]
+	path = vimfiles/bundle/neomru
+	url = https://github.com/wilywampa/neomru.vim.git
+	branch = master
+[submodule "vimfiles/bundle/neosnippet"]
+	path = vimfiles/bundle/neosnippet
+	url = https://github.com/wilywampa/neosnippet.vim.git
+	branch = master
+[submodule "vimfiles/bundle/neosnippet-snippets"]
+	path = vimfiles/bundle/neosnippet-snippets
+	url = https://github.com/wilywampa/neosnippet-snippets.git
+	branch = master
+[submodule "vimfiles/bundle/over"]
+	path = vimfiles/bundle/over
+	url = https://github.com/osyo-manga/vim-over.git
+	branch = master
+[submodule "vimfiles/bundle/patchreview"]
+	path = vimfiles/bundle/patchreview
+	url = https://github.com/wilywampa/patchreview-vim.git
+	branch = master
+[submodule "vimfiles/bundle/processing"]
+	path = vimfiles/bundle/processing
+	url = https://github.com/sophacles/vim-processing.git
+	branch = master
+[submodule "vimfiles/bundle/python-mode"]
+	path = vimfiles/bundle/python-mode
+	url = https://github.com/wilywampa/python-mode.git
+	branch = develop
+[submodule "vimfiles/bundle/repeat"]
+	path = vimfiles/bundle/repeat
+	url = https://github.com/wilywampa/vim-repeat.git
+	branch = master
+[submodule "vimfiles/bundle/scriptease"]
+	path = vimfiles/bundle/scriptease
+	url = https://github.com/wilywampa/vim-scriptease.git
+	branch = master
+[submodule "vimfiles/bundle/shell"]
+	path = vimfiles/bundle/shell
+	url = https://github.com/xolox/vim-shell.git
+	branch = master
+[submodule "vimfiles/bundle/sleuth"]
+	path = vimfiles/bundle/sleuth
+	url = https://github.com/wilywampa/vim-sleuth.git
+	branch = master
+[submodule "vimfiles/bundle/sneak"]
+	path = vimfiles/bundle/sneak
+	url = https://github.com/wilywampa/vim-sneak.git
+	branch = master
+[submodule "vimfiles/bundle/solarized"]
+	path = vimfiles/bundle/solarized
+	url = https://github.com/wilywampa/vim-colors-solarized.git
+	branch = master
+[submodule "vimfiles/bundle/supertab"]
+	path = vimfiles/bundle/supertab
+	url = https://github.com/ervandew/supertab.git
+	branch = master
+[submodule "vimfiles/bundle/surround"]
+	path = vimfiles/bundle/surround
+	url = https://github.com/wilywampa/vim-surround.git
+	branch = master
+[submodule "vimfiles/bundle/syntastic"]
+	path = vimfiles/bundle/syntastic
+	url = https://github.com/scrooloose/syntastic.git
+	branch = master
+[submodule "vimfiles/bundle/tabular"]
+	path = vimfiles/bundle/tabular
+	url = https://github.com/wilywampa/tabular.git
+	branch = master
+[submodule "vimfiles/bundle/tagbar"]
+	path = vimfiles/bundle/tagbar
+	url = https://github.com/wilywampa/tagbar.git
+	branch = master
+[submodule "vimfiles/bundle/targets"]
+	path = vimfiles/bundle/targets
+	url = https://github.com/wellle/targets.vim.git
+	branch = master
+[submodule "vimfiles/bundle/tmux-complete"]
+	path = vimfiles/bundle/tmux-complete
+	url = https://github.com/wilywampa/tmux-complete.vim.git
+	branch = master
+[submodule "vimfiles/bundle/tmux-navigator"]
+	path = vimfiles/bundle/tmux-navigator
+	url = https://github.com/christoomey/vim-tmux-navigator.git
+	branch = master
+[submodule "vimfiles/bundle/undotree"]
+	path = vimfiles/bundle/undotree
+	url = https://github.com/mbbill/undotree.git
+	branch = master
+[submodule "vimfiles/bundle/unimpaired"]
+	path = vimfiles/bundle/unimpaired
+	url = https://github.com/wilywampa/vim-unimpaired.git
+	branch = master
+[submodule "vimfiles/bundle/unite"]
+	path = vimfiles/bundle/unite
+	url = https://github.com/wilywampa/unite.vim.git
+	branch = master
+[submodule "vimfiles/bundle/vcscommand"]
+	path = vimfiles/bundle/vcscommand
+	url = https://github.com/wilywampa/vcscommand.vim.git
+	branch = master
+[submodule "vimfiles/bundle/vimfiler"]
+	path = vimfiles/bundle/vimfiler
+	url = https://github.com/wilywampa/vimfiler.vim.git
+	branch = master
+[submodule "vimfiles/bundle/vimproc"]
+	path = vimfiles/bundle/vimproc
+	url = https://github.com/Shougo/vimproc.vim.git
+	branch = master
+[submodule "vimfiles/bundle/vimshell"]
+	path = vimfiles/bundle/vimshell
+	url = https://github.com/wilywampa/vimshell.vim.git
+	branch = master
+[submodule "vimfiles/bundle/vimux"]
+	path = vimfiles/bundle/vimux
+	url = https://github.com/wilywampa/vimux.git
+	branch = master
+[submodule "vimfiles/bundle/vimux-ipy"]
+	path = vimfiles/bundle/vimux-ipy
+	url = https://github.com/jgors/vimux-ipy.git
+	branch = master
+[submodule "vimfiles/bundle/visual-increment"]
+	path = vimfiles/bundle/visual-increment
+	url = https://github.com/triglav/vim-visual-increment.git
+	branch = master
