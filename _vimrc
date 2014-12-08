@@ -212,6 +212,7 @@ endif
 nn <silent> ,ea :<C-u>edit ~/.vim/after/plugin/after.vim<CR>:norm! zv<CR>
 nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>:norm! zv<CR>
 nn <silent> ,ec :<C-u>edit ~/.cshrc<CR>:norm! zv<CR>
+nn <silent> ,eh :<C-u>edit ~/.gitconfig<CR>:norm! zv<CR>
 nn <silent> ,eh :<C-u>edit ~/.histfile<CR>:norm! zv<CR>
 nn <silent> ,ei :<C-u>edit ~/.inputrc<CR>:norm! zv<CR>
 nn <silent> ,el :<C-u>edit ~/.zshrclocal<CR>:norm! zv<CR>
