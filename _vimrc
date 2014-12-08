@@ -1899,7 +1899,7 @@ Plug 'wilywampa/vim-easy-align', {'on': '<Plug>(LiveEasyAlign)'}
 Plug 'wilywampa/vim-eunuch'
 Plug 'tommcdo/vim-exchange'
 Plug 'nvie/vim-flake8'
-Plug 'wilywampa/vim-fswitch', {'on': ['FSHere', 'FSSplitBelow', 'FSSplitBelow']}
+Plug 'wilywampa/vim-fswitch', {'on': ['FSHere', 'FSSplitBelow', 'FSSplitRight']}
 Plug 'wilywampa/vim-fugitive'
 Plug 'wilywampa/gitv', {'on': 'Gitv'}
 Plug 'wilywampa/vim-gtfo'
