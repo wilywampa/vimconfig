@@ -368,10 +368,10 @@ no <expr> k &wrap && max([strdisplaywidth(getline('.')),
     \ (winwidth(0) - (&number ? &numberwidth : 0)) ? 'gk' : 'k'
 
 " ZZ and ZQ close buffer if it's not open in another window
-nn <silent> ZQ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
-    \:norm! ZQ<CR>:sil! call setbufvar(b,'&bh','')<CR>
-nn <silent> ZZ :let b=bufnr('%')<CR>:call setbufvar(b,'&bh','delete')<CR>
-    \:norm! ZZ<CR>:sil! call setbufvar(b,'&bh','')<CR>
+nn <silent> <expr> ZQ substitute('%sdelete")<CR>:normal! ZQ<CR>%s'.&bufhidden.
+    \ '")<CR>','%s',':<C-u>call setbufvar('.bufnr('%').',"\&bufhidden","','g')
+nn <silent> <expr> ZZ substitute('%sdelete")<CR>:normal! ZZ<CR>%s'.&bufhidden.
+    \ '")<CR>','%s',':<C-u>call setbufvar('.bufnr('%').',"\&bufhidden","','g')
 
 " Save and quit all
 nn <silent> ZA :wqall<CR>
