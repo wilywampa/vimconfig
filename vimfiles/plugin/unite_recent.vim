@@ -15,7 +15,7 @@ augroup unite_recent
 augroup END
 
 function! s:new_window()
-  let w:unite_recent = getwinvar(winnr('#'), 'unite_recent', {'id': s:win_id})
+  let w:unite_recent = copy(getwinvar(winnr('#'), 'unite_recent', {'id': s:win_id}))
   let w:unite_recent['id'] = s:win_id
   let s:win_id += 1
   call s:append(winbufnr(winnr()))
