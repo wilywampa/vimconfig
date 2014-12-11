@@ -721,8 +721,8 @@ func! s:SearchWholeWord(dir) " {{{
         echo '?'.@/ | return "?\<CR>"
     endif
 endfunc " }}}
-nn <silent> <expr> <Leader>n <SID>SearchWholeWord(1)
-nn <silent> <expr> <Leader>N <SID>SearchWholeWord(0)
+nn <silent> <expr> <Leader>n <SID>SearchWholeWord(1).'zv'
+nn <silent> <expr> <Leader>N <SID>SearchWholeWord(0).'zv'
 
 " Search for first non-blank
 func! s:FirstNonBlank() " {{{
