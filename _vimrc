@@ -893,15 +893,15 @@ cnoremap <expr> $ getcmdline()[getcmdpos()-2] == '!' ?
     \ "\<C-\>e\<SID>LastWord()\<CR>" : '$'
 
 " Stay at search result without completing search
-func! s:QuitSearch() " {{{
+func! QuitSearch() " {{{
     if getcmdtype() !~ '[/?]' | return '' | endif
     let visual = mode() =~? "[v\<C-v>]"
     return "\<C-e>\<C-u>\<C-c>:\<C-u>call search('".
         \ substitute(getcmdline(), "'", "''", 'g')."', '".
         \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv".(visual ? 'm>gv' : "")
 endfunc " }}}
-cnoremap <silent> <expr> <C-^> <SID>QuitSearch()
-cnoremap <silent> <expr> <C-CR> <SID>QuitSearch()
+cnoremap <silent> <expr> <C-^> QuitSearch()
+cnoremap <silent> <expr> <C-CR> QuitSearch()
 
 " Unfold at incremental search match
 func! s:UnfoldSearch() " {{{

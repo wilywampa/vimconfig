@@ -220,6 +220,7 @@ nnoremap <silent> <buffer> @\  :<C-u>call <SID>IPyRepeatCommand()<CR>
 nnoremap <silent> <buffer> @\| :<C-u>call <SID>IPyRepeatCommand()<CR>
 nnoremap <silent> <buffer> g\  :<C-u>call <SID>IPyRunPrompt()<CR><C-f>
 nnoremap <silent> <buffer> g\| :<C-u>call <SID>IPyRunPrompt()<CR><C-f>
+cnoremap <silent> <buffer> <expr> <C-^> getcmdtype() == '@' ? '<C-e>()<CR>' : QuitSearch()
 nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>IPyClearWorkspace()<CR>
 nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>IPyCloseFigures()<CR>
 nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>IPyCloseFigures()<CR>
