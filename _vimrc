@@ -255,8 +255,6 @@ nn <silent> <expr> <C-Tab>   tabpagenr('$')==1 ?
     \":sil! call system('tmux next')\<CR>" : (g:inCmdwin? ':q<CR>gt' : 'gt')
 nn <silent> <expr> <C-S-Tab> tabpagenr('$')==1 ?
     \":sil! call system('tmux prev')\<CR>" : (g:inCmdwin? ':q<CR>gT' : 'gT')
-ino <silent> <expr> <C-Tab> system('tmux next')
-ino <silent> <expr> <C-S-Tab> system('tmux prev')
 cno <silent> <expr> <C-Tab> system('tmux next')
 cno <silent> <expr> <C-S-Tab> system('tmux prev')
 vno <silent> <expr> <C-Tab> system('tmux next')
@@ -1461,6 +1459,8 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
         inoremap <silent> <expr> <C-f>   neocomplete#cancel_popup()
         inoremap <silent> <expr> <C-l>   neocomplete#complete_common_string()
+        execute 'inoremap <C-Tab> '.repeat('<C-n>', 10)
+        execute 'inoremap <C-S-Tab> '.repeat('<C-p>', 10)
         augroup VimrcAutocmds
             autocmd CmdwinEnter * inoremap <silent> <buffer> <expr> <Tab>
                 \ pumvisible() ? "\<C-n>" : neocomplete#start_manual_complete()
@@ -1939,7 +1939,7 @@ Plug 'wilywampa/vim-unimpaired'
 Plug 'wilywampa/unite.vim'
 Plug 'wilywampa/vcscommand.vim'
 Plug 'wilywampa/vimfiler.vim'
-Plug 'Shougo/vimproc.vim'
+Plug 'wilywampa/vimproc.vim'
 Plug 'wilywampa/vimshell.vim'
 Plug 'wilywampa/vimux'
 Plug 'jgors/vimux-ipy'
