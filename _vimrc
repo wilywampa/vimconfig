@@ -1883,6 +1883,9 @@ endfor
 vmap <C-a> <Plug>VisualIncrement
 vmap <C-x> <Plug>VisualDecrement
 
+" Abolish map
+nmap cr <Plug>Coerce
+
 " Import scripts
 call plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
@@ -1890,7 +1893,7 @@ Plug 'Konfekt/FastFold'
 Plug 'wilywampa/Gundo', {'branch': 'dev', 'on': 'GundoToggle'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': ['plaintext', 'context', 'tex']}
 Plug 'vim-scripts/OmniCppComplete'
-Plug 'tpope/vim-abolish', {'on': 'S'}
+Plug 'tpope/vim-abolish', {'on': ['S', '<Plug>Coerce']}
 Plug 'mileszs/ack.vim', {'on': 'Ack'}
 Plug 'wilywampa/vim-airline'
 Plug 'sjl/badwolf'
