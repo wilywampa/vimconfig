@@ -324,8 +324,8 @@ class Interact(QtGui.QMainWindow):
         for d in self.datas:
             scale = self.get_scale(d.scale_box.text())
             xscale = self.get_scale(d.xscale_box.text())
-            text = unicode(d.menu.lineEdit().text())
-            xtext = unicode(d.xmenu.lineEdit().text())
+            text = unicode(d.menu.itemText(d.menu.currentIndex()))
+            xtext = unicode(d.xmenu.itemText(d.xmenu.currentIndex()))
             if isinstance(d.labels, list):
                 for i, l in enumerate(d.labels):
                     self.axes.plot(d.obj[xtext][..., i] * xscale,
