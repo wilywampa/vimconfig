@@ -328,7 +328,9 @@ function! vimtools#KeepPatternsSubstitute()
     elseif cmdline =~# '\v^\%[sgv]$'     | return "%KeepPatterns ".cmd."/\\v"
     elseif cmdline =~# "\\m^'<,'>[sgv]$" | return "'<,'>KeepPatterns ".cmd."/\\%V\\v"
     elseif cmdline =~# '\v^.*[sgv]/%(\\\%V)?\\v$'
-      return substitute(cmdline, '\v(^.*[sgv]/)%(\\\%V)?\\v', '\1/', '')
+      let cmd = substitute(cmdline, '\v(^.*[sgv]/)%(\\\%V)?\\v', '\1/', '')
+      let cmd = substitute(cmd, 'KeepPatterns \([sgv]//\)', '\1', '')
+      return cmd
     elseif cmdline =~# '\v^'.s:range_pattern.'[sgv]$'
       return matchstr(cmdline, '\v^'.s:range_pattern)."KeepPatterns ".cmd."/\\v"
     endif
