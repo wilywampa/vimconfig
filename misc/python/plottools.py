@@ -1,4 +1,5 @@
 import matplotlib.pyplot as _plt
+from plotinteract import create, merge_dicts
 
 
 def fg(fig=None):
