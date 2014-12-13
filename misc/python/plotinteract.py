@@ -11,35 +11,36 @@ import re
 import scipy.constants as const
 
 
-def KeyHandler(parentClass):
-    class KeyHandlerClass(parentClass):
+class KeyHandlerMixin(QtGui.QWidget):
 
-        def set_completer(self, completer):
-            self.completer = completer
+    def set_completer(self, completer):
+        self.completer = completer
 
-        def event(self, event):
-            if event.type() == QtCore.QEvent.KeyPress:
-                if (event.key() == QtCore.Qt.Key_W and event.modifiers() &
-                        QtCore.Qt.ControlModifier):
-                    try:
-                        lineEdit = self.lineEdit()
-                    except AttributeError:
-                        lineEdit = self
-                    if lineEdit.selectionStart() == -1:
-                        lineEdit.cursorWordBackward(True)
-                        lineEdit.backspace()
-                        return True
-                elif self.completer.popup().viewport().isVisible():
-                    if event.key() == QtCore.Qt.Key_Tab:
-                        self.emit(QtCore.SIGNAL('tabPressed(int)'), 1)
-                        return True
-                    elif event.key() == QtCore.Qt.Key_Backtab:
-                        self.emit(QtCore.SIGNAL('tabPressed(int)'), -1)
-                        return True
+    def event(self, event):
+        if event.type() == QtCore.QEvent.KeyPress:
+            if (event.key() == QtCore.Qt.Key_W and event.modifiers() &
+                    QtCore.Qt.ControlModifier):
+                try:
+                    lineEdit = self.lineEdit()
+                except AttributeError:
+                    lineEdit = self
+                if lineEdit.selectionStart() == -1:
+                    lineEdit.cursorWordBackward(True)
+                    lineEdit.backspace()
+                    return True
+            elif self.completer.popup().viewport().isVisible():
+                if event.key() == QtCore.Qt.Key_Tab:
+                    self.emit(QtCore.SIGNAL('tabPressed(int)'), 1)
+                    return True
+                elif event.key() == QtCore.Qt.Key_Backtab:
+                    self.emit(QtCore.SIGNAL('tabPressed(int)'), -1)
+                    return True
 
-            return parentClass.event(self, event)
+        return super(KeyHandlerMixin, self).event(event)
 
-    return KeyHandlerClass
+
+class KeyHandlerLineEdit(QtGui.QLineEdit, KeyHandlerMixin):
+    pass
 
 
 class TabCompleter(QtGui.QCompleter):
@@ -107,7 +108,7 @@ class CustomQCompleter(TabCompleter):
         return []
 
 
-class AutoCompleteComboBox(QtGui.QComboBox):
+class AutoCompleteComboBox(QtGui.QComboBox, KeyHandlerMixin):
 
     def __init__(self, *args, **kwargs):
         super(AutoCompleteComboBox, self).__init__(*args, **kwargs)
@@ -141,7 +142,7 @@ class DataObj():
         words.sort(key=lambda w: w.lower())
 
         def new_text_box():
-            menu = KeyHandler(AutoCompleteComboBox)(parent=self.parent)
+            menu = AutoCompleteComboBox(parent=self.parent)
             menu.setMinimumWidth(100)
             menu.setModel(words)
             menu.setMaxVisibleItems(50)
@@ -162,7 +163,7 @@ class DataObj():
 
         def new_scale_box():
             scale_compl = TabCompleter(words, parent=self.parent)
-            scale_box = KeyHandler(QtGui.QLineEdit)(parent=self.parent)
+            scale_box = KeyHandlerLineEdit(parent=self.parent)
             scale_box.set_completer(scale_compl)
             scale_box.setMinimumWidth(100)
             scale_compl.setWidget(scale_box)
