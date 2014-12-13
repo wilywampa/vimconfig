@@ -33,6 +33,9 @@ class KeyHandlerMixin(QtGui.QWidget):
                     lineEdit.cursorWordBackward(True)
                     lineEdit.backspace()
                     return True
+            elif (event.key() == QtCore.Qt.Key_Q and event.modifiers() &
+                    CONTROL_MODIFIER):
+                self.window().close()
             elif self.completer.popup().viewport().isVisible():
                 if event.key() == QtCore.Qt.Key_Tab:
                     self.emit(QtCore.SIGNAL('tabPressed(int)'), 1)
