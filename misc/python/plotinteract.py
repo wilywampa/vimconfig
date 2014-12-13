@@ -395,6 +395,7 @@ def create(*data, **kwargs):
     i.setFont(QtGui.QFont('Tahoma', 11))
     app.references.add(i)
     i.show()
+    i.raise_()
     if app_created:
         app.exec_()
 
