@@ -10,6 +10,11 @@ import numpy as np
 import re
 import scipy.constants as const
 
+if sys.platform == 'darwin':
+    CONTROL_MODIFIER = QtCore.Qt.MetaModifier
+else:
+    CONTROL_MODIFIER = QtCore.Qt.ControlModifier
+
 
 class KeyHandlerMixin(QtGui.QWidget):
 
@@ -19,7 +24,7 @@ class KeyHandlerMixin(QtGui.QWidget):
     def event(self, event):
         if event.type() == QtCore.QEvent.KeyPress:
             if (event.key() == QtCore.Qt.Key_W and event.modifiers() &
-                    QtCore.Qt.ControlModifier):
+                    CONTROL_MODIFIER):
                 try:
                     lineEdit = self.lineEdit()
                 except AttributeError:
