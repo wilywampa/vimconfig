@@ -1886,6 +1886,11 @@ vmap <C-x> <Plug>VisualDecrement
 " Abolish map
 nmap cr <Plug>Coerce
 
+" Reload file with absolute path to create fugitive commands
+nnoremap <Leader>L :<C-u>execute 'file '.resolve(expand('%:p'))<bar>
+    \ let b:git_dir = fugitive#extract_git_dir(expand('%:p:h'))<bar>
+    \ doautocmd User Fugitive<CR>
+
 " Import scripts
 call plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
