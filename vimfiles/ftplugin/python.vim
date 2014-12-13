@@ -280,7 +280,10 @@ def find_docstring(line, next=True):
             if d[1] < line:
                 return d
 
-    return docstrings[-1]
+    try:
+        return docstrings[-1]
+    except IndexError:
+        return None, None
 EOF
   function! s:SelectDocString(forward)
     try
