@@ -309,23 +309,33 @@ class Interact(QtGui.QMainWindow):
         add_widget(data.xscale_label)
         add_widget(data.xscale_box)
 
-    @staticmethod
-    def get_scale(text):
+    def get_scale(self, text):
         try:
             return eval(unicode(text), const.__dict__, {})
-        except Exception:
+        except Exception as e:
+            self.warnings.append('Error setting scale: ' + str(e))
             return 1.0
+
+    def get_key(self, menu):
+        key = unicode(menu.itemText(menu.currentIndex()))
+        text = unicode(menu.lineEdit().text())
+        if key != text:
+            self.warnings.append(
+                'Plotted key (%s) does not match typed key (%s)' %
+                (key, text))
+        return key
 
     def draw(self):
         self.axes.clear()
 
         xlabel = []
         ylabel = []
+        self.warnings = []
         for d in self.datas:
             scale = self.get_scale(d.scale_box.text())
             xscale = self.get_scale(d.xscale_box.text())
-            text = unicode(d.menu.itemText(d.menu.currentIndex()))
-            xtext = unicode(d.xmenu.itemText(d.xmenu.currentIndex()))
+            text = self.get_key(d.menu)
+            xtext = self.get_key(d.xmenu)
             if isinstance(d.labels, list):
                 for i, l in enumerate(d.labels):
                     self.axes.plot(d.obj[xtext][..., i] * xscale,
@@ -342,6 +352,8 @@ class Interact(QtGui.QMainWindow):
 
         self.axes.set_xlabel('\n'.join(xlabel))
         self.axes.set_ylabel('\n'.join(ylabel))
+        self.axes.text(0.05, 0.05, '\n'.join(self.warnings),
+                       transform=self.axes.transAxes, color='red')
         legend = self.axes.legend()
         legend.draggable(True)
         self.canvas.draw()
