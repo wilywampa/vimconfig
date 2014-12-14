@@ -1897,6 +1897,19 @@ nnoremap <Leader>L :<C-u>execute 'file '.resolve(expand('%:p'))<bar>
     \ let b:git_dir = fugitive#extract_git_dir(expand('%:p:h'))<bar>
     \ doautocmd User Fugitive<CR>
 
+" Vim function motion maps
+autocmd VimrcAutocmds FileType vim
+    \ let s:patternFunctionBegin = '^\s*fu\%[nction]\>' |
+    \ let s:patternFunctionEnd = '^\s*endf*\%[unction]\>' |
+    \ silent! call
+    \     CountJump#Motion#MakeBracketMotion('<buffer>', '', '',
+    \                                        s:patternFunctionBegin,
+    \                                        s:patternFunctionEnd, 0) |
+    \ silent! call
+    \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'm', 'ai', 'V',
+    \                                              s:patternFunctionBegin,
+    \                                              s:patternFunctionEnd)
+
 " Import scripts
 call plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
@@ -1955,6 +1968,7 @@ Plug 'wilywampa/vimshell.vim'
 Plug 'wilywampa/vimux'
 Plug 'jgors/vimux-ipy'
 Plug 'triglav/vim-visual-increment', {'on': ['<Plug>VisualIncrement', '<Plug>VisualDecrement']}
+Plug 'vim-scripts/CountJump'
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'

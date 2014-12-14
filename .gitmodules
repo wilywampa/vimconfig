@@ -222,3 +222,7 @@
 	path = vimfiles/bundle/visual-increment
 	url = https://github.com/triglav/vim-visual-increment.git
 	branch = master
+[submodule "vimfiles/bundle/CountJump"]
+	path = vimfiles/bundle/CountJump
+	url = https://github.com/vim-scripts/CountJump.git
+	branch = master
