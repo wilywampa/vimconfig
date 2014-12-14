@@ -84,7 +84,8 @@ class TabCompleter(QtGui.QCompleter):
         popup = self.popup()
         if popup.isVisible():
             self.select_completion(0)
-            self.emit(QtCore.SIGNAL('activated(QString)'), self.currentCompletion())
+            self.emit(QtCore.SIGNAL('activated(QString)'),
+                      self.currentCompletion())
             popup.close()
 
 
