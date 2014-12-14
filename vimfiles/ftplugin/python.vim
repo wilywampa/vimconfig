@@ -367,6 +367,12 @@ augroup python_ftplugin
       \     let &l:omnifunc = getbufvar(bufnr('#'), '&l:omnifunc') |
       \     execute "nnoremap <buffer> S ^C" |
       \ endif
+  autocmd InsertEnter *.py,--Python--
+      \ if &omnifunc == 'CompleteIPython' |
+      \     let g:neocomplete#force_omni_input_patterns.python = '\%([^(). \t]\.\|^\s*@\)\w*\|\[["'']\w*' |
+      \ else |
+      \     let g:neocomplete#force_omni_input_patterns.python = '\%([^(). \t]\.\|^\s*@\)\w*' |
+      \ endif
 augroup END
 
 if has('python') && !exists('*PEP8()')
