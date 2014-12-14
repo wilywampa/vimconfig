@@ -582,6 +582,8 @@ func! s:CmdwinMappings() " {{{
     " Make 'gf' work in command window
     nnoremap <silent> <buffer> gf :let cfile=expand('<cfile>')<CR>:q<CR>
         \:exe 'e '.cfile<CR>
+    nnoremap <silent> <buffer> <C-w>f :let cfile=expand('<cfile>')<CR>:q<CR>
+        \:exe 'vsplit '.cfile<CR>
     nnoremap <silent> <buffer> <C-w>gf :let cfile=expand('<cfile>')<CR>:q<CR>
         \:exe 'tabe '.cfile<CR>
 
