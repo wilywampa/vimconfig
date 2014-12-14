@@ -69,7 +69,7 @@ class TabCompleter(QtGui.QCompleter):
                      self.select_completion)
         self.connect(self.textbox,
                      QtCore.SIGNAL('activated(int)'),
-                     self.popup().close)
+                     self.close_popup)
 
     def select_completion(self, direction):
         if not self.popup().selectionModel().hasSelection():
@@ -79,6 +79,13 @@ class TabCompleter(QtGui.QCompleter):
         self.setCurrentRow(self.currentRow() + direction)
         self.popup().setCurrentIndex(self.completionModel().
                                      index(self.currentRow(), 0))
+
+    def close_popup(self):
+        popup = self.popup()
+        if popup.isVisible():
+            self.select_completion(0)
+            self.emit(QtCore.SIGNAL('activated(QString)'), self.currentCompletion())
+            popup.close()
 
 
 class CustomQCompleter(TabCompleter):
@@ -210,7 +217,6 @@ class DataObj():
         box.setText(before_text[:cursor_pos - prefix_len] +
                     text + after_text)
         box.setCursorPosition(cursor_pos - prefix_len + len(text))
-        box.emit(QtCore.SIGNAL('activated(int)'), 0)
 
     def xcomplete_text(self, text):
         self.complete_text(text, self.xscale_box)
@@ -313,9 +319,11 @@ class Interact(QtGui.QMainWindow):
         add_widget(data.xscale_label)
         add_widget(data.xscale_box)
 
-    def get_scale(self, text):
+    def get_scale(self, textbox, completer):
+        completer.close_popup()
+        text = unicode(textbox.text())
         try:
-            return eval(unicode(text), const.__dict__, {})
+            return eval(text, const.__dict__, {})
         except Exception as e:
             self.warnings.append('Error setting scale: ' + str(e))
             return 1.0
@@ -336,8 +344,8 @@ class Interact(QtGui.QMainWindow):
         ylabel = []
         self.warnings = []
         for d in self.datas:
-            scale = self.get_scale(d.scale_box.text())
-            xscale = self.get_scale(d.xscale_box.text())
+            scale = self.get_scale(d.scale_box, d.scale_compl)
+            xscale = self.get_scale(d.xscale_box, d.xscale_compl)
             text = self.get_key(d.menu)
             xtext = self.get_key(d.xmenu)
             if isinstance(d.labels, list):
