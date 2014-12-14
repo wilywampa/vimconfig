@@ -40,6 +40,7 @@ class KeyHandlerMixin(QtGui.QWidget):
             elif (event.key() == QtCore.Qt.Key_Q and event.modifiers() &
                   CONTROL_MODIFIER):
                 self.window().close()
+                return True
             elif self.completer.popup().viewport().isVisible():
                 if event.key() == QtCore.Qt.Key_Tab:
                     self.emit(QtCore.SIGNAL('tabPressed(int)'), 1)
