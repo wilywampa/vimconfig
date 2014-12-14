@@ -224,10 +224,6 @@ class DataObj():
     def ycomplete_text(self, text):
         self.complete_text(text, self.scale_box)
 
-    def show_popup(self, text):
-        if len(unicode(text)) == 0:
-            self.menu.showPopup()
-
     def xshow_popup(self, text):
         if len(unicode(text)) == 0:
             self.xmenu.showPopup()
