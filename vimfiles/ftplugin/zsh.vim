@@ -16,7 +16,7 @@ if exists('$TMUX')
     call VimuxOpenRunner()
     let input = vimtools#opfunc(a:type)
     call VimuxSendKeys("S q C-u")
-    let lines = split(input, '\r')
+    let lines = split(input, "\n")
     for line in lines[0:-2]
       call VimuxSendText(line)
       call VimuxSendKeys("C-j")
