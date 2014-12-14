@@ -23,16 +23,20 @@ class KeyHandlerMixin(QtGui.QWidget):
 
     def event(self, event):
         if event.type() == QtCore.QEvent.KeyPress:
+            try:
+                lineEdit = self.lineEdit()
+            except AttributeError:
+                lineEdit = self
             if (event.key() == QtCore.Qt.Key_W and event.modifiers() &
                     CONTROL_MODIFIER):
-                try:
-                    lineEdit = self.lineEdit()
-                except AttributeError:
-                    lineEdit = self
                 if lineEdit.selectionStart() == -1:
                     lineEdit.cursorWordBackward(True)
                     lineEdit.backspace()
                     return True
+            elif (event.key() == QtCore.Qt.Key_A and event.modifiers() &
+                  CONTROL_MODIFIER):
+                lineEdit.selectAll()
+                return True
             elif (event.key() == QtCore.Qt.Key_Q and event.modifiers() &
                   CONTROL_MODIFIER):
                 self.window().close()
