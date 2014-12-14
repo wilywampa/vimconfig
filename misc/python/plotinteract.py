@@ -224,10 +224,6 @@ class DataObj():
     def ycomplete_text(self, text):
         self.complete_text(text, self.scale_box)
 
-    def xshow_popup(self, text):
-        if len(unicode(text)) == 0:
-            self.xmenu.showPopup()
-
 
 class Interact(QtGui.QMainWindow):
 
@@ -278,9 +274,6 @@ class Interact(QtGui.QMainWindow):
                      self.draw)
         self.connect(data.xcompleter, QtCore.SIGNAL('activated(int)'),
                      self.draw)
-        self.connect(data.xmenu.lineEdit(),
-                     QtCore.SIGNAL('textChanged(QString)'),
-                     data.xshow_popup)
 
         self.connect(data.scale_box, QtCore.SIGNAL('editingFinished()'),
                      self.draw)
