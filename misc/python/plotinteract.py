@@ -159,7 +159,18 @@ class DataObj():
         self.scale_label = QtGui.QLabel('scale:', parent=self.parent)
         self.xscale_label = QtGui.QLabel('scale:', parent=self.parent)
 
-        words = [k for k in obj.keys() if isinstance(obj[k], np.ndarray)]
+        def flatten(d, prefix=''):
+            out = {}
+            for k in d.keys():
+                if isinstance(d[k], dict):
+                    out.update(flatten(d[k], k))
+                else:
+                    out[(prefix + '.' if prefix else '') + k] = d[k]
+            return out
+
+        self.obj = flatten(self.obj)
+        words = [k for k in self.obj.keys()
+                 if isinstance(self.obj[k], np.ndarray)]
         words.sort(key=lambda w: w.lower())
 
         def new_text_box():
@@ -388,6 +399,8 @@ def merge_dicts(*dicts):
         if all(map(validate, [d[key] for d in dicts])):
             length = max(map(len, [d[key] for d in dicts]))
             merged[key] = np.array([pad(d[key]) for d in dicts]).T
+        elif all(map(lambda x: isinstance(x, dict), [d[key] for d in dicts])):
+            merged[key] = merge_dicts(*[d[key] for d in dicts])
 
     return merged
 
