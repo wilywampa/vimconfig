@@ -78,12 +78,17 @@ if !exists('*s:IPyRunPrompt')
   endfunction
 
   function! s:IPyClearWorkspace()
-    let g:ipy_input = 'from plottools import cl; cl()'."\n".'%reset -s -f'
+    let g:ipy_input = 'plt.close("all")'."\n".'%reset -s -f'
+    call s:IPyRunIPyInput()
+  endfunction
+
+  function! s:IPyCloseWindows()
+    let g:ipy_input = 'from PyQt4 import QtCore; QtCore.QCoreApplication.instance().closeAllWindows()'
     call s:IPyRunIPyInput()
   endfunction
 
   function! s:IPyCloseFigures()
-    let g:ipy_input = 'from plottools import cl; cl()'
+    let g:ipy_input = 'plt.close("all")'
     call s:IPyRunIPyInput()
   endfunction
 
@@ -224,6 +229,7 @@ cnoremap <silent> <buffer> <expr> <C-^> getcmdtype() == '@' ? '<C-e>()<CR>' : Qu
 nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>IPyClearWorkspace()<CR>
 nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>IPyCloseFigures()<CR>
 nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>IPyCloseFigures()<CR>
+nnoremap <silent> <buffer> <Leader><Leader>cl :<C-u>call <SID>IPyCloseWindows()<CR>
 nnoremap <silent>          ,pp :<C-u>call <SID>IPyPing()<CR>
 xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>IPyPrintVar()<CR>
 xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
