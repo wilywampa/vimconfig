@@ -1047,6 +1047,18 @@ func! s:Vared() " {{{3
 endfunc " }}}3
 command! -nargs=0 Vared call s:Vared()
 
+" Restore `[ and `] marks after saving a file
+func! s:SaveMarks()
+    let s:left_mark = getpos("'[")
+    let s:right_mark = getpos("']")
+endfunc
+func! s:RestoreMarks()
+  call setpos("'[", s:left_mark)
+  call setpos("']", s:right_mark)
+endfunc
+autocmd VimrcAutocmds CursorMoved,TextChanged,InsertLeave * call s:SaveMarks()
+autocmd VimrcAutocmds BufWritePost * call s:RestoreMarks()
+
 " {{{2 GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
