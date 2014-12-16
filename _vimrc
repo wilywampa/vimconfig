@@ -1337,12 +1337,6 @@ call s:CreateAbbrev('ll',   'ls -lsh --color=auto'.ls_sort,    ':',  '!')
 call s:CreateAbbrev('lls',  'ls -lshrt --color=auto'.ls_sort,  ':',  '!')
 call s:CreateAbbrev('lla',  'ls -lshA --color=auto'.ls_sort,   ':',  '!')
 call s:CreateAbbrev('llas', 'ls -lshrtA --color=auto'.ls_sort, ':',  '!')
-call s:CreateAbbrev('dg',   'diffget',                         ':',  '%')
-call s:CreateAbbrev('do',   'diffget',                         ':',  '%')
-call s:CreateAbbrev('dp',   'diffput',                         ':',  '%')
-call s:CreateAbbrev('dg',   'diffget',                         ':',  "''<,''>")
-call s:CreateAbbrev('do',   'diffget',                         ':',  "''<,''>")
-call s:CreateAbbrev('dp',   'diffput',                         ':',  "''<,''>")
 if has('win32unix') || has('win64unix')
     call s:CreateAbbrev('open', 'cygstart', ':', '!')
 endif
@@ -1357,6 +1351,9 @@ cnoreabbrev <expr> no (getcmdtype()==':'&&getcmdpos()<=3)
 cnoreabbrev <expr> VC getcmdline() =~ '\v<VC' ? expand('$VIMCONFIG') : 'VC'
 cnoreabbrev <expr> VCB getcmdline() =~ '\v<VCB' ?
     \ expand('$VIMCONFIG').'/vimfiles/bundle' : 'VCB'
+cnoreabbrev <expr> dg getcmdline() =~ '^\(%\<bar>''<,''>\)dg$' ? 'diffget' : 'dg'
+cnoreabbrev <expr> do getcmdline() =~ '^\(%\<bar>''<,''>\)do$' ? 'diffget' : 'do'
+cnoreabbrev <expr> dp getcmdline() =~ '^\(%\<bar>''<,''>\)dp$' ? 'diffput' : 'dp'
 
 " Don't clobber registers from select mode
 snoremap <Space> <C-g>"_c<Space>
