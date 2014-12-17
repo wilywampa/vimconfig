@@ -141,6 +141,11 @@ alias lls='ls -lshrt --color=auto'
 alias lla='ls -lshA --color=auto'
 alias llas='ls -lshrtA --color=auto'
 alias llsa='ls -lshrtA --color=auto'
+alias lu='ls -1U --color=auto'
+alias lua='ls -1UA --color=auto'
+alias llu='ls -1lUsh --color=auto'
+alias llua='ls -1lUshA --color=auto'
+alias llau='ls -1lUshA --color=auto'
 
 # misc
 alias ec='echo'
@@ -210,7 +215,6 @@ bindkey -M vicmd 'gcc' vi-pound-insert
 bindkey -M vicmd 'Y' vi-yank-eol
 bindkey -M vicmd 'yy' vi-yank-whole-line
 bindkey '^R' history-incremental-search-backward
-bindkey 'ò' history-incremental-search-backward  # <M-r>
 bindkey '^S' history-incremental-search-forward
 bindkey -M isearch '^R' history-incremental-search-backward
 bindkey -M isearch '^S' history-incremental-search-forward
@@ -229,6 +233,7 @@ vibindkey '^[[1;5D' backward-word
 vibindkey '^[[I' redisplay
 vibindkey '^[[O' redisplay
 bindkey -M viins '^J' vi-open-line-below
+bindkey -M viins '^U' backward-kill-line
 
 _vi-last-line() {
     zle end-of-buffer-or-history
@@ -344,7 +349,12 @@ pmabbrevs=(
 'lla'   'ls --color=auto -lshA'
 'llsa'  'ls --color=auto -lshrtA'
 'lls'   'ls --color=auto -lshrt'
-'llsa'  'ls --color=auto -lshrtA'
+'llas'  'ls --color=auto -lshrtA'
+'lu'    'ls -1U --color=auto'
+'lua'   'ls -1UA --color=auto'
+'llu'   'ls -1lUsh --color=auto'
+'llua'  'ls -1lUshA --color=auto'
+'llau'  'ls -1lUshA --color=auto'
 'ag'    'ag -S'
 'a'     'ag -S'
 )
@@ -569,16 +579,37 @@ _escalate-whence() {
 }
 zle -N _escalate-whence
 
+_escalate-rm() {
+    if [[ ! $BUFFER =~ "^rm" ]] && [[ $history[$((HISTCMD-1))] =~ "^rm" ]]; then
+        BUFFER=$history[$((HISTCMD-1))]
+    elif [[ ! $BUFFER =~ "^rm" ]]; then
+        return
+    fi
+    if [[ $BUFFER =~ "^rm [^- ]" ]]; then
+        BUFFER=${BUFFER/rm /rm -r }
+    elif [[ $BUFFER =~ "^rm -r" ]]; then
+        BUFFER=${BUFFER/rm -r /rm -f }
+    elif [[ $BUFFER =~ "^rm -f" ]]; then
+        BUFFER=${BUFFER/rm -f /rm -rf }
+    fi
+    CURSOR=$#BUFFER
+}
+zle -N _escalate-rm
+
 _escalate() {
     r="^kill"
     if [[ ${BUFFER[1,2]} == "wh" ]]; then
         _escalate-whence
+    elif [[ ${BUFFER[1,2]} == "rm" ]]; then
+        _escalate-rm
     elif [[ ${BUFFER[1,4]} == "kill" ]]; then
         _escalate-kill
     elif [[ ${BUFFER[1,6]} == "find ." ]]; then
         BUFFER=${BUFFER/find ./find \$PWD}; CURSOR=$(($CURSOR+3))
     elif [[ ${history[$((HISTCMD-1))][1,2]} == "wh" ]]; then
         _escalate-whence
+    elif [[ ${history[$((HISTCMD-1))][1,2]} == "rm" ]]; then
+        _escalate-rm
     elif [[ ${history[$((HISTCMD-1))][1,4]} == "kill" ]]; then
         _escalate-kill
     fi
@@ -724,8 +755,8 @@ zle -N tmux-next; vibindkey '^[[27;5;9~' tmux-next
 tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
-vimblacklist=(syntastic vimshell processing over flake8 tmux-complete \
-    vcscommand fugitive indent-guides jedi tabular clang_complete)
+vimblacklist=(vimshell processing over flake8 tmux-complete \
+    vcscommand fugitive jedi tabular clang_complete)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 
 vim-blacklist-add() {
@@ -829,11 +860,13 @@ za() {
 
 _edit-command-line() {
     local tmpfile=${TMPPREFIX:-/tmp/zsh}ecl$$
+    _disable-focus
     print -R - "$PREBUFFER$BUFFER" >$tmpfile
     exec </dev/tty
     vim -u NONE -i NONE -N --cmd 'set clipboard=' $tmpfile
     print -Rz - "$(<$tmpfile)" 
     command rm -f $tmpfile
+    _enable-focus
     zle send-break		# Force reload from the buffer stack
 }
 zle -N _edit-command-line; bindkey -M vicmd 'v' _edit-command-line
@@ -843,6 +876,13 @@ _vared-vipe() {
     zle accept-line
 }
 zle -N _vared-vipe; vibindkey 'å' _vared-vipe  # <M-e>
+
+# Append to history file
+_log-command() {
+    lines=(${(f)1})
+    echo "${PWD}"\;${(j:\\\n:)lines} >> $HOME/.directory_history
+}
+add-zsh-hook preexec _log-command
 
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
