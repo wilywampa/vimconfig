@@ -64,6 +64,7 @@ set gdefault                    " Substitute all occurrences by default
 set nostartofline               " Don't jump to start of line for various motions
 set isfname+={,}                " Interpret {} as part of a filename
 sil! set breakindent            " Indent wrapped lines
+set tags-=./tags tags^=./tags;  " Search upwards for tags
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe
