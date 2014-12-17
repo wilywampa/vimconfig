@@ -158,6 +158,9 @@ function! plug#end()
 
   filetype off
   for name in g:plugs_order
+    if index(s:blacklist, name) != -1
+      continue
+    endif
     let plug = g:plugs[name]
     if get(s:loaded, name, 0) || !has_key(plug, 'on') && !has_key(plug, 'for')
       let s:loaded[name] = 1
@@ -400,9 +403,6 @@ function! s:add(repo, ...)
   try
     let repo = s:trim(a:repo)
     let name = fnamemodify(repo, ':t:s?\.git$??:s?vim-??:s?.vim??')
-    if index(s:blacklist, name) != -1
-      return
-    endif
     let spec = extend(s:infer_properties(name, repo),
                     \ a:0 == 1 ? s:parse_options(a:1) : s:base_spec)
     let g:plugs[name] = spec
