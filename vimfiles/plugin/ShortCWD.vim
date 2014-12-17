@@ -66,8 +66,8 @@ function! ShortCWD()
     endif
 
     let git = 0
-    if g:airline_powerline_fonts == 1 && exists('*fugitive#head')
-        \ && len(fugitive#head())
+    silent! let head = fugitive#head()
+    if g:airline_powerline_fonts && exists('head') && len(head)
         let git = 1
     endif
 
