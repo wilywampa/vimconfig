@@ -16,44 +16,47 @@ else:
     CONTROL_MODIFIER = QtCore.Qt.ControlModifier
 
 
-class KeyHandlerMixin(QtGui.QWidget):
-
-    def set_completer(self, completer):
-        self.completer = completer
-
-    def event(self, event):
-        if event.type() == QtCore.QEvent.KeyPress:
-            try:
-                lineEdit = self.lineEdit()
-            except AttributeError:
-                lineEdit = self
-            if (event.key() == QtCore.Qt.Key_W and event.modifiers() &
-                    CONTROL_MODIFIER):
-                if lineEdit.selectionStart() == -1:
-                    lineEdit.cursorWordBackward(True)
-                    lineEdit.backspace()
-                    return True
-            elif (event.key() == QtCore.Qt.Key_A and event.modifiers() &
-                  CONTROL_MODIFIER):
-                lineEdit.selectAll()
+def handle_key(self, event, parent):
+    if event.type() == QtCore.QEvent.KeyPress:
+        try:
+            lineEdit = self.lineEdit()
+        except AttributeError:
+            lineEdit = self
+        if (event.key() == QtCore.Qt.Key_W and event.modifiers() &
+                CONTROL_MODIFIER):
+            if lineEdit.selectionStart() == -1:
+                lineEdit.cursorWordBackward(True)
+                lineEdit.backspace()
                 return True
-            elif (event.key() == QtCore.Qt.Key_Q and event.modifiers() &
-                  CONTROL_MODIFIER):
-                self.window().close()
+        elif (event.key() == QtCore.Qt.Key_A and event.modifiers() &
+              CONTROL_MODIFIER):
+            lineEdit.selectAll()
+            return True
+        elif (event.key() == QtCore.Qt.Key_Q and event.modifiers() &
+              CONTROL_MODIFIER):
+            self.window().close()
+            return True
+        elif self.completer.popup().viewport().isVisible():
+            if event.key() == QtCore.Qt.Key_Tab:
+                self.emit(QtCore.SIGNAL('tabPressed(int)'), 1)
                 return True
-            elif self.completer.popup().viewport().isVisible():
-                if event.key() == QtCore.Qt.Key_Tab:
-                    self.emit(QtCore.SIGNAL('tabPressed(int)'), 1)
-                    return True
-                elif event.key() == QtCore.Qt.Key_Backtab:
-                    self.emit(QtCore.SIGNAL('tabPressed(int)'), -1)
-                    return True
+            elif event.key() == QtCore.Qt.Key_Backtab:
+                self.emit(QtCore.SIGNAL('tabPressed(int)'), -1)
+                return True
 
-        return super(KeyHandlerMixin, self).event(event)
+    return parent.event(self, event)
 
 
-class KeyHandlerLineEdit(QtGui.QLineEdit, KeyHandlerMixin):
-    pass
+def KeyHandler(parent):
+    class KeyHandlerClass(parent):
+
+        def set_completer(self, completer):
+            self.completer = completer
+
+        def event(self, event):
+            return handle_key(self, event, parent)
+
+    return KeyHandlerClass
 
 
 class TabCompleter(QtGui.QCompleter):
@@ -129,7 +132,7 @@ class CustomQCompleter(TabCompleter):
         return []
 
 
-class AutoCompleteComboBox(QtGui.QComboBox, KeyHandlerMixin):
+class AutoCompleteComboBox(QtGui.QComboBox):
 
     def __init__(self, *args, **kwargs):
         super(AutoCompleteComboBox, self).__init__(*args, **kwargs)
@@ -186,7 +189,7 @@ class DataObj():
         words.sort(key=lambda w: w.lower())
 
         def new_text_box():
-            menu = AutoCompleteComboBox(parent=self.parent)
+            menu = KeyHandler(AutoCompleteComboBox)(parent=self.parent)
             menu.setMinimumWidth(100)
             menu.setModel(words)
             menu.setMaxVisibleItems(50)
@@ -207,7 +210,7 @@ class DataObj():
 
         def new_scale_box():
             scale_compl = TabCompleter(words, parent=self.parent)
-            scale_box = KeyHandlerLineEdit(parent=self.parent)
+            scale_box = KeyHandler(QtGui.QLineEdit)(parent=self.parent)
             scale_box.set_completer(scale_compl)
             scale_box.setMinimumWidth(100)
             scale_compl.setWidget(scale_box)
