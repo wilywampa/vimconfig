@@ -29,6 +29,7 @@ set smartcase
 set noshowmode                  " Don't show current mode
 set nrformats-=octal            " Don't treat numbers as octal when incrementing/decrementing
 set shortmess+=t                " Truncate filenames in messages when necessary
+set shortmess+=c                " Don't display insert completion messages
 set showmatch                   " Show matching brace after inserting
 set scrolloff=2                 " Pad lines/columns with context around cursor
 set sidescrolloff=5
