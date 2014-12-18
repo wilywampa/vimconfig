@@ -1248,10 +1248,26 @@ augroup VimrcAutocmds
     autocmd VimEnter * call histdel(':', '^qa!\=$')
 
     " Preserve previous window when preview window opens during completion
-    autocmd InsertEnter * let s:nwins = winnr('$') | let s:prevwin = winnr('#')
-    autocmd InsertLeave * if exists('s:nwins') && s:nwins > 1 && winnr('$') >
-        \ s:nwins && s:prevwin != winnr() | execute s:prevwin.'wincmd w' | wincmd p
+    autocmd InsertEnter * let s:pwinid += 1 | call setwinvar(winnr('#'), 'pwin', s:pwinid)
+    autocmd InsertLeave * if winnr('$') > 2 && getwinvar(winnr('#'), 'pwin') != s:pwinid |
+        \ call s:RestorePrevWin() | endif
 augroup END
+
+" Restore previous windo after leaving insert mode
+if !exists('s:pwinid') | let s:pwinid = 0 | endif
+func! s:RestorePrevWin() " {{{3
+    let winnr = winnr()
+    for w in range(1, winnr('$'))
+        if getwinvar(w, 'pwin') == s:pwinid
+            let pwin = w
+            break
+        endif
+    endfor
+    if exists('l:pwin')
+        execute l:pwin.'wincmd w'
+        execute winnr.'wincmd w'
+    endif
+endfunc " }}}3
 
 " Match highlighting
 func! s:MatchHighlights() " {{{3
