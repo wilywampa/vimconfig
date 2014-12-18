@@ -80,7 +80,8 @@ class TabCompleter(QtGui.QCompleter):
             if direction == 0:
                 return
             direction = 0
-        self.setCurrentRow(self.currentRow() + direction)
+        self.setCurrentRow((self.currentRow() + direction) %
+                           self.completionCount())
         self.popup().setCurrentIndex(self.completionModel().
                                      index(self.currentRow(), 0))
 
