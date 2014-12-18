@@ -1,4 +1,5 @@
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import SIGNAL
 import matplotlib as mpl
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
@@ -38,10 +39,10 @@ def handle_key(self, event, parent):
             return True
         elif self.completer.popup().viewport().isVisible():
             if event.key() == QtCore.Qt.Key_Tab:
-                self.emit(QtCore.SIGNAL('tabPressed(int)'), 1)
+                self.emit(SIGNAL('tabPressed(int)'), 1)
                 return True
             elif event.key() == QtCore.Qt.Key_Backtab:
-                self.emit(QtCore.SIGNAL('tabPressed(int)'), -1)
+                self.emit(SIGNAL('tabPressed(int)'), -1)
                 return True
 
     return parent.event(self, event)
@@ -68,12 +69,9 @@ class TabCompleter(QtGui.QCompleter):
 
     def set_textbox(self, textbox):
         self.textbox = textbox
-        self.connect(self.textbox,
-                     QtCore.SIGNAL('tabPressed(int)'),
+        self.connect(self.textbox, SIGNAL('tabPressed(int)'),
                      self.select_completion)
-        self.connect(self.textbox,
-                     QtCore.SIGNAL('activated(int)'),
-                     self.close_popup)
+        self.connect(self.textbox, SIGNAL('activated(int)'), self.close_popup)
 
     def select_completion(self, direction):
         if not self.popup().selectionModel().hasSelection():
@@ -88,8 +86,7 @@ class TabCompleter(QtGui.QCompleter):
         popup = self.popup()
         if popup.isVisible():
             self.select_completion(0)
-            self.emit(QtCore.SIGNAL('activated(QString)'),
-                      self.currentCompletion())
+            self.emit(SIGNAL('activated(QString)'), self.currentCompletion())
             popup.close()
 
 
@@ -150,7 +147,7 @@ class AutoCompleteComboBox(QtGui.QComboBox):
         self.completer.setModel(self.model())
 
 
-class DataObj():
+class DataObj(object):
 
     def __init__(self, parent, obj, name, xname, labels):
         self.parent = parent
@@ -311,31 +308,21 @@ class Interact(QtGui.QMainWindow):
         self.datas.append(DataObj(self, obj, name, xname, labels))
         data = self.datas[-1]
 
-        self.connect(data.menu, QtCore.SIGNAL('activated(int)'),
-                     self.draw)
-        self.connect(data.completer, QtCore.SIGNAL('activated(int)'),
-                     self.draw)
-        self.connect(data.xmenu, QtCore.SIGNAL('activated(int)'),
-                     self.draw)
-        self.connect(data.xcompleter, QtCore.SIGNAL('activated(int)'),
-                     self.draw)
+        self.connect(data.menu, SIGNAL('activated(int)'), self.draw)
+        self.connect(data.completer, SIGNAL('activated(int)'), self.draw)
+        self.connect(data.xmenu, SIGNAL('activated(int)'), self.draw)
+        self.connect(data.xcompleter, SIGNAL('activated(int)'), self.draw)
 
-        self.connect(data.scale_box, QtCore.SIGNAL('editingFinished()'),
-                     self.draw)
-        self.connect(data.scale_box,
-                     QtCore.SIGNAL('textChanged(QString)'),
+        self.connect(data.scale_box, SIGNAL('editingFinished()'), self.draw)
+        self.connect(data.scale_box, SIGNAL('textChanged(QString)'),
                      data.ytext_changed)
-        self.connect(data.scale_compl,
-                     QtCore.SIGNAL('activated(QString)'),
+        self.connect(data.scale_compl, SIGNAL('activated(QString)'),
                      data.ycomplete_text)
 
-        self.connect(data.xscale_box, QtCore.SIGNAL('editingFinished()'),
-                     self.draw)
-        self.connect(data.xscale_box,
-                     QtCore.SIGNAL('textChanged(QString)'),
+        self.connect(data.xscale_box, SIGNAL('editingFinished()'), self.draw)
+        self.connect(data.xscale_box, SIGNAL('textChanged(QString)'),
                      data.xtext_changed)
-        self.connect(data.xscale_compl,
-                     QtCore.SIGNAL('activated(QString)'),
+        self.connect(data.xscale_compl, SIGNAL('activated(QString)'),
                      data.xcomplete_text)
 
         self.column = 0
