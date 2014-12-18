@@ -35,6 +35,7 @@ def handle_key(self, event, parent):
             return True
         elif (event.key() == QtCore.Qt.Key_Q and event.modifiers() &
               CONTROL_MODIFIER):
+            self.emit(SIGNAL('closed()'))
             self.window().close()
             return True
         elif self.completer.popup().viewport().isVisible():
@@ -72,6 +73,7 @@ class TabCompleter(QtGui.QCompleter):
         self.connect(self.textbox, SIGNAL('tabPressed(int)'),
                      self.select_completion)
         self.connect(self.textbox, SIGNAL('activated(int)'), self.close_popup)
+        self.connect(self.textbox, SIGNAL('closed()'), self.close_popup)
 
     def select_completion(self, direction):
         if not self.popup().selectionModel().hasSelection():
