@@ -226,3 +226,6 @@
 	path = vimfiles/bundle/CountJump
 	url = https://github.com/vim-scripts/CountJump.git
 	branch = master
+[submodule "misc/fzf"]
+	path = misc/fzf
+	url = https://github.com/wilywampa/fzf.git
