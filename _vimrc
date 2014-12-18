@@ -1,4 +1,4 @@
-" {{{1 Vim built-in configuration
+" {{{ Vim built-in configuration
 
 " Allow settings that are not vi-compatible
 if &compatible | set nocompatible | endif
@@ -99,9 +99,9 @@ endif
 " Enable matchit plugin
 runtime! macros/matchit.vim
 
-" {{{2 Switch to last active tab/window
+" {{{ Switch to last active tab/window
 let g:lastTab=1
-func! s:LastActiveWindow() " {{{3
+func! s:LastActiveWindow() " {{{
     if winnr('#') > 0 && winnr('#') != winnr()
         wincmd p
     elseif winnr('$') > 1
@@ -111,7 +111,7 @@ func! s:LastActiveWindow() " {{{3
     else
         tabnext
     endif
-endfunc " }}}3
+endfunc " }}}
 autocmd VimrcAutocmds TabLeave * let g:lastTab=tabpagenr()
 nnoremap <silent> <expr> ` g:inCmdwin? ':q<CR>' : ':call <SID>LastActiveWindow()<CR>'
 xnoremap <silent> ` :<C-u>call <SID>LastActiveWindow()<CR>
@@ -121,8 +121,9 @@ nnoremap <silent> ' `
 xnoremap <silent> ' `
 nnoremap <silent> <M-'> '
 xnoremap <silent> <M-'> '
+" }}}
 
-" {{{2 Platform-specific configuration
+" {{{ Platform-specific configuration
 let hasMac=has("mac")
 let hasWin=has("win16") || has("win32") || has("win64")
 let hasSSH=!empty($SSH_CLIENT)
@@ -180,8 +181,9 @@ else
 
     let s:hasvimtools=filereadable(expand("$HOME/.vim/autoload/vimtools.vim"))
 endif
+" }}}
 
-" {{{2 Mappings
+" {{{ Mappings
 " Save current file if modified or execute command if in command window
 nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':update<CR>'
 ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:update<CR>'
@@ -513,8 +515,9 @@ nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels
 
 " Don't save omaps to command history
 silent! nn <unique> . .
+" }}}
 
-" {{{2 Abbreviations to open help
+" {{{ Abbreviations to open help
 if s:hasvimtools
     command! -nargs=? -complete=help Help call vimtools#OpenHelp(<q-args>)
     cnorea <expr> ht getcmdtype()==':'&&getcmdpos()<=3 ? 'tab help':'ht'
@@ -525,8 +528,9 @@ if s:hasvimtools
         \ 'Help '.vimtools#HelpTopic()<CR>"
     vnoremap <silent> <expr> K vimtools#OpenHelpVisual()
 endif
+" }}}
 
-" {{{2 Cscope configuration
+" {{{ Cscope configuration
 " Mappings for cscope find commands
 no <M-\>s :cs find s <C-r>=expand("<cword>")<CR><CR>
 no <M-\>g :cs find g <C-r>=expand("<cword>")<CR><CR>
@@ -537,18 +541,19 @@ no <M-\>f :cs find f <C-r>=expand("<cfile>")<CR><CR>
 no <M-\>i :cs find i ^<C-r>=expand("<cfile>")<CR>$<CR>
 no <M-\>d :cs find d <C-r>=expand("<cword>")<CR><CR>
 vm <M-\> <Esc><M-\>
+" }}}
 
-" {{{2 Functions
+" {{{ Functions
 " Save/restore unnamed/clipboard registers
-func! SaveRegs() " {{{3
+func! SaveRegs() " {{{
     let s:quotereg = @" | let s:starreg = @* | let s:plusreg = @+
-endfunc " }}}3
-func! RestoreRegs() " {{{3
+endfunc " }}}
+func! RestoreRegs() " {{{
     let @" = s:quotereg | let @* = s:starreg | let @+ = s:plusreg
-endfunc " }}}3
+endfunc " }}}
 
 " Like bufdo but return to starting buffer
-func! Bufdo(command, bang) " {{{3
+func! Bufdo(command, bang) " {{{
     let currBuff=bufnr("%")
     if a:bang
         execute 'bufdo set eventignore-=Syntax | ' . a:command
@@ -556,31 +561,31 @@ func! Bufdo(command, bang) " {{{3
         execute 'bufdo ' . a:command
     endif
     execute 'buffer ' . currBuff
-endfunc " }}}3
+endfunc " }}}
 command! -nargs=+ -bang -complete=command Bufdo call Bufdo(<q-args>, <bang>0)
 
 " Like windo but restore current and previous window
-func! Windo(command) " {{{3
+func! Windo(command) " {{{
     let cwin = winnr()
     let pwin = winnr('#')
     execute 'windo '.a:command
     execute pwin.'wincmd w'
     execute cwin.'wincmd w'
-endfunc " }}}3
+endfunc " }}}
 command! -nargs=+ -complete=command Windo call Windo(<q-args>)
 
 " Function to set key codes for terminals
-func! s:KeyCodes() " {{{3
+func! s:KeyCodes() " {{{
     " Set key codes to work as meta key combinations
     let ns=range(65,90)+range(92,123)+range(125,126)
     for n in ns
         exec "set <M-".nr2char(n).">=\<Esc>".nr2char(n)
     endfor
     exec "set <M-\\|>=\<Esc>\\| <M-'>=\<Esc>'"
-endfunc " }}}3
+endfunc " }}}
 nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
 
-func! s:CmdwinMappings() " {{{3
+func! s:CmdwinMappings() " {{{
     " Make 'gf' work in command window
     nnoremap <silent> <buffer> gf :let cfile=expand('<cfile>')<CR>:q<CR>
         \:exe 'e '.cfile<CR>
@@ -600,29 +605,29 @@ func! s:CmdwinMappings() " {{{3
     " Close window
     nnoremap <silent> <buffer> <Leader>w :q<CR>
     nnoremap <silent> <buffer> ZZ :q<CR>
-endfunc " }}}3
+endfunc " }}}
 
 " Delete hidden buffers
-func! s:DeleteHiddenBuffers() " {{{3
+func! s:DeleteHiddenBuffers() " {{{
     let tpbl=[]
     call map(range(1, tabpagenr('$')), 'extend(tpbl, tabpagebuflist(v:val))')
     for l:buf in filter(range(1, bufnr('$')), 'bufexists(v:val) && index(tpbl, v:val)==-1')
         silent! execute 'bd' l:buf
     endfor
-endfunc " }}}3
+endfunc " }}}
 nnoremap <silent> <Leader>dh :call <SID>DeleteHiddenBuffers()<CR>
 
-func! s:CleanEmptyBuffers() " {{{3
+func! s:CleanEmptyBuffers() " {{{
     let buffers = filter(range(0, bufnr('$')), 'buflisted(v:val) && '
         \.'empty(bufname(v:val)) && bufwinnr(v:val)<0 && getbufvar(v:val,"&buftype")==""')
     if !empty(buffers)
         exe 'bw '.join(buffers, ' ')
     endif
-endfunc " }}}3
+endfunc " }}}
 nnoremap <silent> <Leader>de :call <SID>CleanEmptyBuffers()<CR>
 
 " Kludge to make first quickfix result unfold
-func! s:ToggleFoldOpen() " {{{3
+func! s:ToggleFoldOpen() " {{{
     if &fdo != 'all'
         let s:fdoOld=&fdo
         set ut=1 fdo=all
@@ -635,32 +640,32 @@ func! s:ToggleFoldOpen() " {{{3
             au!
         aug END
     endif
-endfunc " }}}3
+endfunc " }}}
 autocmd VimrcAutocmds QuickFixCmdPost * call s:ToggleFoldOpen()
 
 " Function to redirect output of ex command to clipboard
-func! Redir(cmd) " {{{3
+func! Redir(cmd) " {{{
     redir @" | execute a:cmd | redir END
     let @"=substitute(@","^\<NL>*",'','g')
     let @*=@"
     let @+=@"
-endfunc " }}}3
+endfunc " }}}
 command! -nargs=+ -complete=command Redir call Redir(<q-args>)
 nnoremap <Leader>r :<C-r>:<Home>Redir <CR>
 
 " Function to removing trailing carriage return from register
-func! s:FixReg() " {{{3
+func! s:FixReg() " {{{
     let l:reg=nr2char(getchar())
     let l:str=getreg(l:reg)
     while l:str =~ "\<CR>\<NL>"
         let l:str=substitute(l:str,"\<CR>\<NL>","\<NL>",'')
     endwhile
     call setreg(l:reg, l:str)
-endfunc " }}}3
+endfunc " }}}
 nnoremap <silent> <Leader>f :call <SID>FixReg()<CR>
 
 " Cycle search mode between regular, very magic, and very nomagic
-func! s:CycleSearchMode() " {{{3
+func! s:CycleSearchMode() " {{{
     let l:cmd = getcmdline()
     let l:pos = getcmdpos()
     if l:cmd =~# '\v(KeepPatterns [sgv]\/)?(\\\%V)?\\v'
@@ -673,12 +678,12 @@ func! s:CycleSearchMode() " {{{3
         call setcmdpos(l:pos + 2)
     endif
     return l:cmd
-endfunc " }}}3
+endfunc " }}}
 cnoremap <expr> <C-x> getcmdtype() =~ '[/?:]' ?
     \ "\<C-\>e\<SID>CycleSearchMode()\<CR>" : ""
 
 " Close other windows or close other tabs
-func! s:CloseWinsOrTabs() " {{{3
+func! s:CloseWinsOrTabs() " {{{
     let startwin = winnr()
     wincmd t
     if winnr() == winnr('$')
@@ -687,19 +692,19 @@ func! s:CloseWinsOrTabs() " {{{3
         if winnr() != startwin | wincmd p | endif
         wincmd o
     endif
-endfunc " }}}3
+endfunc " }}}
 nnoremap <silent> <C-w>o :call <SID>CloseWinsOrTabs()<CR>
 nnoremap <silent> <C-w><C-o> :call <SID>CloseWinsOrTabs()<CR>
 
 " <C-v> pastes from system clipboard
-func! s:Paste() " {{{3
+func! s:Paste() " {{{
     if @+ =~ "\<NL>"
         set paste
         set pastetoggle=<F10>
         return "\<C-r>+\<F10>".(@+=~"\<NL>$"?"\<BS>":"")
     endif
     return "\<C-r>+"
-endfunc " }}}3
+endfunc " }}}
 noremap <C-v> "+gP
 cnoremap <expr> <C-v> getcmdtype() == '=' ?
     \ "\<C-r>+" : "\<C-r>=substitute(@+, '\\n', '', 'g')\<CR>"
@@ -707,7 +712,7 @@ imap <expr> <C-v> <SID>Paste()
 exe 'vnoremap <silent> <script> <C-v> '.paste#paste_cmd['v']
 
 " Make last search a whole word
-func! s:SearchWholeWord(dir) " {{{3
+func! s:SearchWholeWord(dir) " {{{
     let sf = v:searchforward
     if @/[0:1] ==# '\v'
         let @/ = '\v<('.@/[2:].')>'
@@ -722,12 +727,12 @@ func! s:SearchWholeWord(dir) " {{{3
     else
         echo '?'.@/ | return "?\<CR>"
     endif
-endfunc " }}}3
+endfunc " }}}
 nn <silent> <expr> <Leader>n <SID>SearchWholeWord(1).'zv'
 nn <silent> <expr> <Leader>N <SID>SearchWholeWord(0).'zv'
 
 " Search for first non-blank
-func! s:FirstNonBlank() " {{{3
+func! s:FirstNonBlank() " {{{
     if getcmdline() == '^'
         return "\<BS>".'\(^\s*\)\@<='
     elseif getcmdline() ==# '\v^'
@@ -737,11 +742,11 @@ func! s:FirstNonBlank() " {{{3
     else
         return '^'
     endif
-endfunc " }}}3
+endfunc " }}}
 cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 
 " Don't delete the v/V at the start of a search
-func! s:SearchCmdDelWord() " {{{3
+func! s:SearchCmdDelWord() " {{{
     let l:iskeyword = &l:iskeyword | setlocal iskeyword&
     let cmd = (getcmdtype() =~ '[/?]' ? '/' : '').
         \ strpart(getcmdline(), 0, getcmdpos() - 1)
@@ -752,22 +757,22 @@ func! s:SearchCmdDelWord() " {{{3
     endif
     let &l:iskeyword = l:iskeyword
     return "\<C-w>"
-endfunc " }}}3
+endfunc " }}}
 cnoremap <expr> <C-w> <SID>SearchCmdDelWord()
 
 " <C-Left> moves cursor after \v
-func! s:SearchCtrlLeft() " {{{3
+func! s:SearchCtrlLeft() " {{{
     if getcmdtype() =~ '[/?]' && getcmdline() =~? '^\\v'
         if strpart(getcmdline(), 0, getcmdpos() - 1) =~ '\v^\S+\s?$'
             return "\<C-Left>\<Right>\<Right>"
         endif
     endif
     return "\<C-Left>"
-endfunc " }}}3
+endfunc " }}}
 cnoremap <expr> <C-Left> <SID>SearchCtrlLeft()
 
 " Fix up arrow in search history when search starts with \v
-func! s:OlderHistory() " {{{3
+func! s:OlderHistory() " {{{
     if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
         return "\<C-u>\<Up>"
     elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[sgv]/\\[vV]$'
@@ -778,39 +783,39 @@ func! s:OlderHistory() " {{{3
         return getcmdtype() == ':' && getcmdline() == 'h' ? "\<BS>H\<Up>" : "\<Up>"
     endif
     return "\<Up>"
-endfunc " }}}3
+endfunc " }}}
 cnoremap <expr> <Up> <SID>OlderHistory()
 
 " Add wildcards to path in command line for zsh-like expansion
-func! s:StarifyPath() " {{{3
+func! s:StarifyPath() " {{{
     set wildcharm=<C-t>
     let cmdline = getcmdline()
     let space = match(cmdline, '\m^.*\zs\s\ze\S\+$')
     let start = cmdline[0:space]
     let finish = substitute(cmdline[space+1:-1],'[^[:space:]~]\zs/','*/','g')
     return start.finish
-endfunc " }}}3
+endfunc " }}}
 cnoremap <C-s> <C-\>e<SID>StarifyPath()<CR><C-t><C-d>
 
 " Ring system bell
-func! s:Bell() " {{{3
+func! s:Bell() " {{{
     let visualbell_save = &visualbell
     set novisualbell
     execute "normal! \<Esc>"
     let &visualbell = visualbell_save
-endfunc " }}}3
+endfunc " }}}
 autocmd VimrcAutocmds QuickFixCmdPost * call s:Bell()
 
 " Setup for single-file C/C++ projects
-func! s:SingleFile() " {{{3
+func! s:SingleFile() " {{{
     execute 'setlocal makeprg=make\ '.expand('%:r')
     nnoremap <buffer> <S-F5> :execute '!./'.expand('%:r')<CR>
     lcd! %:p:h
-endfunc " }}}3
+endfunc " }}}
 command! -nargs=0 SingleFile call s:SingleFile()
 
 " Use 'very magic' regex by default
-func! s:SearchHandleKey(dir) " {{{3
+func! s:SearchHandleKey(dir) " {{{
     echo a:dir.'\v'
     let c = getchar()
     " CursorHold, FocusLost, FocusGained
@@ -826,27 +831,27 @@ func! s:SearchHandleKey(dir) " {{{3
     else
         return a:dir.'\v'.(type(c) == type("") ? c : nr2char(c))
     endif
-endfunc " }}}3
+endfunc " }}}
 noremap <expr> / <SID>SearchHandleKey('/')
 noremap <expr> ? <SID>SearchHandleKey('?')
 
 " Paste in visual mode without overwriting clipboard
-func! s:VisualPaste() " {{{3
+func! s:VisualPaste() " {{{
     call SaveRegs()
     normal! gvp
     call RestoreRegs()
-endfunc " }}}3
+endfunc " }}}
 vnoremap <silent> p :<C-u>call <SID>VisualPaste()<CR>
 vnoremap <silent> <C-p> :<C-u>call <SID>VisualPaste()<CR>=']
 vnoremap <M-p> p
 vnoremap <M-P> p=']
 
 " Insert result of visually selected expression
-func! s:EvalExpr() " {{{3
+func! s:EvalExpr() " {{{
     call SaveRegs()
     return "c\<C-o>:let @\"=substitute(@\",'\\n','','g')\<CR>".
         \ "\<C-r>=\<C-r>\"\<CR>\<Esc>:call RestoreRegs()\<CR>"
-endfunc " }}}3
+endfunc " }}}
 vnoremap <expr> <silent> <C-e> <SID>EvalExpr()
 
 " Don't overwrite pattern with substitute command
@@ -871,42 +876,42 @@ if s:hasvimtools
 endif
 
 " Delete until character on command line
-func! s:DeleteUntilChar(char) " {{{3
+func! s:DeleteUntilChar(char) " {{{
     let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
     let cmdstart = substitute(cmdstart, '\V'.escape(a:char, '\').'\*\$', '', '')
     let newcmdstart = strpart(cmdstart, 0, strridx(cmdstart, a:char) + 1)
     let end = strpart(getcmdline(), getcmdpos() - 1)
     call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart))
     return newcmdstart.end
-endfunc " }}}3
+endfunc " }}}
 cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
 inoremap <C-@> <Esc>"_dT/"_s
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
 inoremap <M-w> <Esc>"_dT<Space>"_s
 
 " !$ inserts last WORD of previous command
-func! s:LastWord() " {{{3
+func! s:LastWord() " {{{
     let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
     let cmdstart = cmdstart[0:-2].matchstr(@:, '\v\S+$')
     let end = strpart(getcmdline(), getcmdpos() - 1)
     return cmdstart.end
-endfunc " }}}3
+endfunc " }}}
 cnoremap <expr> $ getcmdline()[getcmdpos()-2] == '!' ?
     \ "\<C-\>e\<SID>LastWord()\<CR>" : '$'
 
 " Stay at search result without completing search
-func! QuitSearch() " {{{3
+func! QuitSearch() " {{{
     if getcmdtype() !~ '[/?]' | return '' | endif
     let visual = mode() =~? "[v\<C-v>]"
     return "\<C-e>\<C-u>\<C-c>:\<C-u>call search('".
         \ substitute(getcmdline(), "'", "''", 'g')."', '".
         \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv".(visual ? 'm>gv' : "")
-endfunc " }}}3
+endfunc " }}}
 cnoremap <silent> <expr> <C-^> QuitSearch()
 cnoremap <silent> <expr> <C-CR> QuitSearch()
 
 " Unfold at incremental search match
-func! s:UnfoldSearch() " {{{3
+func! s:UnfoldSearch() " {{{
     let type = getcmdtype()
     if type !~ '[/?]' | return '' | endif
     let visual = mode() =~? "[v\<C-v>]"
@@ -916,14 +921,14 @@ func! s:UnfoldSearch() " {{{3
         \ .":call winrestview(unfoldview)\<CR>:unlet unfoldview\<CR>zv"
         \ .":call feedkeys('".(visual ? 'gv' : '')
         \ .type."\<C-v>\<C-u>".cmd."', 't')\<CR>"
-endfunc " }}}3
+endfunc " }}}
 cnoremap <silent> <expr> <C-o> <SID>UnfoldSearch()
 
 " Search without saving when in command line window
-func! s:SearchWithoutSave() " {{{3
+func! s:SearchWithoutSave() " {{{
     let @/ = getcmdline()
     return ''
-endfunc " }}}3
+endfunc " }}}
 augroup VimrcAutocmds
     autocmd CmdwinEnter * if expand('<afile>') =~ '[/?]' |
         \     execute 'cnoremap <expr> <CR> getcmdtype() =~ "[/?]" ?
@@ -933,18 +938,18 @@ augroup VimrcAutocmds
 augroup END
 
 " Print number of occurrences of last search without moving cursor
-func! s:PrintCount() " {{{3
+func! s:PrintCount() " {{{
     let l:view = winsaveview() | let l:gd = &gdefault | set nogdefault
     redir => l:cnt | keepjumps silent %s///gne | redir END
     keepjumps call winrestview(l:view)
     echo l:cnt =~ 'match' ? substitute(l:cnt,'\n','','') : 'No matches'
     let &gdefault = l:gd
-endfunc " }}}3
+endfunc " }}}
 nn <silent> <M-n> :call <SID>PrintCount()<CR>
 vn <silent> <M-n> :<C-u>call <SID>PrintCount()<CR>
 
 " Put spaces around a character/visual selection
-func! s:SpacesAround() " {{{3
+func! s:SpacesAround() " {{{
     call SaveRegs()
     if mode() == 'n'
         let ret = "s \<C-r>\" \<Esc>h`["
@@ -958,29 +963,29 @@ func! s:SpacesAround() " {{{3
     call RestoreRegs()
     silent! call repeat#set("g\<Space>")
     return ret
-endfunc " }}}3
+endfunc " }}}
 nn <silent> <expr> g<Space> <SID>SpacesAround()
 vn <silent> <expr> g<Space> <SID>SpacesAround()
 
 " Show human-readable timestamp in zsh history file
-func! s:EchoHistTime() " {{{3
+func! s:EchoHistTime() " {{{
     let line = getline(search('^:\s*\d*:', 'bcnW')) | if !len(line) | return | endif
     redraw | let fmt = len($DATEFMT) ? $DATEFMT : '%a %d%b%y %T'
     echo strftime(fmt, line[2:11])
-endfunc " }}}3
+endfunc " }}}
 autocmd VimrcAutocmds CursorMoved $HOME/.histfile call s:EchoHistTime()
 
 " Insert search match (as opposed to <C-r>/)
-func! s:InsertSearchResult() " {{{3
+func! s:InsertSearchResult() " {{{
     let view = winsaveview() | call SaveRegs()
     keepjumps normal! gny
     execute "normal! gi\<BS>\<C-r>\""
     call winrestview(view) | call RestoreRegs()
-endfunc " }}}3
+endfunc " }}}
 inoremap <silent> <C-]> x<Esc>:call <SID>InsertSearchResult()<CR>gi
 
 " Move cursor in insert mode without splitting undo
-func! s:BackWord() " {{{3
+func! s:BackWord() " {{{
     if col('.') > len(getline('.'))
         let lastwordpat =  '\v.*\zs(<.+>$|.&\k@!&\s@!)'
         let lastwordlen = len(matchstr(getline('.'), lastwordpat))
@@ -988,20 +993,20 @@ func! s:BackWord() " {{{3
     else
         return "\<Esc>:silent! undojoin\<CR>lbi"
     endif
-endfunc " }}}3
+endfunc " }}}
 inoremap <silent> <Left>  <C-r>="\<lt>Left>"<CR>
 inoremap <silent> <Right> <C-r>="\<lt>Right>"<CR>
 inoremap <silent> <expr> <C-Left> <SID>BackWord()
 inoremap <silent> <C-Right> <Esc>:silent! undojoin<CR>lwi
 
 " Check if location list (rather than quickfix)
-func! s:IsLocationList() " {{{3
+func! s:IsLocationList() " {{{
     redir => l:filename | file | redir END
     return match(l:filename, 'Location List') > -1
-endfunc " }}}3
+endfunc " }}}
 
 " Operator map to move to opening pair if outside pair else closing pair
-func! s:ToPair(visual) " {{{3
+func! s:ToPair(visual) " {{{
     let l:matchpairs = &matchpairs
     let &matchpairs = '(:),{:},[:],<:>'
     try
@@ -1026,27 +1031,27 @@ func! s:ToPair(visual) " {{{3
         let &matchpairs = l:matchpairs
         echo
     endtry
-endfunc " }}}3
+endfunc " }}}
 onoremap <silent> g[ :<C-u>call <SID>ToPair(0)<CR>
 xnoremap <silent> g[ :<C-u>call <SID>ToPair(1)<CR>
 
 " Execute q macro recursively
-func! s:RecursiveQ() " {{{3
+func! s:RecursiveQ() " {{{
     let l:q = getreg('q')
     set nowrapscan
     let @q = @q.'@q'
     normal! @q
     call setreg('q', l:q)
     set wrapscan
-endfunc " }}}3
+endfunc " }}}
 nnoremap <silent> <Leader>q :<C-u>call <SID>RecursiveQ()<CR>
 
 " Replace : with newlines and do the opposite before exiting
-func! s:Vared() " {{{3
+func! s:Vared() " {{{
     execute 'keeppatterns s/:/\r/e'.(&gdefault ? '' : 'g')
     execute 'autocmd VimLeavePre * execute "silent! keeppatterns 1,$-1s'.
         \ '/\\n\\ze\\s*\\S/:/'.(&gdefault ? '' : 'g').'e" | wq'
-endfunc " }}}3
+endfunc " }}}
 command! -nargs=0 Vared call s:Vared()
 
 " Restore `[ and `] marks after saving a file
@@ -1060,8 +1065,9 @@ func! s:RestoreMarks()
 endfunc
 autocmd VimrcAutocmds CursorMoved,TextChanged,InsertLeave * call s:SaveMarks()
 autocmd VimrcAutocmds BufWritePost * call s:RestoreMarks()
+" }}}
 
-" {{{2 GUI configuration
+" {{{ GUI configuration
 if has('gui_running')
     " Disable most visible GUI features
     set guioptions=eAc
@@ -1139,7 +1145,7 @@ else
     endfor | endfor | map <expr> <LeftMouse> winnr('$')>1?"\<F21>":"\<F22>"
 endif
 
-" }}}2
+" }}}
 
 " Create new buffer with filetype as (optional) argument
 for cmd in ['new', 'enew', 'vnew', 'tabedit']
@@ -1256,7 +1262,7 @@ augroup END
 
 " Restore previous windo after leaving insert mode
 if !exists('s:pwinid') | let s:pwinid = 0 | endif
-func! s:RestorePrevWin() " {{{3
+func! s:RestorePrevWin() " {{{
     let winnr = winnr()
     for w in range(1, winnr('$'))
         if getwinvar(w, 'pwin') == s:pwinid
@@ -1268,20 +1274,20 @@ func! s:RestorePrevWin() " {{{3
         execute l:pwin.'wincmd w'
         execute winnr.'wincmd w'
     endif
-endfunc " }}}3
+endfunc " }}}
 
 " Match highlighting
-func! s:MatchHighlights() " {{{3
+func! s:MatchHighlights() " {{{
     for n in range(1, 5)
         execute "highlight Match".n." ctermbg=".(&bg=='dark'?0:7)." ctermfg=".(7 - n).""
     endfor
-endfunc " }}}3
-func! s:MatchAdd(n) " {{{3
+endfunc " }}}
+func! s:MatchAdd(n) " {{{
     call s:MatchHighlights()
     autocmd VimrcAutocmds ColorScheme * call s:MatchHighlights()
     execute "call matchadd('Match".a:n."',  '".(substitute(@/,
         \ '^\\[vV]', '', '')=~'\u'?'':'\c').@/."', 0)"
-endfunc " }}}3
+endfunc " }}}
 for n in range(1, 5)
     execute 'nnoremap <silent> <Leader>h'.n.' :<C-u>call <SID>MatchAdd('.n.')<CR>'
 endfor
@@ -1312,7 +1318,7 @@ let maps_pattern = '\v<([lnvx]n%[oremap]|([cilovx]u)%[nmap]|'.
     \'([cilnosvx]|un|sun)m%[ap]|map|nun%[map]|smap|snor%[emap])>'
 
 " Abbreviation template
-func! s:CreateAbbrev(lhs, rhs, cmdtype, ...) " {{{3
+func! s:CreateAbbrev(lhs, rhs, cmdtype, ...) " {{{
     if a:0
         execute 'cnoreabbrev <expr> '.a:lhs.' getcmdtype() =~ "['.a:cmdtype
             \ .']" && getcmdline() == '''.a:1.a:lhs.''' ? "'.a:rhs.'" : "'.a:lhs.'"'
@@ -1320,7 +1326,7 @@ func! s:CreateAbbrev(lhs, rhs, cmdtype, ...) " {{{3
         execute 'cnoreabbrev <expr> '.a:lhs.' getcmdtype() =~ "['.a:cmdtype
             \ .']" && getcmdpos() <= '.(len(a:lhs) + 1).' ? "'.a:rhs.'" : "'.a:lhs.'"'
     endif
-endfunc " }}}3
+endfunc " }}}
 let ls_sort = has('mac') ? ' --sort=none' : ''
 call s:CreateAbbrev('ve',   'verbose',                         ':'   )
 call s:CreateAbbrev('so',   'source',                          ':'   )
@@ -1379,8 +1385,9 @@ snoremap \| <C-g>"_c\|
 for c in range(33, 124) + [126]
     execute "snoremap ".escape(nr2char(c), '|')." <C-g>\"_c".escape(nr2char(c), '|')
 endfor
+" }}}
 
-" {{{1 Plugin configuration
+" {{{ Plugin configuration
 
 " Make empty list of disabled plugins
 if !exists('g:pathogen_disabled')
@@ -1440,7 +1447,7 @@ autocmd VimrcAutocmds CursorMovedI,InsertLeave c,cpp
 " Commentary configuration
 let g:commentary_map_backslash=0
 
-" {{{2 Completion settings
+" {{{ Completion settings
 if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
     call add(g:pathogen_disabled, 'supertab')
 
@@ -1508,20 +1515,21 @@ else
     smap <C-d> <Plug>(neosnippet_expand_or_jump)
     silent! set shortmess+=c
 endif
+" }}}
 
-" {{{2 Sneak settings
+" {{{ Sneak settings
 let g:sneak#streak=1
 let g:sneak#use_ic_scs=1
 autocmd VimrcAutocmds ColorScheme * call s:SneakHighlights()
-func! s:SneakHighlights() " {{{3
+func! s:SneakHighlights() " {{{
     let fg = &background == 'dark' ? 8 : 15 | let gui = 'gui=reverse guifg=#'
     execute "highlight! SneakPluginTarget ctermfg=".fg." ctermbg=4 ".gui."268bd2"
     execute "highlight! SneakStreakTarget cterm=bold ctermfg="fg." ctermbg=2 ".gui."859900"
     execute "highlight! SneakStreakMask ctermfg=".(fg-8)." ctermbg=2 ".gui."859900"
     execute "highlight! SneakStreakCursor ctermfg=".fg." ctermbg=1 ".gui."dc322f"
     highlight! link SneakStreakStatusLine StatusLine
-endfunc " }}}3
-func! s:SneakMaps() " {{{3
+endfunc " }}}
+func! s:SneakMaps() " {{{
     if exists('g:loaded_sneak_plugin')
         for mode in ['n', 'x', 'o']
             for l in ['f', 't']
@@ -1535,11 +1543,12 @@ func! s:SneakMaps() " {{{3
         endfor
         nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
     endif
-endfunc " }}}3
+endfunc " }}}
 autocmd VimrcAutocmds VimEnter * call s:SneakMaps()
 call s:SneakMaps()
+" }}}
 
-" {{{2 VimFiler settings
+" {{{ VimFiler settings
 nnoremap <silent> - :VimFilerBufferDir -force-quit -find<CR>
 nnoremap <silent> <C-_> :VimFilerCurrentDir -force-quit -find<CR>
 let g:vimfiler_as_default_explorer=1
@@ -1553,7 +1562,7 @@ let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_ignore_pattern='^\.\|\.[do]$\|\.pyc$'
 let g:vimfiler_restore_alternate_file=0
 autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
-func! s:VimfilerSettings() " {{{3
+func! s:VimfilerSettings() " {{{
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
     nmap <buffer> <M-m> <Plug>(vimfiler_move_file)
     nmap <buffer> <BS>  <Plug>(vimfiler_close)
@@ -1568,9 +1577,10 @@ func! s:VimfilerSettings() " {{{3
     nmap <buffer> gN    <Plug>(vimfiler_new_file)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> N"
-endfunc " }}}3
+endfunc " }}}
+" }}}
 
-" {{{2 Unite settings
+" {{{ Unite settings
 let g:unite_source_history_yank_enable=1
 let g:unite_source_history_yank_limit=500
 let g:unite_split_rule='botright'
@@ -1588,7 +1598,7 @@ augroup VimrcAutocmds
     autocmd FileType unite call s:UniteSettings()
     autocmd CursorHold * silent! call unite#sources#history_yank#_append()
 augroup END
-func! s:UniteSettings() " {{{3
+func! s:UniteSettings() " {{{
     setlocal conceallevel=0
     augroup vimrc_unite
         autocmd CursorMoved,CursorMovedI,BufEnter <buffer>
@@ -1648,7 +1658,7 @@ func! s:UniteSettings() " {{{3
     inor <buffer> . \.
     inor <buffer> \. .
     sil! nunmap <buffer> ?
-endfunc " }}}3
+endfunc " }}}
 nn <silent> "" :<C-u>Unite -prompt-direction=top history/yank<CR>
 nn <silent> "' :<C-u>Unite -prompt-direction=top register<CR>
 nn <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
@@ -1674,7 +1684,7 @@ nn <silent> <F1> :<C-u>Unite -prompt-direction=top mapping<CR>
 nnoremap <silent> <Leader>w :ccl\|lcl\|winc z\|sil! UniteClose<CR>
 nnoremap <silent> ,u :UniteResume<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
-func! s:UniteTogglePathSearch() " {{{3
+func! s:UniteTogglePathSearch() " {{{
     if s:UnitePathSearchMode
         call unite#custom#source('buffer,neomru/file','matchers',
             \ ['matcher_regexp'])
@@ -1689,8 +1699,8 @@ func! s:UniteTogglePathSearch() " {{{3
         let s:UnitePathSearchMode=1
     endif
     return ''
-endfunc " }}}3
-func! s:UniteSetup() " {{{3
+endfunc " }}}
+func! s:UniteSetup() " {{{
     call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context', {'start_insert': 1})
@@ -1699,9 +1709,8 @@ func! s:UniteSetup() " {{{3
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor
-endfunc " }}}3
-
-" }}}2
+endfunc " }}}
+" }}}
 
 " Undotree/Gundo settings
 if has('python')
@@ -1744,7 +1753,7 @@ let g:ack_apply_lmappings=0
 let g:ack_apply_qmappings=0
 cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'A'
 cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'a'
-func! s:AckCurrentSearch(ignorecase) " {{{3
+func! s:AckCurrentSearch(ignorecase) " {{{
     let view = winsaveview() | call SaveRegs()
     keepjumps normal gny
     call winrestview(view)
@@ -1763,7 +1772,7 @@ func! s:AckCurrentSearch(ignorecase) " {{{3
     execute cmd | call histadd(':', cmd) | cwindow
     if &buftype == 'quickfix' | execute "normal! gg" | endif
     call RestoreRegs()
-endfunc " }}}3
+endfunc " }}}
 nnoremap <silent> ga :<C-u>call <SID>AckCurrentSearch(1)<CR>
 nnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0)<CR>
 if !exists('g:ag_flags') | let g:ag_flags = '' | endif
@@ -1837,13 +1846,13 @@ let VCSCommandDisableMappings = 1
 let VCSCommandCVSDiffOpt = '--internal-diff'
 
 " jedi settings
-func! s:JediSetup() " {{{3
+func! s:JediSetup() " {{{
     if exists('*jedi#completions') && &omnifunc != 'CompleteIPython'
         setlocal omnifunc=jedi#completions
         inoremap <silent> <buffer> . .<C-R>=jedi#complete_string(1)<CR>
         nnoremap <buffer> <M-]> :<C-u>call jedi#goto_definitions()<CR>zv
     endif
-endfunc " }}}3
+endfunc " }}}
 autocmd VimrcAutocmds FileType python call s:JediSetup()
 let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#popup_select_first = 0
@@ -1898,10 +1907,10 @@ nnoremap <C-w><C-^> :<C-u>FSSplitRight<CR>
 nnoremap <C-w>g<C-^> :<C-u>FSSplitBelow<CR>
 
 " Scriptease settings
-func! s:ScripteaseMaps() " {{{3
+func! s:ScripteaseMaps() " {{{
     nnoremap <buffer> <Leader>bb :<C-u>Breakadd<CR>
     nnoremap <buffer> <Leader>bc :<C-u>Breakdel *<CR>
-endfunc " }}}3
+endfunc " }}}
 autocmd VimrcAutocmds FileType vim call s:ScripteaseMaps()
 
 " Unmap DirDiff unique maps
@@ -2012,5 +2021,5 @@ if !exists('colors_name') || colors_name != 'solarized'
     set background=dark
     sil! colorscheme solarized
 endif
-
+" }}}
 " vim: fdm=marker fdl=1:
