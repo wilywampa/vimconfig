@@ -65,11 +65,7 @@ function! ShortCWD()
         let s:wsPrev=''
     endif
 
-    let git = 0
-    silent! let head = fugitive#head()
-    if g:airline_powerline_fonts && exists('head') && len(head)
-        let git = 1
-    endif
+    let git = exists('b:git_dir') && len(b:git_dir)
 
     if &buftype == 'help'
         let s:cwdMaxLen=winwidth(0)-strlen(expand('%:t'))-37+(git?2:0)
