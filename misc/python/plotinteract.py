@@ -237,7 +237,8 @@ class DataObj(object):
                 prefix_len = len(re.split(r'\W', before_text)[-1].strip())
                 scale_box.setText(before_text[:cursor_pos - prefix_len] +
                                   text + after_text)
-                scale_box.setCursorPosition(cursor_pos - prefix_len + len(text))
+                scale_box.setCursorPosition(cursor_pos -
+                                            prefix_len + len(text))
 
             connect(scale_box, SIGNAL('editingFinished()'), draw)
             connect(scale_box, SIGNAL('textChanged(QString)'), text_changed)
