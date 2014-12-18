@@ -219,6 +219,11 @@ class DataObj():
         self.scale_box, self.scale_compl = new_scale_box()
         self.xscale_box, self.xscale_compl = new_scale_box()
 
+        self.dup_button = QtGui.QToolButton()
+        self.dup_button.setText('+')
+        self.dup_button.clicked.connect(self.duplicate)
+        self.dup_button.resize(20, 10)
+
     def text_changed(self, text, box, completer):
         cursor_pos = box.cursorPosition()
         text = unicode(box.text())[:cursor_pos]
@@ -249,6 +254,15 @@ class DataObj():
     def ycomplete_text(self, text):
         self.complete_text(text, self.scale_box)
 
+    def duplicate(self):
+        self.parent.add_data(self.obj,
+                             self.name,
+                             self.xmenu.lineEdit().text(),
+                             self.labels)
+        menu = self.parent.datas[-1].menu
+        menu.setCurrentIndex(menu.findText(self.menu.lineEdit().text()))
+        self.parent.set_layout()
+
 
 class Interact(QtGui.QMainWindow):
 
@@ -272,17 +286,20 @@ class Interact(QtGui.QMainWindow):
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
 
-        vbox = QtGui.QVBoxLayout()
-        vbox.addWidget(self.mpl_toolbar)
+        self.vbox = QtGui.QVBoxLayout()
+        self.vbox.addWidget(self.mpl_toolbar)
 
         self.datas = []
         for d in data:
             self.add_data(*d)
-        vbox.addLayout(self.grid)
 
-        vbox.addWidget(self.canvas)
+        self.vbox.addLayout(self.grid)
+        self.set_layout()
 
-        self.frame.setLayout(vbox)
+    def set_layout(self):
+        self.vbox.addWidget(self.canvas)
+
+        self.frame.setLayout(self.vbox)
         self.setCentralWidget(self.frame)
 
         self.draw()
@@ -332,6 +349,7 @@ class Interact(QtGui.QMainWindow):
         add_widget(data.xmenu)
         add_widget(data.xscale_label)
         add_widget(data.xscale_box)
+        add_widget(data.dup_button)
 
     def get_scale(self, textbox, completer):
         completer.close_popup()
