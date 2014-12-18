@@ -147,7 +147,7 @@ class AutoCompleteComboBox(QtGui.QComboBox):
         self.completer.setModel(self.model())
 
 
-class DataObj(object):
+class DataObj():
 
     def __init__(self, parent, obj, name, xname, labels):
         self.parent = parent
