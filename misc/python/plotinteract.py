@@ -147,13 +147,15 @@ class AutoCompleteComboBox(QtGui.QComboBox):
         self.completer.setModel(self.model())
 
 
-class DataObj():
+class DataObj(object):
 
     def __init__(self, parent, obj, name, xname, labels):
         self.parent = parent
         self.obj = obj
         self.name = name
         self.labels = labels or name
+        draw = self.parent.draw
+        connect = self.parent.connect
 
         self.label = QtGui.QLabel(name + ':', parent=self.parent)
         self.scale_label = QtGui.QLabel('scale:', parent=self.parent)
@@ -192,6 +194,8 @@ class DataObj():
             menu.setMaxVisibleItems(50)
             completer = menu.completer
             completer.set_textbox(menu)
+            connect(menu, SIGNAL('activated(int)'), draw)
+            connect(completer, SIGNAL('activated(int)'), draw)
 
             return completer, menu
 
@@ -214,6 +218,28 @@ class DataObj():
             scale_box.setText('1.0')
             scale_compl.set_textbox(scale_box)
 
+            def text_changed(text):
+                cursor_pos = scale_box.cursorPosition()
+                text = unicode(scale_box.text())[:cursor_pos]
+                prefix = re.split(r'\W', text)[-1].strip()
+                scale_compl.setCompletionPrefix(prefix)
+                scale_compl.complete()
+                scale_compl.select_completion(0)
+
+            def complete_text(text):
+                text = unicode(text)
+                cursor_pos = scale_box.cursorPosition()
+                before_text = unicode(scale_box.text())[:cursor_pos]
+                after_text = unicode(scale_box.text())[cursor_pos:]
+                prefix_len = len(re.split(r'\W', before_text)[-1].strip())
+                scale_box.setText(before_text[:cursor_pos - prefix_len] +
+                            text + after_text)
+                scale_box.setCursorPosition(cursor_pos - prefix_len + len(text))
+
+            connect(scale_box, SIGNAL('editingFinished()'), draw)
+            connect(scale_box, SIGNAL('textChanged(QString)'), text_changed)
+            connect(scale_compl, SIGNAL('activated(QString)'), complete_text)
+
             return scale_box, scale_compl
 
         self.scale_box, self.scale_compl = new_scale_box()
@@ -223,36 +249,6 @@ class DataObj():
         self.dup_button.setText('+')
         self.dup_button.clicked.connect(self.duplicate)
         self.dup_button.resize(20, 10)
-
-    def text_changed(self, text, box, completer):
-        cursor_pos = box.cursorPosition()
-        text = unicode(box.text())[:cursor_pos]
-        prefix = re.split(r'\W', text)[-1].strip()
-        completer.setCompletionPrefix(prefix)
-        completer.complete()
-        completer.select_completion(0)
-
-    def xtext_changed(self, text):
-        self.text_changed(text, self.xscale_box, self.xscale_compl)
-
-    def ytext_changed(self, text):
-        self.text_changed(text, self.scale_box, self.scale_compl)
-
-    def complete_text(self, text, box):
-        text = unicode(text)
-        cursor_pos = box.cursorPosition()
-        before_text = unicode(box.text())[:cursor_pos]
-        after_text = unicode(box.text())[cursor_pos:]
-        prefix_len = len(re.split(r'\W', before_text)[-1].strip())
-        box.setText(before_text[:cursor_pos - prefix_len] +
-                    text + after_text)
-        box.setCursorPosition(cursor_pos - prefix_len + len(text))
-
-    def xcomplete_text(self, text):
-        self.complete_text(text, self.xscale_box)
-
-    def ycomplete_text(self, text):
-        self.complete_text(text, self.scale_box)
 
     def duplicate(self):
         self.parent.add_data(self.obj,
@@ -307,23 +303,6 @@ class Interact(QtGui.QMainWindow):
     def add_data(self, obj, name, xname, labels=None):
         self.datas.append(DataObj(self, obj, name, xname, labels))
         data = self.datas[-1]
-
-        self.connect(data.menu, SIGNAL('activated(int)'), self.draw)
-        self.connect(data.completer, SIGNAL('activated(int)'), self.draw)
-        self.connect(data.xmenu, SIGNAL('activated(int)'), self.draw)
-        self.connect(data.xcompleter, SIGNAL('activated(int)'), self.draw)
-
-        self.connect(data.scale_box, SIGNAL('editingFinished()'), self.draw)
-        self.connect(data.scale_box, SIGNAL('textChanged(QString)'),
-                     data.ytext_changed)
-        self.connect(data.scale_compl, SIGNAL('activated(QString)'),
-                     data.ycomplete_text)
-
-        self.connect(data.xscale_box, SIGNAL('editingFinished()'), self.draw)
-        self.connect(data.xscale_box, SIGNAL('textChanged(QString)'),
-                     data.xtext_changed)
-        self.connect(data.xscale_compl, SIGNAL('activated(QString)'),
-                     data.xcomplete_text)
 
         self.column = 0
 
