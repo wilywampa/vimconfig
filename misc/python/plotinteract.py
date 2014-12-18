@@ -160,12 +160,24 @@ class DataObj():
         self.xscale_label = QtGui.QLabel('scale:', parent=self.parent)
 
         def flatten(d, prefix=''):
+            """Join nested keys with '.' and unstack arrays."""
             out = {}
             for k in d.keys():
                 if isinstance(d[k], dict):
                     out.update(flatten(d[k], k))
                 else:
-                    out[(prefix + '.' if prefix else '') + k] = d[k]
+                    key = (prefix + '.' if prefix else '') + k
+                    out[key] = d[k]
+                    if isinstance(out[key], np.ndarray) and out[key].ndim > 2:
+                        queue = [key]
+                        while queue:
+                            key = queue.pop()
+                            array = out.pop(key)
+                            new = {key + '[%d]' % i: array[i, ..., :]
+                                   for i in range(array.shape[0])}
+                            out.update(new)
+                            queue.extend([q for q in new.keys()
+                                          if new[q].ndim > 2])
             return out
 
         self.obj = flatten(self.obj)
