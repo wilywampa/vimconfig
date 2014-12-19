@@ -315,6 +315,16 @@ class Interact(QtGui.QMainWindow):
         self.frame.setLayout(self.vbox)
         self.setCentralWidget(self.frame)
 
+        for data in self.datas:
+            self.setTabOrder(data.menu, data.scale_box)
+            self.setTabOrder(data.scale_box, data.xmenu)
+            self.setTabOrder(data.xmenu, data.xscale_box)
+            self.setTabOrder(data.xscale_box, data.dup_button)
+
+        if len(self.datas) >= 2:
+            for d1, d2 in zip(self.datas[:-1], self.datas[1:]):
+                self.setTabOrder(d1.menu, d2.menu)
+
         self.draw()
 
     def add_data(self, obj, name, xname, labels=None):
