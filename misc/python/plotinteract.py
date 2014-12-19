@@ -98,6 +98,7 @@ class TabCompleter(QtGui.QCompleter):
                      self.select_completion)
         self.connect(self.textbox, SIGNAL('activated(int)'), self.close_popup)
         self.connect(self.textbox, SIGNAL('closed()'), self.close_popup)
+        self.connect(self.textbox, SIGNAL('returnPressed()'), self.confirm)
 
     def select_completion(self, direction):
         if not self.popup().selectionModel().hasSelection():
@@ -113,8 +114,11 @@ class TabCompleter(QtGui.QCompleter):
         popup = self.popup()
         if popup.isVisible():
             self.select_completion(0)
-            self.emit(SIGNAL('activated(QString)'), self.currentCompletion())
+            self.confirm()
             popup.close()
+
+    def confirm(self):
+        self.emit(SIGNAL('activated(QString)'), self.currentCompletion())
 
 
 class CustomQCompleter(TabCompleter):
@@ -200,7 +204,8 @@ class DataObj(object):
             menu.setMaxVisibleItems(50)
             completer = menu.completer
             completer.set_textbox(menu)
-            connect(menu, SIGNAL('activated(int)'), draw)
+
+            connect(menu, SIGNAL('activated(QString)'), draw)
             connect(completer, SIGNAL('activated(int)'), draw)
 
             return completer, menu
