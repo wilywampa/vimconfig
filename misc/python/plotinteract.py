@@ -269,8 +269,11 @@ class DataObj(object):
                              self.name,
                              self.xmenu.lineEdit().text(),
                              self.labels)
-        menu = self.parent.datas[-1].menu
-        menu.setCurrentIndex(menu.findText(self.menu.lineEdit().text()))
+        data = self.parent.datas[-1]
+        data.menu.setCurrentIndex(self.menu.currentIndex())
+        data.scale_box.setText(self.scale_box.text())
+        data.xmenu.setCurrentIndex(self.xmenu.currentIndex())
+        data.xscale_box.setText(self.xscale_box.text())
         self.parent.set_layout()
 
 
