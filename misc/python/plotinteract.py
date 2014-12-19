@@ -39,12 +39,8 @@ def flatten(d, prefix=''):
     return out
 
 
-def handle_key(self, event, parent):
+def handle_key(self, event, parent, lineEdit):
     if event.type() == QtCore.QEvent.KeyPress:
-        try:
-            lineEdit = self.lineEdit()
-        except AttributeError:
-            lineEdit = self
         if (event.key() == QtCore.Qt.Key_W and event.modifiers() &
                 CONTROL_MODIFIER):
             if lineEdit.selectionStart() == -1:
@@ -67,6 +63,8 @@ def handle_key(self, event, parent):
             elif event.key() == QtCore.Qt.Key_Backtab:
                 self.emit(SIGNAL('tabPressed(int)'), -1)
                 return True
+            elif event.key() == QtCore.Qt.Key_Return:
+                self.emit(SIGNAL('returnPressed()'))
 
     return parent.event(self, event)
 
@@ -78,7 +76,11 @@ def KeyHandler(parent):
             self.completer = completer
 
         def event(self, event):
-            return handle_key(self, event, parent)
+            try:
+                lineEdit = self.lineEdit()
+            except AttributeError:
+                lineEdit = self
+            return handle_key(self, event, parent, lineEdit)
 
     return KeyHandlerClass
 
