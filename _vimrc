@@ -246,7 +246,7 @@ nn <Leader>gn :grep *(D.) -e ''<Left>
 nn <Leader>go :call setqflist([])<CR>:silent! Bufdo! grepa '' %<C-Left><C-Left><Right>
 
 " Delete trailing whitespace
-nn <silent> <expr> ,ws ":keepj keepp sil! %s/\\s\\+$//".(&gdefault ? "" : "g")."\<CR>"
+nn <silent> <expr> ,ws ':keepj keepp sil! %s/\s\+$//'.(&gdefault ? '' : 'g').'<CR>'
 
 " Open tag vertically or below
 nn <silent> <C-w><C-]> :<C-u>execute "normal! :belowright vertical
