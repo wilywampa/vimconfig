@@ -17,6 +17,28 @@ else:
     CONTROL_MODIFIER = QtCore.Qt.ControlModifier
 
 
+def flatten(d, prefix=''):
+    """Join nested keys with '.' and unstack arrays."""
+    out = {}
+    for key, value in d.iteritems():
+        if isinstance(value, dict):
+            out.update(flatten(value, key))
+        else:
+            key = (prefix + '.' if prefix else '') + key
+            out[key] = value
+            if isinstance(value, np.ndarray) and value.ndim > 2:
+                queue = [key]
+                while queue:
+                    key = queue.pop()
+                    array = out.pop(key)
+                    new = {key + '[%d]' % i: a
+                           for i, a in enumerate(array)}
+                    out.update(new)
+                    queue.extend([q for q in new.keys()
+                                  if new[q].ndim > 2])
+    return out
+
+
 def handle_key(self, event, parent):
     if event.type() == QtCore.QEvent.KeyPress:
         try:
@@ -163,27 +185,6 @@ class DataObj(object):
         self.label = QtGui.QLabel(name + ':', parent=self.parent)
         self.scale_label = QtGui.QLabel('scale:', parent=self.parent)
         self.xscale_label = QtGui.QLabel('scale:', parent=self.parent)
-
-        def flatten(d, prefix=''):
-            """Join nested keys with '.' and unstack arrays."""
-            out = {}
-            for k in d.keys():
-                if isinstance(d[k], dict):
-                    out.update(flatten(d[k], k))
-                else:
-                    key = (prefix + '.' if prefix else '') + k
-                    out[key] = d[k]
-                    if isinstance(out[key], np.ndarray) and out[key].ndim > 2:
-                        queue = [key]
-                        while queue:
-                            key = queue.pop()
-                            array = out.pop(key)
-                            new = {key + '[%d]' % i: array[i, ..., :]
-                                   for i in range(array.shape[0])}
-                            out.update(new)
-                            queue.extend([q for q in new.keys()
-                                          if new[q].ndim > 2])
-            return out
 
         self.obj = flatten(self.obj)
         words = [k for k in self.obj.keys()
