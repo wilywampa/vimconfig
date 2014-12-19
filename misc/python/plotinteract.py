@@ -384,6 +384,14 @@ class Interact(QtGui.QMainWindow):
     def canvas_key_press(self, event):
         key_press_handler(event, self.canvas, self.mpl_toolbar)
 
+    def event(self, event):
+        if (event.type() == QtCore.QEvent.KeyPress and
+            event.key() == QtCore.Qt.Key_Q and
+                event.modifiers() & CONTROL_MODIFIER):
+            self.window().close()
+            return True
+        return super(Interact, self).event(event)
+
 
 def merge_dicts(*dicts):
     """Pad and concatenate arrays present in all input dictionaries."""
