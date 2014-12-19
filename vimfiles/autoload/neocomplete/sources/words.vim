@@ -37,7 +37,7 @@ EOF
 endfunction
 
 function! s:source.hooks.on_init(context)
-    call <SID>UpdateWordList()
+    call s:UpdateWordList()
 endfunction
 
 function! s:source.gather_candidates(context)
@@ -50,7 +50,7 @@ endfunction
 
 augroup words_complete
     autocmd!
-    autocmd BufWinEnter,BufWrite,CmdwinEnter * call <SID>UpdateWordList()
+    autocmd BufWinEnter,BufWrite,CmdwinEnter * call s:UpdateWordList()
 augroup END
 
 let &cpo = s:save_cpo
