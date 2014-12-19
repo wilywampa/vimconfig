@@ -380,8 +380,7 @@ class Interact(QtGui.QMainWindow):
                 for i, l in enumerate(d.labels):
                     self.axes.plot(d.obj[xtext][..., i] * xscale,
                                    d.obj[text][..., i] * scale,
-                                   label=d.labels[i],
-                                   linestyle=self.get_line_style())
+                                   label=l, linestyle=self.get_line_style())
             else:
                 self.axes.plot(d.obj[xtext] * xscale, d.obj[text] * scale,
                                label=d.labels,
