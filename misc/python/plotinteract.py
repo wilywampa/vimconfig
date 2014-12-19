@@ -243,10 +243,12 @@ class DataObj(object):
                 before_text = unicode(scale_box.text())[:cursor_pos]
                 after_text = unicode(scale_box.text())[cursor_pos:]
                 prefix_len = len(re.split(r'\W', before_text)[-1].strip())
-                scale_box.setText(before_text[:cursor_pos - prefix_len] +
-                                  text + after_text)
-                scale_box.setCursorPosition(cursor_pos -
-                                            prefix_len + len(text))
+                part = before_text[-prefix_len:]
+                if text.startswith(part):
+                    scale_box.setText(before_text[:cursor_pos - prefix_len] +
+                                      text + after_text)
+                    scale_box.setCursorPosition(cursor_pos -
+                                                prefix_len + len(text))
 
             connect(scale_box, SIGNAL('editingFinished()'), draw)
             connect(scale_box, SIGNAL('textChanged(QString)'), text_changed)
