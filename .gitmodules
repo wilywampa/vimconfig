@@ -229,3 +229,6 @@
 [submodule "misc/fzf"]
 	path = misc/fzf
 	url = https://github.com/wilywampa/fzf.git
+[submodule "vimfiles/bundle/ruby"]
+	path = vimfiles/bundle/ruby
+	url = https://github.com/vim-ruby/vim-ruby.git
