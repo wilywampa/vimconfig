@@ -1361,6 +1361,7 @@ call s:CreateAbbrev('ll',   'ls -lsh --color=auto'.ls_sort,    ':',  '!')
 call s:CreateAbbrev('lls',  'ls -lshrt --color=auto'.ls_sort,  ':',  '!')
 call s:CreateAbbrev('lla',  'ls -lshA --color=auto'.ls_sort,   ':',  '!')
 call s:CreateAbbrev('llas', 'ls -lshrtA --color=auto'.ls_sort, ':',  '!')
+call s:CreateAbbrev('py',   'python %',                        ':',  '!')
 if has('win32unix') || has('win64unix')
     call s:CreateAbbrev('open', 'cygstart', ':', '!')
 endif
