@@ -343,21 +343,23 @@ endfunction
 
 " Function abbreviations
 function! vimtools#FuncAbbrevs()
-  let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
+  let cmds = strpart(getcmdline(), 0, getcmdpos() - 1)
   if getcmdtype() =~ '[:=>]'
     let cmd = getcmdline()
-    if     cmdstart=~'\v<nr2%[cha]$'     | return substitute(cmd,'\v<nr2%[cha]$','nr2char(','')
-    elseif cmdstart=~'\v<ch2%[nr]$'      | return substitute(cmd,'\v<ch2%[n]$','char2nr(','')
-    elseif cmdstart=~'\v<getl%[in]$'     | return substitute(cmd,'\v<getl%[in]$','getline(','')
-    elseif cmdstart=~'\v<sys%[te]$'      | return substitute(cmd,'\v<sys%[te]$','system(','')
-    elseif cmdstart=~'\v<pr%[int]$'      | return substitute(cmd,'\v<pr%[int]$','printf(','')
-    elseif cmdstart=~'\v<ex%[pand]$'     | return substitute(cmd,'\v<ex%[pand]$','expand(','')
-    elseif cmdstart=~'\v<s%[ubstitute]$' | return substitute(cmd,'\v<s%[ubstitute]$','substitute(','')
+    if     cmds=~'\v<nr2%[cha]$'     |let cmds=substitute(cmds,'\v<nr2%[cha]$','nr2char(','')
+    elseif cmds=~'\v<ch2%[nr]$'      |let cmds=substitute(cmds,'\v<ch2%[n]$','char2nr(','')
+    elseif cmds=~'\v<getl%[in]$'     |let cmds=substitute(cmds,'\v<getl%[in]$','getline(','')
+    elseif cmds=~'\v<sys%[te]$'      |let cmds=substitute(cmds,'\v<sys%[te]$','system(','')
+    elseif cmds=~'\v<pr%[in]$'       |let cmds=substitute(cmds,'\v<pr%[in]$','printf(','')
+    elseif cmds=~'\v<ex%[pand]$'     |let cmds=substitute(cmds,'\v<ex%[pand]$','expand(','')
+    elseif cmds=~'\v<s%[ubstitute]$' |let cmds=substitute(cmds,'\v<s%[ubstitute]$','substitute(','')
     endif
   endif
   let cmdend = strpart(getcmdline(), getcmdpos() - 1)
-  call setcmdpos(getcmdpos() + 1)
-  return cmdstart.'('.cmdend
+  if getcmdtype() =~ '[:>]'
+    call setcmdpos(len(cmds) + 1)
+  endif
+  return cmds.cmdend
 endfunction
 
 function! vimtools#opfunc(type) abort
