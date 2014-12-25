@@ -1931,7 +1931,11 @@ nnoremap <Leader>L :<C-u>execute 'file '.resolve(expand('%:p'))<bar>
     \ if exists('b:git_dir') && len(b:git_dir)<bar>doautocmd User Fugitive<bar>
     \ else<bar>silent! unlet b:git_dir<bar>endif<CR>
 
-" Vim function motion maps
+" CountJump maps
+autocmd VimrcAutocmds FileType cpp
+    \ silent! call
+    \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'm', 'ai', 'V',
+    \                                              '^{\s*$', '^}\s*$')
 autocmd VimrcAutocmds FileType vim
     \ let s:patternFunctionBegin = '^\s*fu\%[nction]\>' |
     \ let s:patternFunctionEnd = '^\s*endf*\%[unction]\>' |
@@ -1943,6 +1947,9 @@ autocmd VimrcAutocmds FileType vim
     \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'm', 'ai', 'V',
     \                                              s:patternFunctionBegin,
     \                                              s:patternFunctionEnd)
+
+" AnsiEsc map
+nnoremap <Leader>A :<C-u>AnsiEsc<CR>
 
 " Import scripts
 call plug#begin('$VIMCONFIG/vimfiles/bundle')
