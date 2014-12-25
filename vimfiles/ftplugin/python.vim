@@ -53,11 +53,15 @@ let s:errorformat .= '%-G%.%#'
 
 if !exists('*s:IPyRunPrompt')
   function! s:IPyRunIPyInput()
-    redraw
-    " Remove leading and trailing blank lines
-    let g:ipy_input = join(split(g:ipy_input, "\n"), "\n")
-    python run_ipy_input()
-    unlet g:ipy_input
+    if exists('b:did_ipython')
+      redraw
+      " Remove leading and trailing blank lines
+      let g:ipy_input = join(split(g:ipy_input, "\n"), "\n")
+      python run_ipy_input()
+      unlet g:ipy_input
+    else
+      echo 'Not connected to IPython'
+    endif
   endfunction
 
   function! s:IPyRunPrompt()
@@ -105,11 +109,16 @@ if !exists('*s:IPyRunPrompt')
     call s:IPyRunIPyInput()
   endfunction
 
-  function! s:IPyVarInfo()
-    call SaveRegs()
-    normal! gvy
-    let g:ipy_input = 'from plottools import varinfo; varinfo('.@".')'
-    call RestoreRegs()
+  function! s:IPyVarInfo(...)
+    if a:0 > 0
+      let input = expand('<cword>')
+    else
+      call SaveRegs()
+      normal! gvy
+      let input = @"
+      call RestoreRegs()
+    endif
+    let g:ipy_input = 'from plottools import varinfo; varinfo('.input.')'
     call s:IPyRunIPyInput()
   endfunction
 
@@ -233,6 +242,7 @@ nnoremap <silent> <buffer> <Leader><Leader>cl :<C-u>call <SID>IPyCloseWindows()<
 nnoremap <silent>          ,pp :<C-u>call <SID>IPyPing()<CR>
 xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>IPyPrintVar()<CR>
 xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
+nnoremap <silent> <buffer> <M-P> :<C-u>call <SID>IPyVarInfo(1)<CR>
 xnoremap <silent> <buffer> K     :<C-u>call <SID>IPyGetHelp()<CR>
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
