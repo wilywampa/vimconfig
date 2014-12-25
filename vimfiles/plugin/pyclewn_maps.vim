@@ -11,6 +11,7 @@ function! s:PyclewnMaps()
     nnoremap <buffer> <M-n> :C next<CR>
     nnoremap <buffer> <C-n> :C next<CR>
     nnoremap <buffer> <M-p> :execute "C print ".expand('<cword>')<CR>
+    nnoremap <buffer> <M-P> :execute "C display ".expand('<cword>')<CR>
     nnoremap <M-u> :C up<CR>
     nnoremap <buffer> <M-x> :execute "C print *".expand('<cword>')<CR>
     nnoremap <M-z> :C sigint<CR>
@@ -26,6 +27,7 @@ function! s:PyclewnMaps()
     nnoremap <M-X> :execute "C foldvar ."line('.')<CR>
     vnoremap <buffer> <silent> <C-p> :<C-u>call SaveRegs()<CR>gvy:C print <C-r>"<CR>:call RestoreRegs()<CR>
     vnoremap <buffer> <silent> <M-p> :<C-u>call SaveRegs()<CR>gvy:C print *<C-r>"<CR>:call RestoreRegs()<CR>
+    vnoremap <buffer> <silent> <M-P> :<C-u>call SaveRegs()<CR>gvy:C display <C-r>"<CR>:call RestoreRegs()<CR>
     nnoremap <buffer> <M-w> :wincmd t<CR>:resize 15<CR>:set winfixheight wrap linebreak<CR>
     cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'Cprint':'Cp')
 
