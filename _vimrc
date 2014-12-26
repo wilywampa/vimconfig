@@ -127,7 +127,7 @@ xnoremap <silent> <M-'> '
 let hasMac=has("mac")
 let hasWin=has("win16") || has("win32") || has("win64")
 let hasSSH=!empty($SSH_CLIENT)
-let mobileSSH=hasMac && $MOBILE == 1
+let mobileSSH=hasSSH && $MOBILE == 1
 
 if hasWin
     " Change where backups are saved
@@ -584,6 +584,7 @@ func! s:KeyCodes() " {{{
     exec "set <M-\\|>=\<Esc>\\| <M-'>=\<Esc>'"
 endfunc " }}}
 nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
+if mobileSSH | call s:KeyCodes() | endif
 
 func! s:CmdwinMappings() " {{{
     " Make 'gf' work in command window
@@ -1130,8 +1131,10 @@ else
     autocmd VimrcAutocmds VimEnter * set t_ut=
 
     " Use block cursor in normal mode and bar cursor in insert mode
-    let &t_SI = "\<Esc>[5 q"
-    let &t_EI = "\<Esc>[1 q"
+    if !mobileSSH
+        let &t_SI = "\<Esc>[5 q"
+        let &t_EI = "\<Esc>[1 q"
+    endif
 
     " Disable italics (set italics mode = italics end)
     let &t_ZH = &t_ZR
