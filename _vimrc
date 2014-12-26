@@ -1849,7 +1849,6 @@ let VCSCommandCVSDiffOpt = '--internal-diff'
 func! s:JediSetup() " {{{
     if exists('*jedi#completions') && &omnifunc != 'CompleteIPython'
         setlocal omnifunc=jedi#completions
-        inoremap <silent> <buffer> . .<C-R>=jedi#complete_string(1)<CR>
         nnoremap <buffer> <M-]> :<C-u>call jedi#goto_definitions()<CR>zv
     endif
 endfunc " }}}
