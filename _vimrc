@@ -1580,6 +1580,7 @@ func! s:VimfilerSettings() " {{{
     nmap <buffer> gN    <Plug>(vimfiler_new_file)
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> N"
+    silent! call fugitive#detect(expand('%:p'))
 endfunc " }}}
 " }}}
 
