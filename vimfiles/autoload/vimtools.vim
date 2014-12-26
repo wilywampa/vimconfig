@@ -294,6 +294,7 @@ endfunction
 function! vimtools#KeepPatterns(line1, line2, cmd)
   let pat = @/
   try
+    let s:last_pat = vimtools#GetViminfoSubsPat()
     if (a:cmd[0] == 'g' || a:cmd[0] == 'v') && a:line1 == a:line2
       execute a:cmd
     else
@@ -316,6 +317,34 @@ function! vimtools#KeepPatterns(line1, line2, cmd)
     endif
   finally
     let @/ = pat
+  endtry
+endfunction
+
+function! vimtools#RepeatSubs(flags)
+  let pat = vimtools#GetViminfoSubsPat()
+  if !exists('s:last_pat') || pat != s:last_pat
+    execute "normal! ".(a:flags ? 'g' : '')."&"
+  else
+    execute "keeppatterns s/".g:lsub_pat."/".g:lsub_rep.
+        \ (a:flags ? "/".g:lsub_flags : "")
+  endif
+endfunction
+
+function! vimtools#GetViminfoSubsPat()
+  let fname = tempname()
+  execute "wviminfo ".fnameescape(fname)
+  try
+    let lines = readfile(fname, 25)
+    for line in lines
+      if exists('nextline')
+        return line[stridx(line, '&')+1:]
+      endif
+      if line == '# Last Substitute Search Pattern:'
+        let nextline = 1
+      endif
+    endfor
+  finally
+    call delete(fname)
   endtry
 endfunction
 

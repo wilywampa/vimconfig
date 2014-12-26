@@ -862,10 +862,8 @@ if s:hasvimtools
     " Complete wildmode with <C-e> if in wildmenu with a trailing slash
     cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
         \ "\<C-e>" : "\<C-\>evimtools#KeepPatternsSubstitute()\<CR>\<Left>\<C-]>\<Right>"
-    nnoremap <silent> <expr> & ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep
-        \ ."\<CR>:silent! call repeat#set('&')\<CR>"
-    nnoremap <silent> <expr> g& ":keeppatterns s/".g:lsub_pat."/".g:lsub_rep."/"
-        \ .g:lsub_flags."\<CR>:silent! call repeat#set('g&')\<CR>"
+    nnoremap <silent> & :<C-u>call vimtools#RepeatSubs(0)<CR>:silent! call repeat#set('&')<CR>
+    nnoremap <silent> g& :<C-u>call vimtools#RepeatSubs(1)<CR>:silent! call repeat#set('g&')<CR>
 else
     cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
         \ "\<C-e>" : '/'
