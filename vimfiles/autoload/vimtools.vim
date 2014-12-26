@@ -353,6 +353,7 @@ function! vimtools#FuncAbbrevs()
     elseif cmds=~'\v<pr%[in]$'       |let cmds=substitute(cmds,'\v<pr%[in]$','printf(','')
     elseif cmds=~'\v<ex%[pand]$'     |let cmds=substitute(cmds,'\v<ex%[pand]$','expand(','')
     elseif cmds=~'\v<s%[ubstitute]$' |let cmds=substitute(cmds,'\v<s%[ubstitute]$','substitute(','')
+    else                             |let cmds.='('
     endif
   endif
   let cmdend = strpart(getcmdline(), getcmdpos() - 1)
