@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+import argparse
+import fileinput
+import sys
+
+parser = argparse.ArgumentParser(
+    description='Reverse lines from files or standard input.',
+    add_help=False,
+)
+parser.add_argument('--help', action='help')
+
+parser.add_argument(
+    'files',
+    nargs='*',
+    help='Files to read.',
+)
+
+parser.add_argument(
+    '-c', '--chunk-size',
+    metavar='C',
+    help='Process text by groups of C lines.',
+)
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument(
+    '-h', '--head',
+    metavar='N',
+    nargs='?',
+    default=0,
+    help='Only reverse the first N lines.',
+)
+group.add_argument(
+    '-t', '--tail',
+    metavar='N',
+    help='Only reverse the last N lines.',
+)
+
+group = parser.add_mutually_exclusive_group()
+group.add_argument(
+    '-o', '--output',
+    type=argparse.FileType('w'),
+    help='File to write (default stdout).',
+)
+group.add_argument(
+    '-i', '--in-place',
+    action='store_true',
+    help='Reverse file in place.',
+)
+
+args = parser.parse_args()
+
+if args.head is None:
+    parser.print_help()
+    sys.exit(1)
+else:
+    args.head = int(args.head)
+
+args.tail = int(args.tail) if args.tail else None
+
+lines = []
+for line in fileinput.input(args.files, inplace=args.in_place):
+    lines.append(line)
+    if args.head > 0 and len(lines) == args.head:
+        break
+
+if args.tail is not None:
+    lines = lines[-args.tail:]
+
+out = args.output or sys.stdout
+
+if args.in_place:
+    if len(args.files) != 1:
+        parser.print_usage()
+        parser.exit(1, 'Exactly one file must be specified for --in-place.\n')
+    else:
+        out = open(args.files[0], 'w')
+
+if args.chunk_size:
+    size = int(args.chunk_size)
+    chunks = [lines[i:i+size] for i in range(0, len(lines), size)]
+    for chunk in reversed(chunks):
+        for line in chunk:
+            out.write(line)
+else:
+    for line in reversed(lines):
+        out.write(line)
+
+if args.in_place:
+    out.close()
