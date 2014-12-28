@@ -11,6 +11,7 @@ function! s:PyclewnMaps()
     nnoremap <buffer> <M-n> :C next<CR>
     nnoremap <buffer> <C-n> :C next<CR>
     nnoremap <buffer> <M-p> :execute "C print ".expand('<cword>')<CR>
+    nnoremap <buffer> g<M-p> :execute "C call ".expand('<cword>').".print()"<CR>
     nnoremap <buffer> <M-P> :execute "C display ".expand('<cword>')<CR>
     nnoremap <M-u> :C up<CR>
     nnoremap <buffer> <M-x> :execute "C print *".expand('<cword>')<CR>
@@ -30,6 +31,7 @@ function! s:PyclewnMaps()
     vnoremap <buffer> <silent> <M-P> :<C-u>call SaveRegs()<CR>gvy:C display <C-r>"<CR>:call RestoreRegs()<CR>
     nnoremap <buffer> <M-w> :wincmd t<CR>:resize 15<CR>:set winfixheight wrap linebreak<CR>
     cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'Cprint':'Cp')
+    cnoreabbrev <expr> Cd ((getcmdtype()==':'&&getcmdpos()<=3)?'Cdisplay':'Cd')
 
     if exists('g:pyclewn_map_global') && g:pyclewn_map_global
         augroup pyclewn
