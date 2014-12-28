@@ -384,6 +384,8 @@ function! vimtools#FuncAbbrevs()
     elseif cmds=~'\v<s%[ubstitute]$' |let cmds=substitute(cmds,'\v<s%[ubstitute]$','substitute(','')
     else                             |let cmds.='('
     endif
+  else
+    let cmds.='('
   endif
   let cmdend = strpart(getcmdline(), getcmdpos() - 1)
   if getcmdtype() =~ '[:>]'
