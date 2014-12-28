@@ -50,7 +50,7 @@ endfunction
 
 augroup words_complete
     autocmd!
-    autocmd BufWinEnter,BufWrite,CmdwinEnter * call s:UpdateWordList()
+    autocmd BufWinEnter,BufWrite,CmdwinEnter,WinEnter * call s:UpdateWordList()
 augroup END
 
 let &cpo = s:save_cpo
