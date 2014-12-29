@@ -1941,7 +1941,10 @@ nnoremap <Leader>L :<C-u>execute 'file '.resolve(expand('%:p'))<bar>
 autocmd VimrcAutocmds FileType cpp
     \ silent! call
     \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'm', 'ai', 'V',
-    \                                              '^{\s*$', '^}\s*$')
+    \                                              '^{\s*$', '^}\s*$') |
+    \ silent! call
+    \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'c', 'ai', 'V',
+    \                                              '^{\s*$', '^}\s*;\s*$')
 autocmd VimrcAutocmds FileType vim
     \ let s:patternFunctionBegin = '^\s*fu\%[nction]\>' |
     \ let s:patternFunctionEnd = '^\s*endf*\%[unction]\>' |
