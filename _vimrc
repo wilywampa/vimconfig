@@ -811,6 +811,10 @@ autocmd VimrcAutocmds QuickFixCmdPost * call s:Bell()
 func! s:SingleFile() " {{{
     execute 'setlocal makeprg=make\ '.expand('%:r')
     nnoremap <buffer> <S-F5> :execute '!./'.expand('%:r')<CR>
+    if executable('clang++') && $CXX ==# '' && $CPPFLAGS ==# ''
+        let $CXX = 'clang++'
+        let $CPPFLAGS = '-Wall --std=c++11'
+    endif
     lcd! %:p:h
 endfunc " }}}
 command! -nargs=0 SingleFile call s:SingleFile()
