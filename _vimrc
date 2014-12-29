@@ -1764,19 +1764,19 @@ func! s:AckCurrentSearch(ignorecase) " {{{
     let view = winsaveview() | call SaveRegs()
     keepjumps normal gny
     call winrestview(view)
-    let cmd = 'Ack! '
+    let cmd = ['Ack!']
     if @/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$'
-        let cmd .= '-w '
+        let cmd += ['-w']
     endif
-    if a:ignorecase == 0 | let cmd .= "-s ".g:ag_flags." -- '".@"."'" | else
+    if a:ignorecase == 0 | let cmd += ["-s", g:ag_flags, '--', "'".@@."'"] | else
         if @/ =~ '\u'
-            let cmd .= g:ag_flags." -- '".@"."'"
+            let cmd += [g:ag_flags, '--', "'".@@."'"]
         else
-            let cmd .= g:ag_flags." -- '".tolower(@")."'"
+            let cmd += [g:ag_flags, '--', "'".tolower(@@)."'"]
         endif
     endif
-    let cmd = escape(cmd, '%#')
-    execute cmd | call histadd(':', cmd) | cwindow
+    let cmdstr = escape(join(cmd, ' '), '%#')
+    execute cmdstr | call histadd(':', cmdstr) | cwindow
     if &buftype == 'quickfix' | execute "normal! gg" | endif
     call RestoreRegs()
 endfunc " }}}
