@@ -27,6 +27,7 @@ func! s:SelectTextObject(obj, motion, visual)
     let curpos = getpos('.')
     let line = getline('.')
 
+    let linewise = 0
     if stridx(line, left) < strridx(line, right)
       " Expand selection
       let did_expand = 0
@@ -61,6 +62,8 @@ func! s:SelectTextObject(obj, motion, visual)
           execute "normal! F".left
         endif
       endif
+    elseif stridx(line, left) == -1 && stridx(line, right) == -1
+      let linewise = 1
     endif
 
     " Need to manually select character if single character in pair for inner motion
@@ -71,7 +74,7 @@ func! s:SelectTextObject(obj, motion, visual)
     elseif a:motion == 'i' && line[col('.')-3] == left && line[col('.')-1] == right
       execute "normal! hv"
     else
-      execute "normal! v".a:motion.a:obj
+      execute "normal! v".a:motion.a:obj.(linewise ? 'V' : '')
     endif
   finally
     echo
