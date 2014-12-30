@@ -1,15 +1,15 @@
 " From tpope's scriptease: https://github.com/tpope/vim-scriptease
-function! vimtools#SynNames(...) abort
+function! vimtools#SynNames(...) abort " {{{
   if a:0
     let [line, col] = [a:1, a:2]
   else
     let [line, col] = [line('.'), col('.')]
   endif
   return reverse(map(synstack(line, col), 'synIDattr(v:val,"name")'))
-endfunction
+endfunction " }}}
 
 " From tpope's scriptease: https://github.com/tpope/vim-scriptease
-function! vimtools#HelpTopic()
+function! vimtools#HelpTopic() " {{{
   if &syntax != 'vim'
     return expand('<cword>')
   endif
@@ -40,10 +40,10 @@ function! vimtools#HelpTopic()
   else
     return cword
   endif
-endfunction
+endfunction " }}}
 
 " From tpope's scriptease: https://github.com/tpope/vim-scriptease
-function! vimtools#EchoSyntax(count)
+function! vimtools#EchoSyntax(count) " {{{
   if a:count
     let name = get(vimtools#SynNames(), a:count-1, '')
     if name !=# ''
@@ -53,10 +53,10 @@ function! vimtools#EchoSyntax(count)
     echo join(vimtools#SynNames(), ' ')
   endif
   return ''
-endfunction
+endfunction " }}}
 
 " Open in same window if current tab is empty, or else open in new window
-function! vimtools#OpenHelp(topic)
+function! vimtools#OpenHelp(topic) " {{{
   if vimtools#TabUsed()
     " Open vertically if there's enough room
     let l:split=0
@@ -90,18 +90,18 @@ function! vimtools#OpenHelp(topic)
   catch /^Vim\%((\a\+)\)\=:E149/
     echohl ErrorMsg | echo substitute(v:exception, '^[^:]*:', '', '') | echohl None
   endtry
-endfunction
+endfunction " }}}
 
-function! vimtools#OpenHelpVisual()
+function! vimtools#OpenHelpVisual() " {{{
   call SaveRegs()
   return (g:inCmdwin ? "y:q\<CR>" : "y").":Help \<C-r>\"\<CR>:call RestoreRegs()\<CR>"
-endfunction
+endfunction " }}}
 
-function! vimtools#TabUsed()
+function! vimtools#TabUsed() " {{{
   return strlen(expand('%')) || line('$')!=1 || getline(1)!='' || winnr('$')>1
-endfunction
+endfunction " }}}
 
-function! vimtools#SwitchToOrOpen(fname)
+function! vimtools#SwitchToOrOpen(fname) " {{{
   let l:bufnr=bufnr(expand(a:fname).'$')
   if l:bufnr > 0 && buflisted(l:bufnr)
     for l:tab in range(1, tabpagenr('$'))
@@ -122,9 +122,9 @@ function! vimtools#SwitchToOrOpen(fname)
   else
     exec 'edit '.a:fname
   endif
-endfunction
+endfunction " }}}
 
-function! vimtools#ResizeWindow(type)
+function! vimtools#ResizeWindow(type) " {{{
   if winnr('$') == 1 | return | endif
   let eventignore_save = &eventignore
   set eventignore=all
@@ -158,20 +158,20 @@ function! vimtools#ResizeWindow(type)
     let &eventignore = eventignore_save
     execute startwin."wincmd w"
   endtry
-endfunction
+endfunction " }}}
 
 " Move cursor using key until on non-concealed text
-function! vimtools#conceal_move(key)
+function! vimtools#conceal_move(key) " {{{
   execute "normal ".a:key
   let cnt = 0
   while synconcealed(line('.'), col('.'))[0] && cnt < 20
     let cnt = cnt + 1
     execute "normal ".a:key
   endwhile
-endfunction
+endfunction " }}}
 
 " Display file structure with dircolors
-function! vimtools#Tree(...)
+function! vimtools#Tree(...) " {{{
   let dir = a:0 ? a:1 : getcwd()
   let treenr = bufnr('--tree--')
   if treenr == -1
@@ -193,10 +193,10 @@ function! vimtools#Tree(...)
   nnoremap <silent> <buffer> k k0f"l
   nnoremap <buffer> <CR> gf
   nnoremap <silent> <buffer> ZZ :wincmd c<CR>
-endfunction
+endfunction " }}}
 
 " Make [[, ]], [], and ][ work when { is not in first column
-function! vimtools#SectionJump(type, v)
+function! vimtools#SectionJump(type, v) " {{{
   let l:count = v:count1
   let startpos = getpos('.')
   if a:v | exe "keepjumps norm! gv" | endif
@@ -218,18 +218,18 @@ function! vimtools#SectionJump(type, v)
   endwhile
   call setpos("''", startpos)
   normal! `'`'
-endfunction
-function! vimtools#SectionJumpMaps()
+endfunction " }}}
+function! vimtools#SectionJumpMaps() " {{{
   if search('\m\C^\s*namespace', 'cnw') == 0 && search('\m\C^{', 'cnw') == 0
     for key in ['[[', '][', ']]', '[]']
       exe "noremap  <silent> <buffer> ".key." :<C-u>call vimtools#SectionJump('".key."',0)<CR>"
       exe "xnoremap <silent> <buffer> ".key." :<C-u>call vimtools#SectionJump('".key."',1)<CR>"
     endfor
   endif
-endfunction
+endfunction " }}}
 
 " Make pasted text have one blank line above and below
-function! vimtools#MakeParagraph()
+function! vimtools#MakeParagraph() " {{{
   call SaveRegs()
   let foldenable_save = &foldenable | set nofoldenable
   let l1 = nextnonblank(line("'["))
@@ -265,10 +265,10 @@ function! vimtools#MakeParagraph()
 
   let &foldenable = foldenable_save
   call RestoreRegs()
-endfunction
+endfunction " }}}
 
 " Search (not) followed/preceded by
-function! vimtools#FollowedBy(not) abort
+function! vimtools#FollowedBy(not) abort " {{{
   let s1 = input("Main: ")
   let s1 = substitute(len(s1) ? s1 : @/,'\m\c^\\v','','')
   let s1 = substitute(s1, '\m\\<\(.*\)\\>', '<\1>', '')
@@ -277,9 +277,9 @@ function! vimtools#FollowedBy(not) abort
   call histadd('/', @/) | normal! nzv
   set nohlsearch | set hlsearch | redraw!
   echo '/'.@/
-endfunction
+endfunction " }}}
 
-function! vimtools#PrecededBy(not) abort
+function! vimtools#PrecededBy(not) abort " {{{
   let s1 = input("Main: ")
   let s1 = substitute(len(s1) ? s1 : @/,'\m\c^\\v','','')
   let s1 = substitute(s1, '\m\\<\(.*\)\\>', '<\1>', '')
@@ -288,10 +288,10 @@ function! vimtools#PrecededBy(not) abort
   call histadd('/', @/) | normal! nzv
   set nohlsearch | set hlsearch | redraw!
   echo '/'.@/
-endfunction
+endfunction " }}}
 
 " Don't overwrite pattern with substitute command
-function! vimtools#KeepPatterns(line1, line2, cmd)
+function! vimtools#KeepPatterns(line1, line2, cmd) " {{{
   let pat = @/
   try
     let s:last_pat = vimtools#GetViminfoSubsPat()
@@ -318,9 +318,9 @@ function! vimtools#KeepPatterns(line1, line2, cmd)
   finally
     let @/ = pat
   endtry
-endfunction
+endfunction " }}}
 
-function! vimtools#RepeatSubs(flags)
+function! vimtools#RepeatSubs(flags) " {{{
   let pat = vimtools#GetViminfoSubsPat()
   if !exists('s:last_pat') || pat != s:last_pat
     execute "normal! ".(a:flags ? 'g' : '')."&"
@@ -328,9 +328,9 @@ function! vimtools#RepeatSubs(flags)
     execute "keeppatterns s/".g:lsub_pat."/".g:lsub_rep.
         \ (a:flags ? "/".g:lsub_flags : "")
   endif
-endfunction
+endfunction " }}}
 
-function! vimtools#GetViminfoSubsPat()
+function! vimtools#GetViminfoSubsPat() " {{{
   let fname = tempname()
   execute "wviminfo ".fnameescape(fname)
   try
@@ -346,10 +346,10 @@ function! vimtools#GetViminfoSubsPat()
   finally
     call delete(fname)
   endtry
-endfunction
+endfunction " }}}
 
 let s:range_pattern = '((\d+|\.|\$|''\a)(,(\d+|\.|\$|''\a))?)'
-function! vimtools#KeepPatternsSubstitute()
+function! vimtools#KeepPatternsSubstitute() " {{{
   let cmdline = getcmdline()
   if getcmdtype() == ':'
     let cmd = cmdline[match(cmdline,'\a')]
@@ -368,10 +368,10 @@ function! vimtools#KeepPatternsSubstitute()
   let cmdend = strpart(cmdline, getcmdpos() - 1)
   call setcmdpos(getcmdpos() + 1)
   return cmdstart.'/'.cmdend
-endfunction
+endfunction " }}}
 
 " Function abbreviations
-function! vimtools#FuncAbbrevs()
+function! vimtools#FuncAbbrevs() " {{{
   let cmds = strpart(getcmdline(), 0, getcmdpos() - 1)
   if getcmdtype() =~ '[:=>]'
     let cmd = getcmdline()
@@ -392,9 +392,9 @@ function! vimtools#FuncAbbrevs()
     call setcmdpos(len(cmds) + 1)
   endif
   return cmds.cmdend
-endfunction
+endfunction " }}}
 
-function! vimtools#opfunc(type) abort
+function! vimtools#opfunc(type) abort " {{{
   let sel_save = &selection
   let cb_save = &clipboard
   let reg_save = @@
@@ -420,14 +420,14 @@ function! vimtools#opfunc(type) abort
     let &selection = sel_save
     let &clipboard = cb_save
   endtry
-endfunction
+endfunction " }}}
 
-function! vimtools#SourceMotion(type)
+function! vimtools#SourceMotion(type) " {{{
   let input = vimtools#opfunc(a:type)
   let tmpfile = tempname()
   call writefile(split(input, '\n'), tmpfile)
   execute "source ".tmpfile
   call delete(tmpfile)
-endfunction
+endfunction " }}}
 
-" vim:set et ts=2 sts=2 sw=2:
+" vim:set et ts=2 sts=2 sw=2 fdm=marker:
