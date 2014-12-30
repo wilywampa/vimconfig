@@ -1068,6 +1068,14 @@ func! s:RestoreMarks()
 endfunc
 autocmd VimrcAutocmds CursorMoved,TextChanged,InsertLeave * call s:SaveMarks()
 autocmd VimrcAutocmds BufWritePost * call s:RestoreMarks()
+
+" Turn off diffs automatically
+if s:hasvimtools
+    nnoremap <silent> [od :<C-u>call vimtools#DiffThis()<bar>echo 'DiffThis'<CR>
+    nnoremap <silent> ]od :<C-u>call vimtools#DiffOff()<bar>echo 'DiffOff'<CR>
+    nnoremap <silent> cod :<C-u>call vimtools#ToggleDiff()<CR>
+endif
+
 " }}}
 
 " {{{ GUI configuration

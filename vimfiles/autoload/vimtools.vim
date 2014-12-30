@@ -431,4 +431,75 @@ function! vimtools#SourceMotion(type) " {{{
   call delete(tmpfile)
 endfunction " }}}
 
+" Turn off diffs automatically
+function! vimtools#DiffRestore() abort " {{{
+  " From tpope/vim-fugitive
+  let restore = 'setlocal nodiff noscrollbind'
+      \ . ' scrollopt=' . &l:scrollopt
+      \ . (&l:wrap ? ' wrap' : ' nowrap')
+      \ . ' foldlevel=999'
+      \ . ' foldmethod=' . &l:foldmethod
+      \ . ' foldcolumn=' . &l:foldcolumn
+      \ . ' foldlevel=' . &l:foldlevel
+      \ . (&l:foldenable ? ' foldenable' : ' nofoldenable')
+  if has('cursorbind')
+    let restore .= (&l:cursorbind ? ' ' : ' no') . 'cursorbind'
+  endif
+  return restore
+endfunction " }}}
+
+function! vimtools#DiffThis() " {{{
+  if !&diff && &buftype ==# ''
+    let w:vimtools_diff_restore = vimtools#DiffRestore()
+    let b:vimtools_diff_restore = w:vimtools_diff_restore
+    diffthis
+    augroup vimtools_diff
+      autocmd!
+      autocmd BufWinLeave * if getwinvar(bufwinnr(+expand('<abuf>')), '&diff') &&
+          \ !empty(getwinvar(bufwinnr(+expand('<abuf>')), 'vimtools_diff_restore')) &&
+          \ vimtools#DiffCount() == 2 | call Windo('call vimtools#DiffOff()') |
+          \ call vimtools#DiffOff(+expand('<abuf>')) | endif
+      autocmd BufWinEnter * if getwinvar(bufwinnr(+expand('<abuf>')), '&diff') &&
+          \ !empty(getwinvar(bufwinnr(+expand('<abuf>')), 'vimtools_diff_restore')) &&
+          \ vimtools#DiffCount() == 1 | call vimtools#DiffOff() | endif
+    augroup END
+  endif
+endfunction " }}}
+
+function! vimtools#DiffOff(...) " {{{
+  if a:0
+    augroup vimtools_diff_buffer
+      autocmd!
+      execute 'autocmd vimtools_diff_buffer BufEnter,BufWinEnter '.
+          \ '<buffer='.a:1.'> call vimtools#DiffOff() |'
+          \ 'autocmd! vimtools_diff_buffer'
+    augroup END
+  endif
+  if exists('w:vimtools_diff_restore')
+    execute w:vimtools_diff_restore
+    unlet w:vimtools_diff_restore
+  elseif exists('b:vimtools_diff_restore')
+    execute b:vimtools_diff_restore
+    unlet b:vimtools_diff_restore
+  elseif &diff
+    diffoff
+  endif
+  augroup vimtools_diff
+    autocmd!
+  augroup END
+endfunction " }}}
+
+function! vimtools#DiffCount() " {{{
+  return len(filter(range(1, winnr('$')),
+      \ '!empty(getwinvar(v:val, "vimtools_diff_restore"))'))
+endfunction " }}}
+
+function! vimtools#ToggleDiff() " {{{
+  if &diff || exists('w:vimtools_diff_restore')
+    call Windo('call vimtools#DiffOff()') | echo 'vimtools#DiffThis'
+  else
+    call Windo('call vimtools#DiffThis()') | echo 'vimtools#DiffOff'
+  endif
+endfunction " }}}
+
 " vim:set et ts=2 sts=2 sw=2 fdm=marker:
