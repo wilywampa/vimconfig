@@ -1,0 +1,29 @@
+# Show auto complete options on first tab press
+set show-all-if-ambiguous on
+set completion-query-items 0
+set page-completions off
+set bell-style none
+set input-meta on
+set output-meta on
+set convert-meta off
+set keymap vi
+set editing-mode vi
+"\C-w": backward-kill-word
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+"\C-p": history-search-backward
+"\C-n": history-search-forward
+"\C-q": redraw-current-line
+"\C-k": kill-whole-line
+"\C-x": "\C-k\C-q"
+"\C-b": beginning-of-line
+"\C-e": end-of-line
+"\C-^": "\C-e()\C-m"
+"\C-l": clear-screen
+"\C-a": "filter\(lambda x: "
+set keymap vi-command
+"\C-q": redraw-current-line
+"\C-k": kill-whole-line
+"\C-x": "\C-k\C-qi"
+"\C-^": "A()\C-m"
+"\C-l": clear-screen
