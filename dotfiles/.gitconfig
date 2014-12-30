@@ -4,7 +4,7 @@
 [core]
 	excludesfile = /Users/jniehus/.gitignore_global
 	editor = vim
-	pager =
+	pager = vimpager
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
 	path =
@@ -16,13 +16,14 @@
 	ci = commit -v
 	di = difftool -y
 	co = checkout -- .
-	new = log HEAD..origin --reverse
+	new = log HEAD..origin --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --stat
 	up = pull origin master
 	url = config --get remote.origin.url
 	uurl = config --get remote.upstream.url
 	amend = commit --amend --no-edit
 	ls = ls-files
 	printbranch = rev-parse --abbrev-ref HEAD
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 [color]
 	diff = auto
 	status = auto

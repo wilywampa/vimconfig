@@ -167,6 +167,7 @@ alias h='head'
 alias t='tail'
 alias rename='export NOAUTONAME=1; tmux rename-window'
 alias pdb="vim -c 'Pyclewn pdb'"
+alias pyclewn="vim -c 'Pyclewn'"
 alias loc='locate --regex -i'
 alias ipy='ipython'
 alias pip='noglob pip'
@@ -261,6 +262,7 @@ abbrevs=(
 'ga'    'git add'
 'gad'   'git add'
 'gadd'  'git add'
+'glg'   'git lg'
 'glog'  'git log --reverse'
 'glogd' 'git log --reverse --stat'
 'gls'   'git ls-files'
@@ -333,6 +335,10 @@ abbrevs=(
 'py'    'python'
 'ex'    'export'
 'ip'    'python $VIMCONFIG/misc/python/ipython_monitor.py &; ipython console'
+'h'     'head'
+'t'     'tail'
+'d'     'du -sh'
+'pyc'   'pyclewn'
 )
 
 # Post-modifier abbreviations
@@ -361,16 +367,19 @@ pmabbrevs=(
 
 typeset -Ag globalabbrevs
 globalabbrevs=(
-'H'   '| head -n'
-'T'   '| tail -n'
-'VC'  '$VIMCONFIG'
-'VCB' '$VIMCONFIG/vimfiles/bundle'
-'AG'  'ag -S'
-'/dn' '/dev/null'
-'/DN' '/dev/null'
-'DN'  '/dev/null'
-'DR'  '--dry-run'
-'@@'  'jacob.niehus@gmail.com'
+'H'    '| head -n'
+'T'    '| tail -n'
+'VC'   '$VIMCONFIG'
+'VCB'  '$VIMCONFIG/vimfiles/bundle'
+'AG'   'ag -S'
+'/dn'  '/dev/null'
+'/DN'  '/dev/null'
+'DN'   '/dev/null'
+'DR'   '--dry-run'
+'@@'   'jacob.niehus@gmail.com'
+'NEW'  '*(om[1])'
+'NEWD' '*(/om[1])'
+'NEWF' '*(.om[1])'
 )
 
 magic-abbrev-expand() {
@@ -428,8 +437,7 @@ magic-abbrev-expand() {
 no-magic-abbrev-expand() { LBUFFER+=' ' }
 
 magic-abbrev-expand-or-complete-word() {
-    magic-abbrev-expand
-    [ $? -eq 1 ] && zle complete-word
+    magic-abbrev-expand || zle complete-word
 }
 zle -N magic-abbrev-expand-or-complete-word
 bindkey -M viins '^I' magic-abbrev-expand-or-complete-word
@@ -864,7 +872,7 @@ _edit-command-line() {
     print -R - "$PREBUFFER$BUFFER" >$tmpfile
     exec </dev/tty
     vim -u NONE -i NONE -N --cmd 'set clipboard=' $tmpfile
-    print -Rz - "$(<$tmpfile)" 
+    print -Rz - "$(<$tmpfile)"
     command rm -f $tmpfile
     _enable-focus
     zle send-break		# Force reload from the buffer stack
@@ -1008,7 +1016,7 @@ zstyle ':completion:*:*:kill:*' menu yes select
 zstyle ':completion:*:kill:*' force-list always
 zstyle ':completion:*:*:kill:*:processes' list-colors \
     "=(#b) #([0-9]#) #([^ ]#) #([^ ]#)*=33=31=32=34"
-zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,tty,cputime,command'
+zstyle ':completion:*:kill:*' command 'ps --forest -u $USER -o pid,tty,cputime,command'
 
 # Don't suggest _functions
 zstyle ':completion:*:functions' ignored-patterns '_*'
@@ -1214,6 +1222,14 @@ if [[ $OSTYPE == 'cygwin' ]]; then
     vibindkey '^G' _cyg-list-expand-or-copy-cwd
     path() {_cyg-path "$@"}
     copy() {_cyg-copy "$@"}
+
+    # cygdrive shortcuts
+    hash -d c=/cygdrive/c
+    hash -d d=/cygdrive/d
+    hash -d e=/cygdrive/e
+    hash -d f=/cygdrive/f
+    hash -d j=/cygdrive/j
+    hash -d l=/cygdrive/l
 fi
 
 #[[[1 Machine-specific settings
