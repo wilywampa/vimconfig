@@ -219,6 +219,7 @@ function! vimtools#SectionJump(type, v) " {{{
   call setpos("''", startpos)
   normal! `'`'
 endfunction " }}}
+
 function! vimtools#SectionJumpMaps() " {{{
   if search('\m\C^\s*namespace', 'cnw') == 0 && search('\m\C^{', 'cnw') == 0
     for key in ['[[', '][', ']]', '[]']
