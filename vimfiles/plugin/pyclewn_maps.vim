@@ -6,6 +6,7 @@ let pyclewn_maps_loaded = 1
 
 function! s:PyclewnMaps()
     nnoremap <M-b> :execute "C break ".expand('%:p').":".line('.')<CR>
+    nnoremap g<M-b> :execute "C break ".expand('%:p').":".line('.')." if (".input("if ").")"<CR>
     nnoremap <buffer> <M-d> :C down<CR>
     nnoremap <M-e> :execute "C clear ".expand('%:p').":".line('.')<CR>
     nnoremap <buffer> <M-n> :C next<CR>
