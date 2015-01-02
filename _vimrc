@@ -515,6 +515,9 @@ nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels
 
 " Don't save omaps to command history
 silent! nn <unique> . .
+
+" New line when cursor is not at the end of the current line
+ino <C-j> <C-r>="\<lt>C-o>o"<CR>
 " }}}
 
 " {{{ Abbreviations to open help
