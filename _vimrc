@@ -2029,7 +2029,7 @@ Plug 'wilywampa/vimshell.vim'
 Plug 'wilywampa/vimux'
 Plug 'jgors/vimux-ipy'
 Plug 'triglav/vim-visual-increment', {'on': ['<Plug>VisualIncrement', '<Plug>VisualDecrement']}
-Plug 'vim-scripts/CountJump'
+Plug 'wilywampa/CountJump'
 Plug 'vim-ruby/vim-ruby', {'for': ['ruby', 'eruby']}
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
