@@ -189,8 +189,9 @@ nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':update<CR>'
 ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:update<CR>'
 vn <silent> <C-s> <C-c>:update<CR>gv
 
-" Redraw the screen and remove search highlighting
+" Redraw the screen, remove search highlighting, and synchronize syntax
 nn <silent> <C-l> :nohl<CR><C-l>
+nm <silent> g<C-l> :<C-u>syntax sync fromstart<CR><C-l>
 
 " Execute q macro
 nm Q @q
