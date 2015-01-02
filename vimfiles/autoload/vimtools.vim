@@ -496,9 +496,9 @@ endfunction " }}}
 
 function! vimtools#ToggleDiff() " {{{
   if &diff || exists('w:vimtools_diff_restore')
-    call Windo('call vimtools#DiffOff()') | echo 'vimtools#DiffThis'
+    call Windo('call vimtools#DiffOff()') | echo 'DiffThis'
   else
-    call Windo('call vimtools#DiffThis()') | echo 'vimtools#DiffOff'
+    call Windo('call vimtools#DiffThis()') | echo 'DiffOff'
   endif
 endfunction " }}}
 
