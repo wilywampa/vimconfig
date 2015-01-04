@@ -173,7 +173,8 @@ else
         sil! set macmeta
     else
         " Explore to current file from Cygwin vim
-        nnoremap <silent> <F4> :call system('cygstart explorer /select,`cygpath -w "'.expand('%:p').'"`')<CR>
+        nnoremap <silent> <F4> :call
+            \ system('cygstart explorer /select,`cygpath -w "'.expand('%:p').'"`')<CR>
 
         " Use cygstart to open links
         let g:netrw_browsex_viewer = "cygstart"
@@ -2067,4 +2068,4 @@ if !exists('colors_name') || colors_name != 'solarized'
     sil! colorscheme solarized
 endif
 " }}}
-" vim: fdm=marker fdl=1:
+" vim: fdm=marker fdl=1 tw=100:
