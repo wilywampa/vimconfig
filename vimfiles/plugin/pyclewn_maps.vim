@@ -44,3 +44,4 @@ endfunction
 
 nnoremap <Leader>pc :<C-u>call <SID>PyclewnMaps()<CR>
 nnoremap <Leader><Leader>pc :<C-u>let g:pyclewn_map_global = 1<bar>call <SID>PyclewnMaps()<CR>
+nnoremap <M-b> :<C-u>call <SID>PyclewnMaps()<CR>:execute "C break ".expand('%:p').":".line('.')<CR>
