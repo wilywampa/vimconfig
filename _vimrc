@@ -519,6 +519,7 @@ silent! nn <unique> . .
 
 " New line when cursor is not at the end of the current line
 ino <C-j> <C-r>="\<lt>C-o>o"<CR>
+vno <C-j> <Esc>o
 " }}}
 
 " {{{ Abbreviations to open help
