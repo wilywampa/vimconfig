@@ -30,7 +30,7 @@
 	branch = auto
 	ui = true
 [diff]
-	tool = bc3
+	tool = vimdiff
 [difftool]
 	bc3 = trustExitCode
 [push]

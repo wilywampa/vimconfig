@@ -683,6 +683,12 @@ _use-as-args() {
 }
 zle -N _use-as-args; bindkey '^A' _use-as-args
 
+_vim-pipe() {
+    BUFFER="vim =("${BUFFER}")"
+    CURSOR=$(( ${#BUFFER} - 1 ))
+}
+zle -N _vim-pipe; bindkey 'ð' _vim-pipe  # <M-p>
+
 _fg-job() {
     if [[ -n $(jobs) ]]; then
         _set-block-cursor
