@@ -932,6 +932,19 @@ func! s:UnfoldSearch() " {{{
 endfunc " }}}
 cnoremap <silent> <expr> <C-o> <SID>UnfoldSearch()
 
+" Go to next/previous match without exiting search command line
+func! s:IncSearchNext(dir) " {{{
+    let type = getcmdtype()
+    if type !~ '[/?]' | return '' | endif
+    let visual = mode() =~? "[v\<C-v>]"
+    let cmd = substitute(getcmdline(), "'", "''", 'g')
+    return "\<C-c>:\<C-u>call search('".cmd."', '".(a:dir ? '' : 'b').
+        \ "')\<CR>zv".":call feedkeys('".(visual ? 'gv' : '').
+        \ type."\<C-v>\<C-u>".cmd."', 't')\<CR>".s:UnfoldSearch()
+endfunc " }}}
+cnoremap <silent> <expr> <C-j> <SID>IncSearchNext(1)
+cnoremap <silent> <expr> <C-k> <SID>IncSearchNext(0)
+
 " Search without saving when in command line window
 func! s:SearchWithoutSave() " {{{
     let @/ = getcmdline()
