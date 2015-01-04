@@ -1017,6 +1017,8 @@ func! s:BackWord() " {{{
 endfunc " }}}
 inoremap <silent> <Left>  <C-r>="\<lt>Left>"<CR>
 inoremap <silent> <Right> <C-r>="\<lt>Right>"<CR>
+inoremap <silent> <Up>    <C-r>="\<lt>Up>"<CR>
+inoremap <silent> <Down>  <C-r>="\<lt>Down>"<CR>
 inoremap <silent> <expr> <C-Left> <SID>BackWord()
 inoremap <silent> <C-Right> <Esc>:silent! undojoin<CR>lwi
 
