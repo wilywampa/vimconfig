@@ -1966,7 +1966,7 @@ nnoremap <Leader>L :<C-u>execute 'file '.resolve(expand('%:p'))<bar>
     \ else<bar>silent! unlet b:git_dir<bar>endif<CR>
 
 " CountJump maps
-autocmd VimrcAutocmds FileType cpp
+autocmd VimrcAutocmds FileType c,cpp
     \ silent! call
     \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'm', 'ai', 'V',
     \                                              '^{\s*$', '^}\s*$') |
