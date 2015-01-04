@@ -224,7 +224,7 @@
 	branch = master
 [submodule "vimfiles/bundle/CountJump"]
 	path = vimfiles/bundle/CountJump
-	url = https://github.com/vim-scripts/CountJump.git
+	url = https://github.com/wilywampa/CountJump.git
 	branch = master
 [submodule "misc/fzf"]
 	path = misc/fzf
