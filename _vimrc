@@ -1957,7 +1957,7 @@ autocmd VimrcAutocmds FileType cpp
     \                                              '^{\s*$', '^}\s*$') |
     \ silent! call
     \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'c', 'ai', 'V',
-    \                                              '^{\s*$', '^}\s*;\s*$')
+    \                                              '^{\s*$', '^}\s*\(\w\+\s*\)\?;\s*$')
 autocmd VimrcAutocmds FileType vim
     \ let s:patternFunctionBegin = '^\s*fu\%[nction]\>' |
     \ let s:patternFunctionEnd = '^\s*endf*\%[unction]\>' |
