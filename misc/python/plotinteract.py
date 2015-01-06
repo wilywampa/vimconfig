@@ -91,6 +91,7 @@ class TabCompleter(QtGui.QCompleter):
         QtGui.QCompleter.__init__(self, words, *args, **kwargs)
         self.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.setMaxVisibleItems(50)
+        self.words = words
 
     def set_textbox(self, textbox):
         self.textbox = textbox
@@ -114,10 +115,18 @@ class TabCompleter(QtGui.QCompleter):
         popup = self.popup()
         if popup.isVisible():
             self.select_completion(0)
-            self.confirm()
             popup.close()
 
     def confirm(self):
+        try:
+            text = unicode(self.textbox.currentText())
+        except AttributeError:
+            pass
+        else:
+            if self.words.findText(text) == -1:
+                self.select_completion(0)
+            else:
+                return self.emit(SIGNAL('activated(QString)'), text)
         self.emit(SIGNAL('activated(QString)'), self.currentCompletion())
 
 
