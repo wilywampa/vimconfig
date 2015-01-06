@@ -1847,7 +1847,6 @@ let g:targets_argClosing = '[])}"]'
 let g:targets_separators = ', . ; : + - = ~ _ * # / \ | & $ %'
 
 " fuzzyfinder settings
-set runtimepath+=~/.fzf
 nnoremap <silent> <M-f> :FZF<CR>
 
 " eunuch settings
@@ -2043,13 +2042,14 @@ Plug 'wilywampa/vim-unimpaired'
 Plug 'wilywampa/unite.vim'
 Plug 'wilywampa/vcscommand.vim'
 Plug 'wilywampa/vimfiler.vim'
-Plug 'wilywampa/vimproc.vim'
+Plug 'wilywampa/vimproc.vim', {'do': 'make'.(has('win32unix') ? ' -f make_cygwin.mak' : '')}
 Plug 'wilywampa/vimshell.vim'
 Plug 'wilywampa/vimux'
 Plug 'jgors/vimux-ipy'
 Plug 'triglav/vim-visual-increment', {'on': ['<Plug>VisualIncrement', '<Plug>VisualDecrement']}
 Plug 'wilywampa/CountJump'
 Plug 'vim-ruby/vim-ruby', {'for': ['ruby', 'eruby']}
+Plug 'wilywampa/fzf.git', {'dir': '$VIMCONFIG/misc/fzf'}
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
