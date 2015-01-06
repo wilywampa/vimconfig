@@ -2049,7 +2049,7 @@ Plug 'jgors/vimux-ipy'
 Plug 'triglav/vim-visual-increment', {'on': ['<Plug>VisualIncrement', '<Plug>VisualDecrement']}
 Plug 'wilywampa/CountJump'
 Plug 'vim-ruby/vim-ruby', {'for': ['ruby', 'eruby']}
-Plug 'wilywampa/fzf.git', {'dir': '$VIMCONFIG/misc/fzf'}
+Plug 'wilywampa/fzf', {'dir': '$VIMCONFIG/misc/fzf'}
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
