@@ -160,7 +160,7 @@ else
       let scratch = bufnr('--MATLAB--')
       if scratch == -1
         enew
-        file --MATLAB--
+        silent file --MATLAB--
       else
         execute "buffer ".scratch
       endif

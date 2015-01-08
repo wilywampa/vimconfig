@@ -214,7 +214,7 @@ if !exists('*s:IPyRunPrompt')
     if scratch == -1
       enew
       IPython
-      file --Python--
+      silent file --Python--
     else
       execute "buffer ".scratch
     endif
