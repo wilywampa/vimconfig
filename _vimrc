@@ -1298,6 +1298,10 @@ augroup END
 if !exists('s:pwinid') | let s:pwinid = 0 | endif
 func! s:RestorePrevWin() " {{{
     let winnr = winnr()
+    wincmd P
+    if winnr != winnr() && line('$') < &previewheight
+        execute "resize ".line('$')
+    endif
     for w in range(1, winnr('$'))
         if getwinvar(w, 'pwin') == s:pwinid
             let pwin = w
