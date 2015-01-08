@@ -114,7 +114,7 @@ class TabCompleter(QtGui.QCompleter):
     def close_popup(self):
         popup = self.popup()
         if popup.isVisible():
-            self.select_completion(0)
+            self.confirm()
             popup.close()
 
     def confirm(self):
@@ -450,6 +450,9 @@ def merge_dicts(*dicts):
 def create(*data, **kwargs):
     """
     Create an interactive plot window for the given data.
+
+    >>> create([dict1, 'Title1', 'XaxisKey1'],
+               [dict2, 'Title2', 'XaxisKey2'])
 
     The inputs should define data dictionaries to plot as a list
     containing the dictionary itself, a name for the dictionary to use
