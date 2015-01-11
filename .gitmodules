@@ -96,7 +96,7 @@
 	branch = master
 [submodule "vimfiles/bundle/neocomplete"]
 	path = vimfiles/bundle/neocomplete
-	url = https://github.com/Shougo/neocomplete.vim.git
+	url = https://github.com/wilywampa/neocomplete.vim.git
 	branch = master
 [submodule "vimfiles/bundle/neomru"]
 	path = vimfiles/bundle/neomru
