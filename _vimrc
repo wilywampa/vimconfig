@@ -1850,7 +1850,7 @@ let g:targets_quotes = ''
 let g:targets_argTrigger = 'A'
 let g:targets_argOpening = '[([{"]'
 let g:targets_argClosing = '[])}"]'
-let g:targets_separators = ', . ; : + - = ~ _ * # / \ | & $ %'
+let g:targets_separators = ', . : + - = ~ _ * # / \ | & $ %'
 
 " fuzzyfinder settings
 nnoremap <silent> <M-f> :FZF<CR>
@@ -1975,25 +1975,22 @@ nnoremap <Leader>L :<C-u>execute 'file '.resolve(expand('%:p'))<bar>
 " CountJump maps
 autocmd VimrcAutocmds FileType c,cpp
     \ silent! call
-    \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'm', 'ai', 'V',
-    \                                              '^{\s*$', '^}\s*$') |
-    \ silent! call
     \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'c', 'ai', 'V',
     \                                              '^{\s*$', '^}\s*\(\w\+\s*\)\?;\s*$')
 autocmd VimrcAutocmds FileType vim
-    \ let s:patternFunctionBegin = '^\s*fu\%[nction]\>' |
-    \ let s:patternFunctionEnd = '^\s*endf*\%[unction]\>' |
     \ silent! call
     \     CountJump#Motion#MakeBracketMotion('<buffer>', '', '',
-    \                                        s:patternFunctionBegin,
-    \                                        s:patternFunctionEnd, 0) |
-    \ silent! call
-    \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'm', 'ai', 'V',
-    \                                              s:patternFunctionBegin,
-    \                                              s:patternFunctionEnd)
+    \                                        '^\s*fu\%[nction]\>',
+    \                                        '^\s*endf*\%[unction]\>', 0)
 
 " AnsiEsc map
 nnoremap <Leader>A :<C-u>AnsiEsc<CR>
+
+" textobj-function maps
+xmap am <Plug>(textobj-function-A)
+xmap im <Plug>(textobj-function-i)
+omap am <Plug>(textobj-function-A)
+omap im <Plug>(textobj-function-i)
 
 " Import scripts
 call plug#begin('$VIMCONFIG/vimfiles/bundle')
@@ -2056,6 +2053,11 @@ Plug 'triglav/vim-visual-increment', {'on': ['<Plug>VisualIncrement', '<Plug>Vis
 Plug 'wilywampa/CountJump'
 Plug 'vim-ruby/vim-ruby', {'for': ['ruby', 'eruby']}
 Plug 'wilywampa/fzf', {'dir': '$VIMCONFIG/misc/fzf'}
+Plug 'rhysd/vim-textobj-clang'
+Plug 'kana/vim-textobj-user'
+Plug 'rhysd/libclang-vim', {'do': 'make'}
+Plug 'kana/vim-textobj-function'
+Plug 'wilywampa/vim-textobj-function-clang'
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
