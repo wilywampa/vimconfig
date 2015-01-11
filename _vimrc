@@ -419,10 +419,9 @@ nn <silent> <Leader>y :<C-U>exe vimtools#EchoSyntax(v:count)<CR>
 " Change directory
 nn <silent> <Leader>cd :execute "Windo cd ".expand('%:p:h')<CR>:echo getcwd()<CR>
 nn <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
-nn <silent> <Leader>.. :execute "Windo cd ".fnamemodify(getcwd(),':h')<bar>silent!
-    \ call repeat#set("\<Leader>..")<bar>silent! call repeat#invalidate()<CR>:echo getcwd()<CR>
-nn <silent> ,.. :lcd ..<CR>:pwd<CR>:sil! call repeat#set(",..")<bar>
-    \ silent! call repeat#invalidate()<CR>
+nn <silent> <Leader>.. :execute "Windo cd ".fnamemodify(getcwd(),':h')<bar>pwd<bar>silent!
+    \ call repeat#set("\<Leader>..")<CR>
+nn <silent> ,.. :lcd ..<CR>:pwd<CR>:sil! call repeat#set(",..")<CR>
 
 " Put from " register in insert mode
 ino <M-p> <C-r>"
