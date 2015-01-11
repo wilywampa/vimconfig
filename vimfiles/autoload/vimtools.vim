@@ -426,7 +426,13 @@ endfunction " }}}
 function! vimtools#SourceMotion(type) " {{{
   let input = vimtools#opfunc(a:type)
   let tmpfile = tempname()
-  call writefile(split(input, '\n'), tmpfile)
+  let lines = split(input, '\n')
+  if exists('*scriptease#scriptid')
+    let sid = scriptease#scriptid('%')
+    let l:pat = '\v\C^func.*\zs<s:|\<SID\>'
+    call map(lines, 'substitute(v:val, l:pat, "<SNR>'.sid.'_", "g")')
+  endif
+  call writefile(lines, tmpfile)
   execute "source ".tmpfile
   call delete(tmpfile)
 endfunction " }}}
