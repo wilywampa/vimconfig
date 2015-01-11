@@ -2045,7 +2045,7 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'mbbill/undotree', {'on': 'UndotreeToggle'}
 Plug 'wilywampa/vim-unimpaired'
 Plug 'wilywampa/unite.vim'
-Plug 'wilywampa/vcscommand.vim'
+Plug 'wilywampa/vcscommand.vim', {'on': ['Diff', 'Log']}
 Plug 'wilywampa/vimfiler.vim'
 Plug 'wilywampa/vimproc.vim', {'do': 'make'.(has('win32unix') ? ' -f make_cygwin.mak' : '')}
 Plug 'wilywampa/vimshell.vim'
