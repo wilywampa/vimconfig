@@ -2018,7 +2018,7 @@ Plug 'wilywampa/vim-indent-guides', {'on': '<Plug>IndentGuidesToggle'}
 Plug 'wilywampa/vim-ipython', {'branch': 'dev'}
 Plug 'wilywampa/jedi-vim', {'branch': 'dev'}
 Plug 'xolox/vim-misc'
-Plug 'Shougo/neocomplete.vim'
+Plug 'wilywampa/neocomplete.vim'
 Plug 'wilywampa/neomru.vim'
 Plug 'wilywampa/neosnippet.vim'
 Plug 'wilywampa/neosnippet-snippets'
