@@ -83,7 +83,8 @@ function! s:Bclose(bang, buffer)
   execute wcurrent.'wincmd w'
 endfunction
 command! -bang -complete=buffer -nargs=? Bclose call s:Bclose('<bang>', '<args>')
-nnoremap <silent> <Leader>bd :Bclose<CR>:silent! call repeat#set("\<Leader>bd")<CR>
+nnoremap <silent> <Leader>bd :Bclose<CR>:silent! call repeat#set("\<Leader>bd")
+    \<CR>:silent! call repeat#invalidate()<CR>
 
 function! s:Bopen()
   if !exists('s:closed_buf_list') || len(s:closed_buf_list) == 0
