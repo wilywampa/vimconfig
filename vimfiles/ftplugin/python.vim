@@ -250,7 +250,7 @@ inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Ba
 xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>IPyRunMotion('visual')<CR>
 nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
 nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
-nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>
+nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>:autocmd! pymode CursorMoved<CR>
 nnoremap <buffer> <expr>   <Leader>po <SID>ToggleOmnifunc()
 nnoremap <buffer>          <Leader>pf :<C-u>set foldmethod=expr
     \ foldexpr=pymode#folding#expr(v:lnum) <Bar> silent! FastFoldUpdate<CR>
