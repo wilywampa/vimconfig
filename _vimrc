@@ -780,6 +780,9 @@ cnoremap <expr> <C-Left> <SID>SearchCtrlLeft()
 
 " Fix up arrow in search history when search starts with \v
 func! s:OlderHistory() " {{{
+    augroup omap_slash
+        autocmd!
+    augroup END
     if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
         return "\<C-u>\<Up>"
     elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[sgv]/\\[vV]$'
@@ -1096,6 +1099,25 @@ if s:hasvimtools
     nnoremap <silent> ]od :<C-u>call vimtools#DiffOff()<bar>echo 'DiffOff'<CR>
     nnoremap <silent> cod :<C-u>call vimtools#ToggleDiff()<CR>
 endif
+
+" Don't save search when using / or ? as an operator
+func! s:OmapSlash(char) " {{{
+    augroup omap_slash
+        autocmd!
+        autocmd CursorMoved,TextChanged * call s:CheckSearch() | autocmd! omap_slash
+    augroup END
+    let s:saved_search = getreg('/')
+    return a:char
+endfunc " }}}
+func! s:CheckSearch() " {{{
+    if getreg('/') != s:saved_search
+        call histdel('/', -1)
+        call setreg('/', s:saved_search)
+        set nohlsearch | set hlsearch | redraw!
+    endif
+endfunc " }}}
+onoremap <expr> / <SID>OmapSlash('/\v')
+onoremap <expr> ? <SID>OmapSlash('?\v')
 
 " }}}
 
