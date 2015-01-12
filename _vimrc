@@ -2084,6 +2084,12 @@ Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
 call plug#end() " }}}
 
+" Disable abbr entries for neocomplete include source
+call neocomplete#custom#source('include', 'converters',
+    \ ['converter_remove_overlap', 'converter_remove_last_paren',
+    \  'converter_delimiter', 'converter_case',
+    \ 'converter_disable_abbr', 'converter_abbr'])
+
 " Add current directory and red arrow if ignorecase is not set to status line
 sil! call airline#parts#define('ic',{'condition': '!&ic',
     \'text': nr2char(8593),'accent': 'red'})
