@@ -52,7 +52,7 @@ elseif has('win32unix') || has('win64unix')
 else
 
   func! s:RunMATLAB()
-    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+    let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
     call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
@@ -65,7 +65,7 @@ else
   endfunc
 
   func! s:RunMotionMATLAB(type)
-    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+    let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
     call VimuxOpenRunner()
     let input = vimtools#opfunc(a:type)
@@ -145,7 +145,7 @@ else
   endfunc
 
   function! s:RunScratchBufferMATLAB()
-    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+    let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
     call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")

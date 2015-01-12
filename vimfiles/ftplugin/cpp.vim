@@ -14,7 +14,7 @@ if exists('$TMUX')
   endif
 
   func! s:ExecuteMotion(type)
-    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+    let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
     call VimuxOpenRunner()
     let input = vimtools#opfunc(a:type)
@@ -33,7 +33,7 @@ if exists('$TMUX')
   endfunc
 
   func! s:IncludeFile()
-    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+    let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
     call VimuxOpenRunner()
     call VimuxSendKeys("C-e C-u")

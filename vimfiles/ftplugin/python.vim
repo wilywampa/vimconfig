@@ -141,7 +141,7 @@ if !exists('*s:IPyRunPrompt')
         call s:IPyRunIPyInput()
       endif
     else
-      let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+      let zoomed = _VimuxTmuxWindowZoomed()
       if zoomed | call system("tmux resize-pane -Z") | endif
       call VimuxOpenRunner()
       call VimuxSendKeys("q C-u")
