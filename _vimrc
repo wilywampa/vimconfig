@@ -1195,7 +1195,7 @@ elseif hasSSH
     set ttimeoutlen=100
 endif
 
-augroup VimrcAutocmds
+augroup VimrcAutocmds " {{{
     " Don't auto comment new line made with 'o', 'O', or <CR>
     autocmd FileType * exe "set fo-=o" | exe "set fo-=r"
 
@@ -1292,7 +1292,7 @@ augroup VimrcAutocmds
     autocmd InsertEnter * let s:pwinid += 1 | call setwinvar(winnr('#'), 'pwin', s:pwinid)
     autocmd InsertLeave * if winnr('$') > 2 && getwinvar(winnr('#'), 'pwin') != s:pwinid |
         \ call s:RestorePrevWin() | endif
-augroup END
+augroup END " }}}
 
 " Restore previous windo after leaving insert mode
 if !exists('s:pwinid') | let s:pwinid = 0 | endif
@@ -1355,7 +1355,7 @@ let maps_pattern = '\v<([lnvx]n%[oremap]|([cilovx]u)%[nmap]|'.
     \'(no|[cio]no)%[remap]|([cilnosvx]?mapc)%[lear]|'.
     \'([cilnosvx]|un|sun)m%[ap]|map|nun%[map]|smap|snor%[emap])>'
 
-" Abbreviation template
+" Abbreviation template {{{
 func! s:CreateAbbrev(lhs, rhs, cmdtype, ...) " {{{
     if a:0
         execute 'cnoreabbrev <expr> '.a:lhs.' getcmdtype() =~ "['.a:cmdtype
@@ -1403,7 +1403,7 @@ call s:CreateAbbrev('llas', 'ls -lshrtA --color=auto'.ls_sort, ':',  '!')
 call s:CreateAbbrev('py',   'python %',                        ':',  '!')
 if has('win32unix') || has('win64unix')
     call s:CreateAbbrev('open', 'cygstart', ':', '!')
-endif
+endif " }}}
 
 " Other abbreviations
 let b = '((\\)@<!\\)' " Unescaped backslash
@@ -1991,7 +1991,7 @@ xmap im <Plug>(textobj-function-i)
 omap am <Plug>(textobj-function-A)
 omap im <Plug>(textobj-function-i)
 
-" Import scripts
+" Import scripts {{{
 call plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
 Plug 'Konfekt/FastFold'
@@ -2060,7 +2060,7 @@ Plug 'wilywampa/vim-textobj-function-clang'
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
-call plug#end()
+call plug#end() " }}}
 
 " Add current directory and red arrow if ignorecase is not set to status line
 sil! call airline#parts#define('ic',{'condition': '!&ic',
