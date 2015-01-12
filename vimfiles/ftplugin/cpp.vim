@@ -28,6 +28,7 @@ if exists('$TMUX')
       call VimuxSendText(lines[0])
     endif
     call VimuxSendKeys("C-m")
+    silent! call repeat#invalidate()
     if zoomed | call system("tmux resize-pane -Z") | endif
   endfunc
 

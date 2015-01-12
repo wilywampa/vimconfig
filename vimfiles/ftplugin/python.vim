@@ -161,6 +161,7 @@ if !exists('*s:IPyRunPrompt')
       call VimuxSendKeys("\<CR>")
       if zoomed | call system("tmux resize-pane -Z") | endif
     endif
+    silent! call repeat#invalidate()
   endfunction
 
   function! s:IPyQuickFix()

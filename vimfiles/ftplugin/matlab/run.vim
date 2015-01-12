@@ -74,6 +74,7 @@ else
       call VimuxSendText(line)
       call VimuxSendKeys("\<CR>")
     endfor
+    silent! call repeat#invalidate()
     if zoomed | call system("tmux resize-pane -Z") | endif
   endfunc
 
