@@ -1087,8 +1087,8 @@ func! s:SaveMarks()
     let s:right_mark = getpos("']")
 endfunc
 func! s:RestoreMarks()
-  call setpos("'[", s:left_mark)
-  call setpos("']", s:right_mark)
+    call setpos("'[", s:left_mark)
+    call setpos("']", s:right_mark)
 endfunc
 autocmd VimrcAutocmds CursorMoved,TextChanged,InsertLeave * call s:SaveMarks()
 autocmd VimrcAutocmds BufWritePost * call s:RestoreMarks()
@@ -2092,11 +2092,11 @@ silent! call neocomplete#custom#source('include', 'converters',
     \ 'converter_disable_abbr', 'converter_abbr'])
 
 " Add current directory and red arrow if ignorecase is not set to status line
-silent! call airline#parts#define('ic',{'condition': '!&ic',
-    \'text': nr2char(8593),'accent': 'red'})
+silent! call airline#parts#define('ic',
+    \ {'condition': '!&ic', 'text': nr2char(8593), 'accent': 'red'})
 silent! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
-silent! let g:airline_section_c = airline#section#create(['ic', '%<', 'file',
-    \g:airline_symbols.space, 'readonly'])
+silent! let g:airline_section_c = airline#section#create(
+    \ ['ic', '%<', 'file', g:airline_symbols.space, 'readonly'])
 
 " Solarized settings
 if mobileSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
