@@ -2014,7 +2014,7 @@ omap am <Plug>(textobj-function-A)
 omap im <Plug>(textobj-function-i)
 
 " Import scripts {{{
-call plug#begin('$VIMCONFIG/vimfiles/bundle')
+silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
 Plug 'Konfekt/FastFold'
 Plug 'wilywampa/Gundo', {'branch': 'dev', 'on': 'GundoToggle'}
@@ -2082,19 +2082,20 @@ Plug 'wilywampa/vim-textobj-function-clang'
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
-call plug#end() " }}}
+call plug#end()
+endif " }}}
 
 " Disable abbr entries for neocomplete include source
-call neocomplete#custom#source('include', 'converters',
+silent! call neocomplete#custom#source('include', 'converters',
     \ ['converter_remove_overlap', 'converter_remove_last_paren',
     \  'converter_delimiter', 'converter_case',
     \ 'converter_disable_abbr', 'converter_abbr'])
 
 " Add current directory and red arrow if ignorecase is not set to status line
-sil! call airline#parts#define('ic',{'condition': '!&ic',
+silent! call airline#parts#define('ic',{'condition': '!&ic',
     \'text': nr2char(8593),'accent': 'red'})
-sil! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
-sil! let g:airline_section_c = airline#section#create(['ic', '%<', 'file',
+silent! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
+silent! let g:airline_section_c = airline#section#create(['ic', '%<', 'file',
     \g:airline_symbols.space, 'readonly'])
 
 " Solarized settings
