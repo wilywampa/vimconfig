@@ -20,12 +20,20 @@ if exists('$TMUX')
     let input = vimtools#opfunc(a:type)
     call VimuxSendKeys("C-e C-u")
     let lines = split(input, "\n")
-    if len(lines) > 1
+
+    " Run as #include temporary file if input contains bracket statements
+    " spanning multiple lines
+    if len(filter(map(copy(lines), 'split(v:val, "\\zs")'),
+        \ 'count(v:val, "{") % 2 == 1 || count(v:val, "}") % 2 == 1')) > 0
       let fname = tempname()
       call writefile(lines, fname)
       call VimuxSendText('#include "'.fname.'"')
     else
-      call VimuxSendText(lines[0])
+      for line in lines[0:-2]
+        call VimuxSendText(line)
+        call VimuxSendKeys("C-m")
+      endfor
+      call VimuxSendText(lines[-1])
     endif
     call VimuxSendKeys("C-m")
     silent! call repeat#invalidate()
