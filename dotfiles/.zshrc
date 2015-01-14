@@ -770,7 +770,7 @@ tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
 vimblacklist=(vimshell processing over flake8 tmux-complete \
-    vcscommand fugitive jedi tabular clang_complete)
+    jedi tabular clang_complete textobj-clang textobj-function-clang libclang)
 export VIMBLACKLIST=${(j:,:)vimblacklist}
 
 vim-blacklist-add() {
@@ -791,9 +791,6 @@ zmodload -i zsh/parameter
 insert-last-command-output() { LBUFFER+="$(eval $history[$((HISTCMD-1))])" }
 zle -N insert-last-command-output
 bindkey '^X' insert-last-command-output
-
-# https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/plugins/extract/extract.plugin.zsh
-[[ -e ~/.zsh/extract.plugin.zsh ]] && source ~/.zsh/extract.plugin.zsh
 
 unalias ipython >& /dev/null
 ipython() {
@@ -939,6 +936,7 @@ export FPATH
 export EDITOR=vim
 export DATEFMT='%a %d%b%y %T'
 export VIMSERVER=VIM
+export TAR_OPTIONS='-k'
 
 #[[[1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
@@ -1249,5 +1247,7 @@ for _var in VIMCONFIG FPATH FZF_RUBY_EXEC FZF_DEFAULT_OPTS FZF_DEFAULT_COMMAND; 
 done
 [[ ! $FPATH =~ 'misc' ]] && _unset+=(FPATH)
 [[ -n $_unset ]] && echo "Unset variables:" ${(j/, /)_unset}
+
+[[ -n $VIMCONFIG ]] && source $VIMCONFIG/misc/extract.plugin.zsh
 
 # vim: set fdm=marker fdl=1 et sw=4 fmr=[[[,]]]:

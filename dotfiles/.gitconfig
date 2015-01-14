@@ -24,6 +24,7 @@
 	ls = ls-files
 	printbranch = rev-parse --abbrev-ref HEAD
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	drymerge = merge --no-commit --no-ff
 [color]
 	diff = auto
 	status = auto
@@ -47,3 +48,5 @@
 	keepBackup = false
 [credential]
 	helper = osxkeychain
+[status]
+	submodulesummary = true
