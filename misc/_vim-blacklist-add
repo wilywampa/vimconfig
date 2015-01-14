@@ -1,7 +1,7 @@
 #compdef vim-blacklist-add
 
 local -a bundles
-bundles=($(ls ~/.vim/bundle))
+bundles=($(ls $VIMCONFIG/vimfiles/bundle))
 for bundle in $vimblacklist; do
     bundles[${bundles[(i)$bundle]}]=()
 done
