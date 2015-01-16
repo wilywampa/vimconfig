@@ -2001,9 +2001,11 @@ nnoremap <Leader>L :<C-u>execute 'file '.resolve(expand('%:p'))<bar>
 
 " CountJump maps
 autocmd VimrcAutocmds FileType c,cpp
+    \ if maparg('ac', 'o') ==# '' |
     \ silent! call
     \     CountJump#TextObject#MakeWithCountSearch('<buffer>', 'c', 'ai', 'V',
-    \                                              '^{\s*$', '^}\s*\(\w\+\s*\)\?;\s*$')
+    \                                              '^{\s*$', '^}\s*\(\w\+\s*\)\?;\s*$') |
+    \ endif
 autocmd VimrcAutocmds FileType vim
     \ silent! call
     \     CountJump#Motion#MakeBracketMotion('<buffer>', '', '',
