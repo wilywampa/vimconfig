@@ -448,6 +448,8 @@ nn <silent> <Leader>g8 :let @/=expand('<cword>')<CR>
 " Move current line to 1/5 down from top or up from bottom
 nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
 nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
+xn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
+xn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
 
 " Open cursor file in vertical or horizontal split
 nn <silent> <C-w><C-f> :belowright vertical wincmd f<CR>
