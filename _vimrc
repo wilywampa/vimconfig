@@ -255,6 +255,8 @@ nn <silent> <C-w><C-]> :<C-u>execute "normal! :belowright vertical
     \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
 nn <silent> <C-w>] :<C-u>execute "normal! :belowright
     \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
+xn <silent> <C-w><C-]> :<C-u>belowright vertical split<CR>gv<C-]>
+xn <silent> <C-w>] :<C-u>belowright split<CR>gv<C-]>
 
 " Shortcuts for switching tab, including closing command window if it's open
 nn <silent> <expr> <C-Tab>   tabpagenr('$')==1 ?
@@ -450,6 +452,8 @@ nn <expr> zl "zb".(winheight('.')/5)."\<C-e>"
 " Open cursor file in vertical or horizontal split
 nn <silent> <C-w><C-f> :belowright vertical wincmd f<CR>
 nn <silent> <C-w>f :belowright wincmd f<CR>
+xn <silent> <C-w><C-f> :<C-u>belowright vertical split<CR>gvgf
+xn <silent> <C-w>f :<C-u>belowright vertical split<CR>gvgf
 
 " Default make key
 nn <silent> <F5> :update<CR>:make<CR><CR>
