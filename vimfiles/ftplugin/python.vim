@@ -267,14 +267,21 @@ import vim
 def get_docstrings(source):
     io_obj = cStringIO.StringIO(source)
     prev_toktype = tokenize.INDENT
+    only_comments = True
     docstrings = []
     for tok in tokenize.generate_tokens(io_obj.readline):
         token_type = tok[0]
         start_line = tok[2][0]
         end_line = tok[3][0]
         if token_type == tokenize.STRING:
-            if prev_toktype == tokenize.INDENT:
+            if prev_toktype == tokenize.INDENT or only_comments:
                 docstrings.append((start_line, end_line))
+
+        if token_type not in [tokenize.COMMENT,
+                              tokenize.NL,
+                              tokenize.INDENT,
+                              tokenize.STRING]:
+            only_comments = False
 
         prev_toktype = token_type
 
