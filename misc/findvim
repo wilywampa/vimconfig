@@ -31,7 +31,9 @@ if [ $? -eq 0 ]; then
       pane_id=$pane[(ws:,,:)2]
       if [[ "$command" = 'vim' ]]; then
         tmux select-window -t$win
-        tmux select-pane -t$pane_id
+        if [[ $(tmux display-message -p '#{pane_id}') != $pane_id ]]; then
+          tmux select-pane -t$pane_id
+        fi
         if [[ $dodiff == 1 ]]; then
           file1=$(readlink -f "$2")
           file2=$(readlink -f "$3")
