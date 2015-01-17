@@ -684,7 +684,7 @@ _use-as-args() {
 zle -N _use-as-args; bindkey '^A' _use-as-args
 
 _vim-pipe() {
-    BUFFER="vim =("${BUFFER}")"
+    BUFFER="vim =("${BUFFER}" 2>&1)"
     CURSOR=$(( ${#BUFFER} - 1 ))
 }
 zle -N _vim-pipe; bindkey 'ð' _vim-pipe  # <M-p>
