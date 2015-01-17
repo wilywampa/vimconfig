@@ -384,12 +384,14 @@ globalabbrevs=(
 
 magic-abbrev-expand() {
     local left pre shellmods mods prevword lastidx doabbrev=0 dopostmod=0
+    local lbuffer_start ins_space=0
     if [[ $KEYMAP == 'vicmd' ]]; then
         LBUFFER=$BUFFER
         RBUFFER=
     fi
     lbuffer_start=$LBUFFER
-    if [[ ${LBUFFER[-1]} != " " ]] && [[ ! ${RBUFFER[1]} =~ [[:alnum:]_] ]]; then
+    [[ $KEYS == $(echo '\t') && $RBUFFER[1] =~ [[:alnum:]_] ]] && ins_space=1
+    if [[ $LBUFFER[-1] != " " && $ins_space == 0 || ! $RBUFFER[1] =~ [[:alnum:]_] ]]; then
         # Get index of last space, pipe, semicolon, or $( before last word
         lastidx=${LBUFFER[(I) ]}
         (( ${LBUFFER[(I)\|]} > $lastidx )) && lastidx=${LBUFFER[(I)\|]}
@@ -431,6 +433,7 @@ magic-abbrev-expand() {
     else
         [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]] && LBUFFER=$LBUFFER$KEYS
     fi
+    [[ $ins_space == 1 ]] && LBUFFER=${LBUFFER}' '
     [[ $LBUFFER == $lbuffer_start ]] && return 1 || return 0
 }
 
