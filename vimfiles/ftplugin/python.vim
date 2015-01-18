@@ -42,6 +42,8 @@ augroup py_ftplugin
       \ foldexpr=pymode#folding#expr(v:lnum) foldtext=pymode#folding#text()
 augroup END
 
+inoreabbrev <buffer> @ lambda
+
 let s:errorformat  = '%+GTraceback%.%#,'
 let s:errorformat .= '%E  File "%f"\, line %l\,%m%\C,'
 let s:errorformat .= '%E  File "%f"\, line %l%\C,'
