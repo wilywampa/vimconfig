@@ -385,9 +385,11 @@ augroup python_ftplugin
       \ endif
   autocmd InsertEnter *.py,--Python--
       \ if &omnifunc == 'CompleteIPython' |
-      \     let g:neocomplete#force_omni_input_patterns.python = '\%([^(). \t]\.\|^\s*@\)\w*\|\[["'']\w*' |
+      \     let g:neocomplete#force_omni_input_patterns.python =
+      \         '\%([^(). \t]\(\<self\)\@<!\.\|^\s*@\)\w*\|\[["'']\w*' |
       \ else |
-      \     let g:neocomplete#force_omni_input_patterns.python = '\%([^(). \t]\.\|^\s*@\)\w*' |
+      \     let g:neocomplete#force_omni_input_patterns.python =
+      \         '\%([^(). \t]\.\|^\s*@\)\w*' |
       \ endif
 augroup END
 
