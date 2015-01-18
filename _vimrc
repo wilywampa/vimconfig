@@ -215,22 +215,30 @@ if s:hasvimtools
 else
     command! -nargs=1 SwitchToOrOpen tab drop <args>
 endif
-nn <silent> ,ea :<C-u>edit ~/.vim/after/plugin/after.vim<CR>:norm! zv<CR>
-nn <silent> ,eb :<C-u>edit ~/.bashrc<CR>:norm! zv<CR>
-nn <silent> ,ec :<C-u>edit ~/.cshrc<CR>:norm! zv<CR>
-nn <silent> ,eg :<C-u>edit ~/.gitconfig<CR>:norm! zv<CR>
-nn <silent> ,eh :<C-u>edit ~/.histfile<CR>:norm! zv<CR>
-nn <silent> ,ei :<C-u>edit ~/.inputrc<CR>:norm! zv<CR>
-nn <silent> ,el :<C-u>edit ~/.zshrclocal<CR>:norm! zv<CR>
-nn <silent> ,em :<C-u>edit ~/.minttyrc<CR>:norm! zv<CR>
-nn <silent> ,ep :<C-u>edit ~/.ipython/profile_default/ipython_config.py<CR>:norm! zv<CR>
-nn <silent> ,es :<C-u>edit ~/.screenrc<CR>:norm! zv<CR>
-nn <silent> ,et :<C-u>if expand('%') =~ "\.tmux\.conf$" \| edit
-    \ ~/.tmux-local.conf \| else \| edit ~/.tmux.conf \| endif<CR>:norm! zv<CR>
-nn <silent> ,eu :<C-u>edit ~/.muttrc<CR>:norm! zv<CR>
-nn <silent> ,ev :<C-u>execute "edit ".resolve(expand('$MYVIMRC'))<CR>:norm! zv<CR>
-nn <silent> ,ex :<C-u>edit ~/.Xdefaults<CR>:norm! zv<CR>
-nn <silent> ,ez :<C-u>edit ~/.zshrc<CR>:norm! zv<CR>
+let file_dict = {
+    \ 'a': '$HOME/.vim/after/plugin/after.vim',
+    \ 'b': '$HOME/.bashrc',
+    \ 'c': '$HOME/.cshrc',
+    \ 'g': '$HOME/.gitconfig',
+    \ 'h': '$HOME/.histfile',
+    \ 'i': '$HOME/.inputrc',
+    \ 'l': '$HOME/.zshrclocal',
+    \ 'm': '$HOME/.minttyrc',
+    \ 'p': '$HOME/.ipython/profile_default/ipython_config.py',
+    \ 's': '$HOME/.screenrc',
+    \ 'u': '$HOME/.muttrc',
+    \ 'v': '$MYVIMRC',
+    \ 'x': '$HOME/.Xdefaults',
+    \ 'z': '$HOME/.zshrc',
+    \ }
+for file in items(file_dict)
+    execute 'nnoremap ,e'.file[0].' :<C-u>edit '.
+        \ fnameescape(resolve(expand(file[1]))).'<CR>zv'
+endfor
+nn <silent> <expr> ,et ':<C-u>edit '.
+    \ (resolve(expand('%:p')) == resolve(expand('$HOME/.tmux.conf')) ?
+    \     fnameescape(resolve(expand('$HOME/.tmux-local.conf'))) :
+    \     fnameescape(resolve(expand('$HOME/.tmux.conf')))).'<CR>zv'
 
 " Source vimrc
 nn <silent> ,sv :so $MYVIMRC<CR>:runtime after/plugin/after.vim<CR>
