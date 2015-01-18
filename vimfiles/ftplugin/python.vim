@@ -42,7 +42,9 @@ augroup py_ftplugin
       \ foldexpr=pymode#folding#expr(v:lnum) foldtext=pymode#folding#text()
 augroup END
 
-inoreabbrev <buffer> @ lambda
+inoremap <expr> <buffer> @
+    \ (getline('.')[:col('.')-1] =~ '^\s*$' \|\|
+    \  getline('.')[col('.')-1] =~ '\w') ? '@' : 'lambda'
 
 let s:errorformat  = '%+GTraceback%.%#,'
 let s:errorformat .= '%E  File "%f"\, line %l\,%m%\C,'
