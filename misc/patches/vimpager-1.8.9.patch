@@ -65,34 +65,6 @@ index ef59ef3..99dd5c4 100755
  			    "--") shift; break ;;
  	                      -*) echo "bad option '$1'" ; exit 1 ;;
  	                       *) break ;;
-@@ -275,22 +230,22 @@ main() {
- 	case $(echo "${@}" | tr 'A-Z' 'a-z') in
- 		*.gz)
- 			filename=$(echo ${filename} | sed -e 's/\.[Gg][Zz]$//')
--			gunzip -c -- "${@}" | filter 2> "${filename}"
-+			gunzip -c -- "${@}" | sed -e '$a\' | filter 2> "${filename}"
- 			;;
- 		*.bz2)
- 			filename=$(echo ${filename} | sed -e 's/\.[Bb][Zz]2$//')
--			bunzip2 -c -- "${@}" | filter 2> "${filename}"
-+			bunzip2 -c -- "${@}" | sed -e '$a\' | filter 2> "${filename}"
- 			;;
- 		*.xz)
- 			filename=$(echo ${filename} | sed -e 's/\.[Xx][Zz]$//')
--			xzcat -c -- "${@}" | filter 2> "${filename}"
-+			xzcat -c -- "${@}" | sed -e '$a\' | filter 2> "${filename}"
- 			;;
- 		*.z)
- 			filename=$(echo ${filename} | sed -e 's/\.[Zz]$//')
--			uncompress -c -- "${@}" | filter 2> "${filename}"
-+			uncompress -c -- "${@}" | sed -e '$a\' | filter 2> "${filename}"
- 			;;
- 		*)
--			cat -- "${@:--}" | filter 2> "${filename}"
-+			cat -- "${@:--}" | sed -e '$a\' | filter 2> "${filename}"
- 			;;
- 	esac
- 
 @@ -331,12 +286,6 @@ main() {
  		exit
  	fi
@@ -145,3 +117,13 @@ index ef59ef3..99dd5c4 100755
  				-c "set nomodeline fdl=9999 | silent! e ${filename}" \
  				"${@}" &
  			;;
+@@ -591,7 +530,8 @@ filter() {
+ 		while [ ${nl} -le ${dh} ]; do
+ 			IFS='
+ '
+-			read -r line || exec printf %s "${content}"
++			read -r line
++			[ $? != 0 -a -z "$line" ] && exec printf %s "${content}"
+ 			content="${content}${line}
+ "
+ 			nl=$((nl+1))
