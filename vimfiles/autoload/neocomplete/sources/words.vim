@@ -48,6 +48,37 @@ function! neocomplete#sources#words#define()
     return s:source
 endfunction
 
+function! neocomplete#sources#words#start()
+    setlocal completefunc=neocomplete#sources#words#complete
+    return "\<C-x>\<C-u>"
+endfunction
+
+function! neocomplete#sources#words#complete(findstart, base)
+    if a:findstart
+        let line = getline('.')
+        let start = col('.')
+        while start > 0
+            let start -= 1
+            if line[start-1] =~ '\w'
+                continue
+            else
+                break
+            endif
+        endwhile
+        return start
+    else
+        let results = []
+        python << EOF
+base = vim.eval('a:base')
+for word in words:
+    if word.startswith(base):
+        vim.command('call add(results, {"word": pyeval("word"),'
+                                       '"menu": "[w]"})')
+EOF
+        return results
+    endif
+endfunction
+
 augroup words_complete
     autocmd!
     autocmd BufWinEnter,BufWrite,CmdwinEnter,WinEnter * call s:UpdateWordList()

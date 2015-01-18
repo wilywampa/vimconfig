@@ -1569,9 +1569,9 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             \ "\<Plug>(neosnippet_expand_or_jump)":
             \ (pumvisible() ? neocomplete#close_popup() : "\<C-d>")
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
-        inoremap <silent> <expr> <C-f>   neocomplete#cancel_popup()
-        inoremap <silent> <expr> <C-l>   neocomplete#complete_common_string()
-        inoremap <silent> <expr> <C-x><C-w> neocomplete#mappings#start_manual_complete(['words'])
+        inoremap <silent> <expr> <C-f>      neocomplete#cancel_popup()
+        inoremap <silent> <expr> <C-l>      neocomplete#complete_common_string()
+        inoremap <silent> <expr> <C-x><C-w> neocomplete#sources#words#start()
         execute 'inoremap <C-Tab> '.repeat('<C-n>', 10)
         execute 'inoremap <C-S-Tab> '.repeat('<C-p>', 10)
         augroup VimrcAutocmds
