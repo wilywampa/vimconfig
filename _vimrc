@@ -907,7 +907,7 @@ func! s:DeleteUntilChar(char) " {{{
     let cmdstart = substitute(cmdstart, '\V'.escape(a:char, '\').'\*\$', '', '')
     let newcmdstart = strpart(cmdstart, 0, strridx(cmdstart, a:char) + 1)
     let end = strpart(getcmdline(), getcmdpos() - 1)
-    call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart))
+    call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart) - 1)
     return newcmdstart.end
 endfunc " }}}
 cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
