@@ -431,7 +431,7 @@ magic-abbrev-expand() {
     if [[ $KEYS == " " ]]; then
         zle magic-space # Add space or do history expansion
     else
-        [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]]
+        [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]] && LBUFFER=$LBUFFER$KEYS
     fi
     [[ $ins_space == 1 ]] && LBUFFER=${LBUFFER}' ' && echo inserted space
     [[ $LBUFFER == $lbuffer_start ]] && return 1 || return 0
