@@ -391,7 +391,7 @@ magic-abbrev-expand() {
     fi
     lbuffer_start=$LBUFFER
     [[ $KEYS == $(echo '\t') && $RBUFFER[1] =~ [[:alnum:]_] ]] && ins_space=1
-    if [[ $LBUFFER[-1] != " " && $ins_space == 0 || ! $RBUFFER[1] =~ [[:alnum:]_] ]]; then
+    if [[ $LBUFFER[-1] != " " && $ins_space == 1 || ! $RBUFFER[1] =~ [[:alnum:]_] ]]; then
         # Get index of last space, pipe, semicolon, or $( before last word
         lastidx=${LBUFFER[(I) ]}
         (( ${LBUFFER[(I)\|]} > $lastidx )) && lastidx=${LBUFFER[(I)\|]}
@@ -431,9 +431,9 @@ magic-abbrev-expand() {
     if [[ $KEYS == " " ]]; then
         zle magic-space # Add space or do history expansion
     else
-        [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]] && LBUFFER=$LBUFFER$KEYS
+        [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]]
     fi
-    [[ $ins_space == 1 ]] && LBUFFER=${LBUFFER}' '
+    [[ $ins_space == 1 ]] && LBUFFER=${LBUFFER}' ' && echo inserted space
     [[ $LBUFFER == $lbuffer_start ]] && return 1 || return 0
 }
 
