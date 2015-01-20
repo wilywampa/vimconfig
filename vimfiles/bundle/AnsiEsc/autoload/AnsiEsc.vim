@@ -264,7 +264,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
 "   call Decho("installing implicit background highlighting")
 
    syn cluster AnsiBlackBgGroup contains=ansiFgBlackBlack,ansiFgRedBlack,ansiFgGreenBlack,ansiFgYellowBlack,ansiFgBlueBlack,ansiFgMagentaBlack,ansiFgCyanBlack,ansiFgWhiteBlack
-   syn region ansiBlackBg           start="\e\[;\=0\{0,2};\=\%(1;\)\=40\%(1;\)\=m" end="\e\[[04]"me=e-3  contains=ansiConceal,@ansiBlackBgGroup
+   syn region ansiBlackBg           start="\e\[;\=0\{0,2};\=\%(1;\)\=40\%(1;\)\=m" end="\e\[[04]\?"me=e-3 contains=ansiConceal,@ansiBlackBgGroup
    syn region ansiFgBlackBlack      contained   start="\e\[30m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgRedBlack        contained   start="\e\[31m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgGreenBlack      contained   start="\e\[32m" end="\e\["me=e-2 contains=ansiConceal
@@ -283,7 +283,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi link ansiFgWhiteBlack         ansiWhiteBlack
 
    syn cluster AnsiRedBgGroup contains=ansiFgBlackRed,ansiFgRedRed,ansiFgGreenRed,ansiFgYellowRed,ansiFgBlueRed,ansiFgMagentaRed,ansiFgCyanRed,ansiFgWhiteRed
-   syn region ansiRedBg             start="\e\[;\=0\{0,2};\=\%(1;\)\=41\%(1;\)\=m" end="\e\[[04]"me=e-3  contains=ansiConceal,@ansiRedBgGroup
+   syn region ansiRedBg             start="\e\[;\=0\{0,2};\=\%(1;\)\=41\%(1;\)\=m" end="\e\[[04]\?"me=e-3 contains=ansiConceal,@ansiRedBgGroup
    syn region ansiFgBlackRed        contained   start="\e\[30m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgRedRed          contained   start="\e\[31m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgGreenRed        contained   start="\e\[32m" end="\e\["me=e-2 contains=ansiConceal
@@ -302,7 +302,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi link ansiFgWhiteRed           ansiWhiteRed
 
    syn cluster AnsiGreenBgGroup contains=ansiFgBlackGreen,ansiFgRedGreen,ansiFgGreenGreen,ansiFgYellowGreen,ansiFgBlueGreen,ansiFgMagentaGreen,ansiFgCyanGreen,ansiFgWhiteGreen
-   syn region ansiGreenBg           start="\e\[;\=0\{0,2};\=\%(1;\)\=42\%(1;\)\=m" end="\e\[[04]"me=e-3  contains=ansiConceal,@ansiGreenBgGroup
+   syn region ansiGreenBg           start="\e\[;\=0\{0,2};\=\%(1;\)\=42\%(1;\)\=m" end="\e\[[04]\?"me=e-3 contains=ansiConceal,@ansiGreenBgGroup
    syn region ansiFgBlackGreen      contained   start="\e\[30m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgRedGreen        contained   start="\e\[31m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgGreenGreen      contained   start="\e\[32m" end="\e\["me=e-2 contains=ansiConceal
@@ -321,7 +321,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi link ansiFgWhiteGreen         ansiWhiteGreen
 
    syn cluster AnsiYellowBgGroup contains=ansiFgBlackYellow,ansiFgRedYellow,ansiFgGreenYellow,ansiFgYellowYellow,ansiFgBlueYellow,ansiFgMagentaYellow,ansiFgCyanYellow,ansiFgWhiteYellow
-   syn region ansiYellowBg          start="\e\[;\=0\{0,2};\=\%(1;\)\=43\%(1;\)\=m" end="\e\[[04]"me=e-3  contains=ansiConceal,@ansiYellowBgGroup
+   syn region ansiYellowBg          start="\e\[;\=0\{0,2};\=\%(1;\)\=43\%(1;\)\=m" end="\e\[[04]\?"me=e-3 contains=ansiConceal,@ansiYellowBgGroup
    syn region ansiFgBlackYellow     contained   start="\e\[30m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgRedYellow       contained   start="\e\[31m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgGreenYellow     contained   start="\e\[32m" end="\e\["me=e-2 contains=ansiConceal
@@ -340,7 +340,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi link ansiFgWhiteYellow        ansiWhiteYellow
 
    syn cluster AnsiBlueBgGroup contains=ansiFgBlackBlue,ansiFgRedBlue,ansiFgGreenBlue,ansiFgYellowBlue,ansiFgBlueBlue,ansiFgMagentaBlue,ansiFgCyanBlue,ansiFgWhiteBlue
-   syn region ansiBlueBg            contained   start="\e\[;\=0\{0,2};\=\%(1;\)\=44\%(1;\)\=m" end="\e\[[04]"me=e-3  contains=ansiConceal,@ansiBlueBgGroup
+   syn region ansiBlueBg            contained   start="\e\[;\=0\{0,2};\=\%(1;\)\=44\%(1;\)\=m" end="\e\[[04]\?"me=e-3 contains=ansiConceal,@ansiBlueBgGroup
    syn region ansiFgBlackBlue       contained   start="\e\[30m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgRedBlue         contained   start="\e\[31m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgGreenBlue       contained   start="\e\[32m" end="\e\["me=e-2 contains=ansiConceal
@@ -377,7 +377,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi link ansiFgWhiteBlue          ansiWhiteBlue
 
    syn cluster AnsiMagentaBgGroup contains=ansiFgBlackMagenta,ansiFgRedMagenta,ansiFgGreenMagenta,ansiFgYellowMagenta,ansiFgBlueMagenta,ansiFgMagentaMagenta,ansiFgCyanMagenta,ansiFgWhiteMagenta
-   syn region ansiMagentaBg         contained   start="\e\[;\=0\{0,2};\=\%(1;\)\=45\%(1;\)\=m" end="\e\[[04]"me=e-3  contains=ansiConceal,@ansiMagentaBgGroup
+   syn region ansiMagentaBg         contained   start="\e\[;\=0\{0,2};\=\%(1;\)\=45\%(1;\)\=m" end="\e\[[04]\?"me=e-3 contains=ansiConceal,@ansiMagentaBgGroup
    syn region ansiFgBlackMagenta    contained   start="\e\[30m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgRedMagenta      contained   start="\e\[31m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgGreenMagenta    contained   start="\e\[32m" end="\e\["me=e-2 contains=ansiConceal
@@ -396,7 +396,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi link ansiFgWhiteMagenta       ansiWhiteMagenta
 
    syn cluster AnsiCyanBgGroup contains=ansiFgBlackCyan,ansiFgRedCyan,ansiFgGreenCyan,ansiFgYellowCyan,ansiFgBlueCyan,ansiFgMagentaCyan,ansiFgCyanCyan,ansiFgWhiteCyan
-   syn region ansiCyanBg            start="\e\[;\=0\{0,2};\=\%(1;\)\=46\%(1;\)\=m" end="\e\[[04]"me=e-3  contains=ansiConceal,@ansiCyanBgGroup
+   syn region ansiCyanBg            start="\e\[;\=0\{0,2};\=\%(1;\)\=46\%(1;\)\=m" end="\e\[[04]\?"me=e-3 contains=ansiConceal,@ansiCyanBgGroup
    syn region ansiFgBlackCyan       contained   start="\e\[30m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgRedCyan         contained   start="\e\[31m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgGreenCyan       contained   start="\e\[32m" end="\e\["me=e-2 contains=ansiConceal
@@ -415,7 +415,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    hi link ansiFgWhiteCyan          ansiWhiteCyan
 
    syn cluster AnsiWhiteBgGroup contains=ansiFgBlackWhite,ansiFgRedWhite,ansiFgGreenWhite,ansiFgYellowWhite,ansiFgBlueWhite,ansiFgMagentaWhite,ansiFgCyanWhite,ansiFgWhiteWhite
-   syn region ansiWhiteBg           start="\e\[;\=0\{0,2};\=\%(1;\)\=47\%(1;\)\=m" end="\e\[[04]"me=e-3  contains=ansiConceal,@ansiWhiteBgGroup
+   syn region ansiWhiteBg           start="\e\[;\=0\{0,2};\=\%(1;\)\=47\%(1;\)\=m" end="\e\[[04]\?"me=e-3 contains=ansiConceal,@ansiWhiteBgGroup
    syn region ansiFgBlackWhite      contained   start="\e\[30m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgRedWhite        contained   start="\e\[31m" end="\e\["me=e-2 contains=ansiConceal
    syn region ansiFgGreenWhite      contained   start="\e\[32m" end="\e\["me=e-2 contains=ansiConceal
