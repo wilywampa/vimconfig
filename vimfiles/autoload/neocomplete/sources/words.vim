@@ -6,10 +6,11 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:source = {
-    \ 'name'  : 'words',
-    \ 'kind'  : 'keyword',
-    \ 'mark'  : '[w]',
-    \ 'hooks' : {},
+    \ 'name'       : 'words',
+    \ 'kind'       : 'keyword',
+    \ 'mark'       : '[w]',
+    \ 'hooks'      : {},
+    \ 'converters' : [],
     \ }
 
 python << EOF
