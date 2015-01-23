@@ -551,7 +551,7 @@ fun! AnsiEsc#AnsiEsc(rebuild)
 
   " handle 3 or more element ansi escape sequences by building syntax and highlighting rules
   " specific to the current file
-  call s:MultiElementHandler()
+  call AnsiEsc#MultiElementHandler()
 
   hi ansiNone           cterm=NONE gui=NONE
 
@@ -1062,9 +1062,9 @@ fun! AnsiEsc#AnsiEsc(rebuild)
 endfun
 
 " ---------------------------------------------------------------------
-" s:MultiElementHandler: builds custom syntax highlighting for three or more element ansi escape sequences {{{2
-fun! s:MultiElementHandler()
-"  call Dfunc("s:MultiElementHandler()")
+" AnsiEsc#MultiElementHandler: builds custom syntax highlighting for three or more element ansi escape sequences {{{2
+fun! AnsiEsc#MultiElementHandler()
+"  call Dfunc("AnsiEsc#MultiElementHandler()")
   let curwp= SaveWinPosn(0)
   keepj 1
   keepj norm! 0
@@ -1097,7 +1097,7 @@ fun! s:MultiElementHandler()
      elseif skip == 385
       " handling <esc>[38;5;...
       if has("gui") && has("gui_running")
-       let fg= s:Ansi2Gui(code)
+       let fg= AnsiEsc#Ansi2Gui(code)
       else
        let fg= code
       endif
@@ -1113,7 +1113,7 @@ fun! s:MultiElementHandler()
      elseif skip == 485
       " handling <esc>[48;5;...
       if has("gui") && has("gui_running")
-       let bg= s:Ansi2Gui(code)
+       let bg= AnsiEsc#Ansi2Gui(code)
       else
        let bg= code
       endif
@@ -1213,17 +1213,17 @@ fun! s:MultiElementHandler()
   endwhile
 
   call RestoreWinPosn(curwp)
-"  call Dret("s:MultiElementHandler")
+"  call Dret("AnsiEsc#MultiElementHandler")
 endfun
 
 " ---------------------------------------------------------------------
-" s:Ansi2Gui: converts an ansi-escape sequence (for 256-color xterms) {{{2
+" AnsiEsc#Ansi2Gui: converts an ansi-escape sequence (for 256-color xterms) {{{2
 "           to an equivalent gui color
 "           colors   0- 15:
 "           colors  16-231:  6x6x6 color cube, code= 16+r*36+g*6+b  with r,g,b each in [0,5]
 "           colors 232-255:  grayscale ramp,   code= 10*gray + 8    with gray in [0,23] (black,white left out)
-fun! s:Ansi2Gui(code)
-"  call Dfunc("s:Ansi2Gui(code=)".a:code)
+fun! AnsiEsc#Ansi2Gui(code)
+"  call Dfunc("AnsiEsc#Ansi2Gui(code=)".a:code)
   let guicolor= a:code
   if a:code < 16
    let code2rgb = [ "black", "red3", "green3", "yellow3", "blue3", "magenta3", "cyan3", "gray70", "gray40", "red", "green", "yellow", "royalblue3", "magenta", "cyan", "white"]
@@ -1240,7 +1240,7 @@ fun! s:Ansi2Gui(code)
    let b        = code2rgb[code%6]
    let guicolor = printf("#%02x%02x%02x",r,g,b)
   endif
-"  call Dret("s:Ansi2Gui ".guicolor)
+"  call Dret("AnsiEsc#Ansi2Gui ".guicolor)
   return guicolor
 endfun
 
