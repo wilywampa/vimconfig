@@ -1529,6 +1529,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
 
     if !s:readonly
         " NeoComplete settings
+        set completefunc=neocomplete#complete#completefunc
         let g:neocomplete#enable_at_startup=1
         let g:neocomplete#enable_smart_case=1
         let g:neocomplete#max_list=200
@@ -1551,6 +1552,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         endif
         let g:neocomplete#sources._ = ['file', 'file/include', 'member',
             \ 'buffer', 'syntax', 'include', 'neosnippet', 'omni', 'words']
+        let g:neocomplete#sources.vim = g:neocomplete#sources._ + ['vim']
         let g:neocomplete#sources.matlab = g:neocomplete#sources._ + ['matlab-complete']
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
@@ -2107,7 +2109,7 @@ endif " }}}
 silent! call neocomplete#custom#source('include', 'converters',
     \ ['converter_remove_overlap', 'converter_remove_last_paren',
     \  'converter_delimiter', 'converter_case',
-    \ 'converter_disable_abbr', 'converter_abbr'])
+    \  'converter_disable_abbr', 'converter_abbr'])
 
 " Add current directory and red arrow if ignorecase is not set to status line
 silent! call airline#parts#define('ic',
