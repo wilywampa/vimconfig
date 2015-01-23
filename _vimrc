@@ -1946,7 +1946,8 @@ let g:jedi#show_call_signatures = 2
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
 endif
-let g:neocomplete#force_omni_input_patterns.python = '\%([^(). \t]\.\|^\s*@\)\w*'
+let g:neocomplete#force_omni_input_patterns.python =
+    \ '\%([^(). \t]\.\|^\s*@\|^\s*from\s.\+import \(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*'
 
 " DirDiff settings
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
