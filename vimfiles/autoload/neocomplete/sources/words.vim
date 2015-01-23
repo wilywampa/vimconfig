@@ -54,9 +54,12 @@ function! neocomplete#sources#words#start()
     setlocal completefunc=neocomplete#sources#words#complete
     augroup words_completefunc
         autocmd!
-        autocmd CompleteDone,InsertEnter,InsertLeave *
+        autocmd InsertEnter,InsertLeave *
             \ let &l:completefunc = s:completefunc |
             \ autocmd! words_completefunc
+        autocmd InsertCharPre * if v:char !~ '\w' |
+            \ let &l:completefunc = s:completefunc |
+            \ execute 'autocmd! words_completefunc'  | endif
     augroup END
     return "\<C-x>\<C-u>"
 endfunction
