@@ -987,7 +987,6 @@ fun! AnsiEsc#AnsiEsc(rebuild)
 
 
    hi ansiBlackBlack        ctermfg=0          ctermbg=0          guifg=Black      guibg=Black    cterm=none         gui=none
-   hi ansiRedBlack          ctermfg=0          ctermbg=0          guifg=Black      guibg=Black    cterm=none         gui=none
    hi ansiRedBlack          ctermfg=1          ctermbg=0          guifg=Red        guibg=Black    cterm=none         gui=none
    hi ansiGreenBlack        ctermfg=2          ctermbg=0          guifg=Green      guibg=Black    cterm=none         gui=none
    hi ansiYellowBlack       ctermfg=3          ctermbg=0          guifg=Yellow     guibg=Black    cterm=none         gui=none
