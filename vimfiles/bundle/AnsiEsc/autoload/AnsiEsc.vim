@@ -1139,39 +1139,17 @@ fun! AnsiEsc#MultiElementHandler()
      elseif code == 7
       let mod=mod."reverse,"
 
-     elseif code == 30
-      let fg= "black"
-     elseif code == 31
-      let fg= "red"
-     elseif code == 32
-      let fg= "green"
-     elseif code == 33
-      let fg= "yellow"
-     elseif code == 34
-      let fg= "blue"
-     elseif code == 35
-      let fg= "magenta"
-     elseif code == 36
-      let fg= "cyan"
-     elseif code == 37
-      let fg= "white"
+     elseif code >= 90 && code < 98
+      let fg= code - 90 + 8
 
-     elseif code == 40
-      let bg= "black"
-     elseif code == 41
-      let bg= "red"
-     elseif code == 42
-      let bg= "green"
-     elseif code == 43
-      let bg= "yellow"
-     elseif code == 44
-      let bg= "blue"
-     elseif code == 45
-      let bg= "magenta"
-     elseif code == 46
-      let bg= "cyan"
-     elseif code == 47
-      let bg= "white"
+     elseif code >= 30 && code < 38
+      let fg= code - 30
+
+     elseif code >= 100 && code < 108
+      let bg= code - 100 + 8
+
+     elseif code >= 40 && code < 48
+      let bg= code - 40
 
      elseif code == 38
       let skip= 38
