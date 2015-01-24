@@ -407,7 +407,7 @@ else
 endif
 
 " Close quickfix window/location list
-nn <silent> <Leader>w :ccl\|lcl\|winc z<CR>
+nn <silent> <Leader>w :cclose<bar>lclose<bar>wincmd z<CR>
 
 " Switch to quickfix or location list window
 nn <silent> <C-w><Space> :copen<CR>
@@ -1761,7 +1761,7 @@ nn <silent> <M-/> :<C-u>Unite -prompt-direction=top line:forward<CR>
 nn <silent> <M-/> :<C-u>Unite -prompt-direction=top line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite -prompt-direction=top mapping<CR>
-nnoremap <silent> <Leader>w :ccl\|lcl\|winc z\|sil! UniteClose<CR>
+nn <silent> <Leader>w :cclose<bar>lclose<bar>wincmd z<bar>silent! UniteClose<CR>
 nnoremap <silent> ,u :UniteResume<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 func! s:UniteTogglePathSearch() " {{{
