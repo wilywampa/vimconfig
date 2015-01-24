@@ -1574,6 +1574,8 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         inoremap <silent> <expr> <C-f>      neocomplete#cancel_popup()
         inoremap <silent> <expr> <C-l>      neocomplete#complete_common_string()
         inoremap <silent> <expr> <C-x><C-w> neocomplete#sources#words#start()
+        " Make <BS> delete letter instead of clearing completion
+        inoremap <BS> <BS>
         execute 'inoremap <C-Tab> '.repeat('<C-n>', 10)
         execute 'inoremap <C-S-Tab> '.repeat('<C-p>', 10)
         augroup VimrcAutocmds
