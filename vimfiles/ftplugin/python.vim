@@ -21,7 +21,7 @@ setlocal define=^\s*\\(def\\\\|class\\)
 noremap  <silent> <buffer> <F5> :up<CR>:<C-u>call <SID>RunPython()<CR>
 imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
-nnoremap <silent> <buffer> <S-F5> :up<CR>:python %<CR>
+nnoremap <silent> <buffer> <S-F5> :up<CR>:!python %<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
 nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
 nnoremap          <buffer> ,ip :<C-u>IPython<CR>
