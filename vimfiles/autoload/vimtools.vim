@@ -256,7 +256,7 @@ function! vimtools#MakeParagraph() " {{{
   endif
 
   if &filetype == 'python'
-    if getline('.') =~# '\v^\s*(<(def|class)>|\@[[:alnum:]_]+)' && line('.') > 1
+    if getline('.') =~# '\v^(<(def|class)>|\@[[:alnum:]_]+)' && line('.') > 1
       call append(line('.') - 1, [""])
       if line('.') + lines < line('$')
         call append(line('.') + lines, [""])
