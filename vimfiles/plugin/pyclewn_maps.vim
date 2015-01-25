@@ -4,9 +4,15 @@ endif
 
 let pyclewn_maps_loaded = 1
 
+let s:is_pdb = !exists(':Cprint')
+
 function! s:PyclewnMaps()
     nnoremap <M-b> :execute "C break ".expand('%:p').":".line('.')<CR>
-    nnoremap g<M-b> :execute "C break ".expand('%:p').":".line('.')." if (".input("if ").")"<CR>
+    if s:is_pdb
+        nnoremap g<M-b> :execute "C break ".expand('%:p').":".line('.').", (".input("if ").")"<CR>
+    else
+        nnoremap g<M-b> :execute "C break ".expand('%:p').":".line('.')." if (".input("if ").")"<CR>
+    endif
     nnoremap <buffer> <M-d> :C down<CR>
     nnoremap <M-e> :execute "C clear ".expand('%:p').":".line('.')<CR>
     nnoremap <buffer> <M-n> :C next<CR>
