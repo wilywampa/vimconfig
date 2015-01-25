@@ -377,22 +377,31 @@ if exists('g:ipython_dictionary_completion')
       \ '"<C-x><C-o><C-p>' : '"'
 endif
 
+if !exists('g:neocomplete#force_omni_input_patterns')
+  let g:neocomplete#force_omni_input_patterns = {}
+endif
+
 augroup python_ftplugin
   autocmd!
   autocmd CmdwinEnter @
       \ if getbufvar(bufnr('#'), '&filetype') == 'python' |
-      \     let &filetype = 'python' |
-      \     let &l:omnifunc = getbufvar(bufnr('#'), '&l:omnifunc') |
-      \     execute "nnoremap <buffer> S ^C" |
+      \   let &filetype = 'python' |
+      \   let &l:omnifunc = getbufvar(bufnr('#'), '&l:omnifunc') |
+      \   execute "nnoremap <buffer> S ^C" |
       \ endif
   autocmd InsertEnter *.py,--Python--
       \ if &omnifunc == 'CompleteIPython' |
-      \     let g:neocomplete#force_omni_input_patterns.python =
-      \         '\%([^(). \t]\(\<self\)\@<!\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*\|\[["'']\w*' |
+      \   let g:neocomplete#force_omni_input_patterns.python =
+      \     '\%([^(). \t]\(\<self\)\@<!\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*\|\[["'']\w*' |
       \ else |
-      \     let g:neocomplete#force_omni_input_patterns.python =
-      \         '\%([^(). \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*' |
+      \   let g:neocomplete#force_omni_input_patterns.python =
+      \     '\%([^(). \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*' |
       \ endif
+  autocmd InsertEnter *.pxd,*.pxi,*.pyx
+      \ if &omnifunc ==# 'jedi#completions' |
+      \   setlocal omnifunc= |
+      \ endif |
+      \ let g:neocomplete#force_omni_input_patterns.python = ''
 augroup END
 
 if has('python') && !exists('*PEP8()')
