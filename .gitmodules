@@ -89,7 +89,7 @@
 [submodule "vimfiles/bundle/jedi"]
 	path = vimfiles/bundle/jedi
 	url = https://github.com/wilywampa/jedi-vim.git
-	branch = dev
+	branch = master
 [submodule "vimfiles/bundle/misc"]
 	path = vimfiles/bundle/misc
 	url = https://github.com/xolox/vim-misc.git
