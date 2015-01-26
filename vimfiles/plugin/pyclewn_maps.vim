@@ -6,13 +6,22 @@ let pyclewn_maps_loaded = 1
 
 let s:is_pdb = !exists(':Cprint')
 
+function! s:ConditionalBreakpoint()
+    let input = input("if ")
+    if len(input > 0)
+        let file = fnameescape(expand('%:p'))
+        let line = line('.')
+        if s:is_pdb
+            execute "C break ".file.":".line.", (".input.")"
+        else
+            execute "C break ".file.":".line." if (".input.")"
+        endif
+    endif
+endfunction
+
 function! s:PyclewnMaps()
     nnoremap <M-b> :execute "C break ".expand('%:p').":".line('.')<CR>
-    if s:is_pdb
-        nnoremap g<M-b> :execute "C break ".expand('%:p').":".line('.').", (".input("if ").")"<CR>
-    else
-        nnoremap g<M-b> :execute "C break ".expand('%:p').":".line('.')." if (".input("if ").")"<CR>
-    endif
+    nnoremap g<M-b> :<C-u>call <SID>ConditionalBreakpoint()<CR>
     nnoremap <buffer> <M-d> :C down<CR>
     nnoremap <M-e> :execute "C clear ".expand('%:p').":".line('.')<CR>
     nnoremap <buffer> <M-n> :C next<CR>
