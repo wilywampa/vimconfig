@@ -19,6 +19,16 @@ function! s:ConditionalBreakpoint()
     endif
 endfunction
 
+function! s:PdbRunMotion(type)
+    let input = vimtools#opfunc(a:type)
+    for line in split(input, '\n')
+        if line =~ '\S'
+            execute 'C '.substitute(matchstr(line, '\S.*$'), '"', '\\"', 'g')
+        endif
+    endfor
+    silent! call repeat#invalidate()
+endfunction
+
 function! s:PyclewnMaps()
     nnoremap <M-b> :execute "C break ".expand('%:p').":".line('.')<CR>
     nnoremap g<M-b> :<C-u>call <SID>ConditionalBreakpoint()<CR>
@@ -48,6 +58,12 @@ function! s:PyclewnMaps()
     nnoremap <buffer> <M-w> :wincmd t<CR>:resize 15<CR>:set winfixheight wrap linebreak<CR>
     cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'C print':'Cp')
     cnoreabbrev <expr> Cd ((getcmdtype()==':'&&getcmdpos()<=3)?'Cdisplay':'Cd')
+    if s:is_pdb
+        nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>PdbRunMotion<CR>g@
+        nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+        inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+        xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>PdbRunMotion('visual')<CR>
+    endif
 
     if exists('g:pyclewn_map_global') && g:pyclewn_map_global
         augroup pyclewn
