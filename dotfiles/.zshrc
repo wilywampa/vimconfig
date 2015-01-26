@@ -248,6 +248,7 @@ zle -N self-insert-no-autoremove; bindkey '|' self-insert-no-autoremove
 #[[[1 Abbreviations
 typeset -Ag abbrevs
 abbrevs=(
+'g'     'git'
 'gci'   'git commit'
 'gcl'   'git clone'
 'gfe'   'git fetch'
@@ -290,7 +291,6 @@ abbrevs=(
 'szv'   'source ~/.zshrc; vims'
 'wh'    'whence'
 'w'     'whence'
-'g'     'grep'
 'gi'    'grep -i'
 'f'     'find .'
 'fn'    'find . -iname'
