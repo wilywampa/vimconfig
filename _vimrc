@@ -2039,13 +2039,13 @@ omap am <Plug>(textobj-function-A)
 omap im <Plug>(textobj-function-i)
 
 " Strip ANSI color codes in vimpager for diffs
+let g:ansi_pattern = "\\v\e\\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]"
 if exists('vimpager')
-    let ansi_pattern = '\v'.nr2char(27).'\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]'
     augroup diff_syntax
         autocmd!
         autocmd CursorMoved *
             \ if search('@@ -\d\+,\d\+ +\d\+,\d\+ @@', 'n', 50) > 0 |
-            \     execute '%s#'.ansi_pattern.'##e'.(&gdefault ? '' : 'g') |
+            \     execute '%s#'.g:ansi_pattern.'##e'.(&gdefault ? '' : 'g') |
             \     set filetype=diff | execute 'autocmd! diff_syntax' | execute "normal! gg0" |
             \ endif
     augroup END
