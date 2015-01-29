@@ -343,6 +343,7 @@ nn @~ :<C-u><C-r>:<C-f>^~<CR>
 
 " Repeat last command with 'verbose' prepended
 nn @& :<C-u><C-r>:<Home>verbose <CR>
+nn @? :<C-u><C-r>:<Home>verbose <CR>
 
 " Use <C-q> to do what <C-v> used to do
 no <C-q> <C-v>
