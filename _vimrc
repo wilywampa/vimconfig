@@ -2142,5 +2142,4 @@ if !exists('colors_name') || colors_name != 'solarized'
     set background=dark
     sil! colorscheme solarized
 endif
-" }}}
-" vim: fdm=marker fdl=1 tw=100:
+" }}} vim: fdm=marker fdl=1 tw=100:
