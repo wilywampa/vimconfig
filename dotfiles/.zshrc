@@ -425,6 +425,8 @@ magic-abbrev-expand() {
         [[ ${prevword[-2,-1]} == '$(' ]] && doabbrev=1
         if [[ ${prevword[-2,-1]} == '$(' ]] && [[ $pre =~ wh? ]]; then
             LBUFFER=$left'whence -p'
+        elif [[ ${prevword[-1]} == '|' ]] && [[ $pre == 'g' ]]; then
+            LBUFFER=$left'grep'
         elif [[ $dopostmod == 1 ]] && [[ ${pmabbrevs[(i)$pre]} == $pre ]]; then
             LBUFFER=$left${pmabbrevs[$pre]:-$pre}
         elif [[ $doabbrev == 1 ]] && [[ ${abbrevs[(i)$pre]} == $pre ]]; then
