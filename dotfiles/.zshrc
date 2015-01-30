@@ -297,16 +297,16 @@ abbrevs=(
 'wh'    'whence'
 'w'     'whence'
 'gi'    'grep -i'
-'f'     'find .'
-'fn'    'find . -iname'
-'fa'    'find . | a'
-'ff'    'find . -type f'
-'ffa'   'find . -type f | a'
-'ffn'   'find . -type f -iname'
-'fd'    'find . -type d'
-'fda'   'find . -type d | a'
-'fdn'   'find . -type d -iname'
-'fmd'   'find . -maxdepth'
+'f'     'noglob find .'
+'fn'    'noglob find . -iname'
+'fa'    'noglob find . | a'
+'ff'    'noglob find . -type f'
+'ffa'   'noglob find . -type f | a'
+'ffn'   'noglob find . -type f -iname'
+'fd'    'noglob find . -type d'
+'fda'   'noglob find . -type d | a'
+'fdn'   'noglob find . -type d -iname'
+'fmd'   'noglob find . -maxdepth'
 'loc'   'locate --regex -i'
 'co'    './configure'
 'cop'   './configure --prefix=$HOME/.local'
@@ -933,18 +933,22 @@ add-zsh-hook preexec _set-block-cursor
 _set-bar-cursor
 
 #[[[1 Environment variables
-export VIMPAGER="/bin/sh -c \"unset PAGER;col -b -x | \
-    vim -R -c 'set ft=man nomod noma nolist' --servername $VIMSERVER \
-    -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
-export PAGER=
-alias man='PAGER=$VIMPAGER man'
+if (( $+commands[vimpager] )); then
+    export PAGER=vimpager
+else
+    export VIMPAGER="/bin/sh -c \"unset PAGER;col -b -x | \
+        vim -R -c 'set ft=man nomod noma nolist' --servername $VIMSERVER \
+        -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
+    export PAGER=
+    alias man='PAGER=$VIMPAGER man'
+fi
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
 [[ -e ~/.dircolors ]] && eval $(dircolors -b ~/.dircolors)
 [[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
 export FPATH
 export EDITOR=vim
-export DATEFMT='%a %d%b%y %T'
+export DATEFMT='%a %d%b%Y %T'
 export VIMSERVER=VIM
 export TAR_OPTIONS='-k'
 
