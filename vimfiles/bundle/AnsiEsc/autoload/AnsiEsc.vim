@@ -110,8 +110,8 @@ fun! AnsiEsc#AnsiEsc(rebuild)
   " ------------------------------
   " Ansi Escape Sequence Handling: {{{2
   " ------------------------------
-  syn region ansiNone               start="\e\[[01;]m"  end="\e\["me=e-2 contains=ansiConceal
-  syn region ansiNone               start="\e\[m"       end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiNone               start="\e\[\([01;]\|49\)m"  end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiNone               start="\e\[m"               end="\e\["me=e-2 contains=ansiConceal
 
   syn region ansiBlack              start="\e\[;\=0\{0,2};\=30m" end="\e\["me=e-2 contains=ansiConceal
   syn region ansiRed                start="\e\[;\=0\{0,2};\=31m" end="\e\["me=e-2 contains=ansiConceal
