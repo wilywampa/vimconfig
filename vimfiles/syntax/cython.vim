@@ -281,7 +281,7 @@ endif
         syn keyword pythonBuiltinFunc   input intern isinstance issubclass iter len map max min
         syn keyword pythonBuiltinFunc   next oct open ord pow property range xrange
         syn keyword pythonBuiltinFunc   raw_input reduce reload repr reversed round setattr
-        syn keyword pythonBuiltinFunc   slice sorted staticmethod sum vars zip
+        syn keyword pythonBuiltinFunc   slice sorted staticmethod sum vars zip sizeof
 
         if g:pymode_syntax_print_as_function
             syn keyword pythonBuiltinFunc   print
