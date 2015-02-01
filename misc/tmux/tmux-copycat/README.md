@@ -1,5 +1,7 @@
 # Tmux copycat
 
+[![Build Status](https://travis-ci.org/tmux-plugins/tmux-copycat.png?branch=master)](https://travis-ci.org/tmux-plugins/tmux-copycat)
+
 This plugin enables:
 
 - regex searches
@@ -12,6 +14,9 @@ reduces mouse usage with Tmux.
 It works even better when paired with
 [tmux yank](https://github.com/tmux-plugins/tmux-yank).
 
+**Note:** new version 2.0 uses extended regexes! Regex character escaping with
+backslashes `\ ` isn't required anymore.
+
 ### Screencast
 
 [![screencast screenshot](/video/screencast_img.png)](https://vimeo.com/101867689)
@@ -23,19 +28,18 @@ It works even better when paired with
 Example search entries:
 
 - `foo` - searches for string `foo`
-- `[0-9]\\+` - regex search for numbers (**notice `+` is escaped with 2 x `\`**)
+- `[0-9]+` - regex search for numbers
 
 Grep is used for searching.<br/>
-Escape regex characters with 2 backslashes.<br/>
 Searches are case insensitive.<br/>
 
 #### Predefined searches
 
 - `prefix + ctrl-f` - simple *f*ile search
 - `prefix + ctrl-g` - jumping over *g*it status files (best used after `git status` command)
-- `prefix + ctrl-u` - *u*rl search
+- `prefix + ctrl-u` - *u*rl search (http, ftp and git urls)
 - `prefix + ctrl-d` - number search (mnemonic d, as digit)
-- `prefix + ctrl-r` - "*r*ails server" request search
+- `prefix + alt-i` - *i*p address search
 
 These start "copycat mode" and jump to first match.
 
@@ -60,33 +64,16 @@ Copying highlighted matches can be enhanced with
 ### Customization
 
 Most of the behavior of tmux-copycat can be customized via tmux options.<br/>
-To set a value, just put `set -g @option "value"` in your `.tmux.conf` before
-loading the tmux-copycat plugin.
-
-Available options:
-
-- `@copycat_search` defines the key-binding used (after prefix) to start an
-  interactive search. Defaults to `/`.
-
-- `@copycat_git_special` defines the key-binding to launch a git status
-  search. Defaults to `C-g`.
-
-- `@copycat_next` defines the key (without prefix) used to jump to next search
-  result. Defaults to `n`.
-
-- `@copycat_prev` defines the key (without prefix) used to jump to previous search
-  result. Defaults to `N`.
+Check the full options list on
+[the wiki page](https://github.com/tmux-plugins/tmux-copycat/wiki/Customizations).
 
 #### Defining new stored searches
 
-To speed up the workflow, in `.tmux.conf` you can define new bindings for
-searches you use often. Examples:
+To speed up the workflow you can define new bindings in `.tmux.conf` for
+searches you use often.
 
-    # 'prefix + ctrl-t' searches for "search me" string
-    set -g @copycat_search_C-t "search me"
-
-    # 'prefix + alt-t' searches for defined regex
-    set -g @copycat_search_M-t "regex search[[:alnum:]]\*"
+How to + useful searches
+[in this wiki page](https://github.com/tmux-plugins/tmux-copycat/wiki/Defining-new-stored-searches).
 
 ### Limitations
 
@@ -151,8 +138,10 @@ You should now be able to use the plugin.
 
 ### Test suite
 
-This plugin has an integration test suite. It depends on `vagrant`.
-Run it with:
+This plugin has a pretty extensive integration test suite that runs on
+[travis](https://travis-ci.org/tmux-plugins/tmux-copycat).
+
+When run locally, it depends on `vagrant`. Run it with:
 
     # within project top directory
     $ ./run-tests

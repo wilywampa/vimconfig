@@ -1,12 +1,30 @@
 # Changelog
 
 ### master
+
+### v2.1.0, Jan 01, 2015
+- combine send-keys calls to reduce flickering (@toupeira)
+- add `file:///` prefix for local file url's (@vellvisher)
+- add `git://` type url
+
+### v2.0.0, Oct 16, 2014
+- add tmux options for default searches
+- use `session_id` instead of `session_name` in the copycat file name (solution
+  provided by @toupeira)
+- use `grep -E` and remove eval (@toupeira)
+
+### v1.1.0, Sep 29, 2014
+- add IP address search
+- enhance url search with git and ftp urls
+
+### v1.0.0, Aug 31, 2014
 - simplify file search stored regex
 - match files starting with dot
 - improve README - add more relevant related plugins
 - do not use `copycat_clear_search` method when in copycat mode. It was causing
   mysterious issues for some users.
 - update `README.md` - warning about a breaking mapping
+- remove rails request stored search `C-r`
 
 ### v0.1.0, Aug 02, 2014
 - remove note about git history issue
