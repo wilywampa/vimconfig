@@ -82,6 +82,7 @@ Ctrl ~Shift <Key>-: string(0x1f) \n\
 Ctrl Shift <Key>-: string(0x1f) \n\
 Meta <Key>-: smaller-vt-font() \n\
 Meta <Key>+: larger-vt-font() \n\
+Ctrl <Key>apostrophe: string(0x27) \n\
 Ctrl <Key>;: string(";") \n
 
 ! vim: cms=!%s
