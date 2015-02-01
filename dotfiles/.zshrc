@@ -440,7 +440,7 @@ magic-abbrev-expand() {
     else
         [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]] && LBUFFER=$LBUFFER$KEYS
     fi
-    [[ $ins_space == 1 ]] && LBUFFER=${LBUFFER}' ' && echo inserted space
+    [[ $ins_space == 1 ]] && LBUFFER=${LBUFFER}' '
     [[ $LBUFFER == $lbuffer_start ]] && return 1 || return 0
 }
 
