@@ -4,7 +4,7 @@ HISTSIZE=99999
 SAVEHIST=50000
 setopt auto_cd beep extended_glob no_match notify no_beep share_history
 setopt inc_append_history extended_history interactive_comments
-setopt hist_expire_dups_first hist_ignore_dups
+setopt hist_expire_dups_first hist_ignore_dups hist_ignore_space
 # End of lines configured by zsh-newuser-install
 
 #[[[1 Lines added by compinstall
