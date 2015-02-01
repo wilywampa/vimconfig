@@ -81,6 +81,8 @@ Ctrl <Key>Return: string(0x1e) \n\
 Ctrl ~Shift <Key>-: string(0x1f) \n\
 Ctrl Shift <Key>-: string(0x1f) \n\
 Meta <Key>-: smaller-vt-font() \n\
-Meta <Key>+: larger-vt-font() \n
+Meta <Key>+: larger-vt-font() \n\
+Ctrl <Key>;: string(";") \n\
+Ctrl <Key>': string("'") \n
 
 ! vim: cms=!%s
