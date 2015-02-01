@@ -158,6 +158,7 @@ class CustomQCompleter(TabCompleter):
         self.filterProxyModel.setFilterRegExp(pattern)
 
     def splitPath(self, path):
+        path = QtCore.QString(re.sub('(?<!\\\) ', '*', unicode(path)))
         self.local_completion_prefix = path
         self.updateModel()
         if self.filterProxyModel.rowCount() == 0:
