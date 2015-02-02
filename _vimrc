@@ -2046,8 +2046,8 @@ if exists('vimpager')
         autocmd CursorMoved *
             \ if search('@@ -\d\+,\d\+ +\d\+,\d\+ @@', 'n', 50) > 0 |
             \     execute '%s#'.g:ansi_pattern.'##e'.(&gdefault ? '' : 'g') |
-            \     set filetype=diff | execute 'autocmd! diff_syntax' | execute "normal! gg0" |
-            \ endif
+            \     set filetype=diff | execute "normal! gg0" |
+            \ endif | execute 'autocmd! diff_syntax'
     augroup END
 endif
 
