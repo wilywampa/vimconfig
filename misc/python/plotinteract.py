@@ -285,6 +285,8 @@ class DataObj(object):
         data.xmenu.setCurrentIndex(self.xmenu.currentIndex())
         data.xscale_box.setText(self.xscale_box.text())
         self.parent.set_layout()
+        data.menu.setFocus()
+        data.menu.lineEdit().selectAll()
 
 
 class Interact(QtGui.QMainWindow):
