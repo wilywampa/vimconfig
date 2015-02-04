@@ -2051,6 +2051,9 @@ if exists('vimpager')
     augroup END
 endif
 
+" Prevent folds updating spuriously on first write
+autocmd VimrcAutocmds VimEnter * silent! FastFoldUpdate
+
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
