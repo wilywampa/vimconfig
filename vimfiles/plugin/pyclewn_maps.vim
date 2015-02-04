@@ -4,6 +4,10 @@ endif
 
 let pyclewn_maps_loaded = 1
 
+function! s:set_print(flag)
+    let s:print = a:flag
+endfunction
+
 function! s:PyclewnMaps()
     let s:is_pdb = !exists(':Cprint')
 
@@ -27,7 +31,7 @@ function! s:PyclewnMaps()
             let input = vimtools#opfunc(a:type)
             for line in split(input, '\n')
                 if line =~ '\S'
-                    execute 'C '.(s:is_pdb ? '' : 'print ').
+                    execute 'C '.(s:print ? 'print ' : '').
                         \ substitute(matchstr(line, '\S.*$'), '"', '\\"', 'g')
                 endif
             endfor
@@ -63,10 +67,14 @@ function! s:PyclewnMaps()
     nnoremap <buffer> <M-w> :wincmd t<CR>:resize 15<CR>:set winfixheight wrap linebreak<CR>
     cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'C print':'Cp')
     cnoreabbrev <expr> Cd ((getcmdtype()==':'&&getcmdpos()<=3)?'Cdisplay':'Cd')
-    nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>PdbRunMotion<CR>g@
-    nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
-    inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
-    xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>PdbRunMotion('visual')<CR>
+    nnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>set_print(0)<bar>set opfunc=<SID>PdbRunMotion<CR>g@
+    nnoremap <silent> <buffer> <Leader>xx :<C-u>call <SID>set_print(0)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+    inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>call <SID>set_print(0)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+    xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>set_print(0)<bar>call <SID>PdbRunMotion('visual')<CR>
+    nnoremap <silent> <buffer> ,p :<C-u>call <SID>set_print(1)<bar>set opfunc=<SID>PdbRunMotion<CR>g@
+    nnoremap <silent> <buffer> ,pp :<C-u>call <SID>set_print(1)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+    inoremap <silent> <buffer> ,p  <Esc>:<C-u>call <SID>set_print(1)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
+    xnoremap <silent> <buffer> ,p :<C-u>call <SID>set_print(1)<bar>call <SID>PdbRunMotion('visual')<CR>
 
     if exists('g:pyclewn_map_global') && g:pyclewn_map_global
         augroup pyclewn
