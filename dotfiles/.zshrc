@@ -905,6 +905,10 @@ _log-command() {
 }
 add-zsh-hook preexec _log-command
 
+awkp() {
+    awk "{print \$$1}"
+}
+
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
 _cursor_bar="\033[5 q"
