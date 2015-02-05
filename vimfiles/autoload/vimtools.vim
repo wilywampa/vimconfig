@@ -389,7 +389,7 @@ function! vimtools#FuncAbbrevs() " {{{
     let cmds.='('
   endif
   let cmdend = strpart(getcmdline(), getcmdpos() - 1)
-  if getcmdtype() =~ '[:>]'
+  if getcmdtype() =~ '[:>@]'
     call setcmdpos(len(cmds) + 1)
   endif
   return cmds.cmdend
