@@ -1795,18 +1795,12 @@ func! s:UniteSetup() " {{{
 endfunc " }}}
 " }}}
 
-" Undotree/Gundo settings
+" Gundo settings
 if has('python')
-    call add(g:pathogen_disabled, 'undotree')
     nnoremap <silent> <Leader>u :GundoToggle<CR>
     let g:gundo_help=0
     let g:gundo_preview_bottom=1
     let g:gundo_close_on_revert=1
-else
-    call add(g:pathogen_disabled, 'Gundo')
-    nnoremap <silent> <Leader>u :UndotreeToggle<CR>
-    let g:undotree_SplitWidth=40
-    let g:undotree_SetFocusWhenToggle=1
 endif
 
 " Surround settings
@@ -2064,14 +2058,12 @@ Plug 'vim-scripts/OmniCppComplete'
 Plug 'tpope/vim-abolish', {'on': ['S', '<Plug>Coerce']}
 Plug 'mileszs/ack.vim', {'on': 'Ack'}
 Plug 'wilywampa/vim-airline'
-Plug 'sjl/badwolf'
 Plug 'wilywampa/clang_complete'
 Plug 'wilywampa/vim-commentary'
 Plug 'wilywampa/vim-dispatch'
 Plug 'wilywampa/vim-easy-align', {'on': '<Plug>(LiveEasyAlign)'}
 Plug 'wilywampa/vim-eunuch'
 Plug 'tommcdo/vim-exchange'
-Plug 'nvie/vim-flake8'
 Plug 'wilywampa/vim-fswitch', {'on': ['FSHere', 'FSSplitBelow', 'FSSplitRight']}
 Plug 'wilywampa/vim-fugitive'
 Plug 'wilywampa/gitv', {'on': 'Gitv'}
@@ -2084,9 +2076,7 @@ Plug 'wilywampa/neocomplete.vim'
 Plug 'wilywampa/neomru.vim'
 Plug 'wilywampa/neosnippet.vim'
 Plug 'wilywampa/neosnippet-snippets'
-Plug 'osyo-manga/vim-over'
 Plug 'wilywampa/patchreview-vim', {'on': ['DiffReview', 'PatchReview']}
-Plug 'sophacles/vim-processing', {'for': 'processing'}
 Plug 'wilywampa/python-mode', {'branch': 'develop'}
 Plug 'wilywampa/vim-repeat'
 Plug 'wilywampa/vim-scriptease'
@@ -2097,12 +2087,10 @@ Plug 'wilywampa/vim-colors-solarized', {'dir': '$VIMCONFIG/vimfiles/bundle/solar
 Plug 'ervandew/supertab'
 Plug 'wilywampa/vim-surround'
 Plug 'scrooloose/syntastic', {'on': ['SyntasticInfo', 'SyntasticCheck']}
-Plug 'wilywampa/tabular'
 Plug 'wilywampa/tagbar'
 Plug 'wellle/targets.vim'
 Plug 'wilywampa/tmux-complete.vim'
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'mbbill/undotree', {'on': 'UndotreeToggle'}
 Plug 'wilywampa/vim-unimpaired'
 Plug 'wilywampa/unite.vim'
 Plug 'wilywampa/vcscommand.vim', {'on': ['Diff', 'Log']}
@@ -2110,7 +2098,6 @@ Plug 'wilywampa/vimfiler.vim'
 Plug 'wilywampa/vimproc.vim', {'do': 'make'.(has('win32unix') ? ' -f make_cygwin.mak' : '')}
 Plug 'wilywampa/vimshell.vim'
 Plug 'wilywampa/vimux'
-Plug 'jgors/vimux-ipy'
 Plug 'triglav/vim-visual-increment', {'on': ['<Plug>VisualIncrement', '<Plug>VisualDecrement']}
 Plug 'wilywampa/CountJump'
 Plug 'vim-ruby/vim-ruby', {'for': ['ruby', 'eruby']}

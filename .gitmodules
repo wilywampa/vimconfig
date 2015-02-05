@@ -30,10 +30,6 @@
 	path = vimfiles/bundle/airline
 	url = https://github.com/wilywampa/vim-airline.git
 	branch = master
-[submodule "vimfiles/bundle/badwolf"]
-	path = vimfiles/bundle/badwolf
-	url = https://github.com/sjl/badwolf.git
-	branch = master
 [submodule "vimfiles/bundle/clang_complete"]
 	path = vimfiles/bundle/clang_complete
 	url = https://github.com/wilywampa/clang_complete.git
@@ -57,10 +53,6 @@
 [submodule "vimfiles/bundle/exchange"]
 	path = vimfiles/bundle/exchange
 	url = https://github.com/tommcdo/vim-exchange.git
-	branch = master
-[submodule "vimfiles/bundle/flake8"]
-	path = vimfiles/bundle/flake8
-	url = https://github.com/nvie/vim-flake8.git
 	branch = master
 [submodule "vimfiles/bundle/fswitch"]
 	path = vimfiles/bundle/fswitch
@@ -162,10 +154,6 @@
 	path = vimfiles/bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
 	branch = master
-[submodule "vimfiles/bundle/tabular"]
-	path = vimfiles/bundle/tabular
-	url = https://github.com/wilywampa/tabular.git
-	branch = master
 [submodule "vimfiles/bundle/tagbar"]
 	path = vimfiles/bundle/tagbar
 	url = https://github.com/wilywampa/tagbar.git
@@ -181,10 +169,6 @@
 [submodule "vimfiles/bundle/tmux-navigator"]
 	path = vimfiles/bundle/tmux-navigator
 	url = https://github.com/christoomey/vim-tmux-navigator.git
-	branch = master
-[submodule "vimfiles/bundle/undotree"]
-	path = vimfiles/bundle/undotree
-	url = https://github.com/mbbill/undotree.git
 	branch = master
 [submodule "vimfiles/bundle/unimpaired"]
 	path = vimfiles/bundle/unimpaired
@@ -213,10 +197,6 @@
 [submodule "vimfiles/bundle/vimux"]
 	path = vimfiles/bundle/vimux
 	url = https://github.com/wilywampa/vimux.git
-	branch = master
-[submodule "vimfiles/bundle/vimux-ipy"]
-	path = vimfiles/bundle/vimux-ipy
-	url = https://github.com/jgors/vimux-ipy.git
 	branch = master
 [submodule "vimfiles/bundle/visual-increment"]
 	path = vimfiles/bundle/visual-increment
