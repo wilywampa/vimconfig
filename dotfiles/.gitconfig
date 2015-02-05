@@ -2,15 +2,9 @@
 	name = Jacob Niehus
 	email = jacob.niehus@gmail.com
 [core]
-	excludesfile = /Users/jniehus/.gitignore_global
+	excludesfile = ~/.gitignore_global
 	editor = vim
 	pager = vimpager
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path =
-[mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
 [alias]
 	st = status
 	ci = commit -v
@@ -32,8 +26,6 @@
 	ui = true
 [diff]
 	tool = vimdiff
-[difftool]
-	bc3 = trustExitCode
 [push]
 	default = simple
 [filter "media"]
@@ -46,7 +38,7 @@
 	cmd = diffconflicts vim $BASE $LOCAL $REMOTE $MERGED
 	trustExitCode = true
 	keepBackup = false
-[credential]
-	helper = osxkeychain
 [status]
 	submodulesummary = true
+[include]
+	path = ~/.gitconfig_local
