@@ -77,6 +77,15 @@ function! s:PyclewnMaps()
     inoremap <silent> <buffer> ,p  <Esc>:<C-u>call <SID>set_print(1)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
     xnoremap <silent> <buffer> ,p :<C-u>call <SID>set_print(1)<bar>call <SID>PdbRunMotion('visual')<CR>
 
+    cnoreabbrev <expr> Cc ((getcmdtype()==':'&&getcmdpos()<=3)?'Ccontinue':'Cc')
+    cnoreabbrev <expr> Cd ((getcmdtype()==':'&&getcmdpos()<=3)?'Cdisplay':'Cd')
+    cnoreabbrev <expr> Cf ((getcmdtype()==':'&&getcmdpos()<=3)?'Cfile':'Cf')
+    cnoreabbrev <expr> Ck ((getcmdtype()==':'&&getcmdpos()<=3)?'Ckill':'Ck')
+    cnoreabbrev <expr> Cn ((getcmdtype()==':'&&getcmdpos()<=3)?'Cnext':'Cn')
+    cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'Cprint':'Cp')
+    cnoreabbrev <expr> Cr ((getcmdtype()==':'&&getcmdpos()<=3)?'Crun':'Cr')
+    cnoreabbrev <expr> Cs ((getcmdtype()==':'&&getcmdpos()<=3)?'Cstep':'Cs')
+
     if exists('g:pyclewn_map_global') && g:pyclewn_map_global
         augroup pyclewn
             autocmd!
