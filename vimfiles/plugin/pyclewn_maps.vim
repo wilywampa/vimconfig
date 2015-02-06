@@ -8,6 +8,10 @@ function! s:set_print(flag)
     let s:print = a:flag
 endfunction
 
+function! s:escape(string)
+    return escape(a:string, '"|%#')
+endfunction
+
 function! s:PyclewnMaps()
     let s:is_pdb = !exists(':Cprint')
 
@@ -32,7 +36,7 @@ function! s:PyclewnMaps()
             for line in split(input, '\n')
                 if line =~ '\S'
                     execute 'C '.(s:print ? 'print ' : '').
-                        \ substitute(matchstr(line, '\S.*$'), '"', '\\"', 'g')
+                        \ s:escape(matchstr(line, '\S.*$'))
                 endif
             endfor
             silent! call repeat#invalidate()
@@ -61,9 +65,9 @@ function! s:PyclewnMaps()
     nnoremap <M-s> :C step<CR>
     nnoremap <M-W> :C where<CR>
     nnoremap <M-X> :execute "C foldvar ."line('.')<CR>
-    vnoremap <buffer> <silent> <C-p> :<C-u>call SaveRegs()<CR>gvy:C print <C-r>"<CR>:call RestoreRegs()<CR>
-    vnoremap <buffer> <silent> <M-p> :<C-u>call SaveRegs()<CR>gvy:C print *<C-r>"<CR>:call RestoreRegs()<CR>
-    vnoremap <buffer> <silent> <M-P> :<C-u>call SaveRegs()<CR>gvy:C display <C-r>"<CR>:call RestoreRegs()<CR>
+    vnoremap <buffer> <silent> <C-p> :<C-u>call SaveRegs()<CR>gvy:C print <C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
+    vnoremap <buffer> <silent> <M-p> :<C-u>call SaveRegs()<CR>gvy:C print *<C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
+    vnoremap <buffer> <silent> <M-P> :<C-u>call SaveRegs()<CR>gvy:C display <C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
     nnoremap <buffer> <silent> <M-w> :<C-u>wincmd t<bar>:resize 15<bar>:set winfixheight<bar>
         \ <C-r>=winnr('#') > 0 ? winnr('#').'wincmd w' : ''<CR><bar><C-r>=winnr().'wincmd w'<CR><CR>
     cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'C print':'Cp')
