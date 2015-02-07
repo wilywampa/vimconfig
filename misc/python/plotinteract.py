@@ -202,6 +202,7 @@ class DataObj(object):
         self.obj = obj
         self.name = name
         self.labels = labels or name
+        self.widgets = []
         draw = self.parent.draw
         connect = self.parent.connect
 
@@ -281,6 +282,11 @@ class DataObj(object):
         self.dup_button.clicked.connect(self.duplicate)
         self.dup_button.resize(20, 10)
 
+        self.remove_button = QtGui.QToolButton()
+        self.remove_button.setText('-')
+        self.remove_button.clicked.connect(self.remove)
+        self.remove_button.resize(20, 10)
+
     def duplicate(self):
         self.parent.add_data(self.obj,
                              self.name,
@@ -294,6 +300,9 @@ class DataObj(object):
         self.parent.set_layout()
         data.menu.setFocus()
         data.menu.lineEdit().selectAll()
+
+    def remove(self):
+        self.parent.remove_data(self)
 
 
 class Interact(QtGui.QMainWindow):
@@ -339,6 +348,7 @@ class Interact(QtGui.QMainWindow):
             self.setTabOrder(data.scale_box, data.xmenu)
             self.setTabOrder(data.xmenu, data.xscale_box)
             self.setTabOrder(data.xscale_box, data.dup_button)
+            self.setTabOrder(data.dup_button, data.remove_button)
 
         if len(self.datas) >= 2:
             for d1, d2 in zip(self.datas[:-1], self.datas[1:]):
@@ -350,10 +360,12 @@ class Interact(QtGui.QMainWindow):
         self.datas.append(DataObj(self, obj, name, xname, labels))
         data = self.datas[-1]
 
+        self.row = self.grid.rowCount()
         self.column = 0
 
         def add_widget(w):
-            self.grid.addWidget(w, len(self.datas) - 1, self.column)
+            self.grid.addWidget(w, self.row, self.column)
+            data.widgets.append(w)
             self.column += 1
 
         add_widget(data.label)
@@ -365,6 +377,23 @@ class Interact(QtGui.QMainWindow):
         add_widget(data.xscale_label)
         add_widget(data.xscale_box)
         add_widget(data.dup_button)
+        add_widget(data.remove_button)
+
+    def remove_data(self, data):
+        if len(self.datas) < 2:
+            self.warnings = ["Can't delete last row"]
+            self.draw_warnings()
+            self.canvas.draw()
+            return
+
+        self.datas.pop(self.datas.index(data))
+
+        for widget in data.widgets:
+            self.grid.removeWidget(widget)
+            widget.deleteLater()
+
+        self.set_layout()
+        self.draw()
 
     def get_scale(self, textbox, completer):
         completer.close_popup()
@@ -410,11 +439,14 @@ class Interact(QtGui.QMainWindow):
 
         self.axes.set_xlabel('\n'.join(xlabel))
         self.axes.set_ylabel('\n'.join(ylabel))
-        self.axes.text(0.05, 0.05, '\n'.join(self.warnings),
-                       transform=self.axes.transAxes, color='red')
+        self.draw_warnings()
         legend = self.axes.legend()
         legend.draggable(True)
         self.canvas.draw()
+
+    def draw_warnings(self):
+        self.axes.text(0.05, 0.05, '\n'.join(self.warnings),
+                       transform=self.axes.transAxes, color='red')
 
     def get_line_style(self):
         styles = ['-', '--', '-.', ':']
