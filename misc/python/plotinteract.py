@@ -151,9 +151,12 @@ class CustomQCompleter(TabCompleter):
         if not self.usingOriginalModel:
             self.filterProxyModel.setSourceModel(self.source_model)
 
-        pattern = QtCore.QRegExp(self.local_completion_prefix,
-                                 QtCore.Qt.CaseInsensitive,
-                                 QtCore.QRegExp.RegExp)
+        pattern = QtCore.QRegExp(
+            self.local_completion_prefix,
+            QtCore.Qt.CaseSensitive
+            if re.match('.*[A-Z]', self.local_completion_prefix)
+            else QtCore.Qt.CaseInsensitive,
+            QtCore.QRegExp.RegExp)
 
         self.filterProxyModel.setFilterRegExp(pattern)
 
