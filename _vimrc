@@ -1351,6 +1351,19 @@ func! s:RestorePrevWin() " {{{
     endif
 endfunc " }}}
 
+" Strip ANSI color codes in vimpager for diffs
+let g:ansi_pattern = "\\v\e\\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]"
+if exists('vimpager')
+    augroup diff_syntax
+        autocmd!
+        autocmd CursorMoved *
+            \ if search('^@@ -\d\+,\d\+ +\d\+,\d\+ @@', 'n', 50) > 0 |
+            \     execute '%s#'.g:ansi_pattern.'##e'.(&gdefault ? '' : 'g') |
+            \     set filetype=diff | execute "normal! gg0" |
+            \ endif | execute 'autocmd! diff_syntax'
+    augroup END
+endif
+
 " Match highlighting
 func! s:MatchHighlights() " {{{
     for n in range(1, 5)
@@ -2031,19 +2044,6 @@ xmap am <Plug>(textobj-function-A)
 xmap im <Plug>(textobj-function-i)
 omap am <Plug>(textobj-function-A)
 omap im <Plug>(textobj-function-i)
-
-" Strip ANSI color codes in vimpager for diffs
-let g:ansi_pattern = "\\v\e\\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]"
-if exists('vimpager')
-    augroup diff_syntax
-        autocmd!
-        autocmd CursorMoved *
-            \ if search('@@ -\d\+,\d\+ +\d\+,\d\+ @@', 'n', 50) > 0 |
-            \     execute '%s#'.g:ansi_pattern.'##e'.(&gdefault ? '' : 'g') |
-            \     set filetype=diff | execute "normal! gg0" |
-            \ endif | execute 'autocmd! diff_syntax'
-    augroup END
-endif
 
 " Prevent folds updating spuriously on first write
 autocmd VimrcAutocmds VimEnter * silent! FastFoldUpdate
