@@ -39,23 +39,38 @@ def flatten(d, prefix=''):
     return out
 
 
+def _delete_word(self, event, parent, lineEdit):
+    if lineEdit.selectionStart() == -1:
+        lineEdit.cursorWordBackward(True)
+        lineEdit.backspace()
+        return True
+
+
+def _select_all(self, event, parent, lineEdit):
+    lineEdit.selectAll()
+    return True
+
+
+def _quit(self, event, parent, lineEdit):
+    self.emit(SIGNAL('closed()'))
+    self.window().close()
+    return True
+
+
+control_actions = {
+    QtCore.Qt.Key_A: _select_all,
+    QtCore.Qt.Key_D: lambda self, *args: self.emit(SIGNAL('remove()')),
+    QtCore.Qt.Key_N: lambda self, *args: self.emit(SIGNAL('duplicate()')),
+    QtCore.Qt.Key_Q: _quit,
+    QtCore.Qt.Key_W: _delete_word,
+}
+
+
 def handle_key(self, event, parent, lineEdit):
     if event.type() == QtCore.QEvent.KeyPress:
-        if (event.key() == QtCore.Qt.Key_W and event.modifiers() &
-                CONTROL_MODIFIER):
-            if lineEdit.selectionStart() == -1:
-                lineEdit.cursorWordBackward(True)
-                lineEdit.backspace()
-                return True
-        elif (event.key() == QtCore.Qt.Key_A and event.modifiers() &
-              CONTROL_MODIFIER):
-            lineEdit.selectAll()
-            return True
-        elif (event.key() == QtCore.Qt.Key_Q and event.modifiers() &
-              CONTROL_MODIFIER):
-            self.emit(SIGNAL('closed()'))
-            self.window().close()
-            return True
+        if (event.modifiers() & CONTROL_MODIFIER and
+                event.key() in control_actions):
+            return control_actions[event.key()](self, event, parent, lineEdit)
         elif self.completer.popup().viewport().isVisible():
             if event.key() == QtCore.Qt.Key_Tab:
                 self.emit(SIGNAL('tabPressed(int)'), 1)
@@ -277,16 +292,6 @@ class DataObj(object):
         self.scale_box, self.scale_compl = new_scale_box()
         self.xscale_box, self.xscale_compl = new_scale_box()
 
-        self.dup_button = QtGui.QToolButton()
-        self.dup_button.setText('+')
-        self.dup_button.clicked.connect(self.duplicate)
-        self.dup_button.resize(20, 10)
-
-        self.remove_button = QtGui.QToolButton()
-        self.remove_button.setText('-')
-        self.remove_button.clicked.connect(self.remove)
-        self.remove_button.resize(20, 10)
-
     def duplicate(self):
         self.parent.add_data(self.obj,
                              self.name,
@@ -347,8 +352,6 @@ class Interact(QtGui.QMainWindow):
             self.setTabOrder(data.menu, data.scale_box)
             self.setTabOrder(data.scale_box, data.xmenu)
             self.setTabOrder(data.xmenu, data.xscale_box)
-            self.setTabOrder(data.xscale_box, data.dup_button)
-            self.setTabOrder(data.dup_button, data.remove_button)
 
         if len(self.datas) >= 2:
             for d1, d2 in zip(self.datas[:-1], self.datas[1:]):
@@ -366,6 +369,8 @@ class Interact(QtGui.QMainWindow):
         def add_widget(w):
             self.grid.addWidget(w, self.row, self.column)
             data.widgets.append(w)
+            self.connect(w, SIGNAL('duplicate()'), data.duplicate)
+            self.connect(w, SIGNAL('remove()'), data.remove)
             self.column += 1
 
         add_widget(data.label)
@@ -376,8 +381,6 @@ class Interact(QtGui.QMainWindow):
         add_widget(data.xmenu)
         add_widget(data.xscale_label)
         add_widget(data.xscale_box)
-        add_widget(data.dup_button)
-        add_widget(data.remove_button)
 
     def remove_data(self, data):
         if len(self.datas) < 2:
