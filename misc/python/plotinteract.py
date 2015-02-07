@@ -389,7 +389,8 @@ class Interact(QtGui.QMainWindow):
             self.canvas.draw()
             return
 
-        self.datas.pop(self.datas.index(data))
+        index = self.datas.index(data)
+        self.datas.pop(index)
 
         for widget in data.widgets:
             self.grid.removeWidget(widget)
@@ -397,6 +398,8 @@ class Interact(QtGui.QMainWindow):
 
         self.set_layout()
         self.draw()
+        self.datas[index-1].menu.setFocus()
+        self.datas[index-1].menu.lineEdit().selectAll()
 
     def get_scale(self, textbox, completer):
         completer.close_popup()
