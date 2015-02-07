@@ -2,9 +2,9 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
 import matplotlib as mpl
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4agg \
-    import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt4agg import (
+    FigureCanvasQTAgg as FigureCanvas,
+    NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.backend_bases import key_press_handler
 import sys
 import numpy as np
