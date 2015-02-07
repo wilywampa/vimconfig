@@ -43,18 +43,15 @@ def _delete_word(self, event, parent, lineEdit):
     if lineEdit.selectionStart() == -1:
         lineEdit.cursorWordBackward(True)
         lineEdit.backspace()
-        return True
 
 
 def _select_all(self, event, parent, lineEdit):
     lineEdit.selectAll()
-    return True
 
 
 def _quit(self, event, parent, lineEdit):
     self.emit(SIGNAL('closed()'))
     self.window().close()
-    return True
 
 
 control_actions = {
@@ -70,7 +67,8 @@ def handle_key(self, event, parent, lineEdit):
     if event.type() == QtCore.QEvent.KeyPress:
         if (event.modifiers() & CONTROL_MODIFIER and
                 event.key() in control_actions):
-            return control_actions[event.key()](self, event, parent, lineEdit)
+            control_actions[event.key()](self, event, parent, lineEdit)
+            return True
         elif self.completer.popup().viewport().isVisible():
             if event.key() == QtCore.Qt.Key_Tab:
                 self.emit(SIGNAL('tabPressed(int)'), 1)
