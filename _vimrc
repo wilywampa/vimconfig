@@ -1568,6 +1568,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             \ 'buffer', 'syntax', 'include', 'neosnippet', 'omni', 'words']
         let g:neocomplete#sources.vim = g:neocomplete#sources._ + ['vim']
         let g:neocomplete#sources.matlab = g:neocomplete#sources._ + ['matlab-complete']
+        let g:neocomplete#sources.haskell = g:neocomplete#sources._ + ['ghc']
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
             if getline('.')[col('.')-2] =~ '\S'
