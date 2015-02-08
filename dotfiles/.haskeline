@@ -1,0 +1,9 @@
+editMode: Vi
+historyDuplicates: IgnoreConsecutive
+bind: control-p up
+bind: control-n down
+bind: up meta-k
+bind: down meta-j
+completionPaging: False
+completionPromptLimit: Just 99999
+maxhistorysize: Just 5000
