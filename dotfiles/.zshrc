@@ -1127,7 +1127,7 @@ _linedown=$'\e[1B'
 [[ -n $SSH_CLIENT ]] && _hostcolor=9 || _hostcolor=3
 PROMPT="
 %{$fg[blue]%}%n%{$reset_color%}@%F{$_hostcolor}%m%f %{$fg[cyan]%}\$(_short-pwd)%{$reset_color%}
-[zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
+[zsh %{$fg[cyan]%}%1~%{$reset_color%} %{$fg[red]%}%(?..:( )%1(j,+ ,)%{$reset_color%}\${_vim_mode}]%# "
 
 # Right prompt
 _svn_prompt_info() {
@@ -1266,7 +1266,7 @@ done
 [[ ! $FPATH =~ 'misc' ]] && _unset+=(FPATH)
 [[ -n $_unset ]] && echo "Unset variables:" ${(j/, /)_unset}
 
-[[ -n $VIMCONFIG ]] && source $VIMCONFIG/misc/extract.plugin.zsh
-[[ -z $VIMCONFIG ]] && export VIMCONFIG=$HOME/vimconfig
+[[ -n $VIMCONFIG ]] && source $VIMCONFIG/misc/extract.plugin.zsh || :
+[[ -z $VIMCONFIG ]] && export VIMCONFIG=$HOME/vimconfig || :
 
 # vim: set fdm=marker fdl=1 et sw=4 fmr=[[[,]]]:
