@@ -2045,6 +2045,10 @@ xmap im <Plug>(textobj-function-i)
 omap am <Plug>(textobj-function-A)
 omap im <Plug>(textobj-function-i)
 
+" Haskell plugin settings
+let g:haskellmode_completion_haddock = 0
+let maplocalleader = '&'
+
 " Prevent folds updating spuriously on first write
 autocmd VimrcAutocmds VimEnter * silent! FastFoldUpdate
 
