@@ -34,13 +34,14 @@ endfunc
 
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionHaskell<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionHaskell<Bar>exe 'norm! 'v:count1.'g@_'<CR>
-inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>RunMotionHaskell<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunMotionHaskell('visual')<CR>
+nnoremap <silent> <buffer> <S-F5> :<C-u>call VimuxRunCommand(':load '.fnameescape(expand('%:p')))<CR>
 
 let b:ghc_staticoptions = '-ignore-dot-ghci'
 
 compiler ghc
 setlocal omnifunc=necoghc#omnifunc
+setlocal iskeyword+='
 
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
