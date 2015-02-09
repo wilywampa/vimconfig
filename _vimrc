@@ -1831,6 +1831,7 @@ let g:syntastic_filetype_map={'arduino': 'cpp'}
 let g:syntastic_mode_map={'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
 let g:airline#extensions#syntastic#enabled=0
 nnoremap ,sc :<C-u>execute "SyntasticCheck" \| execute "Errors" \| lfirst<CR>
+nnoremap <Leader>sc :<C-u>SyntasticReset<CR>
 
 " Tabular settings
 let g:no_default_tabular_maps=1
