@@ -47,6 +47,6 @@ if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
 endif
 let g:neocomplete#force_omni_input_patterns.haskell =
-    \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*\|^\s*import\s\+\w*'
+    \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*\|^\s*import\s\+\(qualified\s\+\)\?q\@!\w*'
 
 " vim:set et ts=2 sts=2 sw=2:
