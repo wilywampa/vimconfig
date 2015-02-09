@@ -235,7 +235,7 @@
 	url = https://github.com/wilywampa/haskellmode-vim.git
 [submodule "vimfiles/bundle/neco-ghc"]
 	path = vimfiles/bundle/neco-ghc
-	url = https://github.com/wilywampa/neco-ghc.git
+	url = https://github.com/eagletmt/neco-ghc.git
 [submodule "vimfiles/bundle/haskell"]
 	path = vimfiles/bundle/haskell
 	url = https://git::@github.com/raichoo/haskell-vim.git
