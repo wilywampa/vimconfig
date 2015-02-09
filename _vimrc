@@ -1571,7 +1571,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         let g:neocomplete#sources.haskell = g:neocomplete#sources._ + ['ghc']
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
-            if getline('.')[col('.')-2] =~ '\S'
+            if pumvisible() || getline('.')[col('.')-2] =~ '\S'
                 return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
                     \: neocomplete#start_manual_complete()
             else
