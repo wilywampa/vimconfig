@@ -42,6 +42,7 @@ let b:ghc_staticoptions = '-ignore-dot-ghci'
 compiler ghc
 setlocal omnifunc=necoghc#omnifunc
 setlocal iskeyword+='
+setlocal commentstring=--%s
 
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
