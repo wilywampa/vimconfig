@@ -2078,7 +2078,7 @@ Plug 'wilywampa/vim-indent-guides', {'on': '<Plug>IndentGuidesToggle'}
 Plug 'wilywampa/vim-ipython', {'branch': 'dev'}
 Plug 'wilywampa/jedi-vim'
 Plug 'xolox/vim-misc'
-Plug 'wilywampa/neocomplete.vim'
+Plug 'wilywampa/neocomplete.vim', {'branch': 'simple_cfu'}
 Plug 'wilywampa/neomru.vim'
 Plug 'wilywampa/neosnippet.vim'
 Plug 'wilywampa/neosnippet-snippets'
