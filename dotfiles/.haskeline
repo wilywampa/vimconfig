@@ -2,6 +2,8 @@ editMode: Vi
 historyDuplicates: IgnoreConsecutive
 bind: control-p up
 bind: control-n down
+bind: control-b escape I
+bind: control-e escape A
 bind: up meta-k
 bind: down meta-j
 completionPaging: False

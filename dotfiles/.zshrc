@@ -235,6 +235,7 @@ vibindkey '^[[I' redisplay
 vibindkey '^[[O' redisplay
 bindkey -M viins '^J' vi-open-line-below
 bindkey -M viins '^U' backward-kill-line
+bindkey -M viins '^B' vi-beginning-of-line
 
 _vi-last-line() {
     zle end-of-buffer-or-history
