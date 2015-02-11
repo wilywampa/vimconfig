@@ -2050,6 +2050,12 @@ omap im <Plug>(textobj-function-i)
 " Haskell plugin settings
 let g:haskellmode_completion_haddock = 0
 let maplocalleader = '&'
+if !exists('g:syntastic_quiet_messages')
+    let g:syntastic_quiet_messages = {}
+endif
+let g:syntastic_quiet_messages.regex = '^Defaulting the following constraint(s) to type `Int'.
+    \ (get(g:syntastic_quiet_messages, 'regex', '') == '' ?
+    \ '' : '\|'.g:syntastic_quiet_messages.regex)
 
 " Prevent folds updating spuriously on first write
 autocmd VimrcAutocmds VimEnter * silent! FastFoldUpdate
