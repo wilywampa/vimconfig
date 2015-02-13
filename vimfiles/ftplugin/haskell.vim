@@ -1,6 +1,7 @@
 if exists("b:did_my_ftplugin")
   finish
 endif
+let b:did_ftplugin = 1
 let b:did_my_ftplugin = 1
 
 func! s:RunMotionHaskell(type)
@@ -42,7 +43,7 @@ let b:ghc_staticoptions = '-ignore-dot-ghci'
 compiler ghc
 setlocal omnifunc=necoghc#omnifunc
 setlocal iskeyword+='
-setlocal commentstring=--%s
+setlocal comments=s1fl:{-,mb:-,ex:-},:-- commentstring=--%s
 
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
