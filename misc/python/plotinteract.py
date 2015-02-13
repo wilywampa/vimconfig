@@ -431,15 +431,16 @@ class Interact(QtGui.QMainWindow):
             if isinstance(d.labels, list):
                 for i, l in enumerate(d.labels):
                     self.axes.plot(d.obj[xtext][..., i] * xscale,
-                                   d.obj[text][..., i] * scale,
-                                   label=l, linestyle=self.get_line_style())
+                                   d.obj[text][..., i] * scale, label=l)
             else:
                 self.axes.plot(d.obj[xtext] * xscale, d.obj[text] * scale,
-                               label=d.labels,
-                               linestyle=self.get_line_style())
+                               label=d.labels)
             self.axes.set_xlabel('')
             xlabel.append(xtext + ' (' + d.name + ')')
             ylabel.append(text + ' (' + d.name + ')')
+
+        for index, line in enumerate(self.axes.get_lines()):
+            line.set_linestyle(self.get_linestyle(index))
 
         self.axes.set_xlabel('\n'.join(xlabel))
         self.axes.set_ylabel('\n'.join(ylabel))
@@ -452,11 +453,10 @@ class Interact(QtGui.QMainWindow):
         self.axes.text(0.05, 0.05, '\n'.join(self.warnings),
                        transform=self.axes.transAxes, color='red')
 
-    def get_line_style(self):
+    def get_linestyle(self, index):
         styles = ['-', '--', '-.', ':']
-        lines = len(self.axes.lines)
         ncolors = len(mpl.rcParams['axes.color_cycle'])
-        return styles[int(lines / ncolors) % len(styles)]
+        return styles[((index + 1) // ncolors) % len(styles)]
 
     def canvas_key_press(self, event):
         key_press_handler(event, self.canvas, self.mpl_toolbar)
