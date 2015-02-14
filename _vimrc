@@ -770,15 +770,18 @@ cnoremap <expr> ^ getcmdtype()=~'[/?]' ? <SID>FirstNonBlank() : '^'
 " Don't delete the v/V at the start of a search
 func! s:SearchCmdDelWord() " {{{
     let l:iskeyword = &l:iskeyword | setlocal iskeyword&
-    let cmd = (getcmdtype() =~ '[/?]' ? '/' : '').
-        \ strpart(getcmdline(), 0, getcmdpos() - 1)
-    if cmd =~# '\v/%(\\\%V)?\\[vV]\k+$'
-        return "\<C-w>".matchstr(cmd, '\v/%(\\\%V)?\\\zsv\ze\k*$')
-    elseif cmd =~# '\v/\\\%V\k+$'
-        return "\<C-w>V"
-    endif
-    let &l:iskeyword = l:iskeyword
-    return "\<C-w>"
+    try
+        let cmd = (getcmdtype() =~ '[/?]' ? '/' : '').
+            \ strpart(getcmdline(), 0, getcmdpos() - 1)
+        if cmd =~# '\v/%(\\\%V)?\\[vV]\k+\s*$'
+            return "\<C-w>".matchstr(cmd, '\v/%(\\\%V)?\\\zsv\ze\k*\s*$')
+        elseif cmd =~# '\v/\\\%V\k+\s*$'
+            return "\<C-w>V"
+        endif
+        return "\<C-w>"
+    finally
+        let &l:iskeyword = l:iskeyword
+    endtry
 endfunc " }}}
 cnoremap <expr> <C-w> <SID>SearchCmdDelWord()
 
