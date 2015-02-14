@@ -105,6 +105,7 @@ class TabCompleter(QtGui.QCompleter):
         self.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.setMaxVisibleItems(50)
         self.words = words
+        self.connect(self.popup(), SIGNAL('activated(int)'), self.confirm)
 
     def set_textbox(self, textbox):
         self.textbox = textbox
