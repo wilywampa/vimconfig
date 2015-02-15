@@ -397,7 +397,7 @@ magic-abbrev-expand() {
     fi
     lbuffer_start=$LBUFFER
     [[ $KEYS == $(echo '\t') && $RBUFFER[1] =~ [[:alnum:]_] ]] && ins_space=1
-    if [[ $LBUFFER[-1] != " " && $ins_space == 1 || ! $RBUFFER[1] =~ [[:alnum:]_] ]]; then
+    if [[ $LBUFFER[-1] != " " && $ins_space == 1 || ( ${LBUFFER[-1]} != " " &&  ! $RBUFFER[1] =~ [[:alnum:]_] ) ]]; then
         # Get index of last space, pipe, semicolon, or $( before last word
         lastidx=${LBUFFER[(I) ]}
         (( ${LBUFFER[(I)\|]} > $lastidx )) && lastidx=${LBUFFER[(I)\|]}
