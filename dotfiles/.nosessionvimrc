@@ -34,7 +34,6 @@ call add(g:pathogen_disabled, 'undotee')
 call add(g:pathogen_disabled, 'unite')
 call add(g:pathogen_disabled, 'vcscommand')
 call add(g:pathogen_disabled, 'vimfiler')
-call add(g:pathogen_disabled, 'vimproc')
 call add(g:pathogen_disabled, 'vimshell')
 call add(g:pathogen_disabled, 'vimux-ipy')
 
@@ -48,7 +47,6 @@ set complete+=k
 set dictionary=~/.tmuxwords_no_escape.zsh
 set wrap linebreak
 let g:neocomplete#sources#dictionary#dictionaries = { 'zsh' : '~/.tmuxwords_no_escape.zsh' }
-let g:neocomplete#use_vimproc = 0
 
 autocmd VimLeave * call <SID>OnVimLeave()
 func! s:OnVimLeave()
