@@ -1,0 +1,10 @@
+#compdef pytac tac
+
+_arguments -s -S \
+  '(--help)'--help'[Display usage information.]' \
+  '(-c --chunk-size)'{-c,--chunk-size}'[Process text by groups of C lines]:chunk size' \
+  '(-h --head)'{-h,--head}'[Only reverse the first N lines.]:head lines' \
+  '(-t --tail)'{-t,--tail}'[Only reverse the last N lines.]:tail lines' \
+  '(-i --in-place)'{-i,--in-place}'[Reverse file in place.]' \
+  '(-o --output)'{-o,--output}'[File to write (default stdout).]:output file:_files' \
+  '*:file or directory:_files'
