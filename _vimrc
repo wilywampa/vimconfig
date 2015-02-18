@@ -1546,7 +1546,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
 
     if !s:readonly
         " NeoComplete settings
-        set completefunc=neocomplete#complete#completefunc
+        set completefunc=neocomplete#mappings#complete
         let g:neocomplete#enable_at_startup=1
         let g:neocomplete#enable_smart_case=1
         let g:neocomplete#max_list=200
