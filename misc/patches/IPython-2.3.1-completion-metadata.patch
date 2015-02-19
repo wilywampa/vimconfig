@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..54cc39b 100644
+index b1bc646..9e4dacc 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -74,12 +74,18 @@ import keyword
@@ -22,7 +22,7 @@ index b1bc646..54cc39b 100644
  from IPython.utils.dir2 import dir2
  from IPython.utils.process import arg_split
  from IPython.utils.py3compat import builtin_mod, string_types
-@@ -89,6 +95,11 @@ from IPython.utils.traitlets import CBool, Enum
+@@ -89,6 +95,38 @@ from IPython.utils.traitlets import CBool, Enum
  # Globals
  #-----------------------------------------------------------------------------
  
@@ -31,10 +31,37 @@ index b1bc646..54cc39b 100644
 +TYPES_LIST = tuple([getattr(types, a)
 +                    for a in dir(types) if isinstance(getattr(types, a), type)])
 +
++
++def _hassource(object):
++    """Check if object has source code worth fetching."""
++    if not hasattr(object, '__call__'):
++        return False
++    if inspect.ismodule(object):
++        if hasattr(object, '__file__'):
++            return True
++        return False
++    if inspect.isclass(object):
++        object = sys.modules.get(object.__module__)
++        if hasattr(object, '__file__'):
++            return True
++        return False
++    if inspect.ismethod(object):
++        object = object.im_func
++    if inspect.isfunction(object):
++        object = object.func_code
++    if inspect.istraceback(object):
++        object = object.tb_frame
++    if inspect.isframe(object):
++        object = object.f_code
++    if inspect.iscode(object):
++        return True
++    return False
++
++
  # Public API
  __all__ = ['Completer','IPCompleter']
  
-@@ -97,6 +108,7 @@ if sys.platform == 'win32':
+@@ -97,6 +135,7 @@ if sys.platform == 'win32':
  else:
      PROTECTABLES = ' ()[]{}?=\\|;:\'#*"^&'
  
@@ -42,7 +69,7 @@ index b1bc646..54cc39b 100644
  #-----------------------------------------------------------------------------
  # Main functions and classes
  #-----------------------------------------------------------------------------
-@@ -426,6 +438,64 @@ def get__all__entries(obj):
+@@ -426,6 +465,64 @@ def get__all__entries(obj):
      return [w for w in words if isinstance(w, string_types)]
  
  
@@ -107,7 +134,7 @@ index b1bc646..54cc39b 100644
  class IPCompleter(Completer):
      """Extension of the completer class with IPython-specific features"""
  
-@@ -538,6 +608,7 @@ class IPCompleter(Completer):
+@@ -538,6 +635,7 @@ class IPCompleter(Completer):
                           self.file_matches,
                           self.magic_matches,
                           self.python_func_kw_matches,
@@ -115,7 +142,7 @@ index b1bc646..54cc39b 100644
                           ]
  
      def all_completions(self, text):
-@@ -804,6 +875,108 @@ class IPCompleter(Completer):
+@@ -804,6 +902,108 @@ class IPCompleter(Completer):
                      argMatches.append("%s=" %namedArg)
          return argMatches
  
@@ -224,7 +251,7 @@ index b1bc646..54cc39b 100644
      def dispatch_custom_completer(self, text):
          #io.rprint("Custom! '%s' %s" % (text, self.custom_completers)) # dbg
          line = self.line_buffer
-@@ -931,8 +1104,75 @@ class IPCompleter(Completer):
+@@ -931,8 +1131,74 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
@@ -245,17 +272,14 @@ index b1bc646..54cc39b 100644
 +            except (AssertionError, AttributeError, NameError):
 +                try:
 +                    matches.append(
-+                        m +
-+                        '\0' +
-+                        '%s: %s.%s' %
++                        m + '\0' + '%s: %s.%s' %
 +                        (type(obj).__name__,
 +                         obj.__module__,
 +                         obj.__name__))
 +                except (AttributeError, KeyError):
 +                    if type(obj) in TYPES_LIST:
 +                        matches.append(
-+                            m + '\0' +
-+                            '%s: %s' %
++                            m + '\0' + '%s: %s' %
 +                            (type(obj).__name__,
 +                             repr_.repr(obj)[: 50]))
 +                    else:
@@ -268,21 +292,23 @@ index b1bc646..54cc39b 100644
 +                            matches.append(m + '\0' + type(obj).__name__)
 +
 +            info = ''
-+            try:
-+                info += obj.__name__ + unicode(
-+                    funcsigs.signature(
-+                        obj)) + '\n\n'
-+            except (AttributeError, KeyError, NameError, TypeError, ValueError):
++            if _hassource(obj):
 +                try:
-+                    source = unicode(inspect.getsource(obj), 'utf-8')
-+                except (IOError, TypeError, UnicodeDecodeError):
-+                    pass
-+                else:
-+                    def_ = re.split(r'\)\s*:\s*\n', source)[0] + ')\n\n'
-+                    if def_.startswith('def '):
-+                        info += def_[4:]
-+                    elif def_.startswith('class '):
-+                        info += def_[6:]
++                    info += obj.__name__ + unicode(
++                        funcsigs.signature(
++                            obj)) + '\n\n'
++                except (AttributeError, KeyError, NameError, TypeError,
++                        ValueError):
++                    try:
++                        source = unicode(inspect.getsource(obj), 'utf-8')
++                    except (IOError, TypeError, UnicodeDecodeError):
++                        pass
++                    else:
++                        def_ = re.split(r'\)\s*:\s*\n', source)[0] + ')\n\n'
++                        if def_.startswith('def '):
++                            info += def_[4:]
++                        elif def_.startswith('class '):
++                            info += def_[6:]
 +
 +            try:
 +                info += unicode(inspect.getdoc(obj), 'utf-8')
