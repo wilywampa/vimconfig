@@ -36,7 +36,7 @@ function! s:PyclewnMaps()
             for line in split(input, '\n')
                 if line =~ '\S'
                     execute 'C '.(s:print ? 'print ' : '').
-                        \ s:escape(matchstr(line, '\S.*$'))
+                        \ escape(matchstr(line, '\S.*$'), '"|')
                 endif
             endfor
             silent! call repeat#invalidate()
