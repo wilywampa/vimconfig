@@ -102,17 +102,9 @@
 	path = vimfiles/bundle/neosnippet-snippets
 	url = https://github.com/wilywampa/neosnippet-snippets.git
 	branch = master
-[submodule "vimfiles/bundle/over"]
-	path = vimfiles/bundle/over
-	url = https://github.com/osyo-manga/vim-over.git
-	branch = master
 [submodule "vimfiles/bundle/patchreview"]
 	path = vimfiles/bundle/patchreview
 	url = https://github.com/wilywampa/patchreview-vim.git
-	branch = master
-[submodule "vimfiles/bundle/processing"]
-	path = vimfiles/bundle/processing
-	url = https://github.com/sophacles/vim-processing.git
 	branch = master
 [submodule "vimfiles/bundle/python-mode"]
 	path = vimfiles/bundle/python-mode
