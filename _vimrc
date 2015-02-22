@@ -1693,7 +1693,6 @@ if executable('ag')
 endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
-let g:unite_abbr_highlight='Normal'
 call s:CreateAbbrev('U', 'Unite', ':')
 call s:CreateAbbrev('u', 'Unite', ':')
 augroup VimrcAutocmds
@@ -2111,7 +2110,7 @@ Plug 'wilywampa/tmux-complete.vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'wilywampa/vim-unimpaired'
 Plug 'wilywampa/unite.vim'
-Plug 'https://github.com/h1mesuke/unite-outline.git'
+Plug 'Shougo/unite-outline'
 Plug 'wilywampa/vcscommand.vim', {'on': ['Diff', 'Log']}
 Plug 'wilywampa/vimfiler.vim'
 Plug 'wilywampa/vimproc.vim', {'do': 'make'.(has('win32unix') ? ' -f make_cygwin.mak' : '')}

@@ -236,4 +236,4 @@
 	url = https://github.com/ujihisa/unite-haskellimport.git
 [submodule "vimfiles/bundle/unite-outline"]
 	path = vimfiles/bundle/unite-outline
-	url = https://github.com/h1mesuke/unite-outline.git
+	url = https://github.com/Shougo/unite-outline.git
