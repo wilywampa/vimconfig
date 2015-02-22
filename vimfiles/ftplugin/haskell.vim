@@ -36,6 +36,7 @@ endfunc
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionHaskell<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionHaskell<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunMotionHaskell('visual')<CR>
+inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>RunMotionHaskell<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 nnoremap <silent> <buffer> <S-F5> :<C-u>call VimuxRunCommand(':load '.fnameescape(expand('%:p')))<CR>
 
 let b:ghc_staticoptions = '-ignore-dot-ghci'
