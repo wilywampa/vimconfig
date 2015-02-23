@@ -1783,6 +1783,8 @@ nn <silent> <M-/> :<C-u>Unite -prompt-direction=top line:forward<CR>
 nn <silent> <M-/> :<C-u>Unite -prompt-direction=top line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite -prompt-direction=top mapping<CR>
+nn <silent> <Leader>o :<C-u>Unite outline<CR>
+nn <silent> ,h :<C-u>Unite haskellimport<CR>
 nn <silent> <Leader>w :cclose<bar>lclose<bar>wincmd z<bar>silent! UniteClose<CR>
 nnoremap <silent> ,u :UniteResume<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
