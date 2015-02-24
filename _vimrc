@@ -1575,6 +1575,9 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         endif
         let g:neocomplete#sources._ = ['file', 'file/include', 'member',
             \ 'buffer', 'syntax', 'include', 'neosnippet', 'omni', 'words']
+        if stridx($VIMBLACKLIST, 'tmux-complete') == -1
+            call add(g:neocomplete#sources._, 'tmux-complete')
+        endif
         let g:neocomplete#sources.vim = g:neocomplete#sources._ + ['vim']
         let g:neocomplete#sources.matlab = g:neocomplete#sources._ + ['matlab-complete']
         let g:neocomplete#sources.haskell = g:neocomplete#sources._ + ['ghc']
