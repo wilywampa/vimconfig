@@ -134,7 +134,7 @@ function! vimtools#ResizeWindow(type) " {{{
     let win_on_right = winnr() == startwin || &winfixwidth
     execute startwin."wincmd w"
     wincmd j
-    let win_on_bottom = winnr() == startwin || &winfixheight
+    let win_on_bottom = winnr() == startwin || (&winfixheight && &filetype != 'qf')
     execute startwin."wincmd w"
     wincmd k
     let win_on_top = winnr() == startwin
