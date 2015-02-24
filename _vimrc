@@ -536,6 +536,12 @@ silent! nn <unique> . .
 " New line when cursor is not at the end of the current line
 ino <C-j> <C-r>="\<lt>C-o>o"<CR>
 vno <C-j> <Esc>o
+
+" Insert filename tail with <C-r>$ and escape special characters with <C-r>%/#
+cno <expr> <C-r>% fnameescape(expand('%'))
+cno <expr> <C-r># fnameescape(expand('#'))
+cno <expr> <C-r>$ fnameescape(expand('%:t'))
+ino <expr> <C-r>$ expand('%:t')
 " }}}
 
 " {{{ Abbreviations to open help
