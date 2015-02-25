@@ -21,10 +21,10 @@ def flatten(d, prefix=''):
     """Join nested keys with '.' and unstack arrays."""
     out = {}
     for key, value in d.iteritems():
+        key = (prefix + '.' if prefix else '') + key
         if isinstance(value, dict):
             out.update(flatten(value, key))
         else:
-            key = (prefix + '.' if prefix else '') + key
             out[key] = value
             if isinstance(value, np.ndarray) and value.ndim > 2:
                 queue = [key]
