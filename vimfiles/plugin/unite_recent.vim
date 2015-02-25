@@ -96,6 +96,10 @@ function! s:UniteBufferCycle(resume)
     let s:bufnr = -2
     let s:startbuf = bufnr('%')
     let s:startaltbuf = bufnr('#')
+    if len(s:buflist) <= 1
+      let s:UBCActive = 0
+      return
+    endif
   endif
   let s:key = '['
   while s:key == '[' || s:key == ']'
