@@ -910,6 +910,12 @@ awkp() {
     awk "{print \$$1}"
 }
 
+_glob-newest() {
+    LBUFFER=${LBUFFER}'(om[1])'
+}
+zle -N _glob-newest
+bindkey -M viins 'î' _glob-newest  # <M-n>
+
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
 _cursor_bar="\033[5 q"
