@@ -177,8 +177,16 @@ class CustomQCompleter(TabCompleter):
     def splitPath(self, path):
         words = [unicode(QtCore.QRegExp.escape(word.replace(r'\ ', ' ')))
                  for word in re.split(r'(?<!\\)\s+', unicode(path))]
+
+        includes = [re.sub(r'^\\\\!', '!', word) for word in words
+                    if not word.startswith('!')]
+        excludes = [word[1:] for word in words
+                    if len(word) > 1 and word.startswith('!')]
+
         self.local_completion_prefix = QtCore.QString(
-            '^' + ''.join(['(?=.*%s)' % word for word in words]) + '.+')
+            '^' + ''.join(['(?=.*%s)' % word for word in includes]) +
+            ''.join(['(?!.*%s)' % word for word in excludes]) + '.+')
+
         self.updateModel()
         if self.completionCount() == 0:
             self.local_completion_prefix = path
