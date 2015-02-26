@@ -57,6 +57,7 @@ def _quit(self, event, parent, lineEdit):
 control_actions = {
     QtCore.Qt.Key_A: _select_all,
     QtCore.Qt.Key_D: lambda self, *args: self.emit(SIGNAL('remove()')),
+    QtCore.Qt.Key_L: lambda self, *args: self.emit(SIGNAL('relabel()')),
     QtCore.Qt.Key_N: lambda self, *args: self.emit(SIGNAL('duplicate()')),
     QtCore.Qt.Key_Q: _quit,
     QtCore.Qt.Key_W: _delete_word,
@@ -316,6 +317,17 @@ class DataObj(object):
     def remove(self):
         self.parent.remove_data(self)
 
+    def change_label(self):
+        text, ok = QtGui.QInputDialog.getText(self.parent,
+                                              'Rename data object',
+                                              'New label:')
+        if ok:
+            self.name = unicode(text)
+            self.label.setText(text + ':')
+            if not isinstance(self.labels, list):
+                self.labels = self.name
+            self.parent.draw()
+
 
 class Interact(QtGui.QMainWindow):
 
@@ -378,6 +390,7 @@ class Interact(QtGui.QMainWindow):
             data.widgets.append(w)
             self.connect(w, SIGNAL('duplicate()'), data.duplicate)
             self.connect(w, SIGNAL('remove()'), data.remove)
+            self.connect(w, SIGNAL('relabel()'), data.change_label)
             self.column += 1
 
         add_widget(data.label)
