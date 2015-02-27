@@ -1,0 +1,16 @@
+diff --git a/src/normal.c b/src/normal.c
+--- a/src/normal.c
++++ b/src/normal.c
+@@ -8488,6 +8488,12 @@ nv_dot(cap)
+     if (!checkclearopq(cap->oap))
+     {
+ 	/*
++	 * The command to be executed here was not typed and thus should not
++	 * be added to the command history.
++	 */
++	KeyTyped = FALSE;
++
++	/*
+ 	 * If "restart_edit" is TRUE, the last but one command is repeated
+ 	 * instead of the last command (inserting text). This is used for
+ 	 * CTRL-O <.> in insert mode.
