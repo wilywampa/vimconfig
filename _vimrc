@@ -2008,6 +2008,7 @@ if stridx($VIMBLACKLIST, 'clang_complete') == -1
     let g:clang_jumpto_declaration_key = '<M-]>'
     let g:clang_jumpto_declaration_in_preview_key = '<C-w><M-]'
     let g:clang_jumpto_back_key = 'g<C-t>'
+    let g:clang_sort_algo = 'alpha'
 else
     call add(g:pathogen_disabled, 'clang_complete')
     let g:OmniCpp_LocalSearchDecl = 1
