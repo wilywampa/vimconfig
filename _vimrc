@@ -1692,7 +1692,6 @@ endfunc " }}}
 " {{{ Unite settings
 let g:unite_source_history_yank_enable=1
 let g:unite_source_history_yank_limit=500
-let g:unite_split_rule='botright'
 let g:unite_marked_icon='✓'
 let g:unite_cursor_line_highlight='CursorLine'
 if executable('ag')
@@ -1818,7 +1817,7 @@ endfunc " }}}
 func! s:UniteSetup() " {{{
     call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
-    call unite#custom#profile('default', 'context', {'start_insert': 1})
+    call unite#custom#profile('default', 'context', {'start_insert': 1, 'direction': 'botright'})
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
