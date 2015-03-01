@@ -534,7 +534,7 @@ nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels
 silent! nn <unique> . .
 
 " New line when cursor is not at the end of the current line
-ino <C-j> <C-r>="\<lt>C-o>o"<CR>
+ino <silent> <C-j> <C-r>="\<lt>C-o>o"<CR>
 vno <C-j> <Esc>o
 
 " Insert filename tail with <C-r>$ and escape special characters with <C-r>%/#
@@ -542,6 +542,12 @@ cno <expr> <C-r>% fnameescape(expand('%'))
 cno <expr> <C-r># fnameescape(expand('#'))
 cno <expr> <C-r>$ fnameescape(expand('%:t'))
 ino <expr> <C-r>$ expand('%:t')
+
+" Equivalent of 'dgn' for all matches in buffer
+nn <silent> <Leader>dgn :<C-u>%s///<CR>
+
+" Faster repeat of previous shell command
+cno <expr> ! getcmdtype() == ':' && getcmdline() == '!' ? '!<CR>' : '!'
 " }}}
 
 " {{{ Abbreviations to open help
@@ -1660,7 +1666,7 @@ nnoremap <silent> - :VimFilerBufferDir -force-quit -find<CR>
 nnoremap <silent> <C-_> :VimFilerCurrentDir -force-quit -find<CR>
 let g:vimfiler_as_default_explorer=1
 let g:loaded_netrwPlugin=1
-nn <silent> gx :call netrw#NetrwBrowseX(expand("<cfile>"),0)<CR>
+nn <silent> gx :call netrw#BrowseX(expand("<cfile>"),0)<CR>
 let g:vimfiler_tree_leaf_icon=' '
 let g:vimfiler_file_icon='-'
 let g:vimfiler_tree_opened_icon='▼'
