@@ -129,6 +129,7 @@ else
 
   func! s:GetErrorMATLAB()
     let errorfile = expand('%:h').'/.matlaberror'
+    setlocal errorformat+=Error:\ File:\ %f\ Line:\ %l\ Column:\ %c\ -\ %m
     if filereadable(errorfile)
       cgetexpr readfile(errorfile)
       copen
