@@ -68,7 +68,7 @@ sil! set breakindent            " Indent wrapped lines
 set tags-=./tags tags^=./tags;  " Search upwards for tags
 
 " Ignore system files
-set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe
+set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi
 
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
