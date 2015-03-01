@@ -179,10 +179,10 @@ else
   nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionMATLAB<CR>g@
   nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionMATLAB<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>RunMotionMATLAB<Bar>exe 'norm! 'v:count1.'g@_'<CR>
-  vnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunMotionMATLAB('visual')<CR>
+  xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunMotionMATLAB('visual')<CR>
   nnoremap <silent> <buffer> K :<C-u>call <SID>GetHelpMATLAB()<CR>
-  vnoremap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>
-  vnoremap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarInfoMATLAB()<CR>
+  xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>PrintVarMATLAB()<CR>
+  xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>PrintVarInfoMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>GetErrorMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>CloseFiguresMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>CloseFiguresMATLAB()<CR>
