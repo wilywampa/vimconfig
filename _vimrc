@@ -1826,6 +1826,7 @@ func! s:UniteSetup() " {{{
     call unite#custom#profile('default', 'context', {'start_insert': 1, 'direction': 'botright'})
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
+    call unite#custom#source('neomru/file', 'sorters', ['sorter_ftime', 'sorter_reverse'])
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor
