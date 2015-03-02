@@ -186,9 +186,9 @@ endif
 
 " {{{ Mappings
 " Save current file if modified or execute command if in command window
-nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':update<CR>'
-ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:update<CR>'
-vn <silent> <C-s> <C-c>:update<CR>
+nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':<C-u>update<CR>'
+ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:<C-u>update<CR>'
+vn <silent> <C-s> <C-c>:<C-u>update<CR>
 
 " Redraw the screen, remove search highlighting, and synchronize syntax
 nn <silent> <C-l> :nohl<CR><C-l>
