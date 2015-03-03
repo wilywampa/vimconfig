@@ -69,6 +69,8 @@ set tags-=./tags tags^=./tags;  " Search upwards for tags
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi
+set suffixes&vim
+let &suffixes .= ','.substitute(&wildignore, '*', '', 'g')
 
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
