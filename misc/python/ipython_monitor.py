@@ -62,7 +62,7 @@ def handle_error():
     global awaiting_msg, received_msg, kc, msg_id
     if awaiting_msg and received_msg:
         with open(os.path.join(os.environ['HOME'], '.pyerr'), 'w') as f:
-            f.write('\n'.join(msg['content']['traceback']))
+            f.write('\n'.join(msg['content']['traceback']).encode('utf-8'))
         msg_id = kc.shell_channel.execute('\n'.join([
             '%xmode Context', '%colors Linux']),
             silent=True)
