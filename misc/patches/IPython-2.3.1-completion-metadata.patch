@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..9e4dacc 100644
+index b1bc646..6ea0acf 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -74,12 +74,18 @@ import keyword
@@ -251,7 +251,7 @@ index b1bc646..9e4dacc 100644
      def dispatch_custom_completer(self, text):
          #io.rprint("Custom! '%s' %s" % (text, self.custom_completers)) # dbg
          line = self.line_buffer
-@@ -931,8 +1131,74 @@ class IPCompleter(Completer):
+@@ -931,8 +1131,75 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
@@ -300,19 +300,20 @@ index b1bc646..9e4dacc 100644
 +                except (AttributeError, KeyError, NameError, TypeError,
 +                        ValueError):
 +                    try:
-+                        source = unicode(inspect.getsource(obj), 'utf-8')
-+                    except (IOError, TypeError, UnicodeDecodeError):
++                        source = inspect.getsource(obj)
++                    except (IOError, TypeError):
 +                        pass
 +                    else:
-+                        def_ = re.split(r'\)\s*:\s*\n', source)[0] + ')\n\n'
++                        def_ = re.sub(r'\s+', ' ', re.split(
++                            r'\)\s*:\s*\n', source)[0]) + ')\n\n'
 +                        if def_.startswith('def '):
 +                            info += def_[4:]
 +                        elif def_.startswith('class '):
 +                            info += def_[6:]
 +
 +            try:
-+                info += unicode(inspect.getdoc(obj), 'utf-8')
-+            except (TypeError, UnicodeDecodeError):
++                info += inspect.getdoc(obj)
++            except TypeError:
 +                pass
 +
 +            matches[i] += 'CALLSIG' + info if info else ''
