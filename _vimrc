@@ -217,30 +217,45 @@ if s:hasvimtools
 else
     command! -nargs=1 SwitchToOrOpen tab drop <args>
 endif
-let file_dict = {
+let g:file_dict = {
     \ 'a': '$HOME/.vim/after/plugin/after.vim',
-    \ 'b': '$HOME/.bashrc',
+    \ 'b': ['$HOME/.bashrc', '$HOME/.bash_history'],
     \ 'c': '$HOME/.cshrc',
-    \ 'g': '$HOME/.gitconfig',
-    \ 'h': '$HOME/.histfile',
+    \ 'd': '$HOME/.dircolors',
+    \ 'f': '$HOME/.fzf.zsh',
+    \ 'g': ['$HOME/.gitconfig', '$HOME/.gitconfig_local'],
+    \ 'h': ['$HOME/.histfile', '$HOME/.directory_history'],
     \ 'i': '$HOME/.inputrc',
     \ 'l': '$HOME/.zshrclocal',
     \ 'm': '$HOME/.minttyrc',
     \ 'p': '$HOME/.ipython/profile_default/ipython_config.py',
     \ 's': '$HOME/.screenrc',
+    \ 't': ['$HOME/.tmux.conf', '$HOME/.tmux-local.conf'],
     \ 'u': '$HOME/.muttrc',
-    \ 'v': '$MYVIMRC',
+    \ 'v': ['$MYVIMRC', '$HOME/.vim/after/plugin/after.vim'],
     \ 'x': '$HOME/.Xdefaults',
-    \ 'z': '$HOME/.zshrc',
+    \ 'z': ['$HOME/.zshrc', '$HOME/.zshrclocal'],
     \ }
-for file in items(file_dict)
-    execute 'nnoremap ,e'.file[0].' :<C-u>edit '.
-        \ fnameescape(resolve(expand(file[1]))).'<CR>zv'
+for key in keys(g:file_dict)
+    execute 'nnoremap <silent> ,e'.key.' :<C-u>call <SID>edit_dotfile("'.key.'")<CR>'
 endfor
-nn <silent> <expr> ,et ':<C-u>edit '.
-    \ (resolve(expand('%:p')) == resolve(expand('$HOME/.tmux.conf')) ?
-    \     fnameescape(resolve(expand('$HOME/.tmux-local.conf'))) :
-    \     fnameescape(resolve(expand('$HOME/.tmux.conf')))).'<CR>zv'
+func! s:simplify(file) abort " {{{
+    return resolve(expand(a:file))
+endfunc " }}}
+func! s:escape(file) abort " {{{
+    return fnameescape(s:simplify(a:file))
+endfunc " }}}
+func! s:edit_dotfile(key) abort " {{{
+    if type(g:file_dict[a:key]) == type([])
+        if s:simplify(expand('%:p')) == s:simplify(g:file_dict[a:key][0])
+            execute 'edit '.s:escape(g:file_dict[a:key][1]).'|normal! zv'
+        else
+            execute 'edit '.s:escape(g:file_dict[a:key][0]).'|normal! zv'
+        endif
+    else
+        execute 'edit '.s:escape(g:file_dict[a:key]).'|normal! zv'
+    endif
+endfunc " }}}
 
 " Source vimrc
 nn <silent> ,sv :so $MYVIMRC<CR>:runtime after/plugin/after.vim<CR>
