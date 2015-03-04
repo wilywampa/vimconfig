@@ -42,3 +42,5 @@
 	submodulesummary = true
 [include]
 	path = ~/.gitconfig_local
+[difftool "vimdiff"]
+	cmd = vim -f -d -c \"wincmd l\" -c 'cd \"$GIT_PREFIX\"' \"$LOCAL\" \"$REMOTE\"
