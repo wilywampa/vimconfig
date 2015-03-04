@@ -1671,7 +1671,8 @@ func! s:SneakMaps() " {{{
             execute mode.'map <C-@>     <Plug>Sneak_S'
             execute mode.'map ,, <Plug>SneakPrevious'
         endfor
-        nnoremap <silent> <C-l> :sil! call sneak#cancel()<CR>:nohl<CR><C-l>
+        nnoremap <silent> <expr> <C-l> stridx(string(getmatches()), 'SneakPlugin') == -1 ?
+            \ ':<C-u>nohlsearch<CR><C-l>' : sneak#cancel()
     endif
 endfunc " }}}
 autocmd VimrcAutocmds VimEnter * call s:SneakMaps()
