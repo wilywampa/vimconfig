@@ -12,7 +12,7 @@ func! s:RunMotionHaskell(type)
   call VimuxSendKeys("\<Esc>S")
   let lines = filter(split(input, '\n'), 'v:val =~ "\\S"')
   if len(lines) == 0 | return | endif
-  if input =~ '\v\=@<!\=\=@!'
+  if input =~ '\v[=<>/]@<!\=[=<>]@!'
     let lines[0] = 'let '.lines[0]
     for lnum in range(1, len(lines) - 1)
       let lines[lnum] = '    '.lines[lnum]
