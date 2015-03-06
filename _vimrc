@@ -1281,6 +1281,7 @@ augroup VimrcAutocmds " {{{
     autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
     autocmd FileType dosbatch setl commentstring=REM%s
     autocmd FileType autohotkey setl commentstring=;%s
+    autocmd FileType applescript setl commentstring--%s
 
     " Settings for git commit messages
     autocmd FileType gitcommit setlocal spell colorcolumn=50
