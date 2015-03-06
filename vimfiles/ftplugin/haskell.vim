@@ -4,6 +4,17 @@ endif
 let b:did_ftplugin = 1
 let b:did_my_ftplugin = 1
 
+let s:import_pattern = '^\s*import\s'
+
+func! s:compare(a, b)
+  if a:a =~ s:import_pattern
+    return -1
+  elseif a:b =~ s:import_pattern
+    return 1
+  endif
+  return 0
+endfunc
+
 func! s:RunMotionHaskell(type)
   let zoomed = _VimuxTmuxWindowZoomed()
   if zoomed | call system("tmux resize-pane -Z") | endif
@@ -12,22 +23,30 @@ func! s:RunMotionHaskell(type)
   call VimuxSendKeys("\<Esc>S")
   let lines = filter(split(input, '\n'), 'v:val =~ "\\S"')
   if len(lines) == 0 | return | endif
-  if input =~ '\v[=<>/]@<!\=[=<>]@!'
-    let lines[0] = 'let '.lines[0]
-    for lnum in range(1, len(lines) - 1)
-      let lines[lnum] = '    '.lines[lnum]
-    endfor
-  endif
-  if len(lines) > 1
-    call VimuxSendKeys(":{\<CR>")
-    for line in lines
-      call VimuxSendText(line)
-      call VimuxSendKeys("\<CR>")
-    endfor
-    call VimuxSendKeys(":}\<CR>\<CR>")
-  else
+  call sort(lines, 's:compare')
+  while !empty(lines) && lines[0] =~ s:import_pattern
     call VimuxSendText(lines[0])
-    call VimuxSendKeys("\<CR>\<CR>")
+    call VimuxSendKeys("\<CR>")
+    let lines = lines[1:]
+  endwhile
+  if !empty(lines)
+    if input =~ '\v[=<>/]@<!\=[=<>]@!'
+      let lines[0] = 'let '.lines[0]
+      for lnum in range(1, len(lines) - 1)
+        let lines[lnum] = '    '.lines[lnum]
+      endfor
+    endif
+    if len(lines) > 1
+      call VimuxSendKeys(":{\<CR>")
+      for line in lines
+        call VimuxSendText(line)
+        call VimuxSendKeys("\<CR>")
+      endfor
+      call VimuxSendKeys(":}\<CR>\<CR>")
+    else
+      call VimuxSendText(lines[0])
+      call VimuxSendKeys("\<CR>\<CR>")
+    endif
   endif
   silent! call repeat#invalidate()
   if zoomed | call system("tmux resize-pane -Z") | endif
