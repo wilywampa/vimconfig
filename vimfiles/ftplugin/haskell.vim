@@ -52,11 +52,22 @@ func! s:RunMotionHaskell(type)
   if zoomed | call system("tmux resize-pane -Z") | endif
 endfunc
 
+func! s:EvalSelection()
+  call SaveRegs()
+  normal! gvy
+  call VimuxOpenRunner()
+  call VimuxSendKeys("\<Esc>S")
+  call VimuxSendText(@@)
+  call VimuxSendKeys("\<CR>")
+  call RestoreRegs()
+endfunc
+
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionHaskell<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionHaskell<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunMotionHaskell('visual')<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>RunMotionHaskell<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 nnoremap <silent> <buffer> <S-F5> :<C-u>call VimuxRunCommand(':load '.fnameescape(expand('%:p')))<CR>
+xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>EvalSelection()<CR>
 
 let b:ghc_staticoptions = '-ignore-dot-ghci'
 
