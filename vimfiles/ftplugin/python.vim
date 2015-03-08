@@ -204,6 +204,17 @@ if !exists('*s:IPyRunPrompt')
     endif
   endfunction
 
+  function! s:IPyEval(replace)
+    call SaveRegs()
+    normal! gvy
+    let g:ipy_input = @@
+    python eval_to_register()
+    if a:replace
+      normal! gvp
+      call RestoreRegs()
+    endif
+  endfunction
+
   function! s:IPyRunScratchBuffer()
     let view = winsaveview()
     call SaveRegs()
@@ -249,6 +260,8 @@ xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>IPyPrintVar()<CR>
 xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
 nnoremap <silent> <buffer> <M-P> :<C-u>call <SID>IPyVarInfo(1)<CR>
 xnoremap <silent> <buffer> K     :<C-u>call <SID>IPyGetHelp()<CR>
+xnoremap <silent> <buffer> <M-e> :<C-u>call <SID>IPyEval(1)<CR>
+xnoremap <silent> <buffer> <M-y> :<C-u>call <SID>IPyEval(0)<CR>
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
