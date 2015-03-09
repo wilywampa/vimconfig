@@ -2098,7 +2098,7 @@ let maplocalleader = '&'
 if !exists('g:syntastic_quiet_messages')
     let g:syntastic_quiet_messages = {}
 endif
-let g:syntastic_quiet_messages.regex = '^Defaulting the following constraint(s) to type `Int'.
+let g:syntastic_quiet_messages.regex = '^Defaulting the following constraint(s) to type [`‘]Int'.
     \ (get(g:syntastic_quiet_messages, 'regex', '') == '' ?
     \ '' : '\|'.g:syntastic_quiet_messages.regex)
 
