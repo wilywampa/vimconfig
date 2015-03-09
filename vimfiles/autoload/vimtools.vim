@@ -399,6 +399,8 @@ function! vimtools#opfunc(type) abort " {{{
   let sel_save = &selection
   let cb_save = &clipboard
   let reg_save = @@
+  let left_save = getpos("'<")
+  let right_save = getpos("'>")
   try
     set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
     if a:type =~ '^\d\+$'
@@ -420,6 +422,8 @@ function! vimtools#opfunc(type) abort " {{{
     let @@ = reg_save
     let &selection = sel_save
     let &clipboard = cb_save
+    call setpos("'<", left_save)
+    call setpos("'>", right_save)
   endtry
 endfunction " }}}
 
