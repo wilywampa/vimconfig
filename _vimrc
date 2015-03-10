@@ -1794,6 +1794,7 @@ func! s:UniteSettings() " {{{
     imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
     inor <buffer> . \.
     inor <buffer> \. .
+    inor <buffer> <expr> <BS> getline('.')[col('.')-3:col('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
     sil! nunmap <buffer> ?
 endfunc " }}}
 nn <silent> "" :<C-u>Unite -prompt-direction=top history/yank<CR>
