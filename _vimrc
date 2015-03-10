@@ -948,7 +948,8 @@ endfunc " }}}
 cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
 inoremap <C-@> <Esc>"_dT/"_s
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
-inoremap <M-w> <Esc>"_dT<Space>"_s
+inoremap <expr> <M-w> getline('.')[:col('.')-1] =~ '^\S*\s*$' ? '<C-u>' :
+    \ (col('.') == 0 ? '<BS>' : '<Esc>"_dT<Space>"_s')
 
 " !$ inserts last WORD of previous command
 func! s:LastWord() " {{{
