@@ -1119,7 +1119,7 @@ func! s:RecursiveQ() " {{{
     let @q = @q.'@q'
     normal! @q
     call setreg('q', l:q)
-    set wrapscan
+    set wrapscan eventignore=
 endfunc " }}}
 nnoremap <silent> <Leader>q :<C-u>call <SID>RecursiveQ()<CR>
 
@@ -2185,11 +2185,13 @@ silent! call neocomplete#custom#source('include', 'converters',
     \  'converter_disable_abbr', 'converter_abbr'])
 
 " Add current directory and red arrow if ignorecase is not set to status line
-silent! call airline#parts#define('ic',
-    \ {'condition': '!&ic', 'text': nr2char(8593), 'accent': 'red'})
+silent! call airline#parts#define('ignorecase',
+    \ {'condition': '!&ignorecase', 'text': '↑', 'accent': 'red'})
+silent! call airline#parts#define('eventignore',
+    \ {'condition': '&eventignore != ""', 'text': '!', 'accent': 'red'})
 silent! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
 silent! let g:airline_section_c = airline#section#create(
-    \ ['ic', '%<', 'file', g:airline_symbols.space, 'readonly'])
+    \ ['ignorecase', 'eventignore', '%<', 'file', g:airline_symbols.space, 'readonly'])
 
 " Solarized settings
 if mobileSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
