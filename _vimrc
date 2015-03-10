@@ -529,8 +529,8 @@ nn <silent> <Leader>ds :<C-u>call SaveRegs()<CR>:Redir swapname<CR>:call
     \ system("rm <C-r>"<BS>p")<CR>:e<CR>:call RestoreRegs()<CR>
 
 " Until opening pair, comma, or semicolon
-ono . :<C-u>call    search('[[({<,;:]')\|echo<CR>
-xno . <Esc>`>l:call search('[[({<,;:]')\|echo<CR>v`<oh
+ono . :<C-u>call    search('[[({<,;]')\|echo<CR>
+xno . <Esc>`>l:call search('[[({<,;]')\|echo<CR>v`<oh
 ono g] vg_
 xno g] g_h
 
