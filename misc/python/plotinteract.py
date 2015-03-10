@@ -286,7 +286,7 @@ class DataObj(object):
                 after_text = unicode(scale_box.text())[cursor_pos:]
                 prefix_len = len(re.split(r'\W', before_text)[-1].strip())
                 part = before_text[-prefix_len:]
-                if text.startswith(part):
+                if len(part) and text.startswith(part):
                     scale_box.setText(before_text[:cursor_pos - prefix_len] +
                                       text + after_text)
                     scale_box.setCursorPosition(cursor_pos -
