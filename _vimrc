@@ -1694,7 +1694,8 @@ let g:vimfiler_file_icon='-'
 let g:vimfiler_tree_opened_icon='▼'
 let g:vimfiler_tree_closed_icon='▶'
 let g:vimfiler_marked_file_icon='✓'
-let g:vimfiler_ignore_pattern='^\.\|\.[do]$\|\.pyc$'
+let g:vimfiler_ignore_pattern = '^\.\|.*\.'.
+    \ '\(DS_Store\|a\|bak\|d\|dll\|exe\|h\|hi\|info\|lib\|o\|obj\|pyc\|so\|spi\|swp\|sys\)$'
 let g:vimfiler_restore_alternate_file=0
 autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
 func! s:VimfilerSettings() " {{{
