@@ -2014,6 +2014,7 @@ let g:neocomplete#force_omni_input_patterns.python =
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
 
 " EasyAlign settings
+let g:easy_align_ignore_comment = 0
 vmap <CR> <Plug>(LiveEasyAlign)
 vmap <C-^> <Plug>(EasyAlignRepeat)
 
