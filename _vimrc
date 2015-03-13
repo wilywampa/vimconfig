@@ -1823,6 +1823,7 @@ nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/
 nn <silent> <F1> :<C-u>Unite -prompt-direction=top mapping<CR>
 nn <silent> <Leader>o :<C-u>Unite outline<CR>
 nn <silent> ,h :<C-u>Unite haskellimport<CR>
+nn <silent> <M-h> :<C-u>Unite -prompt-direction=top history/command<CR>
 nn <silent> <Leader>w :cclose<bar>lclose<bar>wincmd z<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
