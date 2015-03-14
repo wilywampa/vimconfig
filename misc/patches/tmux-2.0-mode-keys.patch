@@ -1,0 +1,87 @@
+diff --git a/cmd-bind-key.c b/cmd-bind-key.c
+index 4ff3ac8..25a0cfb 100644
+--- a/cmd-bind-key.c
++++ b/cmd-bind-key.c
+@@ -105,7 +105,9 @@ cmd_bind_key_table(struct cmd *self, struct cmd_q *cmdq, int key)
+                return (CMD_RETURN_ERROR);
+        }
+ 
+- if (cmd != MODEKEYCOPY_COPYPIPE) {
++     if (cmd != MODEKEYCOPY_COPYPIPE &&
++         cmd != MODEKEYCOPY_COPYLINE &&
++         cmd != MODEKEYCOPY_COPYENDOFLINE) {
+                if (args->argc != 2) {
+                        cmdq_error(cmdq, "no argument allowed");
+                        return (CMD_RETURN_ERROR);
+diff --git a/mode-key.c b/mode-key.c
+index 8bb83cb..b4b4b32 100644
+--- a/mode-key.c
++++ b/mode-key.c
+@@ -102,6 +102,8 @@ const struct mode_key_cmdstr mode_key_cmdstr_choice[] = {
+ const struct mode_key_cmdstr mode_key_cmdstr_copy[] = {
+        { MODEKEYCOPY_APPENDSELECTION, "append-selection" },
+        { MODEKEYCOPY_BACKTOINDENTATION, "back-to-indentation" },
++     { MODEKEYCOPY_UPTOINDENTATION, "up-to-indentation" },
++     { MODEKEYCOPY_DOWNTOINDENTATION, "down-to-indentation" },
+        { MODEKEYCOPY_BOTTOMLINE, "bottom-line" },
+        { MODEKEYCOPY_CANCEL, "cancel" },
+        { MODEKEYCOPY_CLEARSELECTION, "clear-selection" },
+@@ -277,7 +279,6 @@ const struct mode_key_entry mode_key_vi_copy[] = {
+        { '?',                      0, MODEKEYCOPY_SEARCHUP },
+        { 'A',                      0, MODEKEYCOPY_APPENDSELECTION },
+        { 'B',                      0, MODEKEYCOPY_PREVIOUSSPACE },
+- { 'D',                      0, MODEKEYCOPY_COPYENDOFLINE },
+        { 'E',                      0, MODEKEYCOPY_NEXTSPACEEND },
+        { 'F',                      0, MODEKEYCOPY_JUMPBACK },
+        { 'G',                      0, MODEKEYCOPY_HISTORYBOTTOM },
+@@ -301,6 +302,8 @@ const struct mode_key_entry mode_key_vi_copy[] = {
+        { '\n',                     0, MODEKEYCOPY_COPYSELECTION },
+        { '\r',                     0, MODEKEYCOPY_COPYSELECTION },
+        { '^',                      0, MODEKEYCOPY_BACKTOINDENTATION },
++     { '_',                        0, MODEKEYCOPY_UPTOINDENTATION },
++     { '+',                        0, MODEKEYCOPY_DOWNTOINDENTATION },
+        { 'b',                      0, MODEKEYCOPY_PREVIOUSWORD },
+        { 'e',                      0, MODEKEYCOPY_NEXTWORDEND },
+        { 'f',                      0, MODEKEYCOPY_JUMP },
+@@ -436,7 +439,6 @@ const struct mode_key_entry mode_key_emacs_copy[] = {
+        { '\005' /* C-e */,         0, MODEKEYCOPY_ENDOFLINE },
+        { '\006' /* C-f */,         0, MODEKEYCOPY_RIGHT },
+        { '\007' /* C-g */,         0, MODEKEYCOPY_CLEARSELECTION },
+- { '\013' /* C-k */,         0, MODEKEYCOPY_COPYENDOFLINE },
+        { '\016' /* C-n */,         0, MODEKEYCOPY_DOWN },
+        { '\020' /* C-p */,         0, MODEKEYCOPY_UP },
+        { '\022' /* C-r */,         0, MODEKEYCOPY_SEARCHUP },
+diff --git a/window-copy.c b/window-copy.c
+index ed4e045..6428631 100644
+--- a/window-copy.c
++++ b/window-copy.c
+@@ -439,10 +439,20 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
+                for (; np != 0; np--)
+                        window_copy_cursor_right(wp);
+                break;
++     case MODEKEYCOPY_UPTOINDENTATION:
++             for (; np != 0; np--)
++                     window_copy_cursor_up(wp, 0);
++             window_copy_cursor_back_to_indentation(wp);
++             break;
+        case MODEKEYCOPY_UP:
+                for (; np != 0; np--)
+                        window_copy_cursor_up(wp, 0);
+                break;
++     case MODEKEYCOPY_DOWNTOINDENTATION:
++             for (; np != 0; np--)
++                     window_copy_cursor_down(wp, 0);
++             window_copy_cursor_back_to_indentation(wp);
++             break;
+        case MODEKEYCOPY_DOWN:
+                for (; np != 0; np--)
+                        window_copy_cursor_down(wp, 0);
+@@ -545,7 +555,7 @@ window_copy_key(struct window_pane *wp, struct session *sess, int key)
+                if (sess != NULL &&
+                    (cmd == MODEKEYCOPY_COPYLINE ||
+                    cmd == MODEKEYCOPY_COPYENDOFLINE)) {
+-                 window_copy_copy_selection(wp, NULL);
++                     window_copy_copy_pipe(wp, sess, NULL, arg);
+                        window_pane_reset_mode(wp);
+                        return;
+                }
