@@ -59,8 +59,12 @@ if !exists('*s:IPyRunPrompt')
   function! s:IPyRunIPyInput()
     if exists('b:did_ipython')
       redraw
-      " Remove leading and trailing blank lines
-      let g:ipy_input = join(split(g:ipy_input, "\n"), "\n")
+      " Dedent text in case first non-blank line is indented
+python << EOF
+import textwrap
+import vim
+vim.vars['ipy_input'] = textwrap.dedent(vim.vars['ipy_input'])
+EOF
       python run_ipy_input()
       unlet g:ipy_input
     else
