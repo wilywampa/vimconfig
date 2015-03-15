@@ -221,11 +221,11 @@ class AutoCompleteComboBox(QtGui.QComboBox):
 
 class DataObj(object):
 
-    def __init__(self, parent, obj, name, xname, labels):
+    def __init__(self, parent, obj, name, xname, **kwargs):
         self.parent = parent
         self.obj = obj
         self.name = name
-        self.labels = labels or name
+        self.labels = kwargs.get('labels', name)
         self.widgets = []
         draw = self.parent.draw
         connect = self.parent.connect
@@ -301,11 +301,18 @@ class DataObj(object):
         self.scale_box, self.scale_compl = new_scale_box()
         self.xscale_box, self.xscale_compl = new_scale_box()
 
+        if 'yname' in kwargs:
+            self.menu.setCurrentIndex(self.menu.findText(kwargs['yname']))
+        if 'yscale' in kwargs:
+            self.scale_box.setText(str(kwargs['yscale']))
+        if 'xscale' in kwargs:
+            self.scale_box.setText(str(kwargs['xscale']))
+
     def duplicate(self):
         self.parent.add_data(self.obj,
                              self.name,
                              self.xmenu.lineEdit().text(),
-                             self.labels)
+                             {'labels': self.labels})
         data = self.parent.datas[-1]
         data.menu.setCurrentIndex(self.menu.currentIndex())
         data.scale_box.setText(self.scale_box.text())
@@ -379,8 +386,8 @@ class Interact(QtGui.QMainWindow):
 
         self.draw()
 
-    def add_data(self, obj, name, xname, labels=None):
-        self.datas.append(DataObj(self, obj, name, xname, labels))
+    def add_data(self, obj, name, xname, kwargs=None):
+        self.datas.append(DataObj(self, obj, name, xname, **(kwargs or {})))
         data = self.datas[-1]
 
         self.row = self.grid.rowCount()
@@ -520,15 +527,21 @@ def create(*data, **kwargs):
     """
     Create an interactive plot window for the given data.
 
-    >>> create([dict1, 'Title1', 'XaxisKey1'],
+    >>> create([dict1, 'Title1', 'XaxisKey1',
+                {'labels': ['a', 'b'], 'xscale': '1/degree'}],
                [dict2, 'Title2', 'XaxisKey2'])
 
     The inputs should define data dictionaries to plot as a list
     containing the dictionary itself, a name for the dictionary to use
-    in titles and labels, a default x-axis key, and optionally a list of
-    legend labels if the data in the dictionary is 2-dimensional. The
-    only optional keyword argument is `title` which sets the window
-    title.
+    in titles and labels, a default x-axis key, and optionally a dictionary of
+    extra settings described below. The only optional keyword argument is
+    `title` which sets the window title.
+
+    Dictionary options allowed per data definition:
+        'labels': a list of labels for 2+ dimensional data
+        'yname':  a dictionary key (string) to plot on the y-axis
+        'xscale': a string or number defining scale factor for x-axis
+        'yscale': a string or number defining scale factor for y-axis
     """
     app_created = False
     app = QtCore.QCoreApplication.instance()
@@ -551,7 +564,7 @@ def main():
         'x': np.cos(time),
         'y': np.sin(time),
     }
-    create([d, 'data', 'time'])
+    create([d, 'data', 'time', {'yname': 'x', 'yscale': 3.0}])
 
 
 if __name__ == '__main__':
