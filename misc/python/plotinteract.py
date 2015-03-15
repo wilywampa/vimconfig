@@ -537,7 +537,6 @@ def create(*data, **kwargs):
         app_created = True
     app.references = set()
     i = Interact(data, kwargs.get('title', None))
-    i.setFont(QtGui.QFont('Tahoma', 11))
     app.references.add(i)
     i.show()
     i.raise_()
