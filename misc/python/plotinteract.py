@@ -549,6 +549,12 @@ def create(*data, **kwargs):
         app = QtGui.QApplication(sys.argv)
         app_created = True
     app.references = set()
+
+    # Backwards compatibility (fourth argument is list of labels)
+    for d in data:
+        if len(d) == 4 and isinstance(d[-1], list):
+            d[-1] = {'labels': d[-1]}
+
     i = Interact(data, kwargs.get('title', None))
     app.references.add(i)
     i.show()
