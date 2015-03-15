@@ -306,7 +306,7 @@ class DataObj(object):
         if 'yscale' in kwargs:
             self.scale_box.setText(str(kwargs['yscale']))
         if 'xscale' in kwargs:
-            self.scale_box.setText(str(kwargs['xscale']))
+            self.xscale_box.setText(str(kwargs['xscale']))
 
     def duplicate(self):
         self.parent.add_data(self.obj,

@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..6ea0acf 100644
+index b1bc646..9eb9b1d 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -74,12 +74,18 @@ import keyword
@@ -316,7 +316,7 @@ index b1bc646..6ea0acf 100644
 +            except TypeError:
 +                pass
 +
-+            matches[i] += 'CALLSIG' + info if info else ''
++            matches[i] += 'CALLSIG' + info.decode('utf-8') if info else ''
 +
 +            matches[i] = matches[i].replace(
 +                'builtin_function_or_method',
