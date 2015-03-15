@@ -51,6 +51,19 @@ index 8bb83cb..b4b4b32 100644
         { '\016' /* C-n */,         0, MODEKEYCOPY_DOWN },
         { '\020' /* C-p */,         0, MODEKEYCOPY_UP },
         { '\022' /* C-r */,         0, MODEKEYCOPY_SEARCHUP },
+diff --git a/tmux.h b/tmux.h
+index 1f80f41..1cee238 100644
+--- a/tmux.h
++++ b/tmux.h
+@@ -540,6 +540,8 @@ enum mode_key_cmd {
+        /* Copy keys. */
+        MODEKEYCOPY_APPENDSELECTION,
+        MODEKEYCOPY_BACKTOINDENTATION,
++     MODEKEYCOPY_UPTOINDENTATION,
++     MODEKEYCOPY_DOWNTOINDENTATION,
+        MODEKEYCOPY_BOTTOMLINE,
+        MODEKEYCOPY_CANCEL,
+        MODEKEYCOPY_CLEARSELECTION,
 diff --git a/window-copy.c b/window-copy.c
 index ed4e045..6428631 100644
 --- a/window-copy.c
