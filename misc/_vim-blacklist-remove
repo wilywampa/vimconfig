@@ -1,3 +1,8 @@
 #compdef vim-blacklist-remove
 
-compadd $vimblacklist
+local completions
+completions=($vimblacklist)
+for word in $words; do
+  completions[${completions[(i)${word}]}]=()
+done
+_describe plugins completions && return 0

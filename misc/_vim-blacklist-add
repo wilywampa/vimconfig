@@ -5,4 +5,7 @@ bundles=($(ls $VIMCONFIG/vimfiles/bundle))
 for bundle in $vimblacklist; do
     bundles[${bundles[(i)$bundle]}]=()
 done
-compadd $bundles
+for word in $words; do
+  bundles[${bundles[(i)${word}]}]=()
+done
+_describe plugins bundles && return 0
