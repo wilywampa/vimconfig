@@ -171,6 +171,7 @@ alias pyclewn="vim -c 'Pyclewn'"
 alias loc='locate --regex -i'
 alias ipy='ipython'
 alias pip='noglob pip'
+alias hoogle='hoogle --color'
 
 #[[[1 Global aliases
 alias -g LL='ls --color=auto -lsh'
