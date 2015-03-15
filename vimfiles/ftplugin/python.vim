@@ -55,6 +55,8 @@ let s:errorformat .= '%+C  %.%#,'
 let s:errorformat .= '%Z%\S%\&%m,'
 let s:errorformat .= '%-G%.%#'
 
+let s:scratch_name = '--Python--'
+
 if !exists('*s:IPyRunPrompt')
   function! s:IPyRunIPyInput()
     if exists('b:did_ipython')
@@ -186,6 +188,19 @@ EOF
         endif
         let &errorformat = s:errorformat
         cgetexpr(pyerr)
+        if stridx(pyerr, s:scratch_name) != -1
+          let qflist = getqflist()
+          for item in qflist
+            if stridx(bufname(item.bufnr), s:scratch_name) != -1
+              if item.bufnr != bufnr(s:scratch_name)
+                execute "bwipe ".item.bufnr
+                let item.bufnr = bufnr(s:scratch_name)
+              endif
+              break
+            endif
+          endfor
+          call setqflist(qflist)
+        endif
         copen
         for winnr in range(1, winnr('$'))
           if getwinvar(winnr, '&buftype') ==# 'quickfix'
@@ -196,6 +211,7 @@ EOF
           " Go to last error in a listed buffer
           let listed = reverse(map(getqflist(),
               \ "v:val['bufnr'] > 0 && buflisted(v:val['bufnr'])"))
+          if &filetype ==# 'qf' | wincmd p | endif
           execute "cc ".(len(listed) - index(listed, 1))
         catch
           cfirst
@@ -230,7 +246,7 @@ EOF
   endfunction
 
   function! s:IPyScratchBuffer()
-    let scratch = bufnr('--Python--')
+    let scratch = bufnr(s:scratch_name)
     if scratch == -1
       enew
       IPython
