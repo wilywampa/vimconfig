@@ -2131,7 +2131,7 @@ Plug 'wilywampa/vim-fugitive'
 Plug 'wilywampa/gitv', {'on': 'Gitv'}
 Plug 'wilywampa/vim-gtfo'
 Plug 'wilywampa/vim-indent-guides', {'on': '<Plug>IndentGuidesToggle'}
-Plug 'wilywampa/vim-ipython', {'branch': 'dev'}
+Plug 'wilywampa/vim-ipython'
 Plug 'wilywampa/jedi-vim'
 Plug 'xolox/vim-misc'
 Plug 'wilywampa/neocomplete.vim', {'branch': 'simple_cfu'}
