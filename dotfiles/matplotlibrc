@@ -2,6 +2,7 @@ backend : qt4agg
 axes.grid : True
 legend.loc : best
 legend.fontsize : small
+legend.handlelength : 3
 figure.autolayout : True
 figure.max_open_warning : 100
 figure.facecolor : white
