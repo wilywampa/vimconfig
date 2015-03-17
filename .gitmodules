@@ -230,7 +230,7 @@
 	url = https://github.com/eagletmt/neco-ghc.git
 [submodule "vimfiles/bundle/haskell"]
 	path = vimfiles/bundle/haskell
-	url = https://git::@github.com/raichoo/haskell-vim.git
+	url = https://git::@github.com/wilywampa/haskell-vim.git
 [submodule "vimfiles/bundle/unite-haskellimport"]
 	path = vimfiles/bundle/unite-haskellimport
 	url = https://github.com/ujihisa/unite-haskellimport.git

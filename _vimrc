@@ -2173,7 +2173,7 @@ Plug 'wilywampa/vim-textobj-function-clang'
 Plug 'wilywampa/haskellmode-vim'
 Plug 'eagletmt/ghcmod-vim'
 Plug 'eagletmt/neco-ghc'
-Plug 'raichoo/haskell-vim'
+Plug 'wilywampa/haskell-vim'
 Plug 'ujihisa/unite-haskellimport'
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
