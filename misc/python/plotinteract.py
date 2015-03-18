@@ -221,7 +221,7 @@ class AutoCompleteComboBox(QtGui.QComboBox):
 
 class DataObj(object):
 
-    def __init__(self, parent, obj, name, xname, **kwargs):
+    def __init__(self, parent, obj, name, **kwargs):
         self.parent = parent
         self.obj = obj
         self.name = name
@@ -256,7 +256,7 @@ class DataObj(object):
         self.xcompleter, self.xmenu = new_text_box()
 
         self.menu.setCurrentIndex(0)
-        self.xmenu.setCurrentIndex(self.xmenu.findText(xname))
+        self.xmenu.setCurrentIndex(0)
         self.xlabel = QtGui.QLabel('x axis:', parent=self.parent)
 
         words = [c for c in dir(const) if isinstance(getattr(const, c), float)]
@@ -305,6 +305,8 @@ class DataObj(object):
             self.menu.setCurrentIndex(self.menu.findText(kwargs['yname']))
         if 'yscale' in kwargs:
             self.scale_box.setText(str(kwargs['yscale']))
+        if 'xname' in kwargs:
+            self.xmenu.setCurrentIndex(self.menu.findText(kwargs['xname']))
         if 'xscale' in kwargs:
             self.xscale_box.setText(str(kwargs['xscale']))
 
@@ -386,8 +388,8 @@ class Interact(QtGui.QMainWindow):
 
         self.draw()
 
-    def add_data(self, obj, name, xname, kwargs=None):
-        self.datas.append(DataObj(self, obj, name, xname, **(kwargs or {})))
+    def add_data(self, obj, name, kwargs=None):
+        self.datas.append(DataObj(self, obj, name, **(kwargs or {})))
         data = self.datas[-1]
 
         self.row = self.grid.rowCount()
@@ -528,17 +530,18 @@ def create(*data, **kwargs):
     Create an interactive plot window for the given data.
 
     >>> create([dict1, 'Title1', 'XaxisKey1',
-                {'labels': ['a', 'b'], 'xscale': '1/degree'}],
-               [dict2, 'Title2', 'XaxisKey2'])
+                dict(labels=['a', 'b'], xscale='1/degree')],
+               [dict2, 'Title2'])
 
     The inputs should define data dictionaries to plot as a list
     containing the dictionary itself, a name for the dictionary to use
-    in titles and labels, a default x-axis key, and optionally a dictionary of
-    extra settings described below. The only optional keyword argument is
-    `title` which sets the window title.
+    in titles and labels, and optionally a dictionary of extra settings
+    described below. The only optional keyword argument is `title`
+    which sets the window title.
 
     Dictionary options allowed per data definition:
         'labels': a list of labels for 2+ dimensional data
+        'xname':  a dictionary key (string) to plot on the x-axis
         'yname':  a dictionary key (string) to plot on the y-axis
         'xscale': a string or number defining scale factor for x-axis
         'yscale': a string or number defining scale factor for y-axis
@@ -550,10 +553,17 @@ def create(*data, **kwargs):
         app_created = True
     app.references = set()
 
-    # Backwards compatibility (fourth argument is list of labels)
+    # Backwards compatibility
     for d in data:
         if len(d) == 4 and isinstance(d[-1], list):
-            d[-1] = {'labels': d[-1]}
+            d[-2] = {'xname': d[-2], 'labels': d[-1]}
+            d.pop()
+        elif len(d) >= 3 and isinstance(d[2], basestring):
+            if len(d) == 3:
+                d[-1] = {'xname': d[-1]}
+            else:
+                d[-1]['xname'] = d[-1].get('xname', d[2])
+                d.pop(2)
 
     i = Interact(data, kwargs.get('title', None))
     app.references.add(i)
