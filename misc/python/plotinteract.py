@@ -11,6 +11,10 @@ import sys
 import numpy as np
 import re
 import scipy.constants as const
+try:
+    from mpldatacursor import datacursor
+except ImportError:
+    pass
 
 if sys.platform == 'darwin':
     CONTROL_MODIFIER = QtCore.Qt.MetaModifier
@@ -451,6 +455,10 @@ class Interact(QtGui.QMainWindow):
 
     def draw(self):
         self.axes.clear()
+        try:
+            self.cursor.artists = []
+        except AttributeError:
+            pass
 
         xlabel = []
         ylabel = []
@@ -479,6 +487,10 @@ class Interact(QtGui.QMainWindow):
         self.draw_warnings()
         legend = self.axes.legend()
         legend.draggable(True)
+        try:
+            self.cursor = datacursor(self.axes.get_lines())
+        except NameError:
+            pass
         self.canvas.draw()
 
     def draw_warnings(self):
