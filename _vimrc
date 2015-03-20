@@ -1691,8 +1691,10 @@ let g:loaded_netrwPlugin=1
 nn <silent> gx :call netrw#BrowseX(expand("<cfile>"),0)<CR>
 let g:vimfiler_tree_leaf_icon=' '
 let g:vimfiler_file_icon='-'
-let g:vimfiler_tree_opened_icon='▼'
-let g:vimfiler_tree_closed_icon='▶'
+if v:version > 704 || (v:version == 704 && has('patch651'))
+    let g:vimfiler_tree_opened_icon='▼'
+    let g:vimfiler_tree_closed_icon='▶'
+endif
 let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_ignore_pattern = '^\.\|.*\.'.
     \ '\(DS_Store\|a\|bak\|d\|dll\|exe\|hi\|info\|lib\|o\|obj\|pyc\|so\|spi\|swp\|sys\)$'
