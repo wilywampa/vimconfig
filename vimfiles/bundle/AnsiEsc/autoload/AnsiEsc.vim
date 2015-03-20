@@ -113,6 +113,9 @@ fun! AnsiEsc#AnsiEsc(rebuild)
   syn region ansiNone               start="\e\[\([01;]\|49\)m"  end="\e\["me=e-2 contains=ansiConceal
   syn region ansiNone               start="\e\[m"               end="\e\["me=e-2 contains=ansiConceal
 
+  syn region ansiBold               start="\e\[0;1m"            end="\e\["me=e-2 contains=ansiConceal
+  syn region ansiUnderline          start="\e\[0;4m"            end="\e\["me=e-2 contains=ansiConceal
+
   syn region ansiBlack              start="\e\[;\=0\{0,2};\=30m" end="\e\["me=e-2 contains=ansiConceal
   syn region ansiRed                start="\e\[;\=0\{0,2};\=31m" end="\e\["me=e-2 contains=ansiConceal
   syn region ansiGreen              start="\e\[;\=0\{0,2};\=32m" end="\e\["me=e-2 contains=ansiConceal
@@ -553,7 +556,9 @@ fun! AnsiEsc#AnsiEsc(rebuild)
   " specific to the current file
   call AnsiEsc#MultiElementHandler()
 
-  hi ansiNone           cterm=NONE gui=NONE
+  hi ansiNone           cterm=NONE      gui=NONE
+  hi ansiBold           cterm=bold      gui=bold
+  hi ansiUnderline      cterm=underline gui=underline
 
   if &t_Co == 8 || &t_Co == 256
    " ---------------------
