@@ -315,10 +315,7 @@ class DataObj(object):
             self.xscale_box.setText(str(kwargs['xscale']))
 
     def duplicate(self):
-        self.parent.add_data(self.obj,
-                             self.name,
-                             self.xmenu.lineEdit().text(),
-                             {'labels': self.labels})
+        self.parent.add_data(self.obj, self.name)
         data = self.parent.datas[-1]
         data.menu.setCurrentIndex(self.menu.currentIndex())
         data.scale_box.setText(self.scale_box.text())
