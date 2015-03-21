@@ -71,7 +71,7 @@ control_actions = {
 
 def handle_key(self, event, parent, lineEdit):
     if event.type() == QtCore.QEvent.KeyPress:
-        if (event.modifiers() & CONTROL_MODIFIER and
+        if (event.modifiers() == CONTROL_MODIFIER and
                 event.key() in control_actions):
             control_actions[event.key()](self, event, parent, lineEdit)
             return True
@@ -561,11 +561,34 @@ class Interact(QtGui.QMainWindow):
         QtCore.Qt.Key_Y: '_resety',
     }
 
+    @staticmethod
+    def data_dict(d):
+        return dict(xname=str(d.xmenu.lineEdit().text()),
+                    yname=str(d.menu.lineEdit().text()),
+                    xscale=str(d.xscale_box.text()),
+                    yscale=str(d.scale_box.text()))
+
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
             event.modifiers() & CONTROL_MODIFIER and
                 event.key() in self.control_actions):
             getattr(self, self.control_actions[event.key()])()
+            return True
+
+        # Create duplicate of entire GUI with Ctrl+Shift+N
+        elif (event.type() == QtCore.QEvent.KeyPress and
+              event.modifiers() & CONTROL_MODIFIER and
+              event.modifiers() & QtCore.Qt.ShiftModifier and
+              event.key() == QtCore.Qt.Key_N):
+            create(*[[d.obj, d.name, self.data_dict(d)] for d in self.datas])
+            return True
+
+        # Print dictionaries of keys and scales for all data with Ctrl+Shift+P
+        elif (event.type() == QtCore.QEvent.KeyPress and
+              event.modifiers() & CONTROL_MODIFIER and
+              event.modifiers() & QtCore.Qt.ShiftModifier and
+              event.key() == QtCore.Qt.Key_P):
+            print "\n".join([str(self.data_dict(d)) for d in self.datas])
             return True
         return super(Interact, self).event(event)
 
