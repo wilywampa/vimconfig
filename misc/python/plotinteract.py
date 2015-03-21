@@ -360,6 +360,11 @@ class Interact(QtGui.QMainWindow):
         self.canvas.mpl_connect('key_press_event', self.canvas_key_press)
         self.axes = self.fig.add_subplot(111)
 
+        self.xlim = None
+        self.ylim = None
+        self.xlogscale = 'linear'
+        self.ylogscale = 'linear'
+
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
 
         self.vbox = QtGui.QVBoxLayout()
@@ -482,6 +487,12 @@ class Interact(QtGui.QMainWindow):
         self.axes.set_xlabel('\n'.join(xlabel))
         self.axes.set_ylabel('\n'.join(ylabel))
         self.draw_warnings()
+
+        self.axes.set_xlim(self.xlim)
+        self.axes.set_ylim(self.ylim)
+        self.axes.set_xscale(self.xlogscale)
+        self.axes.set_yscale(self.ylogscale)
+
         legend = self.axes.legend()
         legend.draggable(True)
         try:
@@ -502,11 +513,39 @@ class Interact(QtGui.QMainWindow):
     def canvas_key_press(self, event):
         key_press_handler(event, self.canvas, self.mpl_toolbar)
 
+    def edit_parameters(self):
+        xlim = self.axes.get_xlim()
+        ylim = self.axes.get_ylim()
+        self.mpl_toolbar.edit_parameters()
+        if xlim != self.axes.get_xlim():
+            self.xlim = self.axes.get_xlim()
+        if ylim != self.axes.get_ylim():
+            self.ylim = self.axes.get_ylim()
+        self.xlogscale = self.axes.get_xscale()
+        self.ylogscale = self.axes.get_yscale()
+
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
             event.key() == QtCore.Qt.Key_Q and
                 event.modifiers() & CONTROL_MODIFIER):
             self.window().close()
+            return True
+        elif (event.type() == QtCore.QEvent.KeyPress and
+              event.key() == QtCore.Qt.Key_O and
+              event.modifiers() & CONTROL_MODIFIER):
+            self.edit_parameters()
+            return True
+        elif (event.type() == QtCore.QEvent.KeyPress and
+              event.key() == QtCore.Qt.Key_X and
+              event.modifiers() & CONTROL_MODIFIER):
+            self.xlim = None
+            self.draw()
+            return True
+        elif (event.type() == QtCore.QEvent.KeyPress and
+              event.key() == QtCore.Qt.Key_Y and
+              event.modifiers() & CONTROL_MODIFIER):
+            self.ylim = None
+            self.draw()
             return True
         return super(Interact, self).event(event)
 
