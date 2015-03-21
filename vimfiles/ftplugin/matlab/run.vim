@@ -162,10 +162,10 @@ else
       let scratch = bufnr('--MATLAB--')
       if scratch == -1
         enew
-        silent file --MATLAB--
       else
         execute "buffer ".scratch
       endif
+      silent file --MATLAB--
       set filetype=matlab
       setlocal buftype=nofile bufhidden=hide noswapfile
       nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>RunScratchBufferMATLAB()<CR>

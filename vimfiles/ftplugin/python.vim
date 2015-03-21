@@ -251,10 +251,10 @@ EOF
     if scratch == -1
       enew
       IPython
-      silent file --Python--
     else
       execute "buffer ".scratch
     endif
+    silent file --Python--
     set filetype=python
     setlocal buftype=nofile bufhidden=hide noswapfile
     setlocal omnifunc=CompleteIPython
