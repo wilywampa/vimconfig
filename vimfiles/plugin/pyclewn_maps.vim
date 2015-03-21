@@ -35,7 +35,7 @@ function! s:PyclewnMaps()
             let input = vimtools#opfunc(a:type)
             for line in split(input, '\n')
                 if line =~ '\S'
-                    execute 'C '.(s:print ? 'print ' : '').
+                    execute 'C '.((s:print || !s:is_pdb) ? 'print ' : '').
                         \ escape(matchstr(line, '\S.*$'), '"|')
                 endif
             endfor
@@ -47,7 +47,7 @@ function! s:PyclewnMaps()
     nnoremap g<M-b> :<C-u>call <SID>ConditionalBreakpoint()<CR>
     nnoremap <buffer> <M-d> :C down<CR>
     nnoremap <M-e> :execute "C clear ".expand('%:p').":".line('.')<CR>
-    nnoremap <buffer> <M-n> :C next<CR>
+    nnoremap <buffer> <C-n> :C next<CR>
     nnoremap <buffer> <C-n> :C next<CR>
     nnoremap <buffer> <M-p> :execute "C print ".expand('<cword>')<CR>
     nnoremap <buffer> g<M-p> :execute "C call ".expand('<cword>').".print()"<CR>
@@ -90,14 +90,22 @@ function! s:PyclewnMaps()
     cnoreabbrev <expr> Cr ((getcmdtype()==':'&&getcmdpos()<=3)?'Crun':'Cr')
     cnoreabbrev <expr> Cs ((getcmdtype()==':'&&getcmdpos()<=3)?'Cstep':'Cs')
 
-    if exists('g:pyclewn_map_global') && g:pyclewn_map_global
-        augroup pyclewn
-            autocmd!
+    augroup pyclewn
+        autocmd!
+        if exists('g:pyclewn_map_global') && g:pyclewn_map_global
             autocmd BufEnter,WinEnter * call s:PyclewnMaps()
-        augroup END
-    endif
+        endif
+    augroup END
 endfunction
 
 nnoremap <silent> <Leader>pc :<C-u>call <SID>PyclewnMaps()<CR>
 nnoremap <silent> <Leader><Leader>pc :<C-u>let g:pyclewn_map_global = 1<bar>call <SID>PyclewnMaps()<CR>
 nnoremap <silent> <M-b> :<C-u>call <SID>PyclewnMaps()<CR>:execute "C break ".expand('%:p').":".line('.')<CR>
+
+augroup pyclewn
+    autocmd!
+    autocmd VimEnter * if exists(':C') == 2 |
+        \     let g:pyclewn_map_global = 1  |
+        \     call s:PyclewnMaps()          |
+        \ endif
+augroup END
