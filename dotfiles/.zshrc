@@ -663,13 +663,17 @@ _time-command() {
 zle -N _time-command; vibindkey '^T' _time-command
 
 _vim-args() {
+    local pat literal
     # Try to set vim's search pattern if opening files from ag command
     if [[ ${BUFFER[(w)1]} =~ ^ag?$ ]]; then
         # Append "-l" if it's not present
         [[ ! $BUFFER =~ ' -l( |$)' ]] && BUFFER=${BUFFER}' -l'
         # Extract string between quotes
         [[ $BUFFER =~ "'(.*)'" ]]; pat=${${match[1]}:-""}
-        pat=${${pat//</\\<}//>/\\>}; pat=${pat//\\b/(<|>)}
+        [[ $BUFFER == *-Q* || $BUFFER == *-F* ]]; literal=$?
+        if [[ ! $literal ]]; then
+            pat=${${pat//</\\<}//>/\\>}; pat=${pat//\\b/(<|>)}
+        fi
         if [[ -z $pat ]]; then
             # If BUFFER is of the form 'ag pattern -l', extract pattern
             if (( ${(w)#BUFFER} == 3 )) && [[ ${BUFFER[(w)-1]} == "-l" ]]; then
