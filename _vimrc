@@ -2177,6 +2177,7 @@ Plug 'eagletmt/ghcmod-vim'
 Plug 'eagletmt/neco-ghc'
 Plug 'raichoo/haskell-vim'
 Plug 'ujihisa/unite-haskellimport'
+Plug 'vim-scripts/CSApprox', {'for': 'fugitiveblame'}
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'

@@ -237,3 +237,6 @@
 [submodule "vimfiles/bundle/unite-outline"]
 	path = vimfiles/bundle/unite-outline
 	url = https://github.com/Shougo/unite-outline.git
+[submodule "vimfiles/bundle/CSApprox"]
+	path = vimfiles/bundle/CSApprox
+	url = https://git::@github.com/vim-scripts/CSApprox.git
