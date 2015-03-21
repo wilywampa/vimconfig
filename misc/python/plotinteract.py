@@ -524,28 +524,32 @@ class Interact(QtGui.QMainWindow):
         self.xlogscale = self.axes.get_xscale()
         self.ylogscale = self.axes.get_yscale()
 
+    def _options(self):
+        self.edit_parameters()
+
+    def _close(self):
+        self.window().close()
+
+    def _resetx(self):
+        self.xlim = None
+        self.draw()
+
+    def _resety(self):
+        self.ylim = None
+        self.draw()
+
+    control_actions = {
+        QtCore.Qt.Key_O: '_options',
+        QtCore.Qt.Key_Q: '_close',
+        QtCore.Qt.Key_X: '_resetx',
+        QtCore.Qt.Key_Y: '_resety',
+    }
+
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
-            event.key() == QtCore.Qt.Key_Q and
-                event.modifiers() & CONTROL_MODIFIER):
-            self.window().close()
-            return True
-        elif (event.type() == QtCore.QEvent.KeyPress and
-              event.key() == QtCore.Qt.Key_O and
-              event.modifiers() & CONTROL_MODIFIER):
-            self.edit_parameters()
-            return True
-        elif (event.type() == QtCore.QEvent.KeyPress and
-              event.key() == QtCore.Qt.Key_X and
-              event.modifiers() & CONTROL_MODIFIER):
-            self.xlim = None
-            self.draw()
-            return True
-        elif (event.type() == QtCore.QEvent.KeyPress and
-              event.key() == QtCore.Qt.Key_Y and
-              event.modifiers() & CONTROL_MODIFIER):
-            self.ylim = None
-            self.draw()
+            event.modifiers() & CONTROL_MODIFIER and
+                event.key() in self.control_actions):
+            getattr(self, self.control_actions[event.key()])()
             return True
         return super(Interact, self).event(event)
 
