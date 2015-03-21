@@ -93,6 +93,7 @@ EOF
 
   function! s:IPyClearWorkspace()
     let g:ipy_input = 'plt.close("all")'."\n".'%reset -s -f'
+    let g:ipy_input .= "\n".'from PyQt4 import QtCore; QtCore.QCoreApplication.instance().closeAllWindows()'
     call s:IPyRunIPyInput()
   endfunction
 
@@ -272,7 +273,7 @@ nnoremap <silent> <buffer> g\  :<C-u>call <SID>IPyRunPrompt()<CR><C-f>
 nnoremap <silent> <buffer> g\| :<C-u>call <SID>IPyRunPrompt()<CR><C-f>
 cnoremap <silent> <buffer> <expr> <C-^> getcmdtype() == '@' ? '<C-e>()<CR>' : QuitSearch()
 nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>IPyClearWorkspace()<CR>
-nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>IPyCloseFigures()<CR>
+nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>IPyCloseWindows()<CR>
 nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>IPyCloseFigures()<CR>
 nnoremap <silent> <buffer> <Leader><Leader>cl :<C-u>call <SID>IPyCloseWindows()<CR>
 nnoremap <silent>          ,pp :<C-u>call <SID>IPyPing()<CR>
