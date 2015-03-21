@@ -456,7 +456,13 @@ class Interact(QtGui.QMainWindow):
         return key
 
     def draw(self):
+        tight, xmargin, ymargin = (self.axes._tight,
+                                   self.axes._xmargin,
+                                   self.axes._ymargin)
         self.axes.clear()
+        self.axes._tight, self.axes._xmargin, self.axes._ymargin = (tight,
+                                                                    xmargin,
+                                                                    ymargin)
         try:
             self.cursor.artists = []
         except AttributeError:
@@ -524,6 +530,14 @@ class Interact(QtGui.QMainWindow):
         self.xlogscale = self.axes.get_xscale()
         self.ylogscale = self.axes.get_yscale()
 
+    def _margins(self):
+        self.axes._tight = not self.axes._tight
+        if self.axes._tight:
+            self.axes.margins(0.05)
+        else:
+            self.axes._xmargin = self.axes._ymargin = 0
+        self.draw()
+
     def _options(self):
         self.edit_parameters()
 
@@ -539,6 +553,7 @@ class Interact(QtGui.QMainWindow):
         self.draw()
 
     control_actions = {
+        QtCore.Qt.Key_M: '_margins',
         QtCore.Qt.Key_O: '_options',
         QtCore.Qt.Key_Q: '_close',
         QtCore.Qt.Key_X: '_resetx',
