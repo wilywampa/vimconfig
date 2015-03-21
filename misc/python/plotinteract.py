@@ -366,6 +366,7 @@ class Interact(QtGui.QMainWindow):
         self.ylogscale = 'linear'
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
+        self.cursor = None
 
         self.vbox = QtGui.QVBoxLayout()
         self.vbox.addWidget(self.mpl_toolbar)
@@ -463,10 +464,10 @@ class Interact(QtGui.QMainWindow):
         self.axes._tight, self.axes._xmargin, self.axes._ymargin = (tight,
                                                                     xmargin,
                                                                     ymargin)
-        try:
+        if self.cursor is not None:
             self.cursor.artists = []
-        except AttributeError:
-            pass
+            self.cursor.hide()
+            self.cursor.disable()
 
         xlabel = []
         ylabel = []
