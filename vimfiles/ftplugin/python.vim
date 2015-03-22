@@ -194,7 +194,9 @@ EOF
           for item in qflist
             if stridx(bufname(item.bufnr), s:scratch_name) != -1
               if item.bufnr != bufnr(s:scratch_name)
-                execute "bwipe ".item.bufnr
+                if item.bufnr > 0
+                  execute "bwipe ".item.bufnr
+                endif
                 let item.bufnr = bufnr(s:scratch_name)
               endif
               break
