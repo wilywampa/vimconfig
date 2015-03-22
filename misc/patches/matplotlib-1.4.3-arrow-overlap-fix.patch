@@ -1,0 +1,24 @@
+diff --git a/text.py b/text.py
+index 7133933..97be013 100644
+--- a/text.py
++++ b/text.py
+@@ -2073,6 +2073,10 @@ class Annotation(Text, _AnnotationBase):
+         self._update_position_xytext(renderer, xy_pixel)
+         self.update_bbox_position_size(renderer)
+ 
++        # Draw text, including FancyBboxPatch, before FancyArrowPatch.
++        # Otherwise, the transform of the former Patch will be incomplete.
++        Text.draw(self, renderer)
++
+         if self.arrow is not None:
+             if self.arrow.figure is None and self.figure is not None:
+                 self.arrow.figure = self.figure
+@@ -2083,8 +2087,6 @@ class Annotation(Text, _AnnotationBase):
+                 self.arrow_patch.figure = self.figure
+             self.arrow_patch.draw(renderer)
+ 
+-        Text.draw(self, renderer)
+-
+     def get_window_extent(self, renderer=None):
+         '''
+         Return a :class:`~matplotlib.transforms.Bbox` object bounding
