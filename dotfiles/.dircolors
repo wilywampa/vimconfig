@@ -370,6 +370,7 @@ EXEC 01;31  # Unix
 .elf 31
 .hex 31
 .pyc 31
+.dll 31
 
 # Archives, compressed
 .7z   1;35
