@@ -11,6 +11,7 @@ import sys
 import numpy as np
 import re
 import scipy.constants as const
+from itertools import cycle
 try:
     from mpldatacursor import datacursor
 except ImportError:
@@ -65,6 +66,7 @@ control_actions = {
     QtCore.Qt.Key_L: lambda self, *args: self.emit(SIGNAL('relabel()')),
     QtCore.Qt.Key_N: lambda self, *args: self.emit(SIGNAL('duplicate()')),
     QtCore.Qt.Key_Q: _quit,
+    QtCore.Qt.Key_T: lambda self, *args: self.emit(SIGNAL('twin()')),
     QtCore.Qt.Key_W: _delete_word,
 }
 
@@ -231,6 +233,7 @@ class DataObj(object):
         self.name = name
         self.labels = kwargs.get('labels', name)
         self.widgets = []
+        self.twin = False
         draw = self.parent.draw
         connect = self.parent.connect
 
@@ -339,6 +342,10 @@ class DataObj(object):
                 self.labels = self.name
             self.parent.draw()
 
+    def toggle_twin(self):
+        self.twin = not self.twin
+        self.parent.draw()
+
 
 class Interact(QtGui.QMainWindow):
 
@@ -359,6 +366,8 @@ class Interact(QtGui.QMainWindow):
         self.canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.canvas.mpl_connect('key_press_event', self.canvas_key_press)
         self.axes = self.fig.add_subplot(111)
+        self.axes2 = self.axes.twinx()
+        self.fig.delaxes(self.axes2)
 
         self.xlim = None
         self.ylim = None
@@ -408,6 +417,7 @@ class Interact(QtGui.QMainWindow):
             self.connect(w, SIGNAL('duplicate()'), data.duplicate)
             self.connect(w, SIGNAL('remove()'), data.remove)
             self.connect(w, SIGNAL('relabel()'), data.change_label)
+            self.connect(w, SIGNAL('twin()'), data.toggle_twin)
             self.column += 1
 
         add_widget(data.label)
@@ -458,14 +468,22 @@ class Interact(QtGui.QMainWindow):
                 (key, text))
         return key
 
+    @staticmethod
+    def cla(axes):
+        tight, xmargin, ymargin = (axes._tight, axes._xmargin, axes._ymargin)
+        axes.clear()
+        axes._tight, axes._xmargin, axes._ymargin = (tight, xmargin, ymargin)
+
     def draw(self):
-        tight, xmargin, ymargin = (self.axes._tight,
-                                   self.axes._xmargin,
-                                   self.axes._ymargin)
-        self.axes.clear()
-        self.axes._tight, self.axes._xmargin, self.axes._ymargin = (tight,
-                                                                    xmargin,
-                                                                    ymargin)
+        twin = any(map(lambda x: x.twin, self.datas))
+        if twin and len(self.fig.axes) < 2:
+            self.fig.add_axes(self.axes2)
+        elif not twin and len(self.fig.axes) >= 2:
+            self.fig.delaxes(self.axes2)
+
+        self.cla(self.axes)
+        self.cla(self.axes2)
+
         if self.cursor is not None:
             self.cursor.artists = []
             self.cursor.hide()
@@ -473,39 +491,51 @@ class Interact(QtGui.QMainWindow):
 
         xlabel = []
         ylabel = []
+        xlabel2 = []
+        ylabel2 = []
         self.warnings = []
         for d in self.datas:
+            if d.twin:
+                axes, x, y = self.axes2, xlabel2, ylabel2
+            else:
+                axes, x, y = self.axes, xlabel, ylabel
             scale = self.get_scale(d.scale_box, d.scale_compl)
             xscale = self.get_scale(d.xscale_box, d.xscale_compl)
             text = self.get_key(d.menu)
             xtext = self.get_key(d.xmenu)
             if isinstance(d.labels, list):
                 for i, l in enumerate(d.labels):
-                    self.axes.plot(d.obj[xtext][..., i] * xscale,
-                                   d.obj[text][..., i] * scale, label=l)
+                    axes.plot(d.obj[xtext][..., i] * xscale,
+                              d.obj[text][..., i] * scale, label=l)
             else:
-                self.axes.plot(d.obj[xtext] * xscale, d.obj[text] * scale,
-                               label=d.labels)
-            self.axes.set_xlabel('')
-            xlabel.append(xtext + ' (' + d.name + ')')
-            ylabel.append(text + ' (' + d.name + ')')
+                axes.plot(d.obj[xtext] * xscale, d.obj[text] * scale,
+                          label=d.labels)
+            axes.set_xlabel('')
+            x.append(xtext + ' (' + d.name + ')')
+            y.append(text + ' (' + d.name + ')')
 
-        for index, line in enumerate(self.axes.get_lines()):
+        lines = self.axes.get_lines() + self.axes2.get_lines()
+        clist = cycle(mpl.rcParams['axes.color_cycle'])
+        for index, line in enumerate(lines):
             line.set_linestyle(self.get_linestyle(index))
+            line.set_color(clist.next())
 
         self.axes.set_xlabel('\n'.join(xlabel))
         self.axes.set_ylabel('\n'.join(ylabel))
         self.draw_warnings()
+
+        self.axes2.set_xlabel('\n'.join(xlabel2))
+        self.axes2.set_ylabel('\n'.join(ylabel2))
 
         self.axes.set_xlim(self.xlim)
         self.axes.set_ylim(self.ylim)
         self.axes.set_xscale(self.xlogscale)
         self.axes.set_yscale(self.ylogscale)
 
-        legend = self.axes.legend()
+        legend = self.axes.legend(tuple(lines), (l.get_label() for l in lines))
         legend.draggable(True)
         try:
-            self.cursor = datacursor(self.axes.get_lines())
+            self.cursor = datacursor(lines)
         except NameError:
             pass
         self.canvas.draw()
@@ -535,10 +565,11 @@ class Interact(QtGui.QMainWindow):
 
     def _margins(self):
         self.axes._tight = not self.axes._tight
-        if self.axes._tight:
-            self.axes.margins(0.05)
-        else:
-            self.axes._xmargin = self.axes._ymargin = 0
+        for ax in [self.axes, self.axes2]:
+            if self.axes._tight:
+                ax.margins(0.05)
+            else:
+                ax._xmargin = ax._ymargin = 0
         self.draw()
 
     def _options(self):
