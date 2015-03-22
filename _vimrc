@@ -387,11 +387,13 @@ no <silent> <C-Right> :<C-u>call vimtools#ResizeWindow('right')<CR>
 vn < <gv
 vn > >gv
 
-" Copy WORD above/below cursor with <C-y>/<C-e>
+" Copy WORD/word above/below cursor with (<C-y>/<C-e>)/(<M-y>/<M-e>)
 ino <expr> <C-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
 ino <expr> <C-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
-ino <M-e> <C-e>
-ino <M-y> <C-y>
+ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\k\+\\|\W\)')
+ino <expr> <M-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\k\+\\|\W\)')
+ino <M-E> <C-e>
+ino <M-Y> <C-y>
 
 " Make j/k work as expected on wrapped lines
 no <expr> j &wrap && strdisplaywidth(getline('.')) > (winwidth(0) -
