@@ -30,7 +30,7 @@ func! s:RunMotionHaskell(type)
     let lines = lines[1:]
   endwhile
   if !empty(lines)
-    if input =~ '\v[=<>/]@<!\=[=<>]@!'
+    if input =~ '\v^.*(<let>.*)@<!\zs([=<>/]@<!\=[=<>]@!)'
       let lines[0] = 'let '.lines[0]
       for lnum in range(1, len(lines) - 1)
         let lines[lnum] = '    '.lines[lnum]
