@@ -419,12 +419,14 @@ class Interact(QtGui.QMainWindow):
         add_widget(data.xscale_label)
         add_widget(data.xscale_box)
 
+    def warn(self, message):
+        self.warnings = [message]
+        self.draw_warnings()
+        self.canvas.draw()
+
     def remove_data(self, data):
         if len(self.datas) < 2:
-            self.warnings = ["Can't delete last row"]
-            self.draw_warnings()
-            self.canvas.draw()
-            return
+            return self.warn("Can't delete last row")
 
         index = self.datas.index(data)
         self.datas.pop(index)
