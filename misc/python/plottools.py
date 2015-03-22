@@ -12,6 +12,13 @@ def fg(fig=None):
         _plt.get_current_fig_manager().window.Raise()
 
 
+def cursor(fig=None):
+    """Add mpldatacursor to a figure."""
+    from mpldatacursor import datacursor
+    _plt.figure((fig or _plt.gcf()).number)
+    return datacursor(axes=_plt.gcf().get_axes())
+
+
 def fig(num=1):
     """Raise a figure to foreground by number with 1 as default."""
     fg(_plt.figure(num))
