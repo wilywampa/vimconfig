@@ -671,7 +671,7 @@ _vim-args() {
         # Extract string between quotes
         [[ $BUFFER =~ "'(.*)'" ]]; pat=${${match[1]}:-""}
         [[ $BUFFER == *-Q* || $BUFFER == *-F* ]]; literal=$?
-        if [[ ! $literal ]]; then
+        if [[ ! $literal == 0 ]]; then
             pat=${${pat//</\\<}//>/\\>}; pat=${pat//\\b/(<|>)}
         fi
         if [[ -z $pat ]]; then
