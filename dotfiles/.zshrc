@@ -75,7 +75,7 @@ alias e='vim'
 alias vims='vim -S ~/session.vis'
 alias vimr='vim -S =(<~/periodic_session.vis)'
 alias gvims='gvim -S ~/session.vis'
-alias ez='vim ~/.zshrc'
+alias ez='vim $(readlink -f ~/.zshrc)'
 alias vno='vim -u NONE -i NONE -N'
 
 # svn
@@ -295,7 +295,7 @@ abbrevs=(
 'surl'  'info=$(svn info); echo ${${info[(fr)URL: *]}[(w)-1]}'
 'ec'    'echo'
 'so'    'source'
-'ez'    'vim ~/.zshrc'
+'ez'    'vim $(readlink -f ~/.zshrc)'
 'sz'    'source ~/.zshrc'
 'szv'   'source ~/.zshrc; vims'
 'wh'    'whence'
