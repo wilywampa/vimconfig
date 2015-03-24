@@ -6,6 +6,12 @@ bind: control-b escape I
 bind: control-e escape A
 bind: up meta-k
 bind: down meta-j
+keyseq: "\ESC[1;5D" ctrl-left
+keyseq: "\ESC[1;5C" ctrl-right
+keyseq: "\ESC[1;5A" ctrl-up
+bind: ctrl-left escape b i
+bind: ctrl-right escape e w i
+bind: ctrl-up up enter
 completionPaging: False
 completionPromptLimit: Just 99999
 maxhistorysize: Just 5000
