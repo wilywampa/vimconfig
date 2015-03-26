@@ -83,10 +83,10 @@ fun! AnsiEsc#AnsiEsc(rebuild)
 "      call Decho("l:conc=".&l:conc)
      endif
     else
-     if &l:cole != 3 || &l:cocu != "nv"
+     if &l:cole != 3 || &l:cocu != "n"
       let s:colekeep_{bufnr('%')}= &l:cole
       let s:cocukeep_{bufnr('%')}= &l:cocu
-      setlocal cole=3 cocu=nv
+      setlocal cole=3 cocu=n
 "      call Decho("l:cole=".&l:cole." l:cocu=".&l:cocu)
      endif
     endif
