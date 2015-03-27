@@ -13,6 +13,7 @@ import re
 import scipy.constants as const
 from itertools import cycle
 try:
+    import plottools
     from mpldatacursor import datacursor
 except ImportError:
     pass
@@ -535,7 +536,9 @@ class Interact(QtGui.QMainWindow):
         legend = self.axes.legend(tuple(lines), (l.get_label() for l in lines))
         legend.draggable(True)
         try:
-            self.cursor = datacursor(lines)
+            self.cursor = datacursor(lines, props_override=plottools._snap,
+                                     formatter=plottools._fmt)
+            [a.draggable() for a in self.cursor.annotations.values()]
         except NameError:
             pass
         self.canvas.draw()

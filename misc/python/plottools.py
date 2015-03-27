@@ -1,5 +1,5 @@
 import matplotlib.pyplot as _plt
-from plotinteract import create, merge_dicts
+from plotinteract import create, merge_dicts  # noqa
 
 
 def fg(fig=None):
@@ -12,11 +12,46 @@ def fg(fig=None):
         _plt.get_current_fig_manager().window.Raise()
 
 
-def cursor(fig=None):
+def _snap(**kwargs):
+    import numpy as np
+    event = kwargs['event']
+    xdata, ydata = event.artist.get_xdata(), event.artist.get_ydata()
+    ind = event.ind[0]
+    xclick, yclick = event.mouseevent.xdata, event.mouseevent.ydata
+
+    if ind + 1 >= len(xdata) or None in [xclick, yclick]:
+        return kwargs
+
+    x0, y0 = xdata[ind], ydata[ind]
+    x1, y1 = xdata[ind + 1], ydata[ind + 1]
+    to_next_point = np.linalg.norm([x1 - x0, y1 - y0])
+    to_click = np.linalg.norm([xclick - x0, yclick - y0])
+
+    kwargs['x'], kwargs['y'], event.ind[0] = np.array(
+        [x0, y0, ind] if to_click < to_next_point / 2 else [x1, y1, ind + 1])
+    event.ind = [event.ind[0]]
+    return kwargs
+
+
+def _fmt(x=None, y=None, label=None, **kwargs):
+    event = kwargs['event']
+    output = [label] if label and not label.startswith('_') else []
+    output.append("{x:.6g}\n{y:.6g}\n{i}".format(x=x, y=y, i=event.ind))
+    kwargs['arrowprops'] = dict(shrinkB=0)
+    return "\n".join(output)
+
+
+def cursor(fig=None, **kwargs):
     """Add mpldatacursor to a figure."""
     from mpldatacursor import datacursor
     _plt.figure((fig or _plt.gcf()).number)
-    return datacursor(axes=_plt.gcf().get_axes())
+    cursors = []
+    for ax in _plt.gcf().get_axes():
+        for line in ax.get_lines():
+            cursors.append(datacursor(line, formatter=_fmt,
+                                      props_override=_snap, **kwargs))
+            [a.draggable() for a in cursors[-1].annotations.values()]
+    return cursors
 
 
 def fig(num=1):
