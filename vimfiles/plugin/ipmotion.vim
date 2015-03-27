@@ -194,6 +194,7 @@ augroup ipmotion
   autocmd FileType matlab let b:ip_boundary = '[%[:blank:]]*$'
   autocmd FileType help let b:ip_boundary = '[<>[:blank:]]*$'
   autocmd FileType gitcommit let b:ip_boundary = '[#[:blank:]]*$'
+  autocmd FileType diff,git let b:ip_boundary = '[+-]\s*$'
 augroup END
 
 " vim:set et ts=2 sts=2 sw=2:
