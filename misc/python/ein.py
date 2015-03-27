@@ -14,7 +14,7 @@ def dot(a, b):
     elif len(a.shape) == 3 and len(b.shape) == 3:
         return _einsum('nij, njk -> nik', a, b)
     else:
-        raise('Unknown shapes')
+        raise ValueError('Unknown shapes')
 
 
 def cross(a, b):
