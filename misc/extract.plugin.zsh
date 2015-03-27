@@ -78,3 +78,12 @@ function extract() {
 
 alias x=extract
 
+extract_compdef() {
+  local _archive_extensions
+  typeset -a _archive_extensions
+  _archive_extensions=(7z Z bz2 deb gz jar lzma rar sublime-package tar tar.bz2
+  tar.gz tar.xz tar.zma tbz tbz2 tgz tlz txz war xz zip)
+  compdef '_files -X archives -g "*.('${(j:|:)_archive_extensions}')"' extract
+}
+extract_compdef
+unfunction extract_compdef
