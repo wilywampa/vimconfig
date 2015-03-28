@@ -288,6 +288,8 @@ class DataObj(object):
                 scale_compl.select_completion(0)
 
             def complete_text(text):
+                if not scale_box.text():
+                    return scale_box.setText(u'1.0')
                 text = unicode(text)
                 cursor_pos = scale_box.cursorPosition()
                 before_text = unicode(scale_box.text())[:cursor_pos]
