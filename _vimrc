@@ -137,7 +137,7 @@ if hasWin
         call mkdir("C:\\temp\\vimtmp", "p")
     endif
     set backupdir=C:\temp\vimtmp,.
-    set directory=C:\temp\vimtmp,.
+    set directory=C:\temp\vimtmp//,.
 
     " Explore to current file
     nnoremap <silent> <F4> :call system('start explorer /select,\"'.expand('%:p').'\"')<CR>
@@ -163,9 +163,9 @@ else
     if !isdirectory(expand("~/.tmp"))
         call mkdir(expand("~/.tmp"), "p")
     endif
-    set backupdir=~/.tmp
-    set directory=~/.tmp
-    if hasMac | sil! set undodir=~/.tmp | endif
+    set backupdir=~/.tmp,.
+    set directory=~/.tmp//,.
+    sil! set undodir=.,~/.tmp
 
     if hasMac
         " Reveal current file in Finder
