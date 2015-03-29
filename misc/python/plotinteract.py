@@ -637,11 +637,11 @@ def merge_dicts(*dicts):
     keys = sets[0].intersection(*sets)
 
     def validate(array):
-        return isinstance(array, np.ndarray) and array.ndim == 1
+        return isinstance(array, np.ndarray) and np.squeeze(array).ndim == 1
 
     def pad(array):
-        return np.pad(array, (0, length - array.size), mode='constant',
-                      constant_values=(float('nan'),))
+        return np.pad(np.squeeze(array), (0, length - array.size),
+                      mode='constant', constant_values=(float('nan'),))
 
     merged = {}
     for key in keys:
