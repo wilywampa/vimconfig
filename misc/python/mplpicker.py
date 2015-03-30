@@ -48,6 +48,7 @@ class Picker:
     def disable(self):
         self.remove()
         [self.canvas.mpl_disconnect(c) for c in self.cids]
+        del self.axes._active_picker
 
     def button_press(self, event):
         for line in self.axes.get_lines():
