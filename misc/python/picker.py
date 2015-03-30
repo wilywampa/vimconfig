@@ -19,9 +19,13 @@ class Picker:
                              verticalalignment='bottom',
                              horizontalalignment='right')
 
-    def __init__(self, artist, **kwargs):
-        self.artist = artist
-        self.canvas = artist.figure.canvas
+    def __init__(self, axes):
+        if hasattr(axes, '_active_picker'):
+            raise Exception("Only one picker allowed per axes. "
+                            "Use picker() instead of Picker().")
+        self.axes = axes
+        self.artist = None
+        self.canvas = axes.figure.canvas
         self.annotation = None
         self.point = None
         self.shift = False
@@ -34,8 +38,9 @@ class Picker:
         if not hasattr(self.canvas, '_active_picker'):
             self.canvas._active_picker = None
 
-        artist.set_picker(self)
-        artist.set_pickradius(kwargs.get('pickradius', 5))
+        for line in self.axes.get_lines():
+            line.set_picker(self)
+            line.set_pickradius(5)
         for event in ['button_press', 'key_release', 'key_press', 'pick']:
             self.cids.append(self.canvas.mpl_connect(event + '_event',
                                                      getattr(self, event)))
@@ -45,8 +50,9 @@ class Picker:
         [self.canvas.mpl_disconnect(c) for c in self.cids]
 
     def button_press(self, event):
-        if self.artist and self.artist.contains(event)[0]:
-            self.artist.pick(event)
+        for line in self.axes.get_lines():
+            if line and line.contains(event)[0]:
+                line.pick(event)
         if self.annotation and (self.annotation.contains(event)[0] or
                                 (self.canvas._active_picker == self and
                                  self.control)):
@@ -84,12 +90,14 @@ class Picker:
                 self.repeat_timer = None
 
     def pick(self, event):
+        artist = event.artist
+        axes = artist.axes
         if (self.control and self.point and self.annotation and
-              event.artist.axes == self.artist.axes):
+                axes == self.axes):
             # Measure to another point
             self.remove_measurement()
             point = self.snap(event)
-            self.measure_line = self.artist.axes.annotate(
+            self.measure_line = self.axes.annotate(
                 s="",
                 xy=self.point[:2],
                 xytext=point[:2],
@@ -99,7 +107,7 @@ class Picker:
                                 connectionstyle="bar, fraction=-0.1",
                                 ),
             )
-            self.measure_box = self.artist.axes.annotate(
+            self.measure_box = self.axes.annotate(
                 s=self.format_measurement(point),
                 xy=point[:2],
                 **self.annotation_kwargs)
@@ -107,8 +115,9 @@ class Picker:
 
             self.canvas._active_picker = self
             self.canvas.draw()
-        elif event.artist == self.artist:
 
+        elif artist in self.axes.get_lines():
+            self.artist = artist
             point = self.snap(event)
             text = self.format(point)
 
@@ -126,7 +135,7 @@ class Picker:
                     self.remove()
 
                 self.point = point
-                self.annotation = self.artist.axes.annotate(
+                self.annotation = self.axes.annotate(
                     s=text,
                     xy=self.point[:2],
                     **self.annotation_kwargs)
@@ -136,12 +145,11 @@ class Picker:
             self.canvas._active_picker = self
             self.canvas.draw()
 
-        elif event.artist == self.annotation:
+        elif artist == self.annotation:
             self.canvas._active_picker = self
             if (event.mouseevent.button == RIGHT_CLICK and
                     not self.shift and not self.control):
                 self.remove()
-
 
     def remove(self):
         self.remove_measurement(draw=False)
@@ -188,7 +196,7 @@ class Picker:
 
         if (ind + 1 >= len(xdata) or
             None in [xclick, yclick] or
-                event.mouseevent.inaxes != self.artist.axes):
+                event.mouseevent.inaxes != self.axes):
             return xdata[ind], ydata[ind], ind
 
         x0, y0 = xdata[ind], ydata[ind]
@@ -217,17 +225,28 @@ class Picker:
         return "\n".join(output)
 
 
+def picker(axes):
+    if hasattr(axes, '_active_picker'):
+        for line in self.axes.get_lines():
+            line.set_picker(axes._active_picker)
+            line.set_pickradius(5)
+        return axes._active_picker
+    else:
+        p = Picker(axes)
+        axes._active_picker = p
+        return p
+
 if __name__ == '__main__':
     plt.figure()
     time = np.linspace(0, 10, num=200)
     y = np.cos(time) + np.random.normal(size=time.shape) * 0.1
     z = np.sin(time) + np.random.normal(size=time.shape) * 0.1
     artist = plt.plot(time, y, label='y')[0]
-    self = Picker(artist)
     ax = plt.gca()
+    self = picker(ax)
     artist = ax.plot(time, 10 * z, 'r', label='z')[0]
-    self = Picker(artist)
+    self = picker(ax)
     ax = plt.gca().twinx()
     artist = ax.plot(time, -10 * z, 'g', label='z')[0]
-    self = Picker(artist)
+    self = picker(ax)
     plt.show()
