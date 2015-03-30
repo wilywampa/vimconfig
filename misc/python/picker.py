@@ -97,7 +97,7 @@ class Picker:
                 self.annotation.set_text(self.format(self.point))
                 self.annotation.xy = (self.point[0], self.point[1])
 
-            elif (self.control and self.point and
+            elif (self.control and self.point and self.annotation and
                   event.artist.axes is self.artist.axes):
                 # Measure to another point
                 point = self.snap(event)
@@ -117,7 +117,7 @@ class Picker:
                     **self.annotation_kwargs)
                 self.measure_box.draggable()
 
-            else:
+            elif not self.control and not self.shift:
                 # Choose a new point and draw annotation
                 if self.annotation:
                     self.remove()
