@@ -195,11 +195,11 @@ class Picker:
         """Return the xy coordinates and index of the nearest point."""
         xdata, ydata = event.artist.get_xdata(), event.artist.get_ydata()
         ind = event.ind[0]
-        xclick, yclick = event.mouseevent.xdata, event.mouseevent.ydata
+        point = event.mouseevent.x, event.mouseevent.y
+        inv = event.artist.axes.transData.inverted()
+        xclick, yclick = inv.transform_point(point)
 
-        if (ind + 1 >= len(xdata) or
-            None in [xclick, yclick] or
-                event.mouseevent.inaxes != self.axes):
+        if ind + 1 >= len(xdata) or None in [xclick, yclick]:
             return xdata[ind], ydata[ind], ind
 
         x0, y0 = xdata[ind], ydata[ind]
