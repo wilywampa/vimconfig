@@ -29,6 +29,7 @@ class Picker:
         self.repeat_timer = None
         self.measure_line = None
         self.measure_box = None
+        self.cids = []
 
         if not hasattr(self.canvas, '_active_picker'):
             self.canvas._active_picker = None
@@ -36,8 +37,12 @@ class Picker:
         artist.set_picker(self)
         artist.set_pickradius(kwargs.get('pickradius', 5))
         for event in ['button_press', 'key_release', 'key_press', 'pick']:
-            self.canvas.mpl_connect(event + '_event',
-                                    getattr(self, event))
+            self.cids.append(self.canvas.mpl_connect(event + '_event',
+                                                     getattr(self, event)))
+
+    def disable(self):
+        self.remove()
+        [self.canvas.mpl_disconnect(c) for c in self.cids]
 
     def button_press(self, event):
         if self.artist and self.artist.contains(event)[0]:
