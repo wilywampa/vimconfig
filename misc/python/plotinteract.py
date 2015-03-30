@@ -12,11 +12,7 @@ import numpy as np
 import re
 import scipy.constants as const
 from itertools import cycle
-try:
-    import plottools
-    from mpldatacursor import datacursor
-except ImportError:
-    pass
+from mplpicker import picker
 
 if sys.platform == 'darwin':
     CONTROL_MODIFIER = QtCore.Qt.MetaModifier
@@ -381,7 +377,7 @@ class Interact(QtGui.QMainWindow):
         self.ylogscale = 'linear'
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
-        self.cursor = None
+        self.pickers = None
 
         self.vbox = QtGui.QVBoxLayout()
         self.vbox.addWidget(self.mpl_toolbar)
@@ -480,6 +476,11 @@ class Interact(QtGui.QMainWindow):
         axes.clear()
         axes._tight, axes._xmargin, axes._ymargin = (tight, xmargin, ymargin)
 
+    def clear_pickers(self):
+        if self.pickers is not None:
+            [p.disable() for p in self.pickers]
+            self.pickers = None
+
     def draw(self):
         twin = any(map(lambda x: x.twin, self.datas))
         if twin and len(self.fig.axes) < 2:
@@ -487,13 +488,9 @@ class Interact(QtGui.QMainWindow):
         elif not twin and len(self.fig.axes) >= 2:
             self.fig.delaxes(self.axes2)
 
+        self.clear_pickers()
         self.cla(self.axes)
         self.cla(self.axes2)
-
-        if self.cursor is not None:
-            self.cursor.artists = []
-            self.cursor.hide()
-            self.cursor.disable()
 
         xlabel = []
         ylabel = []
@@ -540,12 +537,7 @@ class Interact(QtGui.QMainWindow):
 
         legend = self.axes.legend(tuple(lines), (l.get_label() for l in lines))
         legend.draggable(True)
-        try:
-            self.cursor = datacursor(lines, props_override=plottools._snap,
-                                     formatter=plottools._fmt)
-            [a.draggable() for a in self.cursor.annotations.values()]
-        except NameError:
-            pass
+        self.pickers = [picker(ax) for ax in [self.axes, self.axes2]]
         self.canvas.draw()
 
     def draw_warnings(self):
