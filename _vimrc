@@ -1808,8 +1808,8 @@ func! s:UniteSettings() " {{{
     inor <buffer> <expr> <BS> getline('.')[col('.')-3:col('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
     sil! nunmap <buffer> ?
 endfunc " }}}
-nn <silent> "" :<C-u>Unite -prompt-direction=top history/yank<CR>
-nn <silent> "' :<C-u>Unite -prompt-direction=top register<CR>
+nn <silent> "" :<C-u>Unite -prompt-direction=top -start-insert history/yank<CR>
+nn <silent> "' :<C-u>Unite -prompt-direction=top -start-insert register<CR>
 nn <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
     \."-no-quit -auto-resize grep:".getcwd()."\<CR>"
 nn ,<C-a> :<C-u>Unite -prompt-direction=top -no-quit -auto-resize grep:
