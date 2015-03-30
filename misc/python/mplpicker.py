@@ -98,6 +98,8 @@ class Picker:
             # Measure to another point
             self.remove_measurement()
             point = self.snap(event)
+            f = 0.1 * (1 if point[0] < self.point[0] and
+                       point[1] < self.point[1] else -1)
             self.measure_line = self.axes.annotate(
                 s="",
                 xy=self.point[:2],
@@ -105,7 +107,7 @@ class Picker:
                 arrowprops=dict(arrowstyle="<|-|>",
                                 linestyle="dashed",
                                 shrinkA=0, shrinkB=0,
-                                connectionstyle="bar, fraction=-0.1",
+                                connectionstyle="bar, fraction=%f" % f,
                                 ),
             )
             self.measure_box = self.axes.annotate(
