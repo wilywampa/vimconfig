@@ -84,7 +84,30 @@ class Picker:
                 self.repeat_timer = None
 
     def pick(self, event):
-        if event.artist is self.artist:
+        if (self.control and self.point and self.annotation and
+              event.artist.axes == self.artist.axes):
+            # Measure to another point
+            self.remove_measurement()
+            point = self.snap(event)
+            self.measure_line = self.artist.axes.annotate(
+                s="",
+                xy=self.point[:2],
+                xytext=point[:2],
+                arrowprops=dict(arrowstyle="<|-|>",
+                                linestyle="dashed",
+                                shrinkA=0, shrinkB=0,
+                                connectionstyle="bar, fraction=-0.1",
+                                ),
+            )
+            self.measure_box = self.artist.axes.annotate(
+                s=self.format_measurement(point),
+                xy=point[:2],
+                **self.annotation_kwargs)
+            self.measure_box.draggable()
+
+            self.canvas._active_picker = self
+            self.canvas.draw()
+        elif event.artist == self.artist:
 
             point = self.snap(event)
             text = self.format(point)
@@ -96,26 +119,6 @@ class Picker:
                 self.point = point
                 self.annotation.set_text(self.format(self.point))
                 self.annotation.xy = (self.point[0], self.point[1])
-
-            elif (self.control and self.point and self.annotation and
-                  event.artist.axes is self.artist.axes):
-                # Measure to another point
-                point = self.snap(event)
-                self.measure_line = self.artist.axes.annotate(
-                    s="",
-                    xy=self.point[:2],
-                    xytext=point[:2],
-                    arrowprops=dict(arrowstyle="<|-|>",
-                                    linestyle="dashed",
-                                    shrinkA=0, shrinkB=0,
-                                    connectionstyle="bar, fraction=-0.1",
-                                    ),
-                )
-                self.measure_box = self.artist.axes.annotate(
-                    s=self.format_measurement(point),
-                    xy=point[:2],
-                    **self.annotation_kwargs)
-                self.measure_box.draggable()
 
             elif not self.control and not self.shift:
                 # Choose a new point and draw annotation
@@ -138,6 +141,7 @@ class Picker:
             if (event.mouseevent.button == RIGHT_CLICK and
                     not self.shift and not self.control):
                 self.remove()
+
 
     def remove(self):
         self.remove_measurement(draw=False)
@@ -220,7 +224,10 @@ if __name__ == '__main__':
     z = np.sin(time) + np.random.normal(size=time.shape) * 0.1
     artist = plt.plot(time, y, label='y')[0]
     self = Picker(artist)
-    ax = plt.gca().twinx()
+    ax = plt.gca()
     artist = ax.plot(time, 10 * z, 'r', label='z')[0]
+    self = Picker(artist)
+    ax = plt.gca().twinx()
+    artist = ax.plot(time, -10 * z, 'g', label='z')[0]
     self = Picker(artist)
     plt.show()
