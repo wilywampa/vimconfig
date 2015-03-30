@@ -46,6 +46,9 @@ class Picker:
                                 (self.canvas._active_picker == self and
                                  self.control)):
             self.annotation.pick(event)
+        if (self.measure_box and self.measure_box.contains(event)[0] and
+                event.button == RIGHT_CLICK):
+            self.remove_measurement()
 
     def key_press(self, event):
         if event.key == 'd':
@@ -100,13 +103,14 @@ class Picker:
                     arrowprops=dict(arrowstyle="<|-|>",
                                     linestyle="dashed",
                                     shrinkA=0, shrinkB=0,
-                                    connectionstyle="arc3",
+                                    connectionstyle="bar, fraction=-0.1",
                                     ),
                 )
                 self.measure_box = self.artist.axes.annotate(
                     s=self.format_measurement(point),
                     xy=point[:2],
                     **self.annotation_kwargs)
+                self.measure_box.draggable()
 
             else:
                 # Choose a new point and draw annotation
@@ -131,20 +135,22 @@ class Picker:
                 self.remove()
 
     def remove(self):
-        self.remove_measurement()
+        self.remove_measurement(draw=False)
         if self.annotation:
             self.annotation.remove()
             self.annotation = None
             self.canvas._active_picker = None
             self.canvas.draw()
 
-    def remove_measurement(self):
+    def remove_measurement(self, draw=True):
         if self.measure_line:
             self.measure_line.remove()
             self.measure_line = None
         if self.measure_box:
             self.measure_box.remove()
             self.measure_box = None
+        if draw:
+            self.canvas.draw()
 
     def move(self, offset, all_pickers=False):
         self.remove_measurement()
