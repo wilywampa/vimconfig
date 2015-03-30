@@ -311,6 +311,9 @@ class DataObj(object):
         self.scale_box, self.scale_compl = new_scale_box()
         self.xscale_box, self.xscale_compl = new_scale_box()
 
+        self.process_kwargs(kwargs)
+
+    def process_kwargs(self, kwargs):
         if 'yname' in kwargs:
             self.menu.setCurrentIndex(self.menu.findText(kwargs['yname']))
         if 'yscale' in kwargs:
