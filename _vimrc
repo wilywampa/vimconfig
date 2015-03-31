@@ -1721,6 +1721,8 @@ func! s:VimfilerSettings() " {{{
     nmap <buffer> S     <Plug>(vimfiler_select_sort_type)
     nmap <buffer> <Tab> <Plug>(vimfiler_choose_action)
     nmap <buffer> gN    <Plug>(vimfiler_new_file)
+    nnoremap <buffer> got :<C-U>call gtfo#open#term(b:vimfiler.current_dir, "")<CR>
+    nnoremap <buffer> gOt :<C-U>call gtfo#open#term(b:vimfiler.current_dir, "win")<CR>
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> N"
     exe "nunmap <buffer> go"
