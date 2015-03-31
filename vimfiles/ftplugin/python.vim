@@ -241,9 +241,13 @@ EOF
   function! s:IPyRunScratchBuffer()
     let view = winsaveview()
     call SaveRegs()
+    let left_save = getpos("'<")
+    let right_save = getpos("'>")
     normal! gg0vG$y
     let g:ipy_input = @@
     call RestoreRegs()
+    call setpos("'<", left_save)
+    call setpos("'>", right_save)
     call winrestview(view)
     call s:IPyRunIPyInput()
   endfunction
