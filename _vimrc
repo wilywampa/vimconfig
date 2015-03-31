@@ -1704,7 +1704,7 @@ if v:version > 704 || (v:version == 704 && has('patch651'))
 endif
 let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_ignore_pattern = '^\.\|.*\.'.
-    \ '\(DS_Store\|a\|bak\|d\|dll\|exe\|hi\|info\|lib\|o\|obj\|pyc\|so\|spi\|swp\|sys\)$'
+    \ '\(DS_Store\|a\|bak\|d\|dll\|exe\|hi\|info\|lib\|o\|obj\|pyc\|so\|spi\|swp\)$'
 let g:vimfiler_restore_alternate_file=0
 autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
 func! s:VimfilerSettings() " {{{
