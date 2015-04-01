@@ -65,13 +65,13 @@ class Picker:
     def key_press(self, event):
         if event.key == 'd':
             self.remove()
-        elif event.key == 'right':
+        elif event.key == ']':
             self.move(1)
-        elif event.key == 'left':
+        elif event.key == '[':
             self.move(-1)
-        elif event.key == 'shift+right':
+        elif event.key == '}':
             self.move(1, all_pickers=True)
-        elif event.key == 'shift+left':
+        elif event.key == '{':
             self.move(-1, all_pickers=True)
         elif event.key == 'shift':
             self.shift = True
@@ -83,7 +83,7 @@ class Picker:
             self.shift = False
         elif event.key == 'control':
             self.control = False
-        elif event.key in ['right', 'left', 'shift+right', 'shift+left']:
+        elif event.key in [']', '[', '}', '{']:
             if self.repeat_timer:
                 self.repeat_timer.stop()
                 [self.repeat_timer.remove_callback(c)
