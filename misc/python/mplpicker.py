@@ -173,6 +173,9 @@ class Picker:
             self.canvas.draw()
 
     def move(self, offset, all_pickers=False):
+        if not self.annotation:
+            return
+
         self.remove_measurement()
 
         if not self.canvas._active_picker and self.annotation:
