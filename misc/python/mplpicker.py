@@ -30,7 +30,7 @@ class Picker:
         self.point = None
         self.shift = False
         self.control = False
-        self.repeat_timer = None
+        self.move_timer = None
         self.measure_line = None
         self.measure_box = None
         self.cids = []
@@ -95,11 +95,11 @@ class Picker:
         elif event.key == 'control':
             self.control = False
         elif event.key in [']', '[', '}', '{']:
-            if self.repeat_timer:
-                self.repeat_timer.stop()
-                [self.repeat_timer.remove_callback(c)
-                 for c in self.repeat_timer.callbacks]
-                self.repeat_timer = None
+            if self.move_timer:
+                self.move_timer.stop()
+                [self.move_timer.remove_callback(c)
+                 for c in self.move_timer.callbacks]
+                self.move_timer = None
 
     def pick(self, event):
         if self.waiting:
@@ -206,10 +206,10 @@ class Picker:
                 self.annotation.set_text(self.format(self.point))
                 self.annotation.xy = (self.point[0], self.point[1])
                 self.canvas.draw()
-            self.repeat_timer = self.canvas.new_timer(
+            self.move_timer = self.canvas.new_timer(
                 interval=100,
                 callbacks=[(self.move, [offset, all_pickers], {})])
-            self.repeat_timer.start()
+            self.move_timer.start()
 
     def snap(self, event):
         """Return the xy coordinates and index of the nearest point."""
