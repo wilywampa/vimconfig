@@ -45,9 +45,20 @@ class Picker:
             self.cids.append(self.canvas.mpl_connect(event + '_event',
                                                      getattr(self, event)))
 
+        # Timer to prevent looping when clicking on multiple lines
+        self.waiting = False
+
+        def expire():
+            self.waiting = False
+            self.timer.stop()
+
+        self.timer = self.canvas.new_timer(interval=100,
+                                           callbacks=[(expire, [], {})])
+
     def disable(self):
         self.remove()
         [self.canvas.mpl_disconnect(c) for c in self.cids]
+        [self.timer.remove_callback(c) for c in self.timer.callbacks]
         del self.axes._active_picker
 
     def button_press(self, event):
@@ -91,6 +102,9 @@ class Picker:
                 self.repeat_timer = None
 
     def pick(self, event):
+        if self.waiting:
+            return
+
         artist = event.artist
         axes = artist.axes
         if (self.control and self.point and self.annotation and
@@ -153,6 +167,9 @@ class Picker:
             if (event.mouseevent.button == RIGHT_CLICK and
                     not self.shift and not self.control):
                 self.remove()
+
+        self.waiting = True
+        self.timer.start()
 
     def remove(self):
         self.remove_measurement(draw=False)
