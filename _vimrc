@@ -1742,6 +1742,7 @@ if executable('ag')
 endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
+let g:unite_kind_cdable_cd_command='Windo cd'
 call s:CreateAbbrev('U', 'Unite', ':')
 call s:CreateAbbrev('u', 'Unite', ':')
 augroup VimrcAutocmds
