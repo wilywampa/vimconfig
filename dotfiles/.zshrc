@@ -238,6 +238,7 @@ vibindkey '^[[O' redisplay
 bindkey -M viins '^J' vi-open-line-below
 bindkey -M viins '^U' backward-kill-line
 bindkey -M viins '^B' vi-beginning-of-line
+bindkey -M viins '^E' vi-end-of-line
 
 _vi-last-line() {
     zle end-of-buffer-or-history
@@ -693,7 +694,7 @@ _vim-args() {
     BUFFER="vim \$( "$BUFFER" )"
     CURSOR=$(( $CURSOR + 7 ))
 }
-zle -N _vim-args; vibindkey '^E' _vim-args
+zle -N _vim-args; vibindkey 'å' _vim-args  # <M-e>
 
 _use-as-args() {
     BUFFER=" \$( "$BUFFER" )"
@@ -904,7 +905,7 @@ _vared-vipe() {
     LBUFFER='export '${LBUFFER//=/}'="$(echo $'${LBUFFER//=/}' | vipe)"'
     zle accept-line
 }
-zle -N _vared-vipe; vibindkey 'å' _vared-vipe  # <M-e>
+zle -N _vared-vipe; vibindkey 'Å' _vared-vipe  # <M-E>
 
 # Append to history file
 _log-command() {
