@@ -1399,7 +1399,7 @@ if exists('vimpager')
         autocmd!
         autocmd CursorMoved *
             \ if search("\\v^(\e[(\\d+;)*\\d+m)*".'\@\@ -\d+,\d+ \+\d+,\d+ \@\@', 'n', 50) > 0 |
-            \     execute 'silent %s#'.g:ansi_pattern.'##e'.(&gdefault ? '' : 'g') |
+            \     execute 'silent keeppatterns %s#'.g:ansi_pattern.'##e'.(&gdefault ? '' : 'g') |
             \     set filetype=diff | execute "normal! gg0" |
             \ endif | execute 'autocmd! diff_syntax'
     augroup END
