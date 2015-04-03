@@ -20,7 +20,7 @@ func! s:RunMotionHaskell(type)
   if zoomed | call system("tmux resize-pane -Z") | endif
   call VimuxOpenRunner()
   let input = vimtools#opfunc(a:type)
-  call VimuxSendKeys("\<Esc>S")
+  call VimuxSendKeys("S\<C-e>\<C-u>")
   let lines = filter(split(input, '\n'), 'v:val =~ "\\S"')
   if len(lines) == 0 | return | endif
   call sort(lines, 's:compare')
