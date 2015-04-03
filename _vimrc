@@ -544,7 +544,8 @@ ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".$HOME : '~'
 cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".$HOME : '~'
 
 " Make @: work immediately after restarting vim
-nn <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>execute histget(':', -1)\<CR>"
+nn <silent> <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>echo ':'.histget(':', -1)\<bar>
+    \ execute histget(':', -1)\<CR>"
 
 " Discard changes and reload undofile for current file
 nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels
