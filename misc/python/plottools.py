@@ -61,6 +61,17 @@ def picker(fig=None, **kwargs):
     return [picker(ax, **kwargs) for ax in _plt.gcf().get_axes()]
 
 
+def unique_legend(**kwargs):
+    """Add a legend with each label used only once."""
+    hs, ls = _plt.gca().get_legend_handles_labels()
+    handles, labels = [], []
+    for h, l in zip(hs, ls):
+        if l not in labels:
+            handles.append(h)
+            labels.append(l)
+    return _plt.legend(handles, labels, **kwargs)
+
+
 def fig(num=1):
     """Raise a figure to foreground by number with 1 as default."""
     fg(_plt.figure(num))
