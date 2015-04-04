@@ -54,6 +54,13 @@ def cursor(fig=None, **kwargs):
     return cursors
 
 
+def picker(fig=None, **kwargs):
+    """Add mplpicker to a figure."""
+    from mplpicker import picker
+    _plt.figure((fig or _plt.gcf()).number)
+    return [picker(ax, **kwargs) for ax in _plt.gcf().get_axes()]
+
+
 def fig(num=1):
     """Raise a figure to foreground by number with 1 as default."""
     fg(_plt.figure(num))
