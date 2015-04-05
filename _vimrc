@@ -387,12 +387,12 @@ no <silent> <C-Right> :<C-u>call vimtools#ResizeWindow('right')<CR>
 vn < <gv
 vn > >gv
 
-" Copy WORD/word above/below cursor with (<C-y>/<C-e>)/(<M-y>/<M-e>)
-ino <expr> <C-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
+" Copy WORD/word above/below cursor with (<C-y>/<C-f>)/(<M-y>/<M-f>)
+ino <expr> <C-f> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
 ino <expr> <C-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
-ino <expr> <M-e> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\k\+\\|\W\)')
+ino <expr> <M-f> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\k\+\\|\W\)')
 ino <expr> <M-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\k\+\\|\W\)')
-ino <M-E> <C-e>
+ino <M-F> <C-e>
 ino <M-Y> <C-y>
 
 " Make j/k work as expected on wrapped lines
@@ -572,6 +572,14 @@ nn <silent> <Leader>dgn :<C-u>%s///<CR>
 
 " Faster repeat of previous shell command
 cno <expr> ! getcmdtype() == ':' && getcmdline() == '!' ? '!<CR>' : '!'
+
+" Move cursor in insert mode without splitting undo
+ino <Left>  <C-g>U<Left>
+ino <Right> <C-g>U<Right>
+ino <expr> <Home> repeat('<C-g>U<Left>', col('.') - 1)
+ino <expr> <End> repeat('<C-g>U<Right>', col('$') - col('.'))
+im <C-b> <Home>
+im <C-e> <End>
 " }}}
 
 " {{{ Abbreviations to open help
@@ -1063,23 +1071,6 @@ func! s:InsertSearchResult() " {{{
     call winrestview(view) | call RestoreRegs()
 endfunc " }}}
 inoremap <silent> <C-]> x<Esc>:call <SID>InsertSearchResult()<CR>gi
-
-" Move cursor in insert mode without splitting undo
-func! s:BackWord() " {{{
-    if col('.') > len(getline('.'))
-        let lastwordpat =  '\v.*\zs(<.+>$|.&\k@!&\s@!)'
-        let lastwordlen = len(matchstr(getline('.'), lastwordpat))
-        return "\<C-r>=\"".repeat("\\<Left>", max([lastwordlen, 1]))."\"\<CR>"
-    else
-        return "\<Esc>:silent! undojoin\<CR>lbi"
-    endif
-endfunc " }}}
-inoremap <silent> <Left>  <C-r>="\<lt>Left>"<CR>
-inoremap <silent> <Right> <C-r>="\<lt>Right>"<CR>
-inoremap <silent> <Up>    <C-r>="\<lt>Up>"<CR>
-inoremap <silent> <Down>  <C-r>="\<lt>Down>"<CR>
-inoremap <silent> <expr> <C-Left> <SID>BackWord()
-inoremap <silent> <C-Right> <Esc>:silent! undojoin<CR>lwi
 
 " Check if location list (rather than quickfix)
 func! s:IsLocationList() " {{{
@@ -1625,13 +1616,12 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         endfunc
         inoremap <silent> <expr> <Tab>   <SID>StartManualComplete(1)
         inoremap <silent> <expr> <S-Tab> <SID>StartManualComplete(0)
-        inoremap <silent> <expr> <C-e>   pumvisible() ? neocomplete#close_popup()
+        inoremap <silent> <expr> <C-f>   pumvisible() ? neocomplete#close_popup()
             \ : matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
             \ "\<Plug>(neosnippet_expand_or_jump)":
             \ (pumvisible() ? neocomplete#close_popup() : "\<C-d>")
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
-        inoremap <silent> <expr> <C-f>      neocomplete#cancel_popup()
         inoremap <silent> <expr> <C-l>      neocomplete#complete_common_string()
         inoremap <silent> <expr> <C-x><C-w> neocomplete#sources#words#start()
         " Make <BS> delete letter instead of clearing completion
