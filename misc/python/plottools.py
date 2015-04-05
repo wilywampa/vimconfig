@@ -96,9 +96,7 @@ def savepdf(filename):
     """Save all open figures to a PDF file."""
     from matplotlib.backends.backend_pdf import PdfPages
     with PdfPages(filename) as pp:
-        figs = [_plt.figure(n) for n in _plt.get_fignums()]
-        for f in figs:
-            f.savefig(pp, format='pdf')
+        [pp.savefig(_plt.figure(n)) for n in _plt.get_fignums()]
 
 
 def savesvg(basename):
