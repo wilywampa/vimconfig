@@ -501,12 +501,12 @@ _cygyank() {
 zle -N _cygyank
 _cyg-vi-yank() {
     zle vi-yank
-    echo $CUTBUFFER | tr -d '\n' > /dev/clipboard
+    echo "${CUTBUFFER//\\/\\\\}" | tr -d '\n' > /dev/clipboard
 }
 zle -N _cyg-vi-yank
 _cyg-vi-yank-eol() {
     zle vi-yank-eol
-    echo $CUTBUFFER | tr -d '\n' > /dev/clipboard
+    echo "${CUTBUFFER//\\/\\\\}" | tr -d '\n' > /dev/clipboard
 }
 zle -N _cyg-vi-yank-eol
 _cyg-list-expand-or-copy-cwd() {
@@ -534,12 +534,12 @@ _xclipyank() {
 zle -N _xclipyank
 _xclip-vi-yank() {
     zle vi-yank
-    echo $CUTBUFFER | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+    echo "${CUTBUFFER//\\/\\\\}" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
 }
 zle -N _xclip-vi-yank
 _xclip-vi-yank-eol() {
     zle vi-yank-eol
-    echo $CUTBUFFER | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+    echo "${CUTBUFFER//\\/\\\\}" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
 }
 zle -N _xclip-vi-yank-eol
 _xclip-list-expand-or-copy-cwd() {
