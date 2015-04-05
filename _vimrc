@@ -576,7 +576,11 @@ cno <expr> ! getcmdtype() == ':' && getcmdline() == '!' ? '!<CR>' : '!'
 " Move cursor in insert mode without splitting undo
 ino <Left>  <C-g>U<Left>
 ino <Right> <C-g>U<Right>
-ino <expr> <Home> repeat('<C-g>U<Left>', col('.') - 1)
+ino <expr> <Home> col('.') == match(getline('.'), '\S') + 1 ?
+    \ repeat('<C-g>U<Left>', col('.') - 1) :
+    \ (col('.') < match(getline('.'), '\S') ?
+    \     repeat('<C-g>U<Right>', match(getline('.'), '\S') + 0) :
+    \     repeat('<C-g>U<Left>', col('.') - 1 - match(getline('.'), '\S')))
 ino <expr> <End> repeat('<C-g>U<Right>', col('$') - col('.'))
 im <C-b> <Home>
 im <C-e> <End>
