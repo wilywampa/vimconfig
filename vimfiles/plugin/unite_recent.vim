@@ -130,9 +130,9 @@ function! s:UniteBufferCycle(resume)
   if index(['q', 'Q', "\<C-c>", "\<CR>", "\<Esc>"], s:key) < 0
     call feedkeys(s:key)
   endif
-  if bufnr('%') != s:startbuf
+  if bufnr('%') != s:startbuf && bufexists(s:startbuf)
     execute "buffer ".s:startbuf
-  else
+  elseif bufexists(s:startaltbuf)
     execute "buffer ".s:startaltbuf
   endif
   buffer #
