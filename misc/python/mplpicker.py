@@ -248,7 +248,8 @@ class Picker:
         return "\n".join(output)
 
 
-def picker(axes):
+def picker(axes=None):
+    axes = axes or plt.gca()
     if hasattr(axes, '_active_picker'):
         for line in self.axes.get_lines():
             line.set_picker(axes._active_picker)
