@@ -2082,10 +2082,8 @@ vmap <C-x> <Plug>VisualDecrement
 nmap cr <Plug>Coerce
 
 " Reload file with absolute path to create fugitive commands
-nnoremap <Leader>L :<C-u>execute 'file '.resolve(expand('%:p'))<bar>
-    \ silent! let b:git_dir = fugitive#extract_git_dir(expand('%:p:h'))<bar>
-    \ if exists('b:git_dir') && len(b:git_dir)<bar>doautocmd User Fugitive<bar>
-    \ else<bar>silent! unlet b:git_dir<bar>endif<CR>
+nnoremap <Leader>L :<C-u>execute 'file '.fnameescape(resolve(expand('%:p')))<bar>
+    \ call fugitive#detect(fnameescape(expand('%:p:h')))<CR>
 
 " CountJump maps
 autocmd VimrcAutocmds FileType c,cpp
