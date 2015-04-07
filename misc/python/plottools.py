@@ -159,6 +159,7 @@ else:
 
     # Make invalid attribute names still show up in IPython completion
     def _valid_name(cls, name):
-        return isinstance(name, _STRING) and not hasattr(cls, name)
+        return (isinstance(name, _STRING) and not hasattr(cls, name) and
+                not name.startswith('__'))
 
     dict2obj._valid_name = _valid_name
