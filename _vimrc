@@ -832,6 +832,9 @@ func! s:SearchCmdDelWord() " {{{
     endtry
 endfunc " }}}
 cnoremap <expr> <C-w> <SID>SearchCmdDelWord()
+cnoremap <expr> <C-u> "\<C-u>".
+    \ ((getcmdtype() =~ '[/?]' && len(getcmdline()) > 2 &&
+    \  (getcmdline()[:1] == '\v' \|\| getcmdline()[:1] == '\V')) ? getcmdline()[:1] : '')
 
 " <C-Left> moves cursor after \v
 func! s:SearchCtrlLeft() " {{{
