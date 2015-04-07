@@ -1760,7 +1760,9 @@ func! s:UniteSettings() " {{{
             \ if exists('b:match') |
             \     silent! call matchdelete(b:match) |
             \ endif |
-            \ let b:match = matchadd('Search', (@/=~#'\\\@<!\u'?"":'\c').@/, 9999)
+            \ if v:hlsearch |
+            \     let b:match = matchadd('Search', (@/=~#'\\\@<!\u'?"":'\c').@/, 9999) |
+            \ endif
         autocmd BufLeave,BufHidden <buffer> autocmd! vimrc_unite
     augroup END
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
