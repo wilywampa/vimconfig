@@ -126,7 +126,7 @@ def pad(array, length, filler=float('nan')):
 
 
 try:
-    from attrdict import AttrDict as dict2obj
+    from attrdict import AttrDict as dict2obj, STRING as _STRING
 except ImportError:
     class dict2obj(dict):
 
@@ -154,9 +154,6 @@ except ImportError:
             self[name] = value
 
 else:
-    import sys
-    _STRING = basestring if sys.version_info < (3,) else str
-
     # Make invalid attribute names still show up in IPython completion
     def _valid_name(cls, name):
         return (isinstance(name, _STRING) and not hasattr(cls, name) and

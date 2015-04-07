@@ -4,7 +4,6 @@ keys, and as attributes (whenever the key can be used as an attribute
 name).
 """
 from collections import Mapping, MutableMapping, Sequence
-from copy import deepcopy
 import json
 import re
 from sys import version_info
@@ -113,7 +112,7 @@ class AttrDict(MutableMapping):
 
         Access a value associated with a key in the instance.
         """
-        if self._default_factory is None:
+        if self._default_factory is None or key.startswith('_'):
             raise AttributeError(key)
 
         return self.__missing__(key)
@@ -258,21 +257,19 @@ class AttrDict(MutableMapping):
 
         return value
 
-    def __copy__(self):
+    def __getstate__(self):
         """
-        Copy an attrdict.
+        Handle proper serialization of the object. (used by pickle).
         """
-        return AttrDict(self._mapping, recursive=self._recursive,
-                        default_factory=self._default_factory,
-                        pass_key=self._pass_key)
+        return (self._mapping, self._recursive, self._default_factory,
+                self._pass_key)
 
-    def __deepcopy__(self, memo):
+    def __setstate__(self, state):
         """
-        Deep copy an attrdict.
+        Handle proper deserialization of the object. (used by pickle).
         """
-        return AttrDict(deepcopy(self._mapping), recursive=self._recursive,
-                        default_factory=self._default_factory,
-                        pass_key=self._pass_key)
+        mapping, recursive, default_factory, pass_key = state
+        self.__init__(mapping, recursive, default_factory, pass_key)
 
     @classmethod
     def _build(cls, obj, recursive=True):
