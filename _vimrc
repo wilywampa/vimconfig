@@ -1283,7 +1283,7 @@ augroup VimrcAutocmds " {{{
 
     " Prefer single-line style comments and fix shell script comments
     autocmd FileType cpp,arduino setl commentstring=//%s
-    autocmd FileType python,crontab setl commentstring=#%s
+    autocmd FileType python,crontab,txt setl commentstring=#%s
     autocmd FileType * if &cms=='# %s' | setl cms=#%s | endif
     autocmd FileType dosbatch setl commentstring=REM%s
     autocmd FileType autohotkey setl commentstring=;%s
