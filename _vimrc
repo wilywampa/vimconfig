@@ -584,6 +584,10 @@ ino <expr> <Home> col('.') == match(getline('.'), '\S') + 1 ?
 ino <expr> <End> repeat('<C-g>U<Right>', col('$') - col('.'))
 im <C-b> <Home>
 im <C-e> <End>
+
+" Remove trailing whitespace with <CR> (<BS> can delete multiple characters so use <Del>)
+ino <expr> <CR> (getline('.')[:col('.')-2] =~ '\(\S\\|^\)\s\+$' ?
+    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) : '').'<CR>'
 " }}}
 
 " {{{ Abbreviations to open help
