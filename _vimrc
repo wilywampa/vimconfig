@@ -1291,10 +1291,11 @@ augroup VimrcAutocmds " {{{
 
     " Settings for git commit messages
     autocmd FileType gitcommit setlocal spell colorcolumn=50
+
     " Highlight current line in active window but not in insert mode
-    autocmd BufRead,BufNewFile,VimEnter * set cul
-    autocmd InsertLeave,WinEnter,FocusGained * set cul
-    autocmd InsertEnter,WinLeave,FocusLost * set nocul
+    autocmd BufRead,BufNewFile,VimEnter * set cursorline
+    autocmd InsertLeave,WinEnter,FocusGained * set cursorline
+    autocmd InsertEnter,WinLeave,FocusLost * set nocursorline
 
     " Disable paste mode after leaving insert mode
     autocmd InsertLeave * set nopaste
