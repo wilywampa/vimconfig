@@ -92,18 +92,18 @@ def cl():
     _plt.close('all')
 
 
-def savepdf(filename):
+def savepdf(filename, **kwargs):
     """Save all open figures to a PDF file."""
     from matplotlib.backends.backend_pdf import PdfPages
     with PdfPages(filename) as pp:
-        [pp.savefig(_plt.figure(n)) for n in _plt.get_fignums()]
+        [pp.savefig(_plt.figure(n), **kwargs) for n in _plt.get_fignums()]
 
 
-def savesvg(basename):
+def savesvg(basename, **kwargs):
     """Save all open figures to SVG files."""
     figs = [_plt.figure(n) for n in _plt.get_fignums()]
     for f in figs:
-        f.savefig(basename + str(f.number) + '.svg', format='svg')
+        f.savefig(basename + str(f.number) + '.svg', format='svg', **kwargs)
 
 
 def varinfo(var):
