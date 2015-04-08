@@ -85,7 +85,7 @@ def handle_stream():
         sys.stdout.write('\n')
     if not received_msg:
         sys.stdout.write(colorize(msg['content']['data'],
-                                  'cyan', bold=True, bright=True))
+                                  'cyan', bright=True))
         last_msg_type = msg['msg_type']
 
 
