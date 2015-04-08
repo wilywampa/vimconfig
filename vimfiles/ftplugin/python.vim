@@ -24,6 +24,7 @@ nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
 nnoremap <silent> <buffer> <S-F5> :up<CR>:!python %<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
 nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
+nnoremap <silent> <buffer> ,pi :<C-u>call pymode#lint#fix_imports()<CR>
 nnoremap          <buffer> ,ip :<C-u>IPython<CR>
 
 " Move around functions
