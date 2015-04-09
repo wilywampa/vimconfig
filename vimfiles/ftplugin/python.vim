@@ -24,7 +24,7 @@ nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
 nnoremap <silent> <buffer> <S-F5> :up<CR>:!python %<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
 nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
-nnoremap <silent> <buffer> ,pi :<C-u>call pymode#lint#fix_imports()<CR>
+nnoremap <silent> <buffer> ,pi :<C-u>call FixImports()<CR>
 nnoremap          <buffer> ,ip :<C-u>IPython<CR>
 
 " Move around functions
@@ -527,6 +527,136 @@ if new_lines != lines:
 
 EOF
 endfunction
+endif
+
+if has('python') && !exists('*FixImports()')
+function! FixImports()
+    call pymode#lint#check()
+    let loclist = g:PymodeLocList.current()
+    let messages = loclist._messages
+    let unused = filter(copy(messages), 'stridx(v:val, "W0611") != -1')
+    let missing = filter(copy(messages), 'stridx(v:val, "E0602") != -1')
+
+python << EOF
+import vim
+import cStringIO
+import ast
+import imp
+from collections import namedtuple
+
+Import = namedtuple('Import', ['module', 'names', 'alias', 'lrange'])
+
+imports = []
+start = None       # Start of import block near top of file
+end = None         # End of import block
+blank = None       # First blank line after start of import block
+first = None       # First regular import or import ... as
+last = None        # Last regular import or import ... as
+first_from = None  # First from ... import
+last_from = None   # Last from ... import
+
+root = ast.parse('\n'.join(vim.current.buffer))
+
+
+def import_len(node):
+    length = 1
+    while True:
+        try:
+            root = ast.parse(
+                '\n'.join(
+                    vim.current.buffer
+                    [(node.lineno - 1): (node.lineno - 1 + length)]))
+        except SyntaxError:
+            length += 1
+            continue
+        if (set([n.name for n in root.body[0].names]) ==
+                set([n.name for n in node.names])):
+            break
+        else:
+            if length >= len(vim.current.buffer):
+                break
+        length += 1
+    return length
+
+
+for node in ast.iter_child_nodes(root):
+    if blank and node.lineno >= blank:
+        break
+
+    if isinstance(node, ast.Import):
+        module = []
+        if not first:
+            first = node.lineno
+        last = node.lineno
+    elif isinstance(node, ast.ImportFrom):
+        module = node.module.split('.')
+        if not first_from:
+            first_from = node.lineno
+        last_from = node.lineno
+    elif start:
+        break
+    else:
+        continue
+
+    end = node.lineno + import_len(node) - 1
+
+    if not start:
+        try:
+            blank = next(
+                (i for i, l in enumerate(
+                    vim.current.buffer) if re.match('^\s*$', l))) + 1
+        except StopIteration:
+            blank = len(vim.current.buffer)
+    start = start or first or first_from
+
+    imports.append(
+        Import(
+            module, [n.name for n in node.names],
+            n.asname, (node.lineno, end)))
+
+unused = {int(k): v.replace("W0611 '", '').split("'")[0]
+          for k, v in vim.eval('unused').items()
+          if start <= int(k) <= end}
+missing = [
+    m.replace("E0602 undefined name '", '').split("'")[0].strip()
+    for m in vim.eval('missing').values()]
+
+keep = {i.lrange: True for i in imports}
+for line, name in unused.items():
+    for i in imports:
+        if len(i.names) == 1 and (name == i.names[0] or name == i.alias):
+            keep[i.lrange] = False
+
+lines = ['\n'.join(vim.current.buffer[n[0]-1:n[1]]) for n in keep if keep[n]]
+
+aliases = dict(np='numpy',
+               mpl='matplotlib',
+               plt='matplotlib.pyplot',
+               sio='scipy.io',
+               sc='scipy.constants',
+               pt='plottools')
+
+for miss in missing:
+    if miss in aliases:
+        lines.append('import %s as %s' % (aliases[miss], miss))
+    else:
+        try:
+            imp.find_module(miss)
+            lines.append('import %s' % miss)
+        except ImportError:
+            pass
+
+lines = sorted(sorted(lines),
+               key=lambda x: x.lstrip().startswith('from'))
+lines = [l for ls in [l.splitlines() for l in lines] for l in ls]
+if lines and start:
+    if vim.current.buffer[start-1:end] != lines:
+        vim.current.buffer[start-1:end] = lines
+elif lines:
+    vim.current.buffer.append(lines, 0)
+EOF
+endfunction
+
 endif
 if has('python')
   setlocal formatexpr=PEP8()
