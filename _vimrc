@@ -1240,10 +1240,13 @@ else
     " Use correct background color
     autocmd VimrcAutocmds VimEnter * set t_ut=
 
-    " Use block cursor in normal mode and bar cursor in insert mode
+    " Use block cursor in normal mode, bar in insert mode, and underline in replace mode
     if !mobileSSH
         let &t_SI = "\<Esc>[5 q"
         let &t_EI = "\<Esc>[1 q"
+        if v:version > 704 || (v:version == 704 && has('patch687'))
+            let &t_SR = "\<Esc>[3 q"
+        endif
     endif
 
     " Disable italics (set italics mode = italics end)
