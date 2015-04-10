@@ -47,10 +47,9 @@ def cursor(fig=None, **kwargs):
     _plt.figure((fig or _plt.gcf()).number)
     cursors = []
     for ax in _plt.gcf().get_axes():
-        for line in ax.get_lines():
-            cursors.append(datacursor(line, formatter=_fmt,
-                                      props_override=_snap, **kwargs))
-            [a.draggable() for a in cursors[-1].annotations.values()]
+        cursors.append(datacursor(axes=ax, formatter=_fmt,
+                                  props_override=_snap, **kwargs))
+        [a.draggable() for a in cursors[-1].annotations.values()]
     return cursors
 
 
