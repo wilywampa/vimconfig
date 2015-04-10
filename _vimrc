@@ -1265,7 +1265,7 @@ endif
 
 " Create new buffer with filetype as (optional) argument
 for cmd in ['new', 'enew', 'vnew', 'tabedit']
-    execute "command! -nargs=? ".toupper(cmd[0]).cmd[1:]." ".cmd." | ".
+    execute "command! -nargs=? -complete=filetype ".toupper(cmd[0]).cmd[1:]." ".cmd." | ".
         \ "if !empty('<args>') | set filetype=<args> | "
         \ "else | let &filetype= getbufvar('#', '&filetype') | endif"
 endfor
