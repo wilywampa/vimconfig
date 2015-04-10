@@ -251,7 +251,7 @@ class Picker:
 def picker(axes=None):
     axes = axes or plt.gca()
     if hasattr(axes, '_active_picker'):
-        for line in self.axes.get_lines():
+        for line in axes.get_lines():
             line.set_picker(axes._active_picker)
             line.set_pickradius(5)
         return axes._active_picker
