@@ -644,10 +644,8 @@ for i in imports:
                     remove = False
             if remove:
                 i.names.remove(name)
-    if i.names == []:
-        imports.remove(i)
-    elif i.alias in unused.values():
-        imports.remove(i)
+
+imports = [i for i in imports if i.names and i.alias not in unused.values()]
 
 for miss in missing:
     if miss in aliases:
