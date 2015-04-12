@@ -1015,7 +1015,7 @@ func! s:IncSearchNext(dir) " {{{
     let type = getcmdtype()
     if type !~ '[/?]' | return '' | endif
     let visual = mode() =~? "[v\<C-v>]"
-    let cmd = substitute(getcmdline(), "'", "''", 'g')
+    let cmd = substitute(substitute(getcmdline(), "'", "''", 'g'), '^\\v', '', '')
     return "\<C-c>:\<C-u>call search('".cmd."', '".(a:dir ? '' : 'b').
         \ "')\<CR>zv".":call feedkeys('".(visual ? 'gv' : '').
         \ type."\<C-v>\<C-u>".cmd."', 't')\<CR>".s:UnfoldSearch()
