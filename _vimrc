@@ -2129,6 +2129,16 @@ let g:syntastic_quiet_messages.regex = '^Defaulting the following constraint(s) 
 " Prevent folds updating spuriously on first write
 autocmd VimrcAutocmds VimEnter * silent! FastFoldUpdate
 
+" LaTeX-Box settings
+autocmd VimrcAutocmds FileType plaintex,tex
+    \ nnoremap <buffer> <F5> :<C-u>update<bar>Latexmk<CR> |
+    \ nnoremap <buffer> <S-F5> :<C-u>execute "LatexView"<bar>update<bar>execute "Latexmk"<CR>
+let g:LatexBox_completion_close_braces = 0
+if !exists('g:neocomplete#sources#omni#input_patterns')
+  let g:neocomplete#sources#omni#input_patterns = {}
+endif
+let g:neocomplete#sources#omni#input_patterns.tex = '\\\h\w*{'
+
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
