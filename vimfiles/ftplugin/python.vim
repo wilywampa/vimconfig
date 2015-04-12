@@ -527,6 +527,7 @@ if new_lines != lines:
 
 EOF
 endfunction
+setlocal formatexpr=PEP8()
 endif
 
 if has('python') && !exists('*FixImports()')
@@ -766,10 +767,6 @@ if not lines:
 EOF
     call pymode#lint#check()
 endfunction
-
-endif
-if has('python')
-  setlocal formatexpr=PEP8()
 endif
 
 " vim:set et ts=2 sts=2 sw=2:
