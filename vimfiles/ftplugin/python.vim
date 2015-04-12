@@ -531,12 +531,13 @@ endif
 
 if has('python') && !exists('*FixImports()')
 function! FixImports()
-    call pymode#lint#check()
+    PymodePython code_check()
     let loclist = g:PymodeLocList.current()
     let messages = copy(loclist._loclist)
     python << EOF
 import ast
 import imp
+import itertools
 import re
 import textwrap
 import vim
@@ -619,13 +620,11 @@ for node in ast.iter_child_nodes(root):
             module, [n.name for n in node.names],
             n.asname, (node.lineno, end)))
 
-messages = {m['lnum']: m['text'] for m in vim.eval('messages')}
+messages = [(m['lnum'], m['text']) for m in vim.eval('messages')]
 unused = {int(k): v.replace("W0611 '", '').split("'")[0]
-          for k, v in messages.items()
-          if start <= int(k) <= end and 'W0611' in v}
-missing = [
-    m.replace("E0602 undefined name '", '').split("'")[0].strip()
-    for m in messages.values() if 'E0602' in m]
+          for k, v in messages if start <= int(k) <= end and 'W0611' in v}
+missing = [m.replace("E0602 undefined name '", '').split("'")[0].strip()
+           for _, m in messages if 'E0602' in m]
 
 aliases = dict(np='numpy',
                mpl='matplotlib',
@@ -634,16 +633,84 @@ aliases = dict(np='numpy',
                sc='scipy.constants',
                pt='plottools')
 
+try:
+    aliases.update(vim.vars['python_autoimport_aliases'])
+except KeyError:
+    pass
+
+froms = {
+    'numpy': [
+        'allclose', 'alltrue', 'arange', 'arccos', 'arccosh', 'arcsin',
+        'arcsinh', 'arctan', 'arctan2', 'arctanh', 'array', 'array_equal',
+        'asarray', 'average', 'column_stack', 'concatenate', 'cos', 'cosh',
+        'cross', 'cumprod', 'cumproduct', 'cumsum', 'dot', 'dstack', 'dtype',
+        'einsum', 'empty', 'exp', 'eye', 'fromfile', 'fromiter', 'genfromtxt',
+        'hstack', 'inner', 'isinf', 'isnan', 'isreal', 'linspace', 'loadtxt',
+        'mean', 'median', 'meshgrid', 'mgrid', 'nanargmax', 'nanargmin',
+        'nanmax', 'nanmean', 'nanmedian', 'nanmin', 'nanpercentile', 'nanstd',
+        'nansum', 'nanvar', 'ndarray', 'ndenumerate', 'ndfromtxt', 'ndim',
+        'nditer', 'newaxis', 'ones', 'outer', 'pad', 'pi', 'random', 'ravel',
+        'ravel_multi_index', 'reshape', 'rot90', 'savez', 'savez_compressed',
+        'seterr', 'sin', 'sinc', 'sinh', 'sqrt', 'squeeze', 'std', 'take',
+        'tan', 'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize',
+        'vstack', 'where', 'zeros'],
+    'contextlib': ['contextmanager'],
+    'matplotlib.pyplot': [
+        'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',
+        'cla', 'clf', 'clim', 'close', 'colorbar', 'colormaps', 'colors',
+        'contour', 'contourf', 'draw', 'errorbar', 'figaspect', 'figimage',
+        'figlegend', 'figtext', 'figure', 'fill_between', 'gca', 'gcf', 'gci',
+        'get_backend', 'get_cmap', 'get_current_fig_manager', 'get_figlabels',
+        'get_fignums', 'grid', 'hist', 'hist2d', 'interactive', 'ioff', 'ion',
+        'legend', 'loglog', 'margins', 'minorticks_off', 'minorticks_on',
+        'new_figure_manager', 'normalize', 'plot', 'plot_date', 'plotfile',
+        'plotting', 'polar', 'psd', 'quiver', 'quiverkey', 'rcParams',
+        'rcParamsDefault', 'rcdefaults', 'savefig', 'scatter', 'semilogx',
+        'semilogy', 'specgram', 'stackplot', 'stem', 'streamplot', 'subplot',
+        'subplots', 'suptitle', 'text', 'tight_layout', 'title', 'tricontour',
+        'tricontourf', 'triplot', 'twinx', 'twiny', 'violinplot', 'vlines',
+        'xlabel', 'xlim', 'xscale', 'xticks', 'ylabel', 'ylim', 'yscale',
+        'yticks'],
+    'plottools': [
+        'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
+        'merge_dicts', 'pad', 'picker', 'resize', 'savepdf', 'savesvg',
+        'unique_legend', 'varinfo'],
+    'itertools': [
+        'chain', 'combinations', 'combinations_with_replacement', 'dropwhile',
+        'ifilter', 'imap', 'islice', 'izip', 'izip_longest', 'permutations',
+        'product', 'starmap', 'takewhile', 'tee'],
+    'np.linalg': [
+        'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'norm', 'solve',
+        'svd', 'tensorinv', 'tensorsolve'],
+    'mpl_toolkits.mplot3d': ['Axes3D'],
+}
+
+try:
+    froms.update(vim.vars['python_autoimport_froms'])
+except KeyError:
+    pass
+
+
+def used(name):
+    for line in vim.current.buffer[end:]:
+        if re.search(r'(?<!\.)\b%s\b' % name, line):
+            return True
+    return False
+
+
+def remove_unused(i):
+    names = i.names[:]
+    for name in names:
+        if not used(name):
+            i.names.remove(name)
+
+
 for i in imports:
     if any(map(lambda n: n in unused.values(), i.names)):
-        names = i.names[:]
-        for name in names:
-            remove = True
-            for line in vim.current.buffer[end:]:
-                if re.search(r'(?<!\.)\b%s\b' % name, line):
-                    remove = False
-            if remove:
-                i.names.remove(name)
+        remove_unused(i)
+        for i2 in imports:
+            if i.lrange[-1] == i2.lrange[0]:
+                remove_unused(i2)
 
 imports = [i for i in imports if i.names and i.alias not in unused.values()]
 
@@ -651,6 +718,14 @@ for miss in missing:
     if miss in aliases:
         imports.append(Import(module=[], names=[aliases[miss]],
                               alias=miss, lrange=()))
+    elif miss in itertools.chain(*froms.values()):
+        m = [m for m, v in froms.items() if miss in v][0]
+        i = [i for i in imports if m == i.module]
+        if i:
+            i[0].names.append(miss)
+        else:
+            imports.append(Import(module=m, names=[miss],
+                                  alias=None, lrange=()))
     else:
         try:
             imp.find_module(miss)
@@ -680,11 +755,14 @@ for i in imports:
 lines = sorted(sorted(lines),
                key=lambda x: x[0].lstrip().startswith('from'))
 lines = [l for ls in lines for l in ls]
-if lines and start:
+if start:
     if vim.current.buffer[start-1:end] != lines:
         vim.current.buffer[start-1:end] = lines
-elif lines:
+else:
     vim.current.buffer.append(lines, 0)
+if not lines:
+    while re.match(r'^\s*$', vim.current.buffer[0]):
+        vim.current.buffer[:2] = [vim.current.buffer[1]]
 EOF
     call pymode#lint#check()
 endfunction
