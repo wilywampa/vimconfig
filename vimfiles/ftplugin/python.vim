@@ -627,12 +627,17 @@ unused = {int(k): v.replace("W0611 '", '').split("'")[0]
 missing = [m.replace("E0602 undefined name '", '').split("'")[0].strip()
            for _, m in messages if 'E0602' in m]
 
-aliases = dict(np='numpy',
-               mpl='matplotlib',
-               plt='matplotlib.pyplot',
-               sio='scipy.io',
-               sc='scipy.constants',
-               pt='plottools')
+aliases = dict(
+    mpl='matplotlib',
+    np='numpy',
+    opt='scipy.optimize',
+    pickle='cPickle',
+    plt='matplotlib.pyplot',
+    pt='plottools',
+    sc='scipy.constants',
+    si='scipy.interpolate',
+    sio='scipy.io',
+)
 
 try:
     aliases.update(vim.vars['python_autoimport_aliases'])
@@ -680,7 +685,7 @@ froms = {
         'chain', 'combinations', 'combinations_with_replacement', 'dropwhile',
         'ifilter', 'imap', 'islice', 'izip', 'izip_longest', 'permutations',
         'product', 'starmap', 'takewhile', 'tee'],
-    'np.linalg': [
+    'numpy.linalg': [
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'norm', 'solve',
         'svd', 'tensorinv', 'tensorsolve'],
     'mpl_toolkits.mplot3d': ['Axes3D'],
@@ -715,7 +720,7 @@ for i in imports:
 
 imports = [i for i in imports if i.names and i.alias not in unused.values()]
 
-for miss in missing:
+for miss in set(missing):
     if miss in aliases:
         imports.append(Import(module=[], names=[aliases[miss]],
                               alias=miss, lrange=()))
@@ -760,7 +765,11 @@ if start:
     if vim.current.buffer[start-1:end] != lines:
         vim.current.buffer[start-1:end] = lines
 else:
-    vim.current.buffer.append(lines, 0)
+    if vim.current.buffer[0].startswith('def'):
+        lines.extend(['', ''])
+    elif re.search(r'\S', vim.current.buffer[0]):
+        lines.append('')
+    vim.current.buffer[:] = lines + vim.current.buffer[:]
 if not lines:
     while re.match(r'^\s*$', vim.current.buffer[0]):
         vim.current.buffer[:2] = [vim.current.buffer[1]]
