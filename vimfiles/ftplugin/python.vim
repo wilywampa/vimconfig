@@ -533,15 +533,13 @@ if has('python') && !exists('*FixImports()')
 function! FixImports()
     call pymode#lint#check()
     let loclist = g:PymodeLocList.current()
-    let messages = loclist._messages
-    let unused = filter(copy(messages), 'stridx(v:val, "W0611") != -1')
-    let missing = filter(copy(messages), 'stridx(v:val, "E0602") != -1')
-
-python << EOF
-import vim
-import cStringIO
+    let messages = copy(loclist._loclist)
+    python << EOF
 import ast
 import imp
+import re
+import textwrap
+import vim
 from collections import namedtuple
 
 Import = namedtuple('Import', ['module', 'names', 'alias', 'lrange'])
@@ -560,12 +558,16 @@ root = ast.parse('\n'.join(vim.current.buffer))
 
 def import_len(node):
     length = 1
+    tries = [s.strip() for s in vim.current.buffer[node.lineno - 1].split(';')]
     while True:
         try:
-            root = ast.parse(
-                '\n'.join(
-                    vim.current.buffer
-                    [(node.lineno - 1): (node.lineno - 1 + length)]))
+            if len(tries) > 1:
+                text = [tries[0]]
+            else:
+                text = vim.current.buffer[
+                    (node.lineno - 1): (node.lineno - 1 + length)]
+                text[0] = tries[0]
+            root = ast.parse('\n'.join(text))
         except SyntaxError:
             length += 1
             continue
@@ -575,7 +577,10 @@ def import_len(node):
         else:
             if length >= len(vim.current.buffer):
                 break
-        length += 1
+        if len(tries) > 1:
+            tries.pop(0)
+        else:
+            length += 1
     return length
 
 
@@ -589,7 +594,7 @@ for node in ast.iter_child_nodes(root):
             first = node.lineno
         last = node.lineno
     elif isinstance(node, ast.ImportFrom):
-        module = node.module.split('.')
+        module = node.module
         if not first_from:
             first_from = node.lineno
         last_from = node.lineno
@@ -614,20 +619,13 @@ for node in ast.iter_child_nodes(root):
             module, [n.name for n in node.names],
             n.asname, (node.lineno, end)))
 
+messages = {m['lnum']: m['text'] for m in vim.eval('messages')}
 unused = {int(k): v.replace("W0611 '", '').split("'")[0]
-          for k, v in vim.eval('unused').items()
-          if start <= int(k) <= end}
+          for k, v in messages.items()
+          if start <= int(k) <= end and 'W0611' in v}
 missing = [
     m.replace("E0602 undefined name '", '').split("'")[0].strip()
-    for m in vim.eval('missing').values()]
-
-keep = {i.lrange: True for i in imports}
-for line, name in unused.items():
-    for i in imports:
-        if len(i.names) == 1 and (name == i.names[0] or name == i.alias):
-            keep[i.lrange] = False
-
-lines = ['\n'.join(vim.current.buffer[n[0]-1:n[1]]) for n in keep if keep[n]]
+    for m in messages.values() if 'E0602' in m]
 
 aliases = dict(np='numpy',
                mpl='matplotlib',
@@ -636,25 +634,61 @@ aliases = dict(np='numpy',
                sc='scipy.constants',
                pt='plottools')
 
+for i in imports:
+    if any(map(lambda n: n in unused.values(), i.names)):
+        names = i.names[:]
+        for name in names:
+            remove = True
+            for line in vim.current.buffer[end:]:
+                if re.search(r'(?<!\.)\b%s\b' % name, line):
+                    remove = False
+            if remove:
+                i.names.remove(name)
+    if i.names == []:
+        imports.remove(i)
+    elif i.alias in unused.values():
+        imports.remove(i)
+
 for miss in missing:
     if miss in aliases:
-        lines.append('import %s as %s' % (aliases[miss], miss))
+        imports.append(Import(module=[], names=[aliases[miss]],
+                              alias=miss, lrange=()))
     else:
         try:
             imp.find_module(miss)
-            lines.append('import %s' % miss)
+            imports.append(Import(module=[], names=[miss],
+                                  alias=None, lrange=()))
         except ImportError:
             pass
 
+lines = []
+for i in imports:
+    if not i.module:
+        if i.alias:
+            lines.append(['import {module} as {alias}'.format(
+                module=i.names[0], alias=i.alias)])
+        else:
+            lines.append(['import {module}'.format(module=i.names[0])])
+    else:
+        newline = 'from {module} import ({names})'.format(
+            module=i.module, names=', '.join(sorted(i.names)))
+        if len(newline) <= 80:
+            lines.append([newline.replace('(', '').replace(')', '')])
+        else:
+            lines.append(textwrap.wrap(newline,
+                                       subsequent_indent=" " * (
+                                           newline.index('(') + 1)))
+
 lines = sorted(sorted(lines),
-               key=lambda x: x.lstrip().startswith('from'))
-lines = [l for ls in [l.splitlines() for l in lines] for l in ls]
+               key=lambda x: x[0].lstrip().startswith('from'))
+lines = [l for ls in lines for l in ls]
 if lines and start:
     if vim.current.buffer[start-1:end] != lines:
         vim.current.buffer[start-1:end] = lines
 elif lines:
     vim.current.buffer.append(lines, 0)
 EOF
+    call pymode#lint#check()
 endfunction
 
 endif
