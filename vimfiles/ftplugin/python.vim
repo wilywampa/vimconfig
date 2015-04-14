@@ -611,7 +611,7 @@ for node in ast.iter_child_nodes(root):
         try:
             blank = next(
                 (i for i, l in enumerate(
-                    vim.current.buffer) if re.match('^\s*$', l))) + 1
+                    vim.current.buffer) if re.match('^\s*(#.*)?$', l))) + 1
         except StopIteration:
             blank = len(vim.current.buffer)
     start = start or first or first_from
@@ -649,13 +649,14 @@ froms = {
         'allclose', 'alltrue', 'arange', 'arccos', 'arccosh', 'arcsin',
         'arcsinh', 'arctan', 'arctan2', 'arctanh', 'array', 'array_equal',
         'asarray', 'average', 'column_stack', 'concatenate', 'cos', 'cosh',
-        'cross', 'cumprod', 'cumproduct', 'cumsum', 'dot', 'dstack', 'dtype',
-        'einsum', 'empty', 'exp', 'eye', 'fromfile', 'fromiter', 'genfromtxt',
-        'hstack', 'inner', 'isinf', 'isnan', 'isreal', 'linspace', 'loadtxt',
-        'mean', 'median', 'meshgrid', 'mgrid', 'nanargmax', 'nanargmin',
-        'nanmax', 'nanmean', 'nanmedian', 'nanmin', 'nanpercentile', 'nanstd',
-        'nansum', 'nanvar', 'ndarray', 'ndenumerate', 'ndfromtxt', 'ndim',
-        'nditer', 'newaxis', 'ones', 'outer', 'pad', 'pi', 'random', 'ravel',
+        'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad', 'dot', 'dstack',
+        'dtype', 'einsum', 'empty', 'exp', 'eye', 'fromfile', 'fromiter',
+        'genfromtxt', 'hstack', 'inner', 'isinf', 'isnan', 'isreal',
+        'linspace', 'loadtxt', 'mean', 'median', 'meshgrid', 'mgrid',
+        'nanargmax', 'nanargmin', 'nanmax', 'nanmean', 'nanmedian', 'nanmin',
+        'nanpercentile', 'nanstd', 'nansum', 'nanvar', 'ndarray',
+        'ndenumerate', 'ndfromtxt', 'ndim', 'nditer', 'newaxis', 'ones',
+        'outer', 'pad', 'pi', 'rad2deg', 'random', 'ravel',
         'ravel_multi_index', 'reshape', 'rot90', 'savez', 'savez_compressed',
         'seterr', 'sin', 'sinc', 'sinh', 'sqrt', 'squeeze', 'std', 'take',
         'tan', 'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize',
@@ -758,8 +759,16 @@ for i in imports:
                                        subsequent_indent=" " * (
                                            newline.index('(') + 1)))
 
-lines = sorted(sorted(lines),
-               key=lambda x: x[0].lstrip().startswith('from'))
+
+def key(item):
+    if item[0].lstrip().startswith('from __future__'):
+        return -1
+    elif item[0].lstrip().startswith('from'):
+        return 1
+    return 0
+
+
+lines = sorted(sorted(lines), key=key)
 lines = [l for ls in lines for l in ls]
 if start:
     if vim.current.buffer[start-1:end] != lines:
