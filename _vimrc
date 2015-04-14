@@ -494,7 +494,7 @@ im <F5> <Esc><F5>
 
 " Cycle through previous searches
 nn <silent> <expr> <C-k> (g:inCmdwin? '' : "/\<C-f>".(v:count1 + 1))."k:let @/=getline('.')<CR>"
-nn <silent> <expr> <C-j> (g:inCmdwin? '' : "/\<C-f>".v:count1)."j:let @/=getline('.')<CR>"
+nn <silent> <expr> <C-j>  g:inCmdwin? "j:let @/=getline('.')<CR>" : '<C-j>'
 
 " Don't open fold when jumping to first or last line in diff mode
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
