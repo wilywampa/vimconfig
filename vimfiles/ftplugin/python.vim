@@ -527,7 +527,9 @@ if new_lines != lines:
 
 EOF
 endfunction
-setlocal formatexpr=PEP8()
+endif
+if has('python')
+  setlocal formatexpr=PEP8()
 endif
 
 if has('python') && !exists('*FixImports()')
