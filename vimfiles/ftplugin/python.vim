@@ -534,9 +534,12 @@ endif
 
 if has('python') && !exists('*FixImports()')
 function! FixImports()
-    PymodePython code_check()
-    let loclist = g:PymodeLocList.current()
-    let messages = copy(loclist._loclist)
+  PymodePython code_check()
+  let loclist = g:PymodeLocList.current()
+  let messages = copy(loclist._loclist)
+  if exists('g:python_autoimport_debug_file')
+    execute 'pyfile '.fnameescape(g:python_autoimport_debug_file)
+  else
     python << EOF
 import ast
 import imp
@@ -647,23 +650,12 @@ except KeyError:
     pass
 
 froms = {
-    'numpy': [
-        'allclose', 'alltrue', 'arange', 'arccos', 'arccosh', 'arcsin',
-        'arcsinh', 'arctan', 'arctan2', 'arctanh', 'array', 'array_equal',
-        'asarray', 'average', 'column_stack', 'concatenate', 'cos', 'cosh',
-        'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad', 'dot', 'dstack',
-        'dtype', 'einsum', 'empty', 'exp', 'eye', 'fromfile', 'fromiter',
-        'genfromtxt', 'hstack', 'inner', 'isinf', 'isnan', 'isreal',
-        'linspace', 'loadtxt', 'mean', 'median', 'meshgrid', 'mgrid',
-        'nanargmax', 'nanargmin', 'nanmax', 'nanmean', 'nanmedian', 'nanmin',
-        'nanpercentile', 'nanstd', 'nansum', 'nanvar', 'ndarray',
-        'ndenumerate', 'ndfromtxt', 'ndim', 'nditer', 'newaxis', 'ones',
-        'outer', 'pad', 'pi', 'rad2deg', 'random', 'ravel',
-        'ravel_multi_index', 'reshape', 'rot90', 'savez', 'savez_compressed',
-        'seterr', 'sin', 'sinc', 'sinh', 'sqrt', 'squeeze', 'std', 'take',
-        'tan', 'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize',
-        'vstack', 'where', 'zeros'],
     'contextlib': ['contextmanager'],
+    'copy': ['copy', 'deepcopy'],
+    'itertools': [
+        'chain', 'combinations', 'combinations_with_replacement', 'dropwhile',
+        'ifilter', 'imap', 'islice', 'izip', 'izip_longest', 'permutations',
+        'product', 'starmap', 'takewhile', 'tee'],
     'matplotlib.pyplot': [
         'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',
         'cla', 'clf', 'clim', 'close', 'colorbar', 'colormaps', 'colors',
@@ -680,22 +672,40 @@ froms = {
         'tricontourf', 'triplot', 'twinx', 'twiny', 'violinplot', 'vlines',
         'xlabel', 'xlim', 'xscale', 'xticks', 'ylabel', 'ylim', 'yscale',
         'yticks'],
+    'mpl_toolkits.mplot3d': ['Axes3D'],
+    'numpy': [
+        'allclose', 'alltrue', 'arange', 'arccos', 'arccosh', 'arcsin',
+        'arcsinh', 'arctan', 'arctan2', 'arctanh', 'array', 'array_equal',
+        'asarray', 'average', 'column_stack', 'concatenate', 'cos', 'cosh',
+        'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad', 'dot', 'dstack',
+        'dtype', 'einsum', 'empty', 'exp', 'eye', 'fromfile', 'fromiter',
+        'genfromtxt', 'hstack', 'inner', 'isinf', 'isnan', 'isreal',
+        'linspace', 'loadtxt', 'mean', 'median', 'meshgrid', 'mgrid',
+        'nanargmax', 'nanargmin', 'nanmax', 'nanmean', 'nanmedian', 'nanmin',
+        'nanpercentile', 'nanstd', 'nansum', 'nanvar', 'ndarray',
+        'ndenumerate', 'ndfromtxt', 'ndim', 'nditer', 'newaxis', 'ones',
+        'outer', 'pad', 'pi', 'rad2deg', 'random', 'ravel',
+        'ravel_multi_index', 'reshape', 'rot90', 'savez', 'savez_compressed',
+        'seterr', 'sin', 'sinc', 'sinh', 'sqrt', 'squeeze', 'std', 'take',
+        'tan', 'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize',
+        'vstack', 'where', 'zeros'],
+    'numpy.linalg': [
+        'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'norm', 'solve',
+        'svd', 'tensorinv', 'tensorsolve'],
     'plottools': [
         'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
         'merge_dicts', 'pad', 'picker', 'resize', 'savepdf', 'savesvg',
         'unique_legend', 'varinfo'],
-    'itertools': [
-        'chain', 'combinations', 'combinations_with_replacement', 'dropwhile',
-        'ifilter', 'imap', 'islice', 'izip', 'izip_longest', 'permutations',
-        'product', 'starmap', 'takewhile', 'tee'],
-    'numpy.linalg': [
-        'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'norm', 'solve',
-        'svd', 'tensorinv', 'tensorsolve'],
-    'mpl_toolkits.mplot3d': ['Axes3D'],
+    'scipy.constants': [
+        'degree', 'foot', 'g', 'inch', 'kmh', 'knot', 'lb', 'lbf', 'mach',
+        'mph', 'nautical_mile', 'pound', 'pound_force', 'psi',
+        'speed_of_sound'],
+    'time': ['time'],
 }
 
 try:
-    froms.update(vim.vars['python_autoimport_froms'])
+    for k, v in vim.vars['python_autoimport_froms'].items():
+        froms[k] = set(v) | set(froms.get(k, []))
 except KeyError:
     pass
 
@@ -785,7 +795,8 @@ if not lines:
     while re.match(r'^\s*$', vim.current.buffer[0]):
         vim.current.buffer[:2] = [vim.current.buffer[1]]
 EOF
-    call pymode#lint#check()
+  endif
+  call pymode#lint#check()
 endfunction
 endif
 
