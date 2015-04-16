@@ -715,8 +715,8 @@ except KeyError:
 
 
 def used(name):
-    if name in unused:
-        return True
+    if name in unused.values():
+        return False
     else:
         return name in tokens
 
@@ -729,8 +729,8 @@ def remove_unused(i):
 
 
 tokens = set()
-for ttype, tstr, _, _, _ in tokenize.generate_tokens((
-        line for line in vim.current.buffer).next):
+readline = (line for line in vim.current.buffer[:] if line.strip() != '')
+for ttype, tstr, _, _, _ in tokenize.generate_tokens(readline.next):
     if ttype == tokenize.NAME:
         tokens.add(tstr)
 
