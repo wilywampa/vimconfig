@@ -15,7 +15,10 @@ def fg(fig=None):
 def _snap(**kwargs):
     import numpy as np
     event = kwargs['event']
-    xdata, ydata = event.artist.get_xdata(), event.artist.get_ydata()
+    try:
+        xdata, ydata = event.artist.get_xdata(), event.artist.get_ydata()
+    except AttributeError:
+        return kwargs
     ind = event.ind[0]
     xclick, yclick = event.mouseevent.xdata, event.mouseevent.ydata
 
