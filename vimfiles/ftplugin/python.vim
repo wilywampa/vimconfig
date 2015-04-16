@@ -546,6 +546,7 @@ import imp
 import itertools
 import re
 import textwrap
+import tokenize
 import vim
 from collections import namedtuple
 
@@ -560,7 +561,10 @@ last = None        # Last regular import or import ... as
 first_from = None  # First from ... import
 last_from = None   # Last from ... import
 
-root = ast.parse('\n'.join(vim.current.buffer))
+try:
+    root = ast.parse('\n'.join(vim.current.buffer))
+except SyntaxError as e:
+    root = ast.parse('\n'.join(vim.current.buffer[:e.lineno-1]))
 
 
 def import_len(node):
@@ -711,10 +715,10 @@ except KeyError:
 
 
 def used(name):
-    for line in vim.current.buffer[end:]:
-        if re.search(r'(?<!\.)\b%s\b' % name, line):
-            return True
-    return False
+    if name in unused:
+        return True
+    else:
+        return name in tokens
 
 
 def remove_unused(i):
@@ -723,6 +727,12 @@ def remove_unused(i):
         if not used(name):
             i.names.remove(name)
 
+
+tokens = set()
+for ttype, tstr, _, _, _ in tokenize.generate_tokens((
+        line for line in vim.current.buffer).next):
+    if ttype == tokenize.NAME:
+        tokens.add(tstr)
 
 for i in imports:
     if any(map(lambda n: n in unused.values(), i.names)):
