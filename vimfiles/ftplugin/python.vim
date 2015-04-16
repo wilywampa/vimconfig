@@ -729,7 +729,7 @@ def remove_unused(i):
 
 
 tokens = set()
-readline = (line for line in vim.current.buffer[:] if line.strip() != '')
+readline = (line for line in vim.current.buffer[end:] if line.strip() != '')
 for ttype, tstr, _, _, _ in tokenize.generate_tokens(readline.next):
     if ttype == tokenize.NAME:
         tokens.add(tstr)
