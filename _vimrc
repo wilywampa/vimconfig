@@ -1037,15 +1037,17 @@ augroup VimrcAutocmds
 augroup END
 
 " Print number of occurrences of last search without moving cursor
-func! s:PrintCount() " {{{
+func! s:PrintCount(visual) " {{{
     let l:view = winsaveview() | let l:gd = &gdefault | set nogdefault
-    redir => l:cnt | keepjumps silent %s///gne | redir END
+    redir => l:cnt
+    execute 'keepjumps silent '.(a:visual ? "'<,'>" : '%').'s///gne'
+    redir END
     keepjumps call winrestview(l:view)
     echo l:cnt =~ 'match' ? substitute(l:cnt,'\n','','') : 'No matches'
     let &gdefault = l:gd
 endfunc " }}}
-nn <silent> <M-n> :call <SID>PrintCount()<CR>
-vn <silent> <M-n> :<C-u>call <SID>PrintCount()<CR>
+nn <silent> <M-n> :call <SID>PrintCount(0)<CR>
+vn <silent> <M-n> :<C-u>call <SID>PrintCount(1)<CR>
 
 " Put spaces around a character/visual selection
 func! s:SpacesAround() " {{{
