@@ -553,13 +553,13 @@ from collections import namedtuple
 Import = namedtuple('Import', ['module', 'names', 'alias', 'lrange'])
 
 imports = []
-start = None       # Start of import block near top of file
-end = None         # End of import block
-blank = None       # First blank line after start of import block
-first = None       # First regular import or import ... as
-last = None        # Last regular import or import ... as
-first_from = None  # First from ... import
-last_from = None   # Last from ... import
+start = None                   # Start of import block near top of file
+end = len(vim.current.buffer)  # End of import block
+blank = None                   # First blank line after start of import block
+first = None                   # First regular import or import ... as
+last = None                    # Last regular import or import ... as
+first_from = None              # First from ... import
+last_from = None               # Last from ... import
 
 try:
     root = ast.parse('\n'.join(vim.current.buffer))
@@ -620,7 +620,8 @@ for node in ast.iter_child_nodes(root):
         try:
             blank = next(
                 (i for i, l in enumerate(
-                    vim.current.buffer) if re.match('^\s*(#.*)?$', l))) + 1
+                    vim.current.buffer[end:], end)
+                    if re.match('^\s*(#.*)?$', l))) + 1
         except StopIteration:
             blank = len(vim.current.buffer)
     start = start or first or first_from
