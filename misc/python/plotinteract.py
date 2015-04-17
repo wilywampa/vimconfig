@@ -481,6 +481,13 @@ class Interact(QtGui.QMainWindow):
             [p.disable() for p in self.pickers]
             self.pickers = None
 
+    @staticmethod
+    def plot(axes, x, y, label):
+        try:
+            axes.plot(x, y, label=label)
+        except ValueError:
+            axes.plot(x, y.T, label=label)
+
     def draw(self):
         twin = any(map(lambda x: x.twin, self.datas))
         if twin and len(self.fig.axes) < 2:
@@ -508,10 +515,10 @@ class Interact(QtGui.QMainWindow):
             xtext = self.get_key(d.xmenu)
             if isinstance(d.labels, list):
                 for i, l in enumerate(d.labels):
-                    axes.plot(d.obj[xtext][..., i] * xscale,
+                    self.plot(axes, d.obj[xtext][..., i] * xscale,
                               d.obj[text][..., i] * scale, label=l)
             else:
-                axes.plot(d.obj[xtext] * xscale, d.obj[text] * scale,
+                self.plot(axes, d.obj[xtext] * xscale, d.obj[text] * scale,
                           label=d.labels)
             axes.set_xlabel('')
             x.append(xtext + ' (' + d.name + ')')
