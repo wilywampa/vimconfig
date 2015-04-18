@@ -533,14 +533,35 @@ if has('python')
 endif
 
 if has('python') && !exists('*FixImports()')
+python << EOF
+import vim
+
+
+def get_missing():
+    messages = [(m['lnum'], m['text']) for m in
+                vim.eval('copy(g:PymodeLocList.current()._loclist)')]
+    missing = [m.replace("E0602 undefined name '", '').split("'")[0].strip()
+               for _, m in messages if 'E0602' in m]
+    return sorted(missing)
+
+
+EOF
 function! FixImports()
-  PymodePython code_check()
-  let loclist = g:PymodeLocList.current()
-  let messages = copy(loclist._loclist)
-  if exists('g:python_autoimport_debug_file')
-    execute 'pyfile '.fnameescape(g:python_autoimport_debug_file)
-  else
-    python << EOF
+  let missing = []
+  let l:count = 0
+  while 1
+    PymodePython code_check()
+    if l:count > 10 || (l:count > 0 && pyeval('get_missing()') == missing)
+      break
+    endif
+    let l:count += 1
+    let missing = pyeval('get_missing()')
+    let loclist = g:PymodeLocList.current()
+    let messages = copy(loclist._loclist)
+    if exists('g:python_autoimport_debug_file')
+      execute 'pyfile '.fnameescape(g:python_autoimport_debug_file)
+    else
+      python << EOF
 import ast
 import imp
 import itertools
@@ -702,6 +723,7 @@ froms = {
         'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
         'merge_dicts', 'pad', 'picker', 'resize', 'savepdf', 'savesvg',
         'unique_legend', 'varinfo'],
+    're': ['findall', 'match', 'search', 'sub'],
     'scipy.constants': [
         'degree', 'foot', 'g', 'inch', 'kmh', 'knot', 'lb', 'lbf', 'mach',
         'mph', 'nautical_mile', 'pound', 'pound_force', 'psi',
@@ -767,6 +789,7 @@ for miss in set(missing):
 
 lines = []
 for i in imports:
+    i.names[:] = list(set(i.names))
     if not i.module:
         if i.alias:
             lines.append(['import {module} as {alias}'.format(
@@ -807,7 +830,8 @@ if not lines:
     while re.match(r'^\s*$', vim.current.buffer[0]):
         vim.current.buffer[:2] = [vim.current.buffer[1]]
 EOF
-  endif
+    endif
+  endwhile
   call pymode#lint#check()
 endfunction
 endif
