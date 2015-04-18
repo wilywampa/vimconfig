@@ -1,9 +1,10 @@
 from numpy import einsum as _einsum
-from numpy import empty as _empty
+from numpy import zeros as _zeros
 
-eijk = _empty((3, 3, 3))
+eijk = _zeros((3, 3, 3))
 eijk[0, 1, 2] = eijk[1, 2, 0] = eijk[2, 0, 1] = 1
 eijk[0, 2, 1] = eijk[2, 1, 0] = eijk[1, 0, 2] = -1
+eijk.flags.writeable = False
 
 
 def dot(a, b):

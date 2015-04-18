@@ -657,6 +657,7 @@ except KeyError:
 froms = {
     'contextlib': ['contextmanager'],
     'copy': ['copy', 'deepcopy'],
+    'ein': ['eijk'],
     'itertools': [
         'chain', 'combinations', 'combinations_with_replacement', 'dropwhile',
         'ifilter', 'imap', 'islice', 'izip', 'izip_longest', 'permutations',
