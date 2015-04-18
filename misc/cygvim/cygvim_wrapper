@@ -1,6 +1,5 @@
-#!/bin/sh
+#!/bin/zsh
+export PATH=$HOME/bin:$PATH
 file=$(cygpath -ua "$@")
-vim --serverlist | grep -q '\bVIM\b' 2>&1 > /dev/null
-if [ $? -eq 0 ]; then
-  vim --servername $VIMSERVER --remote "$file"
-fi
+vim --serverlist | grep -q 'VIM' && \
+  vim --servername VIM --cmd "set history=5000" --remote "$file"
