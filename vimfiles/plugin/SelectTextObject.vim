@@ -63,7 +63,7 @@ func! s:SelectTextObject(obj, motion, visual)
         endif
       endif
     elseif stridx(line, left) == -1 && stridx(line, right) == -1
-      let linewise = 1
+      let linewise = s:GetLinewise(left, right)
     endif
 
     " Need to manually select character if single character in pair for inner motion
@@ -92,6 +92,26 @@ func! s:CursorInPair(left, right)
   else
     return 0
   endif
+endfunc
+
+func! s:GetLinewise(left, right)
+  let curpos = getpos('.')
+  let cb_save = &clipboard
+  set clipboard=
+  let reg_save = @@
+  try
+    execute "normal! v\<Esc>vi".a:right."y"
+    if match(@@, "\n$") == -1
+      return stridx(getline("'<"), a:left) == -1 &&
+          \  stridx(getline("'>"), a:right) == -1
+    else
+      return 1
+    endif
+  finally
+    call setpos('.',curpos)
+    let &clipboard = cb_save
+    let @@ = reg_save
+  endtry
 endfunc
 
 onoremap ib :<C-u>call <SID>SelectTextObject('b','i',0)<CR>
