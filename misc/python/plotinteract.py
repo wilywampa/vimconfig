@@ -2,6 +2,8 @@ from __future__ import division
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
 import matplotlib as mpl
+from collections import Iterable
+from types import StringTypes
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg as FigureCanvas,
@@ -686,7 +688,8 @@ def create(*data, **kwargs):
 
     # Backwards compatibility
     for d in data:
-        if len(d) == 4 and isinstance(d[-1], list):
+        if len(d) == 4 and (isinstance(d[-1], Iterable) and
+                            not isinstance(d[-1], StringTypes)):
             d[-2] = {'xname': d[-2], 'labels': d[-1]}
             d.pop()
         elif len(d) >= 3 and isinstance(d[2], basestring):
