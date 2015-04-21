@@ -228,15 +228,32 @@ EOF
     endif
   endfunction
 
-  function! s:IPyEval(replace)
+  function! s:IPyEval(mode)
+    " mode 0 = copy to clipboard
+    " mode 1 = replace visual selection
+    " mode 2 = expression register-like
     call SaveRegs()
-    normal! gvy
-    let g:ipy_input = @@
-    python eval_to_register()
-    if a:replace
-      normal! gvp
-      call RestoreRegs()
-    endif
+    try
+      if a:mode != 2
+        normal! gvy
+        let g:ipy_input = @@
+      else
+        let g:ipy_input = input('>>> ')
+      endif
+      python eval_to_register()
+      if a:mode == 1
+        normal! gvp
+      elseif a:mode == 2
+        return @@
+      endif
+    finally
+      if a:mode != 0
+        call RestoreRegs()
+      else
+        echohl Question | echo 'Yanked:' | echohl Normal
+        echo @@
+      endif
+    endtry
   endfunction
 
   function! s:IPyRunScratchBuffer()
@@ -288,8 +305,9 @@ xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>IPyPrintVar()<CR>
 xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
 nnoremap <silent> <buffer> <M-P> :<C-u>call <SID>IPyVarInfo(1)<CR>
 xnoremap <silent> <buffer> K     :<C-u>call <SID>IPyGetHelp()<CR>
-xnoremap <silent> <buffer> <M-e> :<C-u>call <SID>IPyEval(1)<CR>
 xnoremap <silent> <buffer> <M-y> :<C-u>call <SID>IPyEval(0)<CR>
+xnoremap <silent> <buffer> <M-e> :<C-u>call <SID>IPyEval(1)<CR>
+inoremap <silent>          <C-r>? <C-r>=<SID>IPyEval(2)<CR>
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
