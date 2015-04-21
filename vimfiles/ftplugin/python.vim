@@ -571,7 +571,8 @@ import tokenize
 import vim
 from collections import namedtuple
 
-Import = namedtuple('Import', ['module', 'names', 'alias', 'lrange'])
+Import = namedtuple('Import',
+                    ['module', 'names', 'asnames', 'alias', 'lrange'])
 
 imports = []
 start = None                   # Start of import block near top of file
@@ -647,10 +648,9 @@ for node in ast.iter_child_nodes(root):
             blank = len(vim.current.buffer)
     start = start or first or first_from
 
-    imports.append(
-        Import(
-            module, [n.name for n in node.names],
-            n.asname, (node.lineno, end)))
+    imports.append(Import(module=module, names=[n.name for n in node.names],
+                          asnames=[n.asname or n.name for n in node.names],
+                          alias=n.asname, lrange=(node.lineno, end)))
 
 messages = [(m['lnum'], m['text']) for m in vim.eval('messages')]
 unused = {int(k): v.replace("W0611 '", '').split("'")[0]
@@ -659,6 +659,7 @@ missing = [m.replace("E0602 undefined name '", '').split("'")[0].strip()
            for _, m in messages if 'E0602' in m]
 
 aliases = dict(
+    it='itertools',
     mpl='matplotlib',
     np='numpy',
     opt='scipy.optimize',
@@ -679,10 +680,13 @@ froms = {
     'contextlib': ['contextmanager'],
     'copy': ['copy', 'deepcopy'],
     'ein': ['eijk'],
+    'functools': [
+        'cmp_to_key', 'partial', 'total_ordering', 'update_wrapper', 'wraps'],
     'itertools': [
-        'chain', 'combinations', 'combinations_with_replacement', 'dropwhile',
-        'ifilter', 'imap', 'islice', 'izip', 'izip_longest', 'permutations',
-        'product', 'starmap', 'takewhile', 'tee'],
+        'chain', 'combinations', 'combinations_with_replacement', 'compress',
+        'count', 'cycle', 'dropwhile', 'groupby', 'ifilter', 'ifilterfalse',
+        'imap', 'islice', 'izip', 'izip_longest', 'permutations', 'product',
+        'repeat', 'starmap', 'takewhile', 'tee'],
     'matplotlib.pyplot': [
         'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',
         'cla', 'clf', 'clim', 'close', 'colorbar', 'colormaps', 'colors',
@@ -716,6 +720,7 @@ froms = {
         'seterr', 'sin', 'sinc', 'sinh', 'sqrt', 'squeeze', 'std', 'take',
         'tan', 'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize',
         'vstack', 'where', 'zeros'],
+    'numpy.core.records': ['fromarrays'],
     'numpy.linalg': [
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'norm', 'solve',
         'svd', 'tensorinv', 'tensorsolve'],
@@ -730,6 +735,21 @@ froms = {
         'speed_of_sound'],
     'time': ['time'],
 }
+
+froms_as = dict(
+    acos=('numpy', 'arccos'),
+    acosh=('numpy', 'arccosh'),
+    asin=('numpy', 'arcsin'),
+    asinh=('numpy', 'arcsinh'),
+    atan=('numpy', 'arctan'),
+    atan2=('numpy', 'arctan2'),
+    atanh=('numpy', 'arctanh'),
+)
+
+try:
+    froms_as.update(vim.vars['python_autoimport_froms_as'])
+except KeyError:
+    pass
 
 try:
     for k, v in vim.vars['python_autoimport_froms'].items():
@@ -759,37 +779,50 @@ for ttype, tstr, _, _, _ in tokenize.generate_tokens(readline.next):
         tokens.add(tstr)
 
 for i in imports:
-    if any(map(lambda n: n in unused.values(), i.names)):
+    if any(map(lambda n: n in unused.values(), i.asnames)):
         remove_unused(i)
         for i2 in imports:
             if i.lrange[-1] == i2.lrange[0]:
                 remove_unused(i2)
 
-imports = [i for i in imports if i.names and i.alias not in unused.values()]
+imports = [i for i in imports if i.asnames and i.alias not in unused.values()]
 
+names = set(itertools.chain(*[i.asnames + [i.alias] for i in imports]))
+missing = list(set(missing) - names)
 for miss in set(missing):
     if miss in aliases:
         imports.append(Import(module=[], names=[aliases[miss]],
-                              alias=miss, lrange=()))
+                              asnames=[aliases[miss]], alias=miss, lrange=()))
     elif miss in itertools.chain(*froms.values()):
         m = [m for m, v in froms.items() if miss in v][0]
         i = [i for i in imports if m == i.module]
         if i:
             i[0].names.append(miss)
+            i[0].asnames.append(miss)
         else:
-            imports.append(Import(module=m, names=[miss],
+            imports.append(Import(module=m, names=[miss], asnames=[miss],
+                                  alias=None, lrange=()))
+    elif miss in froms_as:
+        m, n = froms_as[miss]
+        i = [i for i in imports if m == i.module]
+        if i:
+            i[0].names.append(n)
+            i[0].asnames.append(miss)
+        else:
+            imports.append(Import(module=m, names=[n], asnames=[miss],
                                   alias=None, lrange=()))
     else:
         try:
             imp.find_module(miss)
-            imports.append(Import(module=[], names=[miss],
+            imports.append(Import(module=[], names=[miss], asnames=[miss],
                                   alias=None, lrange=()))
         except ImportError:
             pass
 
 lines = []
 for i in imports:
-    i.names[:] = list(set(i.names))
+    names = set(zip(i.names, i.asnames))
+    i.names[:], i.asnames[:] = zip(*names)
     if not i.module:
         if i.alias:
             lines.append(['import {module} as {alias}'.format(
@@ -798,7 +831,9 @@ for i in imports:
             lines.append(['import {module}'.format(module=i.names[0])])
     else:
         newline = 'from {module} import ({names})'.format(
-            module=i.module, names=', '.join(sorted(i.names)))
+            module=i.module, names=', '.join(sorted(
+            [('{0}' if name[0] == name[1] else '{0} as {1}').format(*name)
+             for name in names], key=lambda s: s.split()[-1])))
         if len(newline) <= 80:
             lines.append([newline.replace('(', '').replace(')', '')])
         else:
