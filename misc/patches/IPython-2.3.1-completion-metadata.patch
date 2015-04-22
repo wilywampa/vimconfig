@@ -1,8 +1,16 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..9eb9b1d 100644
+index b1bc646..675c9dd 100644
 --- a/core/completer.py
 +++ b/core/completer.py
-@@ -74,12 +74,18 @@ import keyword
+@@ -67,6 +67,7 @@ Notes:
+ #-----------------------------------------------------------------------------
+ 
+ import __main__
++import exceptions
+ import glob
+ import inspect
+ import itertools
+@@ -74,12 +75,19 @@ import keyword
  import os
  import re
  import sys
@@ -12,7 +20,8 @@ index b1bc646..9eb9b1d 100644
 +try:
 +    import funcsigs
 +except ImportError:
-+    pass
++    import warnings
++    warnings.warn('funcsigs unavailable')
  
  from IPython.config.configurable import Configurable
  from IPython.core.error import TryNext
@@ -22,7 +31,7 @@ index b1bc646..9eb9b1d 100644
  from IPython.utils.dir2 import dir2
  from IPython.utils.process import arg_split
  from IPython.utils.py3compat import builtin_mod, string_types
-@@ -89,6 +95,38 @@ from IPython.utils.traitlets import CBool, Enum
+@@ -89,6 +97,40 @@ from IPython.utils.traitlets import CBool, Enum
  # Globals
  #-----------------------------------------------------------------------------
  
@@ -30,6 +39,8 @@ index b1bc646..9eb9b1d 100644
 +repr_.maxdict = 0
 +TYPES_LIST = tuple([getattr(types, a)
 +                    for a in dir(types) if isinstance(getattr(types, a), type)])
++EXCEPTIONS = set(filter(lambda e: type(e) == type and issubclass(e, Exception),
++                        [getattr(exceptions, e) for e in dir(exceptions)]))
 +
 +
 +def _hassource(object):
@@ -61,7 +72,7 @@ index b1bc646..9eb9b1d 100644
  # Public API
  __all__ = ['Completer','IPCompleter']
  
-@@ -97,6 +135,7 @@ if sys.platform == 'win32':
+@@ -97,6 +139,7 @@ if sys.platform == 'win32':
  else:
      PROTECTABLES = ' ()[]{}?=\\|;:\'#*"^&'
  
@@ -69,7 +80,7 @@ index b1bc646..9eb9b1d 100644
  #-----------------------------------------------------------------------------
  # Main functions and classes
  #-----------------------------------------------------------------------------
-@@ -426,6 +465,64 @@ def get__all__entries(obj):
+@@ -426,6 +469,64 @@ def get__all__entries(obj):
      return [w for w in words if isinstance(w, string_types)]
  
  
@@ -134,7 +145,7 @@ index b1bc646..9eb9b1d 100644
  class IPCompleter(Completer):
      """Extension of the completer class with IPython-specific features"""
  
-@@ -538,6 +635,7 @@ class IPCompleter(Completer):
+@@ -538,6 +639,7 @@ class IPCompleter(Completer):
                           self.file_matches,
                           self.magic_matches,
                           self.python_func_kw_matches,
@@ -142,7 +153,7 @@ index b1bc646..9eb9b1d 100644
                           ]
  
      def all_completions(self, text):
-@@ -804,6 +902,108 @@ class IPCompleter(Completer):
+@@ -804,6 +906,108 @@ class IPCompleter(Completer):
                      argMatches.append("%s=" %namedArg)
          return argMatches
  
@@ -251,7 +262,7 @@ index b1bc646..9eb9b1d 100644
      def dispatch_custom_completer(self, text):
          #io.rprint("Custom! '%s' %s" % (text, self.custom_completers)) # dbg
          line = self.line_buffer
-@@ -931,8 +1131,75 @@ class IPCompleter(Completer):
+@@ -931,8 +1135,89 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
@@ -269,14 +280,20 @@ index b1bc646..9eb9b1d 100644
 +            try:
 +                assert(isinstance(obj, numpy.ndarray))
 +                matches.append(m + '\0ndarray: ' + str(getattr(obj, 'shape')))
-+            except (AssertionError, AttributeError, NameError):
++            except Exception as e:
++                if type(e) in EXCEPTIONS - set(
++                        [AssertionError, AttributeError, NameError]):
++                    raise
 +                try:
 +                    matches.append(
 +                        m + '\0' + '%s: %s' %
 +                        (type(obj).__name__,
 +                         '.'.join(filter(None, [obj.__module__,
 +                                                obj.__name__]))))
-+                except (AttributeError, KeyError):
++                except Exception as e:
++                    if type(e) in EXCEPTIONS - set(
++                            [AttributeError, KeyError]):
++                        raise
 +                    if type(obj) in TYPES_LIST:
 +                        matches.append(
 +                            m + '\0' + '%s: %s' %
@@ -288,7 +305,9 @@ index b1bc646..9eb9b1d 100644
 +                                m + '\0' +
 +                                '.'.join(filter(None, [type(obj).__module__,
 +                                                       type(obj).__name__])))
-+                        except AttributeError:
++                        except Exception as e:
++                            if type(e) in EXCEPTIONS - set([AttributeError]):
++                                raise
 +                            matches.append(m + '\0' + type(obj).__name__)
 +
 +            info = ''
@@ -297,12 +316,17 @@ index b1bc646..9eb9b1d 100644
 +                    info += obj.__name__ + unicode(
 +                        funcsigs.signature(
 +                            obj)) + '\n\n'
-+                except (AttributeError, KeyError, NameError, TypeError,
-+                        ValueError):
++                except Exception as e:
++                    if type(e) in EXCEPTIONS - set(
++                        [AttributeError, KeyError, NameError, TypeError,
++                         ValueError]):
++                        raise
 +                    try:
-+                        source = inspect.getsource(obj)
-+                    except (IOError, TypeError):
-+                        pass
++                        source = inspect.getsource(obj).decode('utf-8')
++                    except Exception as e:
++                        if type(e) in EXCEPTIONS - set(
++                                [AttributeError, IOError, TypeError]):
++                            raise
 +                    else:
 +                        def_ = re.sub(r'\s+', ' ', re.split(
 +                            r'\)\s*:\s*\n', source)[0]) + ')\n\n'
@@ -312,11 +336,12 @@ index b1bc646..9eb9b1d 100644
 +                            info += def_[6:]
 +
 +            try:
-+                info += inspect.getdoc(obj)
-+            except TypeError:
-+                pass
++                info += inspect.getdoc(obj).decode('utf-8')
++            except Exception as e:
++                if type(e) in EXCEPTIONS - set([AttributeError, TypeError]):
++                    raise
 +
-+            matches[i] += 'CALLSIG' + info.decode('utf-8') if info else ''
++            matches[i] += 'CALLSIG' + info if info else ''
 +
 +            matches[i] = matches[i].replace(
 +                'builtin_function_or_method',
