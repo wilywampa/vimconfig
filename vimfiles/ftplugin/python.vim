@@ -697,6 +697,7 @@ except KeyError:
 froms = {
     'contextlib': ['contextmanager'],
     'copy': ['copy', 'deepcopy'],
+    'datetime': ['date', 'datetime', 'timedelta'],
     'ein': ['eijk'],
     'functools': [
         'cmp_to_key', 'partial', 'total_ordering', 'update_wrapper', 'wraps'],
@@ -784,10 +785,11 @@ def used(name):
 
 
 def remove_unused(i):
-    names = i.names[:]
-    for name in names:
-        if not used(name):
-            i.names.remove(name)
+    for index, (name, asname) in enumerate(zip(i.names[:], i.asnames[:])):
+        if not used(asname):
+            index = i.asnames.index(asname)
+            i.names.pop(index)
+            i.asnames.pop(index)
 
 
 tokens = set()
@@ -840,7 +842,7 @@ for miss in set(missing):
 lines = []
 for i in imports:
     names = set(zip(i.names, i.asnames))
-    i.names[:], i.asnames[:] = zip(*names)
+    i.names[:], i.asnames[:] = zip(*names) if names else ([], [])
     if not i.module:
         if i.alias:
             lines.append(['import {module} as {alias}'.format(
@@ -850,8 +852,8 @@ for i in imports:
     else:
         newline = 'from {module} import ({names})'.format(
             module=i.module, names=', '.join(sorted(
-            [('{0}' if name[0] == name[1] else '{0} as {1}').format(*name)
-             for name in names], key=lambda s: s.split()[-1])))
+                [('{0}' if name[0] == name[1] else '{0} as {1}').format(*name)
+                 for name in names], key=lambda s: s.split()[-1])))
         if len(newline) <= 80:
             lines.append([newline.replace('(', '').replace(')', '')])
         else:
