@@ -551,29 +551,26 @@ if has('python')
 endif
 
 if has('python') && !exists('*FixImports()')
-python << EOF
-import vim
-
-
-def get_missing():
-    messages = [(m['lnum'], m['text']) for m in
-                vim.eval('copy(g:PymodeLocList.current()._loclist)')]
-    missing = [m.replace("E0602 undefined name '", '').split("'")[0].strip()
-               for _, m in messages if 'E0602' in m]
-    return sorted(missing)
-
-
-EOF
 function! FixImports()
   let missing = []
+  let redefined = []
   let l:count = 0
   while 1
     PymodePython code_check()
-    if l:count > 10 || (l:count > 0 && pyeval('get_missing()') == missing)
+    python << EOF
+messages = [(m['lnum'], m['text']) for m in
+    vim.eval('copy(g:PymodeLocList.current()._loclist)')]
+missing = sorted([m.split("'")[1] for _, m in messages if 'E0602' in m])
+redefined = sorted([m.split("'")[1] for _, m in messages if 'W0404' in m])
+EOF
+    if l:count > 10 || (l:count > 0 &&
+        \ pyeval('redefined') == redefined &&
+        \ pyeval('missing') == missing)
       break
     endif
     let l:count += 1
-    let missing = pyeval('get_missing()')
+    let missing = pyeval('missing')
+    let redefined = pyeval('redefined')
     let loclist = g:PymodeLocList.current()
     let messages = copy(loclist._loclist)
     if exists('g:python_autoimport_debug_file')
@@ -625,8 +622,7 @@ def import_len(node):
         if (set([n.name for n in root.body[0].names]) ==
                 set([n.name for n in node.names])):
             break
-        else:
-            if length >= len(vim.current.buffer):
+        elif length >= len(vim.current.buffer):
                 break
         if len(tries) > 1:
             tries.pop(0)
@@ -671,10 +667,11 @@ for node in ast.iter_child_nodes(root):
                           alias=n.asname, lrange=(node.lineno, end)))
 
 messages = [(m['lnum'], m['text']) for m in vim.eval('messages')]
-unused = {int(k): v.replace("W0611 '", '').split("'")[0]
-          for k, v in messages if start <= int(k) <= end and 'W0611' in v}
-missing = [m.replace("E0602 undefined name '", '').split("'")[0].strip()
-           for _, m in messages if 'E0602' in m]
+unused = {int(k): v.split("'")[1] for k, v in messages
+          if start <= int(k) <= end and 'W0611' in v}
+missing = [m.split("'")[1] for _, m in messages if 'E0602' in m]
+redefined = {int(k): v.split("'")[1] for k, v in messages
+             if start <= int(k) <= end and 'W0404' in v}
 
 aliases = dict(
     it='itertools',
@@ -777,6 +774,12 @@ except KeyError:
     pass
 
 
+def remove(i, asname):
+    index = i.asnames.index(asname)
+    i.names.pop(index)
+    i.asnames.pop(index)
+
+
 def used(name):
     if name in unused.values():
         return False
@@ -787,10 +790,13 @@ def used(name):
 def remove_unused(i):
     for index, (name, asname) in enumerate(zip(i.names[:], i.asnames[:])):
         if not used(asname):
-            index = i.asnames.index(asname)
-            i.names.pop(index)
-            i.asnames.pop(index)
+            remove(i, asname)
 
+
+for lnum, r in redefined.items():
+    for i in imports:
+        if r in i.asnames:
+            remove(i, r)
 
 tokens = set()
 readline = (line for line in vim.current.buffer[end:] if line.strip() != '')
