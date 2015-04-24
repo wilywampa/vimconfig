@@ -779,7 +779,7 @@ func! s:Paste() " {{{
     endif
     return "\<C-r>+"
 endfunc " }}}
-noremap <C-v> "+gP
+nnoremap <C-v> "+gP
 cnoremap <expr> <C-v> getcmdtype() == '=' ?
     \ "\<C-r>+" : "\<C-r>=substitute(@+, '\\n', '', 'g')\<CR>"
 imap <expr> <C-v> <SID>Paste()
