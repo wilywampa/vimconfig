@@ -68,7 +68,7 @@ function! s:PyclewnMaps()
     vnoremap <buffer> <silent> <C-p> :<C-u>call SaveRegs()<CR>gvy:C print <C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
     vnoremap <buffer> <silent> <M-p> :<C-u>call SaveRegs()<CR>gvy:C print *<C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
     vnoremap <buffer> <silent> <M-P> :<C-u>call SaveRegs()<CR>gvy:C display <C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
-    nnoremap <buffer> <silent> <M-w> :<C-u>wincmd t<bar>:resize 15<bar>:set winfixheight<bar>
+    nnoremap <buffer> <silent> <M-w> :<C-u>wincmd t<bar>:resize 12<bar>:set winfixheight<bar>
         \ <C-r>=winnr('#') > 0 ? winnr('#').'wincmd w' : ''<CR><bar><C-r>=winnr().'wincmd w'<CR><CR>
     cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'C print':'Cp')
     cnoreabbrev <expr> Cd ((getcmdtype()==':'&&getcmdpos()<=3)?'Cdisplay':'Cd')
