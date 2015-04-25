@@ -76,6 +76,7 @@ compiler ghc
 setlocal omnifunc=necoghc#omnifunc
 setlocal iskeyword+='
 setlocal comments=s1fl:{-,mb:-,ex:-},:-- commentstring=--%s
+setlocal cpoptions+=M
 
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
