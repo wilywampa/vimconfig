@@ -690,7 +690,7 @@ def create(*data, **kwargs):
     for d in data:
         if len(d) == 4 and (isinstance(d[-1], Iterable) and
                             not isinstance(d[-1], StringTypes)):
-            d[-2] = {'xname': d[-2], 'labels': d[-1]}
+            d[-2] = {'xname': d[-2], 'labels': list(d[-1])}
             d.pop()
         elif len(d) >= 3 and isinstance(d[2], basestring):
             if len(d) == 3:
