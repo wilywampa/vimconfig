@@ -723,15 +723,15 @@ froms = {
     'numpy': [
         'allclose', 'alltrue', 'arange', 'arccos', 'arccosh', 'arcsin',
         'arcsinh', 'arctan', 'arctan2', 'arctanh', 'array', 'array_equal',
-        'asarray', 'average', 'column_stack', 'concatenate', 'cos', 'cosh',
-        'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad', 'dot', 'dstack',
-        'dtype', 'einsum', 'empty', 'exp', 'eye', 'fromfile', 'fromiter',
-        'genfromtxt', 'hstack', 'inner', 'isinf', 'isnan', 'isreal',
-        'linspace', 'loadtxt', 'mean', 'median', 'meshgrid', 'mgrid',
-        'nanargmax', 'nanargmin', 'nanmax', 'nanmean', 'nanmedian', 'nanmin',
-        'nanpercentile', 'nanstd', 'nansum', 'nanvar', 'ndarray',
+        'asarray', 'average', 'c_', 'column_stack', 'concatenate', 'cos',
+        'cosh', 'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad', 'dot',
+        'dstack', 'dtype', 'einsum', 'empty', 'exp', 'eye', 'fromfile',
+        'fromiter', 'genfromtxt', 'hstack', 'inner', 'isinf', 'isnan',
+        'isreal', 'linspace', 'loadtxt', 'mean', 'median', 'meshgrid',
+        'mgrid', 'nanargmax', 'nanargmin', 'nanmax', 'nanmean', 'nanmedian',
+        'nanmin', 'nanpercentile', 'nanstd', 'nansum', 'nanvar', 'ndarray',
         'ndenumerate', 'ndfromtxt', 'ndim', 'nditer', 'newaxis', 'ones',
-        'outer', 'pad', 'pi', 'rad2deg', 'random', 'ravel',
+        'outer', 'pad', 'pi', 'r_', 'rad2deg', 'random', 'ravel',
         'ravel_multi_index', 'reshape', 'rot90', 'savez', 'savez_compressed',
         'seterr', 'sin', 'sinc', 'sinh', 'sqrt', 'squeeze', 'std', 'take',
         'tan', 'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize',
@@ -881,8 +881,8 @@ lines = [l for ls in lines for l in ls]
 if start:
     if vim.current.buffer[start-1:end] != lines:
         vim.current.buffer[start-1:end] = lines
-else:
-    if vim.current.buffer[0].startswith('def'):
+elif lines:
+    if re.match(r'^(@|class\s|def\s)', vim.current.buffer[0]):
         lines.extend(['', ''])
     elif re.search(r'\S', vim.current.buffer[0]):
         lines.append('')
