@@ -1280,6 +1280,9 @@ else
     exe "set <S-F9>=\e[20;2~"  | exe "set <S-F10>=\e[21;2~"
     exe "set <S-F11>=\e[23;2~" | exe "set <S-F12>=\e[24;2~"
 
+    " Shift + arrow keys
+    exe "set <S-Left>=\<Esc>[1;2D <S-Right>=\<Esc>[1;2C <S-Down>=\<Esc>[1;2B <S-Up>=\<Esc>[1;2A"
+
     " Change tab in XTerm
     "         <C-Tab>              <C-S-Tab>
     exec "set <F15>=\<Esc>[27;5;9~ <F16>=\<Esc>[27;6;9~"
