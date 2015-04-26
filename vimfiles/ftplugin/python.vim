@@ -237,14 +237,19 @@ EOF
       if a:mode != 2
         normal! gvy
         let g:ipy_input = @@
+        python eval_ipy_input()
       else
         let g:ipy_input = input('>>> ')
+        python eval_ipy_input('g:ipy_result')
+        if g:ipy_result =~ "\<NL>"
+          set paste
+          set pastetoggle=<F10>
+          return "\<C-r>=g:ipy_result\<CR>\<F10>" . (g:ipy_result =~ "\<NL>$" ? "\<BS>" : "")
+        endif
+        return "\<C-r>=g:ipy_result\<CR>"
       endif
-      python eval_to_register()
       if a:mode == 1
         normal! gvp
-      elseif a:mode == 2
-        return @@
       endif
     finally
       if a:mode != 0
@@ -307,7 +312,7 @@ nnoremap <silent> <buffer> <M-P> :<C-u>call <SID>IPyVarInfo(1)<CR>
 xnoremap <silent> <buffer> K     :<C-u>call <SID>IPyGetHelp()<CR>
 xnoremap <silent> <buffer> <M-y> :<C-u>call <SID>IPyEval(0)<CR>
 xnoremap <silent> <buffer> <M-e> :<C-u>call <SID>IPyEval(1)<CR>
-inoremap <silent>          <C-r>? <C-r>=<SID>IPyEval(2)<CR>
+inoremap <silent> <expr>   <C-r>? <SID>IPyEval(2)
 nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
