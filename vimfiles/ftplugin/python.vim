@@ -624,8 +624,8 @@ def import_len(node):
         except SyntaxError:
             length += 1
             continue
-        if (set([n.name for n in root.body[0].names]) ==
-                set([n.name for n in node.names])):
+        if (set([n.asname for n in root.body[0].names]) ==
+                set([n.asname for n in node.names])):
             break
         elif length >= len(vim.current.buffer):
                 break
