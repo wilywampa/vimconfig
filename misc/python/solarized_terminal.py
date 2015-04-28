@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import sys
-
 from pygments.formatter import Formatter
-from pygments.token import Keyword, Name, Comment, String, Error, Text, \
-    Number, Operator, Generic, Whitespace, Other, Literal, Punctuation
+from pygments.token import (Comment, Error, Generic, Keyword, Literal,
+                            Name, Number, Operator, Other,
+                            Punctuation, String, Text, Whitespace)
 from pygments.util import get_choice_opt
 
 esc = "\x1b["
@@ -95,22 +95,22 @@ solarized_styles = {
     Keyword.Reserved:       ('darkgreen', 'darkgreen'),
     Keyword.Type:           ('darkgreen', 'darkgreen'),
 
-    Operator:               ('blue',      'blue'),
+    Operator:               ('darkgreen', 'darkgreen'),
     Operator.Word:          ('darkgreen', 'darkgreen'),
 
     Name:                   ('blue',      'blue'),
     Name.Attribute:         ('blue',      'blue'),
     Name.Builtin:           ('darkblue',  'darkblue'),
-    Name.Builtin.Pseudo:    ('brown',     'brown'),
-    Name.Class:             ('darkblue',  'darkblue'),
+    Name.Builtin.Pseudo:    ('darkblue',  'darkblue'),
+    Name.Class:             ('brown',     'brown'),
     Name.Constant:          ('brown',     'brown'),
     Name.Decorator:         ('red',       'red'),
     Name.Entity:            ('red',       'red'),
-    Name.Exception:         ('red',       'red'),
+    Name.Exception:         ('brown',     'brown'),
     Name.Function:          ('darkblue',  'darkblue'),
     Name.Property:          ('darkblue',  'darkblue'),
     Name.Label:             ('blue',      'blue'),
-    Name.Namespace:         ('brown',     'brown'),
+    Name.Namespace:         ('blue',      'blue'),
     Name.Other:             ('blue',      'blue'),
     Name.Tag:               ('darkgreen', 'darkgreen'),
     Name.Variable:          ('red',       'red'),
@@ -135,9 +135,9 @@ solarized_styles = {
     String.Char:            ('teal',      'teal'),
     String.Doc:             ('teal',      'teal'),
     String.Double:          ('teal',      'teal'),
-    String.Escape:          ('*darkred*', '*darkred*'),
+    String.Escape:          ('darkred',   'darkred'),
     String.Heredoc:         ('teal',      'teal'),
-    String.Interpol:        ('*darkred*', '*darkred*'),
+    String.Interpol:        ('darkred',   'darkred'),
     String.Other:           ('teal',      'teal'),
     String.Regex:           ('teal',      'teal'),
     String.Single:          ('teal',      'teal'),
@@ -158,6 +158,7 @@ solarized_styles = {
 
 
 class SolarizedTerminalFormatter(Formatter):
+
     r"""
     Format tokens with ANSI color sequences, for output in a text console.
     Color sequences are terminated at newlines, so that paging the output

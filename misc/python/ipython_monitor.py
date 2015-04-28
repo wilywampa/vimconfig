@@ -1,12 +1,14 @@
+import os
+import sys
 from IPython.kernel import KernelManager
 from IPython.kernel import find_connection_file
-import sys
-import os
 from pygments import highlight
+from pygments.filter import simplefilter
 from pygments.lexers import PythonLexer
+from pygments.token import Name
 try:
-    from solarized_terminal import SolarizedTerminalFormatter \
-        as TerminalFormatter
+    from solarized_terminal import (SolarizedTerminalFormatter as
+                                    TerminalFormatter)
 except ImportError:
     print "Couldn't import solarized terminal formatter"
     from pygments.formatters import TerminalFormatter
@@ -21,6 +23,11 @@ colors = {
     'cyan':     6,
     'white':    7,
 }
+
+types = ['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
+         'complex', 'dict', 'file', 'float', 'frozenset', 'int', 'list',
+         'long', 'object', 'set', 'str', 'super', 'tuple', 'type', 'unichr',
+         'unicode']
 
 connected = False
 km = None
@@ -54,7 +61,17 @@ if len(sys.argv) > 1:
     term = open(sys.argv[1], 'w+')
     sys.stdout = term
 
+
+@simplefilter
+def color_types(self, lexer, stream, options):
+    for ttype, value in stream:
+        if ttype is Name.Builtin and value in types:
+            ttype = Name.Exception
+        yield ttype, value
+
+
 lexer = PythonLexer()
+lexer.add_filter(color_types())
 formatter = TerminalFormatter()
 
 
