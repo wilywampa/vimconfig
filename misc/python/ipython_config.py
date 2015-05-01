@@ -36,5 +36,9 @@ def configure(c):
         'env = {k: v for k, v in os.environ.iteritems()}',
         'exec("del who" if "who" in globals() else "pass")',
         'from collections import Iterable',
+        ('from numpy import (arccos as acos, arccosh as acosh,'
+         '                   arcsin as asin, arcsinh as asinh,'
+         '                   arctan as atan, arctan2 as atan2,'
+         '                   arctanh as atanh, rad2deg as deg)'),
     ]
     map(add, lines)

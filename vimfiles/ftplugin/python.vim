@@ -767,6 +767,7 @@ froms_as = dict(
     atan=('numpy', 'arctan'),
     atan2=('numpy', 'arctan2'),
     atanh=('numpy', 'arctanh'),
+    deg=('numpy', 'rad2deg'),
 )
 
 try:
