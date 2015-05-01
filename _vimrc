@@ -1675,7 +1675,10 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             " Indent if only whitespace behind cursor
             if pumvisible() || getline('.')[col('.')-2] =~ '\S'
                 return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
-                    \: neocomplete#start_manual_complete()
+                    \: (neocomplete#helper#get_force_omni_complete_pos(
+                    \   neocomplete#get_cur_text(1)) >= 0 ?
+                    \      "\<C-x>\<C-o>\<C-r>=neocomplete#mappings#popup_post()\<CR>" :
+                    \      neocomplete#start_manual_complete())
             else
                 return a:dir ? "\<Tab>" : "\<BS>"
             endif
@@ -1690,6 +1693,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
         inoremap <silent> <expr> <C-l>      neocomplete#complete_common_string()
         inoremap <silent> <expr> <C-x><C-w> neocomplete#sources#words#start()
+        nnoremap <silent> ,n :<C-u>NeoCompleteToggle<CR>
         " Make <BS> delete letter instead of clearing completion
         inoremap <BS> <BS>
         execute 'inoremap <C-Tab> '.repeat('<C-n>', 10)
