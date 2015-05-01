@@ -697,6 +697,7 @@ except KeyError:
     pass
 
 froms = {
+    'collections': ['defaultdict', 'deque', 'namedtuple'],
     'contextlib': ['contextmanager'],
     'copy': ['copy', 'deepcopy'],
     'datetime': ['date', 'datetime', 'timedelta'],
@@ -731,16 +732,16 @@ froms = {
         'asarray', 'average', 'c_', 'column_stack', 'concatenate', 'cos',
         'cosh', 'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad', 'dot',
         'dstack', 'dtype', 'einsum', 'empty', 'exp', 'eye', 'fromfile',
-        'fromiter', 'genfromtxt', 'hstack', 'inner', 'isinf', 'isnan',
-        'isreal', 'linspace', 'loadtxt', 'mean', 'median', 'meshgrid',
-        'mgrid', 'nanargmax', 'nanargmin', 'nanmax', 'nanmean', 'nanmedian',
-        'nanmin', 'nanpercentile', 'nanstd', 'nansum', 'nanvar', 'ndarray',
-        'ndenumerate', 'ndfromtxt', 'ndim', 'nditer', 'newaxis', 'ones',
-        'outer', 'pad', 'pi', 'r_', 'rad2deg', 'random', 'ravel',
-        'ravel_multi_index', 'reshape', 'rot90', 'savez', 'savez_compressed',
-        'seterr', 'sin', 'sinc', 'sinh', 'sqrt', 'squeeze', 'std', 'take',
-        'tan', 'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize',
-        'vstack', 'where', 'zeros'],
+        'fromiter', 'genfromtxt', 'hstack', 'index_exp', 'inner', 'isinf',
+        'isnan', 'isreal', 'ix_', 'linspace', 'loadtxt', 'mean', 'median',
+        'meshgrid', 'mgrid', 'nanargmax', 'nanargmin', 'nanmax', 'nanmean',
+        'nanmedian', 'nanmin', 'nanpercentile', 'nanstd', 'nansum', 'nanvar',
+        'ndarray', 'ndenumerate', 'ndfromtxt', 'ndim', 'nditer', 'newaxis',
+        'ones', 'outer', 'pad', 'pi', 'r_', 'rad2deg', 'radians', 'random',
+        'ravel', 'ravel_multi_index', 'reshape', 'rot90', 's_', 'savez',
+        'savez_compressed', 'seterr', 'sin', 'sinc', 'sinh', 'sqrt',
+        'squeeze', 'std', 'take', 'tan', 'tanh', 'tile', 'trace',
+        'transpose', 'trapz', 'vectorize', 'vstack', 'where', 'zeros'],
     'numpy.core.records': ['fromarrays'],
     'numpy.linalg': [
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'norm', 'solve',
@@ -749,6 +750,7 @@ froms = {
         'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
         'merge_dicts', 'pad', 'picker', 'resize', 'savepdf', 'savesvg',
         'unique_legend', 'varinfo'],
+    'pprint': ['pprint'],
     're': ['findall', 'match', 'search', 'sub'],
     'scipy.constants': [
         'degree', 'foot', 'g', 'inch', 'kmh', 'knot', 'lb', 'lbf', 'mach',
