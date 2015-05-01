@@ -193,7 +193,7 @@ ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:<C-u>update<CR>'
 vn <silent> <C-s> <C-c>:<C-u>update<CR>
 
 " Redraw the screen, remove search highlighting, and synchronize syntax
-nn <silent> <C-l> :nohl<CR><C-l>
+nn <silent> <expr> <C-l> v:hlsearch ? ':<C-u>nohlsearch<CR>' : '<C-l>'
 nm <silent> g<C-l> :<C-u>syntax sync fromstart<CR><C-l>
 
 " Execute q macro
@@ -1742,7 +1742,7 @@ func! s:SneakMaps() " {{{
             execute mode.'map ,, <Plug>SneakPrevious'
         endfor
         nnoremap <silent> <expr> <C-l> stridx(string(getmatches()), 'SneakPlugin') == -1 ?
-            \ ':<C-u>nohlsearch<CR><C-l>' : sneak#cancel()
+            \ (v:hlsearch ? ':<C-u>nohlsearch<CR>' : '<C-l>') : sneak#cancel()
     endif
 endfunc " }}}
 autocmd VimrcAutocmds VimEnter * call s:SneakMaps()
