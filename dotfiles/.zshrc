@@ -173,6 +173,7 @@ alias loc='locate --regex -i'
 alias ipy='ipython'
 alias pip='noglob pip'
 alias hoogle='hoogle --color'
+alias ssh='ssh -o EscapeChar=none'
 
 #[[[1 Global aliases
 alias -g LL='ls --color=auto -lsh'
