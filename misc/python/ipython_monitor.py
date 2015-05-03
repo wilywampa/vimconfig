@@ -67,6 +67,8 @@ def color_types(self, lexer, stream, options):
     for ttype, value in stream:
         if ttype is Name.Builtin and value in types:
             ttype = Name.Exception
+        elif ttype is Name.Builtin.Pseudo and value in ['True', 'False']:
+            ttype = Name.Constant
         yield ttype, value
 
 
