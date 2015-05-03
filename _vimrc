@@ -1999,11 +1999,10 @@ nnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0)<CR>
 if !exists('g:ag_flags') | let g:ag_flags = '' | endif
 
 " tmux navigator settings
-let g:tmux_navigator_no_mappings=1
-nnoremap <silent> <M-Left>  :TmuxNavigateLeft<CR>
-nnoremap <silent> <M-Down>  :TmuxNavigateDown<CR>
-nnoremap <silent> <M-Up>    :TmuxNavigateUp<CR>
-nnoremap <silent> <M-Right> :TmuxNavigateRight<CR>
+let g:tmux_navigator_no_mappings = 1
+for dir in ['Left', 'Down', 'Up', 'Right'] | for mod in ['S-', 'M-']
+    execute 'nnoremap <silent> <'.mod.dir.'> :<C-u>TmuxNavigate'.dir.'<CR>'
+endfor | endfor
 
 " Vimux settings
 nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
