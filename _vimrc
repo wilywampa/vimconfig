@@ -1806,8 +1806,8 @@ endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_clipboard=1
 let g:unite_kind_cdable_cd_command='Windo cd'
-call s:CreateAbbrev('U', 'Unite -prompt-direction=top -start-insert', ':')
-call s:CreateAbbrev('u', 'Unite -prompt-direction=top -start-insert', ':')
+call s:CreateAbbrev('U', 'Unite -start-insert', ':')
+call s:CreateAbbrev('u', 'Unite -start-insert', ':')
 augroup VimrcAutocmds
     autocmd VimEnter * if exists(':Unite') | call s:UniteSetup() | endif
     autocmd FileType unite call s:UniteSettings()
@@ -1834,7 +1834,7 @@ func! s:UniteSettings() " {{{
     nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()."\<Esc>"
         \.'gg0y$Q'.":\<C-u>Unite -buffer-name=buffers/neomru "
-        \."-prompt-direction=top -unique buffer neomru/file\<CR>"."\<C-r>\""
+        \."-unique buffer neomru/file\<CR>"."\<C-r>\""
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
     imap <buffer> <expr> <C-o>v     unite#do_action('vsplit')
     imap <buffer> <expr> <C-o><C-v> unite#do_action('vsplit')
@@ -1877,31 +1877,31 @@ func! s:UniteSettings() " {{{
     inor <buffer> <expr> <BS> getline('.')[col('.')-3:col('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
     sil! nunmap <buffer> ?
 endfunc " }}}
-nn <silent> "" :<C-u>Unite -prompt-direction=top -start-insert history/yank<CR>
-nn <silent> "' :<C-u>Unite -prompt-direction=top -start-insert register<CR>
-nn <silent> <expr> ,a ":\<C-u>Unite -prompt-direction=top "
+nn <silent> "" :<C-u>Unite -start-insert history/yank<CR>
+nn <silent> "' :<C-u>Unite -start-insert register<CR>
+nn <silent> <expr> ,a ":\<C-u>Unite "
     \."-no-quit -auto-resize grep:".getcwd()."\<CR>"
-nn ,<C-a> :<C-u>Unite -prompt-direction=top -no-quit -auto-resize grep:
+nn ,<C-a> :<C-u>Unite -no-quit -auto-resize grep:
 com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
-nn <silent> ,b :<C-u>Unite -prompt-direction=top bookmark<CR>
-nn <silent> ,vr :Unite -prompt-direction=top -no-quit vimgrep:**/*<CR>
-nn <silent> ,vn :Unite -prompt-direction=top -no-quit vimgrep:**<CR>
-nn <silent> <C-n> :<C-u>Unite -prompt-direction=top -buffer-name=files file_rec/async<CR>
-nn <silent> <C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer<CR>
-nn <silent> g<C-h> :<C-u>Unite -prompt-direction=top -buffer-name=buffers buffer:+<CR>
-nn <silent> <expr> <C-p> ":\<C-u>Unite -prompt-direction=top -buffer-name="
+nn <silent> ,b :<C-u>Unite bookmark<CR>
+nn <silent> ,vr :Unite -no-quit vimgrep:**/*<CR>
+nn <silent> ,vn :Unite -no-quit vimgrep:**<CR>
+nn <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
+nn <silent> <C-h> :<C-u>Unite -buffer-name=buffers buffer<CR>
+nn <silent> g<C-h> :<C-u>Unite -buffer-name=buffers buffer:+<CR>
+nn <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name="
     \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
     \ ? "buffers/" : "")."neomru ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
-nn <silent> <M-p> :<C-u>Unite -prompt-direction=top neomru/directory<CR>
-nn <silent> <C-o> :<C-u>Unite -prompt-direction=top file<CR>
-nn <silent> <M-/> :<C-u>Unite -prompt-direction=top line:forward<CR>
-nn <silent> <M-/> :<C-u>Unite -prompt-direction=top line:backward<CR>
-nn <silent> g<C-p> :<C-u>Unite -prompt-direction=top -buffer-name=neomru neomru/file<CR>
-nn <silent> <F1> :<C-u>Unite -prompt-direction=top mapping<CR>
-nn <silent> <Leader>o :<C-u>Unite outline -prompt-direction=top<CR>
+nn <silent> <M-p> :<C-u>Unite neomru/directory<CR>
+nn <silent> <C-o> :<C-u>Unite file<CR>
+nn <silent> <M-/> :<C-u>Unite line:forward<CR>
+nn <silent> <M-/> :<C-u>Unite line:backward<CR>
+nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
+nn <silent> <F1> :<C-u>Unite mapping<CR>
+nn <silent> <Leader>o :<C-u>Unite outline <CR>
 nn <silent> ,h :<C-u>Unite haskellimport<CR>
-nn <silent> <M-h> :<C-u>Unite -prompt-direction=top history/command<CR>
+nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>w :cclose<bar>lclose<bar>wincmd z<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
@@ -1926,7 +1926,8 @@ endfunc " }}}
 func! s:UniteSetup() " {{{
     call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
-    call unite#custom#profile('default', 'context', {'start_insert': 1, 'direction': 'botright'})
+    call unite#custom#profile('default', 'context',
+        \ {'start_insert': 1, 'direction': 'botright', 'prompt_direction': 'top'})
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
