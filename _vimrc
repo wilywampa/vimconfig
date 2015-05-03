@@ -1147,8 +1147,10 @@ func! s:SaveMarks()
     let s:right_mark = getpos("']")
 endfunc
 func! s:RestoreMarks()
-    call setpos("'[", s:left_mark)
-    call setpos("']", s:right_mark)
+    if exists('s:left_mark') && exists('s:right_mark')
+        call setpos("'[", s:left_mark)
+        call setpos("']", s:right_mark)
+    endif
 endfunc
 autocmd VimrcAutocmds CursorMoved,TextChanged,InsertLeave * call s:SaveMarks()
 autocmd VimrcAutocmds BufWritePost * call s:RestoreMarks()
