@@ -557,9 +557,9 @@ nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels
 silent! nn <unique> . .
 
 " New line when cursor is not at the end of the current line
-ino <silent> <C-j> <C-r>="\<lt>C-o>o"<CR>
+ino <silent> <C-j> <Space><BS><C-r>="\<lt>C-o>o"<CR>
 vno <C-j> <Esc>o
-ino <silent> <C-k> <C-r>="\<lt>C-o>O"<CR>
+ino <silent> <C-k> <Space><BS><C-r>="\<lt>C-o>O"<CR>
 vno <C-k> <Esc>O
 
 " Insert filename tail with <C-r>$ and escape special characters with <C-r>%/#
