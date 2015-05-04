@@ -701,7 +701,7 @@ froms = {
     'contextlib': ['contextmanager'],
     'copy': ['copy', 'deepcopy'],
     'datetime': ['date', 'datetime', 'timedelta'],
-    'ein': ['eijk'],
+    'ein': ['eijk', 'mtimesm', 'mtimesv'],
     'functools': [
         'cmp_to_key', 'partial', 'total_ordering', 'update_wrapper', 'wraps'],
     'itertools': [
