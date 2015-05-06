@@ -589,6 +589,7 @@ im <C-e> <End>
 " Remove trailing whitespace with <CR> (<BS> can delete multiple characters so use <Del>)
 ino <expr> <CR> (getline('.')[:col('.')-2] =~ '\(\S\\|^\)\s\+$' ?
     \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) : '').'<CR>'
+ino \<CR> \<CR>
 " }}}
 
 " {{{ Abbreviations to open help
@@ -974,7 +975,9 @@ cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
 inoremap <C-@> <Esc>"_dT/"_s
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
 inoremap <expr> <M-w> getline('.')[:col('.')-1] =~ '^\S*\s*$' ? '<C-u>' :
-    \ (col('.') == 0 ? '<BS>' : '<Esc>"_dT<Space>"_s')
+    \ (col('.') == 0 ? '<BS>' : (getline('.')[col('.')-2] =~ '\s' ?
+    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) :
+    \ '<Esc>"_dT<Space>"_s'))
 
 " !$ inserts last WORD of previous command
 func! s:LastWord() " {{{
