@@ -681,6 +681,7 @@ redefined = {int(k): v.split("'")[1] for k, v in messages
 aliases = dict(
     it='itertools',
     mpl='matplotlib',
+    linalg='numpy.linalg',
     np='numpy',
     opt='scipy.optimize',
     pickle='cPickle',
@@ -688,7 +689,9 @@ aliases = dict(
     pt='plottools',
     sc='scipy.constants',
     si='scipy.interpolate',
+    signal='scipy.signal',
     sio='scipy.io',
+    spatial='scipy.spatial',
 )
 
 try:
@@ -709,6 +712,7 @@ froms = {
         'count', 'cycle', 'dropwhile', 'groupby', 'ifilter', 'ifilterfalse',
         'imap', 'islice', 'izip', 'izip_longest', 'permutations', 'product',
         'repeat', 'starmap', 'takewhile', 'tee'],
+    'matplotlib.backends.backend_pdf': ['PdfPages'],
     'matplotlib.pyplot': [
         'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',
         'cla', 'clf', 'clim', 'close', 'colorbar', 'colormaps', 'colors',
