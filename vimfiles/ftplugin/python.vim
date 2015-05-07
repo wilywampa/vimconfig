@@ -857,6 +857,33 @@ for miss in set(missing):
         except ImportError:
             pass
 
+
+def duplicates(imports):
+    seen = set()
+    duplicates = []
+    for i in imports:
+        if i.alias is None:
+            if i.module in seen:
+                duplicates.append(i.module)
+            else:
+                seen.add(i.module)
+    return duplicates
+
+
+def combine_duplicates(name):
+    duplicates = [index for index, i in enumerate(imports)
+                  if i.alias is None and i.module == name]
+    new = Import(module=name,
+                 names=[n for i in duplicates for n in imports[i].names],
+                 asnames=[a for i in duplicates for a in imports[i].asnames],
+                 alias=None, lrange=())
+    return [i for index, i in enumerate(imports)
+            if index not in duplicates] + [new]
+
+
+for d in duplicates(imports):
+    imports = combine_duplicates(d)
+
 lines = []
 for i in imports:
     names = set(zip(i.names, i.asnames))
