@@ -2200,6 +2200,9 @@ if !exists('g:neocomplete#sources#omni#input_patterns')
 endif
 let g:neocomplete#sources#omni#input_patterns.tex = '\\\h\w*{'
 
+" vim-exchange settings
+let g:exchange_indent = 1
+
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
