@@ -862,7 +862,7 @@ def duplicates(imports):
     seen = set()
     duplicates = []
     for i in imports:
-        if i.alias is None:
+        if i.module and i.alias is None:
             if i.module in seen:
                 duplicates.append(i.module)
             else:
