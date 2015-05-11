@@ -700,6 +700,7 @@ except KeyError:
     pass
 
 froms = {
+    'bs4': ['BeautifulSoup'],
     'collections': ['defaultdict', 'deque', 'namedtuple'],
     'contextlib': ['contextmanager'],
     'copy': ['copy', 'deepcopy'],
