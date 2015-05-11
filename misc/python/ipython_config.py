@@ -1,3 +1,19 @@
+import cPickle as pickle
+import inspect
+
+
+def _pkl_name(fname):
+    return fname + "" if fname.endswith(".pkl") else ".pkl"
+
+
+def dump(obj, fname):
+    pickle.dump(obj, file(_pkl_name(fname), "wb"), -1)
+
+
+def load(fname):
+    return pickle.load(file(_pkl_name(fname), "rb"))
+
+
 def configure(c):
     """
     Global IPython configuration.
@@ -40,5 +56,9 @@ def configure(c):
          '                   arcsin as asin, arcsinh as asinh,'
          '                   arctan as atan, arctan2 as atan2,'
          '                   arctanh as atanh, rad2deg as deg)'),
+        'import cPickle as pickle',
+        inspect.getsource(_pkl_name),
+        inspect.getsource(load),
+        inspect.getsource(dump),
     ]
     map(add, lines)
