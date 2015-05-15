@@ -1905,6 +1905,7 @@ nn <silent> <F1> :<C-u>Unite mapping<CR>
 nn <silent> <Leader>o :<C-u>Unite outline <CR>
 nn <silent> ,h :<C-u>Unite haskellimport<CR>
 nn <silent> <M-h> :<C-u>Unite history/command<CR>
+nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
 nn <silent> <Leader>w :cclose<bar>lclose<bar>wincmd z<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
