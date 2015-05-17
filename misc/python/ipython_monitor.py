@@ -69,7 +69,12 @@ def color_types(self, lexer, stream, options):
             ttype = Name.Exception
         elif ttype is Name.Builtin.Pseudo and value in ['True', 'False']:
             ttype = Name.Constant
-        yield ttype, value
+
+        if ttype is Name.Decorator:
+            yield ttype, '@'
+            yield Name.Function, value.split('@')[-1]
+        else:
+            yield ttype, value
 
 
 lexer = PythonLexer()
