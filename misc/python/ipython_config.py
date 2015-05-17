@@ -82,5 +82,6 @@ def configure(c):
          '                   arctanh as atanh, rad2deg as deg)'),
         'import cPickle as pickle',
         'from ipython_config import dump, globn, load, sortn, sortnkey',
+        'from __builtin__ import all, min, max, sum, any, abs, round',
     ]
     map(add, lines)
