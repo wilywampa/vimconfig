@@ -11,7 +11,7 @@ if exists('$TMUX')
   xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>ExecuteMotion('visual')<CR>
 
   func! s:ExecuteMotion(type)
-    let zoomed = system("tmux display-message -p '#F'") =~# 'Z'
+    let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
     call VimuxOpenRunner()
     let input = vimtools#opfunc(a:type)
