@@ -513,9 +513,8 @@ cmap <C-b> <Home>
 " Fix @: in visual mode when there is a modifier before the range
 vnoremap <expr> @ @: =~ "\\V'<,'>" ? "\<Esc>@" : "@"
 
-" Synonyms for q: and q/
+" Synonym for q:
 nn g: q:
-nn g/ q/
 
 " Use <C-n>/<C-p> instead of arrows for command line history
 cm <C-p> <Up>
@@ -1906,6 +1905,7 @@ nn <silent> <Leader>o :<C-u>Unite outline <CR>
 nn <silent> ,h :<C-u>Unite haskellimport<CR>
 nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
+nn <silent> g/ :<C-u>Unite line:buffers<CR>
 nn <silent> <Leader>w :cclose<bar>lclose<bar>wincmd z<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
