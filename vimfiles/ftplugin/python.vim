@@ -10,7 +10,13 @@ let b:did_ftplugin = 1
 
 func! s:RunPython()
   if !has('gui_running') && !empty($TMUX)
-    call VimuxRunCommand('python '.expand('%:p'))
+    if !exists("g:VimuxRunnerIndex")
+      echohl WarningMsg
+      echomsg "'g:VimuxRunnerIndex' does not exist"
+      echohl None
+    else
+      call VimuxRunCommand('python '.expand('%:p'))
+    endif
   else
     !python %
   endif
@@ -155,7 +161,6 @@ EOF
     else
       let zoomed = _VimuxTmuxWindowZoomed()
       if zoomed | call system("tmux resize-pane -Z") | endif
-      call VimuxOpenRunner()
       call VimuxSendKeys("q C-u")
       for line in split(input, '\n')
         if line =~ '\S'
