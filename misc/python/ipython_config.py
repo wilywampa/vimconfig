@@ -14,6 +14,30 @@ def load(fname):
     return pickle.load(file(_pkl_name(fname), "rb"))
 
 
+def sortnkey(s):
+    """Split string into numeric components for sorting."""
+    import re
+
+    def tryint(s):
+        try:
+            return int(s)
+        except ValueError:
+            return s
+
+    return [tryint(c) for c in re.split('([0-9]+)', s)]
+
+
+def sortn(xs):
+    """Sort list by numeric components."""
+    return sorted(xs, key=sortnkey)
+
+
+def globn(pathname):
+    """Like glob.glob but try to sort numerically."""
+    from glob import glob
+    return sortn(glob(pathname))
+
+
 def configure(c):
     """
     Global IPython configuration.
@@ -57,8 +81,6 @@ def configure(c):
          '                   arctan as atan, arctan2 as atan2,'
          '                   arctanh as atanh, rad2deg as deg)'),
         'import cPickle as pickle',
-        inspect.getsource(_pkl_name),
-        inspect.getsource(load),
-        inspect.getsource(dump),
+        'from ipython_config import dump, globn, load, sortn, sortnkey',
     ]
     map(add, lines)
