@@ -2180,6 +2180,9 @@ omap im <Plug>(textobj-function-i)
 
 " Haskell plugin settings
 let g:haskellmode_completion_haddock = 0
+let g:hindent_style = "gibiansky"
+let g:haskell_indent_in = 0
+let g:haskell_indent_if = 2
 let maplocalleader = '&'
 if !exists('g:syntastic_quiet_messages')
     let g:syntastic_quiet_messages = {}
