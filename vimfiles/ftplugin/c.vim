@@ -5,7 +5,33 @@ endif
 let b:did_my_ftplugin=1
 
 if executable('astyle')
-  setlocal formatprg=astyle
+  if has("python")
+    setlocal formatexpr=FormatArtisticStyle()
+  else
+    setlocal formatprg=astyle
+  endif
+endif
+
+if has("python")
+  function! FormatArtisticStyle() abort " {{{
+    if !empty(v:char)
+      return 1
+    else
+            python << EOF
+import subprocess
+import vim
+from subprocess import PIPE
+lnum, count = vim.vvars['lnum'] - 1, vim.vvars['count']
+lines = '\n'.join(vim.current.buffer[lnum:lnum+count])
+p = subprocess.Popen('astyle', stdin=PIPE, stdout=PIPE, stderr=PIPE)
+new_lines, err = p.communicate(lines)
+if err:
+    vim.command('echomsg "%s"' % str(err.strip()))
+elif new_lines != lines:
+    vim.current.buffer[lnum:lnum+count] = new_lines.splitlines()
+EOF
+    endif
+  endfunction " }}}
 endif
 
 if exists('$TMUX')
