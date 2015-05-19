@@ -15,7 +15,7 @@ function! s:unite_source.gather_candidates(args, context) abort
         \ '\n'), 'split(v:val, ''\v\s+\ze\S+$'')')
   else
     silent let options = map(split(system(
-        \ 'tmux list-panes -a -F "#I.#P: #F #W (#{pane_current_command}) #D"'),
+        \ 'tmux list-panes -s -F "#I.#P: #F #W (#{pane_current_command}) #D"'),
         \ '\n'), 'split(v:val, ''\v\s+\ze\S+$'')')
   endif
 
