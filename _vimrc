@@ -1288,6 +1288,7 @@ else
 
     " Shift + arrow keys
     exe "set <S-Left>=\<Esc>[1;2D <S-Right>=\<Esc>[1;2C <S-Down>=\<Esc>[1;2B <S-Up>=\<Esc>[1;2A"
+    for d in ['Up', 'Down', 'Right', 'Left'] | execute "inoremap \<S-".d."> \<nop>" | endfor
 
     " Change tab in XTerm
     "         <C-Tab>              <C-S-Tab>
