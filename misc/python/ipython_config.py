@@ -3,7 +3,7 @@ import inspect
 
 
 def _pkl_name(fname):
-    return fname + "" if fname.endswith(".pkl") else ".pkl"
+    return fname + ("" if fname.endswith(".pkl") else ".pkl")
 
 
 def dump(obj, fname):
