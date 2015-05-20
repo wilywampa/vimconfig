@@ -240,10 +240,12 @@ class Picker:
 
     def format_measurement(self, point):
         output = []
-        output.append('dx: %.6g' % (point[0] - self.point[0]))
-        output.append('dy: %.6g' % (point[1] - self.point[1]))
-        output.append('dist: %.6g' % np.linalg.norm(
-            [point[0] - self.point[0], point[1] - self.point[1]]))
+        dx = point[0] - self.point[0]
+        dy = point[1] - self.point[1]
+        output.append(r'$\Delta$x: %.4g' % dx)
+        output.append(r'$\Delta$y: %.4g' % dy)
+        output.append(r'$\theta$: %.4g$^\circ$' % np.rad2deg(np.arctan2(dy, dx)))
+        output.append(r'$|\vec{r}|$: %.4g' % np.linalg.norm([dx, dy]))
         output.append('[%d]' % point[2])
         return "\n".join(output)
 
