@@ -1988,12 +1988,14 @@ func! s:AckCurrentSearch(ignorecase) " {{{
     if @/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$'
         let cmd += ['-w']
     endif
-    if a:ignorecase == 0 | let cmd += ["-s", g:ag_flags, '--', "'".@@."'"] | else
+    if &ignorecase && a:ignorecase
         if @/ =~ '\u'
             let cmd += [g:ag_flags, '--', "'".@@."'"]
         else
             let cmd += [g:ag_flags, '--', "'".tolower(@@)."'"]
         endif
+    else
+        let cmd += ["-s", g:ag_flags, '--', "'".@@."'"]
     endif
     let cmdstr = escape(join(cmd, ' '), '%#')
     execute cmdstr | call histadd(':', cmdstr) | cwindow
