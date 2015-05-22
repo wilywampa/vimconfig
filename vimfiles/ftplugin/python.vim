@@ -152,6 +152,10 @@ EOF
     let input = vimtools#opfunc(a:type)
     if exists('b:did_ipython')
       let g:ipy_input = vimtools#opfunc(a:type)
+      if &buftype == ''
+        let g:ipy_input = substitute(g:ipy_input,
+            \ '__file__', "r'".escape(expand('%:p'), "'")."'", 'g')
+      endif
       if matchstr(g:ipy_input, '[[:print:]]\ze[^[:print:]]*$') == '?'
         call setpos('.', getpos("']"))
         python run_this_line(False)
