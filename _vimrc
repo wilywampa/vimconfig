@@ -525,7 +525,7 @@ cm <C-n> <Down>
 nn _ -
 
 " Go to most recent text change
-nn <silent> g. m':execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR>
+nn <silent> g. m':silent! execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR>
 
 " Delete swap file and reload file
 nn <silent> <Leader>ds :<C-u>call SaveRegs()<CR>:Redir swapname<CR>:call
