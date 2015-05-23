@@ -52,9 +52,14 @@ elseif has('win32unix') || has('win64unix')
 else
 
   func! s:RunMATLAB()
+    if !exists("g:VimuxRunnerIndex")
+      echohl WarningMsg
+      echomsg "'g:VimuxRunnerIndex' does not exist"
+      echohl None
+      return
+    endif
     let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
-    call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("clearfun; cd ".expand('%:p:h')."; try; "
         \.expand('%:t:r')."; catch ME1; errorfile; end")
@@ -65,9 +70,14 @@ else
   endfunc
 
   func! s:RunMotionMATLAB(type)
+    if !exists("g:VimuxRunnerIndex")
+      echohl WarningMsg
+      echomsg "'g:VimuxRunnerIndex' does not exist"
+      echohl None
+      return
+    endif
     let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
-    call VimuxOpenRunner()
     let input = vimtools#opfunc(a:type)
     call VimuxSendKeys("\<C-e>\<C-u>")
     for line in split(input, '\r')
@@ -146,9 +156,14 @@ else
   endfunc
 
   function! s:RunScratchBufferMATLAB()
+    if !exists("g:VimuxRunnerIndex")
+      echohl WarningMsg
+      echomsg "'g:VimuxRunnerIndex' does not exist"
+      echohl None
+      return
+    endif
     let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
-    call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
     for line in range(1, line('$'))
       call VimuxSendText(getline(line))

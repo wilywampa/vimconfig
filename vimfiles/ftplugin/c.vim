@@ -44,9 +44,14 @@ if exists('$TMUX')
   endif
 
   func! s:ExecuteMotion(type)
+    if !exists("g:VimuxRunnerIndex")
+      echohl WarningMsg
+      echomsg "'g:VimuxRunnerIndex' does not exist"
+      echohl None
+      return
+    endif
     let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
-    call VimuxOpenRunner()
     let input = vimtools#opfunc(a:type)
     call VimuxSendKeys("C-e C-u")
     let lines = split(input, "\n")
@@ -71,9 +76,14 @@ if exists('$TMUX')
   endfunc
 
   func! s:IncludeFile()
+    if !exists("g:VimuxRunnerIndex")
+      echohl WarningMsg
+      echomsg "'g:VimuxRunnerIndex' does not exist"
+      echohl None
+      return
+    endif
     let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
-    call VimuxOpenRunner()
     call VimuxSendKeys("C-e C-u")
     call VimuxSendText('#include "'.expand('%:p').'"')
     call VimuxSendKeys("C-m")

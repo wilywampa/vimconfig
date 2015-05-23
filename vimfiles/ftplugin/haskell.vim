@@ -16,9 +16,14 @@ func! s:compare(a, b)
 endfunc
 
 func! s:RunMotionHaskell(type)
+  if !exists("g:VimuxRunnerIndex")
+    echohl WarningMsg
+    echomsg "'g:VimuxRunnerIndex' does not exist"
+    echohl None
+    return
+  endif
   let zoomed = _VimuxTmuxWindowZoomed()
   if zoomed | call system("tmux resize-pane -Z") | endif
-  call VimuxOpenRunner()
   let input = vimtools#opfunc(a:type)
   call VimuxSendKeys("S\<C-e>\<C-u>")
   let lines = filter(split(input, '\n'), 'v:val =~ "\\S"')

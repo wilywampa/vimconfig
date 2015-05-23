@@ -11,9 +11,14 @@ if exists('$TMUX')
   xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>ExecuteMotion('visual')<CR>
 
   func! s:ExecuteMotion(type)
+    if !exists("g:VimuxRunnerIndex")
+      echohl WarningMsg
+      echomsg "'g:VimuxRunnerIndex' does not exist"
+      echohl None
+      return
+    endif
     let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
-    call VimuxOpenRunner()
     let input = vimtools#opfunc(a:type)
     call VimuxSendKeys("S q C-u")
     let lines = split(input, "\n")
