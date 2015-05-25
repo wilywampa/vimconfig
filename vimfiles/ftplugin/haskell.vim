@@ -77,6 +77,8 @@ nnoremap <silent> <buffer> K :<C-u>call Haddock()<CR>
 
 let b:ghc_staticoptions = '-ignore-dot-ghci'
 
+let b:exchange_indent = 1
+
 compiler ghc
 setlocal omnifunc=necoghc#omnifunc
 setlocal iskeyword+='

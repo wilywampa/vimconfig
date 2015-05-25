@@ -2209,7 +2209,7 @@ endif
 let g:neocomplete#sources#omni#input_patterns.tex = '\\\h\w*{'
 
 " vim-exchange settings
-let g:exchange_indent = 1
+let g:exchange_indent = '=='
 
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
@@ -2226,7 +2226,7 @@ Plug 'wilywampa/vim-commentary'
 Plug 'wilywampa/vim-dispatch'
 Plug 'wilywampa/vim-easy-align', {'on': '<Plug>(LiveEasyAlign)'}
 Plug 'wilywampa/vim-eunuch'
-Plug 'tommcdo/vim-exchange'
+Plug 'wilywampa/vim-exchange', {'branch': 'reindent'}
 Plug 'wilywampa/vim-fswitch', {'on': ['FSHere', 'FSSplitBelow', 'FSSplitRight']}
 Plug 'wilywampa/vim-fugitive'
 Plug 'wilywampa/gitv', {'on': 'Gitv'}
