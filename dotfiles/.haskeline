@@ -5,6 +5,7 @@ bind: control-n down
 bind: control-b escape I
 bind: control-e escape A
 bind: control-q q u a l i f i e d
+bind: control-^ escape I : enter
 bind: up meta-k
 bind: down meta-j
 keyseq: "\ESC[1;5D" ctrl-left
