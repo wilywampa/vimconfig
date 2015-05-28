@@ -971,6 +971,7 @@ export EDITOR=vim
 export DATEFMT='%a %d%b%Y %T'
 export VIMSERVER=VIM
 export TAR_OPTIONS='-k'
+export INPUTRC=$HOME/.inputrc
 
 #[[[1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
