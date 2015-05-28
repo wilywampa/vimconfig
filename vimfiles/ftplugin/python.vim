@@ -722,6 +722,7 @@ froms = {
         'count', 'cycle', 'dropwhile', 'groupby', 'ifilter', 'ifilterfalse',
         'imap', 'islice', 'izip', 'izip_longest', 'permutations', 'product',
         'repeat', 'starmap', 'takewhile', 'tee'],
+    'ipython_config': ['dump', 'globn', 'load', 'sortn', 'sortnkey'],
     'matplotlib.backends.backend_pdf': ['PdfPages'],
     'matplotlib.pyplot': [
         'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',
