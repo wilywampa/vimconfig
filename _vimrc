@@ -445,7 +445,7 @@ nn <silent> <C-w>g<C-Space> :lopen<CR>
 nn <silent> <C-w>g<C-@> :lopen<CR>
 
 " Make current buffer a scratch buffer
-nn <silent> <Leader>s :set bt=nofile<CR>
+nn <silent> <Leader>ss :set bt=nofile<CR>
 
 " Echo syntax name under cursor
 nn <silent> <Leader>y :<C-U>exe vimtools#EchoSyntax(v:count)<CR>
