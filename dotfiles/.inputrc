@@ -1,7 +1,4 @@
 # Show auto complete options on first tab press
-set show-all-if-ambiguous on
-set completion-query-items 0
-set page-completions off
 set bell-style none
 set input-meta on
 set output-meta on
@@ -29,3 +26,6 @@ set keymap vi-command
 "\C-^": "A()\C-m"
 "\C-l": clear-screen
 "@:": "\C-p\C-m"
+set show-all-if-ambiguous on
+set completion-query-items 0
+set page-completions off
