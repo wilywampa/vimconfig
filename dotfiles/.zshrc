@@ -925,6 +925,14 @@ _glob-newest() {
 zle -N _glob-newest
 bindkey -M viins 'î' _glob-newest  # <M-n>
 
+undo() {
+    if [[ "$1" == *.un~ ]]; then
+        printf %s "${1:h}"/"${${${1:t}#.}%.un~}"
+    else
+        printf %s "${1:h}"/."${1:t}".un~
+    fi
+}
+
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
 _cursor_bar="\033[5 q"
