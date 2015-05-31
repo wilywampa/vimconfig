@@ -1186,43 +1186,43 @@ onoremap <expr> ? <SID>OmapSlash('?\v')
 
 " Move back/forward by words without breaking undo
 func! s:CharClass(c, big) abort " {{{
-  if a:c =~ '\s'
-    return 0
-  elseif a:c =~ '\k' || a:big
-    return 2
-  else
-    return 1
-  endif
+    if a:c =~ '\s'
+        return 0
+    elseif a:c =~ '\k' || a:big
+        return 2
+    else
+        return 1
+    endif
 endfunc " }}}
 func! s:BackWord(big) abort " {{{
-  let pos = getpos('.')
-  let col = col('.')
-  if col == 1 | return '' | endif
-  let line = getline('.')
-  let col -= 1
-  " Skip white space before the word
-  while col > 1 && s:CharClass(line[col-1], a:big) == 0 | let col -= 1 | endwhile
-  let cls = s:CharClass(line[col-1], a:big)
-  " Move backward to start of this word
-  while col > 1 && s:CharClass(line[col-1], a:big) == cls | let col -= 1 | endwhile
-  " Check for overshoot
-  if cls != s:CharClass(line[col-1], a:big) | let col += 1 | endif
-  return repeat("\<C-g>U\<Left>", pos[2] - col)
+    let pos = getpos('.')
+    let col = col('.')
+    if col == 1 | return '' | endif
+    let line = getline('.')
+    let col -= 1
+    " Skip white space before the word
+    while col > 1 && s:CharClass(line[col-1], a:big) == 0 | let col -= 1 | endwhile
+    let cls = s:CharClass(line[col-1], a:big)
+    " Move backward to start of this word
+    while col > 1 && s:CharClass(line[col-1], a:big) == cls | let col -= 1 | endwhile
+    " Check for overshoot
+    if cls != s:CharClass(line[col-1], a:big) | let col += 1 | endif
+    return repeat("\<C-g>U\<Left>", pos[2] - col)
 endfunc " }}}
 func! s:ForwardWord(big) abort " {{{
-  let pos = getpos('.')
-  let col = col('.')
-  if col == col('$') | return '' | endif
-  let line = getline('.')
-  let cls = s:CharClass(line[col-1], a:big)
-  let col += 1
-  " Go one char past end of current word
-  if cls != 0
-    while col < col('$') && s:CharClass(line[col-1], a:big) == cls | let col += 1 | endwhile
-  endif
-  " Go to next non-white
-  while col < col('$') && s:CharClass(line[col-1], a:big) == 0 | let col += 1 | endwhile
-  return repeat("\<C-g>U\<Right>", col - pos[2])
+    let pos = getpos('.')
+    let col = col('.')
+    if col == col('$') | return '' | endif
+    let line = getline('.')
+    let cls = s:CharClass(line[col-1], a:big)
+    let col += 1
+    " Go one char past end of current word
+    if cls != 0
+        while col < col('$') && s:CharClass(line[col-1], a:big) == cls | let col += 1 | endwhile
+    endif
+    " Go to next non-white
+    while col < col('$') && s:CharClass(line[col-1], a:big) == 0 | let col += 1 | endwhile
+    return repeat("\<C-g>U\<Right>", col - pos[2])
 endfunc " }}}
 inoremap <expr> <C-Left> <SID>BackWord(0)
 inoremap <expr> <M-Left> <SID>BackWord(1)
@@ -2204,7 +2204,7 @@ autocmd VimrcAutocmds FileType plaintex,tex
 let g:LatexBox_completion_close_braces = 0
 let g:tex_flavor = "latex"
 if !exists('g:neocomplete#sources#omni#input_patterns')
-  let g:neocomplete#sources#omni#input_patterns = {}
+    let g:neocomplete#sources#omni#input_patterns = {}
 endif
 let g:neocomplete#sources#omni#input_patterns.tex = '\\\h\w*{'
 
