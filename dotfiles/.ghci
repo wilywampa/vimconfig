@@ -1,4 +1,18 @@
-:set prompt "\ESC[34m%s > \ESC[m"
+import Control.Applicative
+import Control.Monad
+import Data.Array
+import Data.Either
+import Data.Function (on)
+import Data.List
+import Data.List.Split
+import Data.Maybe
+import Data.Numbers.Primes
+import Data.Ratio
+import qualified Data.Map as M
+import qualified Data.Set as S
+
+:set prompt "\ESC[34mλ \ESC[m"
+:set prompt2 "\ESC[34mλ| \ESC[m"
 :set +s
 :set +t
 :def hoogle \x -> return $ ":!hoogle --info \"" ++ x ++ "\""
