@@ -23,7 +23,9 @@ import vim
 from subprocess import PIPE
 lnum, count = vim.vvars['lnum'] - 1, vim.vvars['count']
 lines = '\n'.join(vim.current.buffer[lnum:lnum+count])
-p = subprocess.Popen('astyle', stdin=PIPE, stdout=PIPE, stderr=PIPE)
+args = vim.vars.get('astyle_args', '')
+args = args.split() if isinstance(args, basestring) else list(args)
+p = subprocess.Popen(['astyle'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
 new_lines, err = p.communicate(lines)
 if err:
     vim.command('echomsg "%s"' % str(err.strip()))
