@@ -66,6 +66,7 @@ def configure(c):
         'import plottools as pt',
         'import matplotlib as mpl',
         'import scipy.io as sio',
+        'import operator as op',
         'import os',
         'import re',
         'import subprocess',

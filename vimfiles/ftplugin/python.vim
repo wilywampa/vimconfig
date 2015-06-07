@@ -692,6 +692,7 @@ aliases = dict(
     mpl='matplotlib',
     linalg='numpy.linalg',
     np='numpy',
+    op='operator',
     opt='scipy.optimize',
     pickle='cPickle',
     plt='matplotlib.pyplot',
