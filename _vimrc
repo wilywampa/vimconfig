@@ -1776,6 +1776,7 @@ let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_ignore_pattern = '^\.\|.*\.'.
     \ '\(DS_Store\|a\|bak\|d\|dll\|exe\|hi\|info\|lib\|o\|obj\|pyc\|so\|spi\|swp\)$'
 let g:vimfiler_restore_alternate_file=0
+let g:vimfiler_time_format='%a %d%b%Y %H:%M'
 autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
 func! s:VimfilerSettings() " {{{
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
