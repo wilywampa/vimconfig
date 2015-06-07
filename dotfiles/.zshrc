@@ -1293,7 +1293,7 @@ done
 [[ ! $FPATH =~ 'misc' ]] && _unset+=(FPATH)
 [[ -n $_unset ]] && echo "Unset variables:" ${(j/, /)_unset}
 
-[[ -n $VIMCONFIG ]] && source $VIMCONFIG/misc/extract.plugin.zsh || :
 [[ -z $VIMCONFIG ]] && export VIMCONFIG=$HOME/vimconfig || :
+[[ -e $VIMCONFIG ]] && source $VIMCONFIG/misc/extract.plugin.zsh || :
 
 # vim: set fdm=marker fdl=1 et sw=4 fmr=[[[,]]]:
