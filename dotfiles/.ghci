@@ -11,9 +11,10 @@ import Data.Ratio
 import qualified Data.Map as M
 import qualified Data.Set as S
 
+let replace old new = intercalate new . splitOn old
+
 :set prompt "\ESC[34mλ \ESC[m"
 :set prompt2 "\ESC[34mλ| \ESC[m"
-:set +s
-:set +t
-:def hoogle \x -> return $ ":!hoogle --info \"" ++ x ++ "\""
-:def doc \x -> return $ ":!hoogle --info \"" ++ x ++ "\""
+:def! hoogle \x -> return $ ":!hoogle --info \"" ++ x ++ "\""
+:def! doc \x -> return $ ":!hoogle --info \"" ++ x ++ "\""
+:def! ghci const (System.Environment.getEnvironment >>= maybe (return "") (readFile . (System.FilePath.</> ".ghci")) . lookup "HOME")
