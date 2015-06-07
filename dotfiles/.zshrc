@@ -894,7 +894,9 @@ _edit-command-line() {
     _disable-focus
     print -R - "$PREBUFFER$BUFFER" >$tmpfile
     exec </dev/tty
-    vim -u NONE -i NONE -N --cmd 'set clipboard=' $tmpfile
+    vim -u NONE -i NONE -N --cmd 'set ai bs=indent,eol,start clipboard= et ' \
+        --cmd 'set gd hls ic is nosol nowrap nf=octal sc sm sts=4 sw=4' \
+        --cmd 'ino <C-s> <Esc>:wqa!<CR>' --cmd 'nn <C-s> :wqa!<CR>' $tmpfile
     print -Rz - "$(<$tmpfile)"
     command rm -f $tmpfile
     _enable-focus
