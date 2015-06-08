@@ -899,7 +899,7 @@ func! s:SingleFile() " {{{
     nnoremap <buffer> <S-F5> :execute '!./'.expand('%:r')<CR>
     if executable('clang++') && $CXX ==# '' && $CPPFLAGS ==# ''
         let $CXX = 'clang++'
-        let $CPPFLAGS = '-Wall --std=c++11'
+        let $CXXFLAGS = '-Wall --std=c++11'
     endif
     lcd! %:p:h
 endfunc " }}}
