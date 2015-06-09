@@ -1,2 +1,5 @@
 *.pyc
 *.un~
+*.swp
+misc/cygvim/cygvim.exe
+misc/cygvim/icon.res
