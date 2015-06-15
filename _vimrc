@@ -2196,6 +2196,7 @@ endif
 let g:syntastic_quiet_messages.regex = '^Defaulting the following constraint(s) to type [`‘]Int'.
     \ (get(g:syntastic_quiet_messages, 'regex', '') == '' ?
     \ '' : '\|'.g:syntastic_quiet_messages.regex)
+let g:syntastic_quiet_messages.regex .= '\|The import of .Debug\.Trace. is redundant'
 
 " Prevent folds updating spuriously on first write
 autocmd VimrcAutocmds VimEnter * silent! FastFoldUpdate
