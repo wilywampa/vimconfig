@@ -1,6 +1,6 @@
 import Control.Applicative
 import Control.Monad
-import Data.Array
+import Data.Array hiding ((//))
 import Data.Either
 import Data.Function (on)
 import Data.List
@@ -8,13 +8,23 @@ import Data.List.Split
 import Data.Maybe
 import Data.Numbers.Primes
 import Data.Ratio
+import Text.Printf
+import Text.Show.Pretty
 import qualified Data.Map as M
 import qualified Data.Set as S
 
 let replace old new = intercalate new . splitOn old
+let (//) = div :: Integral a => a -> a -> a
+let first = (\(a, _, _) -> a)
+let second = (\(_, b, _) -> b)
+let third = (\(_, _, c) -> c)
 
 :set prompt "\ESC[34mλ \ESC[m"
 :set prompt2 "\ESC[34mλ| \ESC[m"
 :def! hoogle \x -> return $ ":!hoogle --info \"" ++ x ++ "\""
 :def! doc \x -> return $ ":!hoogle --info \"" ++ x ++ "\""
 :def! ghci const (System.Environment.getEnvironment >>= maybe (return "") (readFile . (System.FilePath.</> ".ghci")) . lookup "HOME")
+:set -interactive-print=Text.Show.Pretty.ppPrint
+:def! pp (\_ -> return ":set -interactive-print=Text.Show.Pretty.ppPrint")
+:def! nopp (\_ -> return ":set -interactive-print=print")
+:def! loadpp (\x -> return $ ":load " ++ x ++ "\n:set -interactive-print=Text.Show.Pretty.ppPrint")
