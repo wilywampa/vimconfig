@@ -41,6 +41,7 @@ if exists('$TMUX')
   nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>ExecuteMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>ExecuteMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>ExecuteMotion('visual')<CR>
+  xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>EvalSelection()<CR>
   if maparg('<S-F5>', 'n') == ''
     nnoremap <silent> <buffer> <S-F5> :<C-u>call <SID>IncludeFile()<CR>
   endif
@@ -90,6 +91,13 @@ if exists('$TMUX')
     call VimuxSendText('#include "'.expand('%:p').'"')
     call VimuxSendKeys("C-m")
     if zoomed | call system("tmux resize-pane -Z") | endif
+  endfunc
+
+  func! s:EvalSelection()
+    call SaveRegs()
+    normal! gvy
+    call VimuxRunCommand(@@)
+    call RestoreRegs()
   endfunc
 endif
 
