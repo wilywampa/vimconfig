@@ -902,7 +902,7 @@ _edit-command-line() {
     _enable-focus
     zle send-break		# Force reload from the buffer stack
 }
-zle -N _edit-command-line; bindkey -M vicmd 'v' _edit-command-line
+zle -N _edit-command-line; bindkey -M vicmd '^F' _edit-command-line
 
 _vared-vipe() {
     LBUFFER='export '${LBUFFER//=/}'="$(echo $'${LBUFFER//=/}' | vipe)"'
@@ -1148,7 +1148,7 @@ TRAPINT() {
 # Ctrl-F opens Vim as command editor
 autoload edit-command-line
 zle -N edit-command-line
-vibindkey '^F' edit-command-line
+vibindkey 'æ' edit-command-line  # <M-f>
 _lineup=$'\e[1A'
 _linedown=$'\e[1B'
 [[ -n $SSH_CLIENT ]] && _hostcolor=9 || _hostcolor=3
