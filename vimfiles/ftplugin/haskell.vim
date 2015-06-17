@@ -85,12 +85,6 @@ setlocal iskeyword+='
 setlocal comments=s1fl:{-,mb:-,ex:-},:-- commentstring=--%s
 setlocal cpoptions+=M
 
-if !exists('g:neocomplete#force_omni_input_patterns')
-    let g:neocomplete#force_omni_input_patterns = {}
-endif
-let g:neocomplete#force_omni_input_patterns.haskell =
-    \ '[^.[:digit:] *\t]\%(\.\|->\)\w*\|\h\w*::\w*\|^\s*import\s\+\(qualified\s\+\)\?q\@!\w*'
-
 silent! call CountJump#Motion#MakeBracketMotion('<buffer>', '', '',
     \ '^\h\k\+\s*::',
     \ '^\ze.*\n^\h\k\+\s*::', 0)
