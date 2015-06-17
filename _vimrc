@@ -426,7 +426,7 @@ if s:hasvimtools
     autocmd VimrcAutocmds FileType vim ino <silent> <buffer> <Leader>x <Esc>:
         \ <C-u>set opfunc=vimtools#SourceMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
     autocmd VimrcAutocmds FileType help,vim xno <silent> <buffer> <C-p> :<C-u>
-        \ call SaveRegs()<CR>gvy:echo string(<C-r>")<bar>call RestoreRegs()<CR>
+        \ call SaveRegs()<CR>gvy:execute 'PP <C-r>"'<bar>call RestoreRegs()<CR>
     xno <silent> <Leader>x  :<C-u>call vimtools#SourceMotion('visual')<CR>
 else
     nn <silent> <Leader>xx :exec getline('.')<CR>
