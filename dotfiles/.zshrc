@@ -900,9 +900,9 @@ _edit-command-line() {
     print -Rz - "$(<$tmpfile)"
     command rm -f $tmpfile
     _enable-focus
-    zle send-break		# Force reload from the buffer stack
+    zle send-break  # Force reload from the buffer stack
 }
-zle -N _edit-command-line; bindkey -M vicmd '^F' _edit-command-line
+zle -N _edit-command-line; vibindkey -M vicmd '^F' _edit-command-line
 
 _vared-vipe() {
     LBUFFER='export '${LBUFFER//=/}'="$(echo $'${LBUFFER//=/}' | vipe)"'
