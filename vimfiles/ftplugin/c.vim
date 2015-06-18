@@ -2,6 +2,10 @@ if exists("b:did_my_ftplugin")
   finish
 endif
 
+if !exists('g:c_execute_prefix')
+  let g:c_execute_prefix = ''
+endif
+
 let b:did_my_ftplugin=1
 
 if executable('astyle')
@@ -68,10 +72,10 @@ if exists('$TMUX')
       call VimuxSendText('#include "'.fname.'"')
     else
       for line in lines[0:-2]
-        call VimuxSendText(line)
+        call VimuxSendText(g:c_execute_prefix . line)
         call VimuxSendKeys("C-m")
       endfor
-      call VimuxSendText(lines[-1])
+      call VimuxSendText(g:c_execute_prefix . lines[-1])
     endif
     call VimuxSendKeys("C-m")
     silent! call repeat#invalidate()
@@ -96,7 +100,7 @@ if exists('$TMUX')
   func! s:EvalSelection()
     call SaveRegs()
     normal! gvy
-    call VimuxRunCommand(@@)
+    call VimuxRunCommand(g:c_execute_prefix . @@)
     call RestoreRegs()
   endfunc
 endif
