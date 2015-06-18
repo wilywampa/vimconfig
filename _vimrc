@@ -116,7 +116,7 @@ func! s:LastActiveWindow() " {{{
     endif
 endfunc " }}}
 autocmd VimrcAutocmds TabLeave * let g:lastTab=tabpagenr()
-nnoremap <silent> <expr> ` g:inCmdwin? ':q<CR>' : ':call <SID>LastActiveWindow()<CR>'
+nnoremap <silent> <expr> ` <SID>inCmdWin()? ':q<CR>' : ':call <SID>LastActiveWindow()<CR>'
 xnoremap <silent> ` :<C-u>call <SID>LastActiveWindow()<CR>
 nnoremap <silent> <Leader>l :exe "tabn ".g:lastTab<CR>
 nnoremap <silent> <Leader>; :exe "tabn ".g:lastTab<CR>
@@ -189,8 +189,8 @@ endif
 
 " {{{ Mappings
 " Save current file if modified or execute command if in command window
-nn <silent> <expr> <C-s> g:inCmdwin? '<CR>' : ':<C-u>update<CR>'
-ino <silent> <expr> <C-s> g:inCmdwin? '<CR>' : '<Esc>:<C-u>update<CR>'
+nn <silent> <expr> <C-s> <SID>inCmdWin()? '<CR>' : ':<C-u>update<CR>'
+ino <silent> <expr> <C-s> <SID>inCmdWin()? '<CR>' : '<Esc>:<C-u>update<CR>'
 vn <silent> <C-s> <C-c>:<C-u>update<CR>
 
 " Redraw the screen, remove search highlighting, and synchronize syntax
@@ -289,9 +289,9 @@ xn <silent> <C-w>] :<C-u>belowright split<CR>gv<C-]>
 
 " Shortcuts for switching tab, including closing command window if it's open
 nn <silent> <expr> <C-Tab>   tabpagenr('$')==1 ?
-    \":sil! call system('tmux next')\<CR>" : (g:inCmdwin? ':q<CR>gt' : 'gt')
+    \":sil! call system('tmux next')\<CR>" : (<SID>inCmdWin()? ':q<CR>gt' : 'gt')
 nn <silent> <expr> <C-S-Tab> tabpagenr('$')==1 ?
-    \":sil! call system('tmux prev')\<CR>" : (g:inCmdwin? ':q<CR>gT' : 'gT')
+    \":sil! call system('tmux prev')\<CR>" : (<SID>inCmdWin()? ':q<CR>gT' : 'gT')
 cno <silent> <expr> <C-Tab> system('tmux next')
 cno <silent> <expr> <C-S-Tab> system('tmux prev')
 vno <silent> <expr> <C-Tab> system('tmux next')
@@ -337,9 +337,9 @@ nn <silent> <C-w><Right>   :<C-u>exe 'tabm+'.v:count1<CR>
 no <C-w><C-c> <NOP>
 
 " Make <C-w><C-q>/<C-w>q close window except the last window
-nn <silent> <expr> <C-w><C-q> g:inCmdwin? ':q<CR>' : '<C-w>c'
-nn <silent> <expr> <C-w>q     g:inCmdwin? ':q<CR>' : '<C-w>c'
-nn <silent> <expr> <C-w><C-w> g:inCmdwin? ':q<CR>' : '<C-w><C-w>'
+nn <silent> <expr> <C-w><C-q> <SID>inCmdWin()? ':q<CR>' : '<C-w>c'
+nn <silent> <expr> <C-w>q     <SID>inCmdWin()? ':q<CR>' : '<C-w>c'
+nn <silent> <expr> <C-w><C-w> <SID>inCmdWin()? ':q<CR>' : '<C-w><C-w>'
 
 " <M-k>/<M-j> deletes blank line above/below
 nn <silent> <M-j> m`:sil +g/\m^\s*$/d<CR>``:noh<CR>:call
@@ -497,8 +497,8 @@ nn <silent> g<F5> :update<CR>:make clean<CR><CR>
 im <F5> <Esc><F5>
 
 " Cycle through previous searches
-nn <silent> <expr> <C-k> (g:inCmdwin? '' : "/\<C-f>".(v:count1 + 1))."k:let @/=getline('.')<CR>"
-nn <silent> <expr> <C-j>  g:inCmdwin? "j:let @/=getline('.')<CR>" : '<C-j>'
+nn <silent> <expr> <C-k> (<SID>inCmdWin()? '' : "/\<C-f>".(v:count1 + 1))."k:let @/=getline('.')<CR>"
+nn <silent> <expr> <C-j>  <SID>inCmdWin()? "j:let @/=getline('.')<CR>" : '<C-j>'
 
 " Don't open fold when jumping to first or last line in diff mode
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
@@ -601,7 +601,7 @@ if s:hasvimtools
     cnorea <expr> h getcmdtype()==':'&&getcmdpos()<=2 ? 'Help':'h'
     cnorea <expr> H getcmdtype()==':'&&getcmdpos()<=2 ? 'Help':'H'
     cnoremap <expr> <Up> getcmdtype()==':'&&getcmdline()=='h' ? '<BS>H<Up>':'<Up>'
-    nmap <silent> <expr> K g:inCmdwin? 'viwK' : ":exec
+    nmap <silent> <expr> K <SID>inCmdWin()? 'viwK' : ":exec
         \ 'Help '.vimtools#HelpTopic()<CR>"
     vnoremap <silent> <expr> K vimtools#OpenHelpVisual()
 endif
@@ -1230,6 +1230,17 @@ inoremap <expr> <C-Left> <SID>BackWord(0)
 inoremap <expr> <M-Left> <SID>BackWord(1)
 inoremap <expr> <C-Right> <SID>ForwardWord(0)
 inoremap <expr> <M-Right> <SID>ForwardWord(1)
+
+" Check if in command line window
+if exists('*getcmdwintype')
+    func! s:inCmdWin() abort " {{{
+        return getcmdwintype() !=# ''
+    endfunc
+else
+    func! s:inCmdWin() abort
+        return g:inCmdwin
+    endfunc " }}}
+endif
 
 " }}}
 
