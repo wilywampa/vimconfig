@@ -15,8 +15,11 @@ function! s:unite_source.gather_candidates(args, context) abort
         \ '\n'), 'split(v:val, ''\v\s+\ze\S+$'')')
   else
     silent let options = map(split(system(
-        \ 'tmux list-panes -s -F "#I.#P: #F #W (#{pane_current_command}) #D"'),
-        \ '\n'), 'split(v:val, ''\v\s+\ze\S+$'')')
+        \ 'tmux list-panes -s -F "#I.#P: #F #W ' .
+        \ '(#{pane_current_command}) #D #{pane_active} #{window_active}"'),
+        \ '\n'), 'split(v:val, ''\s\+\ze%'')')
+    call filter(options, 'v:val[1] !~ " 1 1$"')
+    call map(options, '[v:val[0], split(v:val[1], ''\s'')[0]]')
   endif
 
   return map(options,
