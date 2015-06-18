@@ -22,7 +22,7 @@ nnoremap <silent> <buffer> <CR> :call <SID>ManFlagJump()<CR>
 nnoremap <silent> <buffer> ]] :<C-u>call <SID>ManSectionJump(0, v:count1)<CR>
 nnoremap <silent> <buffer> [[ :<C-u>call <SID>ManSectionJump(1, v:count1)<CR>
 
-function! s:ManFold(lnum)
+function! ManFold(lnum)
     if getline(a:lnum) =~ '^\u\+'
         return '>1'
     elseif getline(a:lnum + 1) =~ '^\u\+'
@@ -31,7 +31,7 @@ function! s:ManFold(lnum)
         return 1
     endif
 endfunction
-setlocal foldmethod=expr foldexpr=s:ManFold(v:lnum) foldlevel=1
+setlocal foldmethod=expr foldexpr=ManFold(v:lnum) foldlevel=1
 nnoremap G G
 
 " Set tmux window title to title of man page
