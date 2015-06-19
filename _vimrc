@@ -2243,7 +2243,7 @@ Plug 'wilywampa/vim-commentary'
 Plug 'wilywampa/vim-dispatch'
 Plug 'wilywampa/vim-easy-align', {'on': '<Plug>(LiveEasyAlign)'}
 Plug 'wilywampa/vim-eunuch'
-Plug 'wilywampa/vim-exchange', {'branch': 'reindent'}
+Plug 'tommcdo/vim-exchange'
 Plug 'wilywampa/vim-fswitch', {'on': ['FSHere', 'FSSplitBelow', 'FSSplitRight']}
 Plug 'wilywampa/vim-fugitive'
 Plug 'wilywampa/gitv', {'on': 'Gitv'}
