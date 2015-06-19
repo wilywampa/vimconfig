@@ -8,9 +8,11 @@ import Data.List.Split
 import Data.Maybe
 import Data.Numbers.Primes
 import Data.Ratio
+import Data.Sequence ((<|), (|>), (><), ViewL(..), ViewR(..))
 import Text.Printf
 import Text.Show.Pretty
 import qualified Data.Map as M
+import qualified Data.Sequence as Seq
 import qualified Data.Set as S
 
 let replace old new = intercalate new . splitOn old
