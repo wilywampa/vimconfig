@@ -76,7 +76,7 @@ alias vims='vim -S ~/session.vis'
 alias vimr='vim -S =(<~/periodic_session.vis)'
 alias gvims='gvim -S ~/session.vis'
 alias ez='vim $(readlink -f ~/.zshrc)'
-alias vno='vim -u NONE -i NONE -N'
+alias vno='vim -u NONE -i NONE -N --cmd "$VIMOPTIONS"'
 
 # svn
 alias svnadd="svn st | grep '^?' | awk '{print \$2}' | s | xargs svn add"
@@ -335,7 +335,7 @@ abbrevs=(
 'vcb'   'cd $VIMCONFIG/vimfiles/bundle'
 'v'     'vim'
 'e'     'vim'
-'vno'   'vim -u NONE -i NONE -N'
+'vno'   'vim -u NONE -i NONE -N --cmd "$VIMOPTIONS"'
 'vp'    'vimpager'
 'ipy'   'ipython'
 'xt'    'xclip -o >& /dev/null || echo -n "not "; echo connected'
@@ -894,15 +894,14 @@ _edit-command-line() {
     _disable-focus
     print -R - "$PREBUFFER$BUFFER" >$tmpfile
     exec </dev/tty
-    vim -u NONE -i NONE -N --cmd 'set ai bs=indent,eol,start clipboard= et ' \
-        --cmd 'set gd hls ic is nosol nowrap nf=octal sc sm sts=4 sw=4' \
+    vim -u NONE -i NONE -N --cmd "$VIMOPTIONS" \
         --cmd 'ino <C-s> <Esc>:wqa!<CR>' --cmd 'nn <C-s> :wqa!<CR>' $tmpfile
     print -Rz - "$(<$tmpfile)"
     command rm -f $tmpfile
     _enable-focus
     zle send-break  # Force reload from the buffer stack
 }
-zle -N _edit-command-line; vibindkey -M vicmd '^F' _edit-command-line
+zle -N _edit-command-line; vibindkey '^F' _edit-command-line
 
 _vared-vipe() {
     LBUFFER='export '${LBUFFER//=/}'="$(echo $'${LBUFFER//=/}' | vipe)"'
@@ -984,6 +983,8 @@ export DATEFMT='%a %d%b%Y %T'
 export VIMSERVER=VIM
 export TAR_OPTIONS='-k'
 export INPUTRC=$HOME/.inputrc
+export VIMOPTIONS="set ai bs=indent,eol,start clipboard= et gd hls ic is \
+    nosol nowrap nf=hex nu rnu sc sm sts=4 sw=4 wmnu wim=longest:full,full"
 
 #[[[1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
