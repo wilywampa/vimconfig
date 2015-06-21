@@ -729,7 +729,7 @@ func! Redir(cmd) " {{{
     let @+=@"
 endfunc " }}}
 command! -nargs=+ -complete=command Redir call Redir(<q-args>)
-nnoremap <Leader>r :<C-r>:<Home>Redir <CR>
+nnoremap <Leader>R :<C-r>:<Home>Redir <CR>
 
 " Function to removing trailing carriage return from register
 func! s:FixReg() " {{{
