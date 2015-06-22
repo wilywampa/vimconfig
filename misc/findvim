@@ -16,7 +16,7 @@ vim --serverlist | grep -q "\b${VIMSERVER:-VIM}\b" 2>&1 > /dev/null
 if [ $? -eq 0 ]; then
   if [[ $# == 0 ]] && [[ -n "$stdin" ]]; then
     panepwd=$(tmux display-message -p "#{pane_current_path}")
-    if [[ -e "${stdin/\~/$HOME}" ]]; then
+    if [[ "${stdin/\~/$HOME}" != ./* && -e "${stdin/\~/$HOME}" ]]; then
       vim --servername ${VIMSERVER:-VIM} --remote "${stdin/\~/$HOME}"
     elif [[ -d "$panepwd" ]] && [[ -f "$panepwd"/"${${stdin#./}#/}" ]]; then
       vim --servername ${VIMSERVER:-VIM} --remote "$panepwd"/"${${stdin#./}#/}"
