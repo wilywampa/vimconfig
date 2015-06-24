@@ -89,14 +89,12 @@ else
   endfunc
 
   func! s:UpdateDictionaryMATLAB()
-    call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("gendict")
     call VimuxSendKeys("\<CR>")
   endfunc
 
   func! s:GetHelpMATLAB()
-    call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText('help '.expand('<cword>'))
     call VimuxSendKeys("\<CR>")
@@ -106,7 +104,6 @@ else
   func! s:PrintVarMATLAB()
     call SaveRegs()
     normal! gvy
-    call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText(@")
     call VimuxSendKeys("\<CR>")
@@ -116,7 +113,6 @@ else
   func! s:PrintVarInfoMATLAB()
     call SaveRegs()
     normal! gvy
-    call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("varinfo('".substitute(@","'","''","g")."')")
     call VimuxSendKeys("\<CR>")
@@ -124,14 +120,12 @@ else
   endfunc
 
   func! s:CloseFiguresMATLAB()
-    call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("close all;")
     call VimuxSendKeys("\<CR>")
   endfunc
 
   func! s:ClearWorkspaceMATLAB()
-    call VimuxOpenRunner()
     call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("fclose all; close all; clear all;")
     call VimuxSendKeys("\<CR>")

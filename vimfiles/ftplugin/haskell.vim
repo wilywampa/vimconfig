@@ -60,7 +60,6 @@ endfunc
 func! s:EvalSelection()
   call SaveRegs()
   normal! gvy
-  call VimuxOpenRunner()
   call VimuxSendKeys("\<Esc>S")
   call VimuxSendText(@@)
   call VimuxSendKeys("\<CR>")
