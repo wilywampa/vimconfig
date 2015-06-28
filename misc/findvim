@@ -21,6 +21,7 @@ if [ $? -eq 0 ]; then
     elif [[ -d "$panepwd" ]] && [[ -f "$panepwd"/"${${stdin#./}#/}" ]]; then
       vim --servername ${VIMSERVER:-VIM} --remote "$panepwd"/"${${stdin#./}#/}"
     else
+      tmux display-message "${stdin} does not exist"
     fi
   elif [[ $dodiff == 0 ]]; then
     vim --servername ${VIMSERVER:-VIM} --remote "$@"
