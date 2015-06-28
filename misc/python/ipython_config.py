@@ -54,7 +54,13 @@ def configure(c):
     c.TerminalInteractiveShell.confirm_exit = False
     c.PromptManager.color_scheme = 'Linux'
     c.IPCompleter.greedy = True
-    c.IPythonWidget.syntax_style = "solarizedlight"
+    try:
+        import pygments.styles
+    except ImportError:
+        pass
+    else:
+        if "solarizedlight" in pygments.styles.get_all_styles():
+            c.IPythonWidget.syntax_style = "solarizedlight"
 
     def add(item):
         if item not in c.InteractiveShellApp.exec_lines:
@@ -62,27 +68,27 @@ def configure(c):
 
     lines = [
         'from __future__ import division',
-        'from plottools import *',
-        'import plottools as pt',
+        'import cPickle as pickle',
+        'import itertools as it',
         'import matplotlib as mpl',
-        'import scipy.io as sio',
+        'import numpy as np',
         'import operator as op',
         'import os',
+        'import plottools as pt',
         'import re',
-        'import subprocess',
-        'import numpy as np',
         'import scipy.constants as sc',
+        'import scipy.io as sio',
+        'import subprocess',
+        'from ipython_config import dump, globn, load, sortn, sortnkey',
+        'from plottools import *',
         ('def setwidth(): os.environ["COLUMNS"] = '
          'subprocess.check_output(["tput", "cols"])'),
         'env = {k: v for k, v in os.environ.iteritems()}',
         'exec("del who" if "who" in globals() else "pass")',
-        'from collections import Iterable',
         ('from numpy import (arccos as acos, arccosh as acosh,'
          '                   arcsin as asin, arcsinh as asinh,'
          '                   arctan as atan, arctan2 as atan2,'
          '                   arctanh as atanh, rad2deg as deg)'),
-        'import cPickle as pickle',
-        'from ipython_config import dump, globn, load, sortn, sortnkey',
         'from __builtin__ import all, min, max, sum, any, abs, round',
     ]
     map(add, lines)
