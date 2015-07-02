@@ -1,19 +1,18 @@
 from __future__ import division
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import SIGNAL
 import matplotlib as mpl
-from collections import Iterable
-from types import StringTypes
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import (
-    FigureCanvasQTAgg as FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.backend_bases import key_press_handler
-import sys
 import numpy as np
 import re
 import scipy.constants as const
+import sys
+from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import SIGNAL
 from itertools import cycle
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as
+                                                FigureCanvas,
+                                                NavigationToolbar2QT
+                                                as NavigationToolbar)
+from matplotlib.figure import Figure
 from mplpicker import picker
 
 if sys.platform == 'darwin':
@@ -25,7 +24,7 @@ else:
 def flatten(d, prefix=''):
     """Join nested keys with '.' and unstack arrays."""
     out = {}
-    for key, value in d.iteritems():
+    for key, value in d.items():
         key = (prefix + '.' if prefix else '') + key
         if isinstance(value, dict):
             out.update(flatten(value, key))
@@ -474,9 +473,9 @@ class Interact(QtGui.QMainWindow):
 
     @staticmethod
     def cla(axes):
-        tight, xmargin, ymargin = (axes._tight, axes._xmargin, axes._ymargin)
+        tight, xmargin, ymargin = axes._tight, axes._xmargin, axes._ymargin
         axes.clear()
-        axes._tight, axes._xmargin, axes._ymargin = (tight, xmargin, ymargin)
+        axes._tight, axes._xmargin, axes._ymargin = tight, xmargin, ymargin
 
     def clear_pickers(self):
         if self.pickers is not None:
@@ -688,8 +687,8 @@ def create(*data, **kwargs):
 
     # Backwards compatibility
     for d in data:
-        if len(d) == 4 and (isinstance(d[-1], Iterable) and
-                            not isinstance(d[-1], StringTypes)):
+        if len(d) == 4 and (isinstance(d[-1], list) or
+                            isinstance(d[-1], tuple)):
             d[-2] = {'xname': d[-2], 'labels': list(d[-1])}
             d.pop()
         elif len(d) >= 3 and isinstance(d[2], basestring):
