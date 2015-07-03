@@ -1469,7 +1469,7 @@ func! s:RestorePrevWin() " {{{
 endfunc " }}}
 
 " Strip ANSI color codes in vimpager for diffs
-let g:ansi_pattern = "\\v\e\\[([0-9]{1,2}(;[0-9]{1,2})?)?[mK]"
+let g:ansi_pattern = "\\v\e\\[([0-9]{1,2}(;[0-9]{1,2})*)?[mK]"
 if exists('vimpager')
     augroup diff_syntax
         autocmd!
