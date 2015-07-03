@@ -27,7 +27,7 @@ def _normalize_indices(a, b, axisa, axisb):
 
 
 def dot(a, b, axisa=0, axisb=0):
-    """Dot product along specified axes of ndarrays."""
+    """Vector dot product along specified axes of ndarrays."""
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     n = a.shape[axisa]
     if n != b.shape[axisb]:
@@ -78,7 +78,11 @@ def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
 
 
 def cross(a, b, axisa=0, axisb=0, axisc=0):
-    """Cross product along specified axes of ndarrays."""
+    """Vector cross product along specified axes of ndarrays."""
+    if (a.ndim != b.ndim and
+            a.shape not in [(2,), (3,)] and
+            b.shape not in [(2,), (3,)]):
+        return _np.cross(a, b, axisa=axisa, axisb=axisb, axisc=axisc)
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     n = a.shape[axisa]
     if n not in [2, 3]:
@@ -136,6 +140,8 @@ if __name__ == '__main__':
     assert_allclose(a[50, 75, :], np.dot(m[:, :, 50, 75], y[50, 75, :]))
     a = mtimesv(m, y, axisa=0, axisb=2, axisc=2, transposea=True)
     assert_allclose(a[50, 75, :], np.dot(m[:, :, 50, 75].T, y[50, 75, :]))
+    z = np.random.uniform(size=(3,))
+    assert_allclose(mtimesv(m, z)[:, 10, 20], np.dot(m[:, :, 10, 20], z))
     b = mtimesm(m, n, axisa=0, axisb=1)
     assert_allclose(b[:, :, 50, 75], np.dot(m[:, :, 50, 75], n[50, :, :, 75]))
     b = mtimesm(m, n, axisa=0, axisb=-3)
@@ -154,3 +160,6 @@ if __name__ == '__main__':
     i = np.random.uniform(size=(20, 2, 30))
     j = cross(h, i, axisa=-1, axisb=1)
     assert_allclose(j[10, 15], np.cross(h[10, 15, :], i[10, :, 15]))
+    y = np.random.uniform(size=(3, 200))
+    assert_allclose(cross(x, y, axisa=1)[:, 10, 20],
+                    np.cross(x[10, :, 20], y[:, 20]))
