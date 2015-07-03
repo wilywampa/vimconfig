@@ -143,7 +143,6 @@ else
         endif
       endfor
       cfirst
-      call system('rm '.errorfile)
     else
       echo 'No error file found'
     endif
