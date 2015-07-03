@@ -69,6 +69,7 @@ def configure(c):
     lines = [
         'from __future__ import division',
         'import cPickle as pickle',
+        'import ein',
         'import itertools as it',
         'import matplotlib as mpl',
         'import numpy as np',
