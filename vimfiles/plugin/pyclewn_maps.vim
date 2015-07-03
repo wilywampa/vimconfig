@@ -48,7 +48,6 @@ function! s:PyclewnMaps()
     nnoremap <buffer> <M-d> :C down<CR>
     nnoremap <M-e> :execute "C clear ".expand('%:p').":".line('.')<CR>
     nnoremap <buffer> <C-n> :C next<CR>
-    nnoremap <buffer> <C-n> :C next<CR>
     nnoremap <buffer> <M-p> :execute "C print ".expand('<cword>')<CR>
     nnoremap <buffer> g<M-p> :execute "C call ".expand('<cword>').".print()"<CR>
     nnoremap <buffer> <M-P> :execute "C display ".expand('<cword>')<CR>
