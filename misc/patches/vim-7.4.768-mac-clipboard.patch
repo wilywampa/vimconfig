@@ -1,7 +1,7 @@
 diff --git a/src/ui.c b/src/ui.c
 --- a/src/ui.c
 +++ b/src/ui.c
-@@ -1396,7 +1396,7 @@
+@@ -1454,7 +1454,7 @@
  clip_gen_own_selection(cbd)
      VimClipboard	*cbd;
  {
@@ -10,7 +10,7 @@ diff --git a/src/ui.c b/src/ui.c
  # ifdef FEAT_GUI
      if (gui.in_use)
  	return clip_mch_own_selection(cbd);
-@@ -1412,7 +1412,7 @@
+@@ -1470,7 +1470,7 @@
  clip_gen_lose_selection(cbd)
      VimClipboard	*cbd;
  {
@@ -19,16 +19,16 @@ diff --git a/src/ui.c b/src/ui.c
  # ifdef FEAT_GUI
      if (gui.in_use)
  	clip_mch_lose_selection(cbd);
-@@ -1428,7 +1428,7 @@
- clip_gen_set_selection(cbd)
-     VimClipboard	*cbd;
- {
+@@ -1497,7 +1497,7 @@
+ 	    return;
+ 	}
+     }
 -#ifdef FEAT_XCLIPBOARD
 +#if defined(FEAT_XCLIPBOARD) && !defined(MACOS_X_UNIX)
  # ifdef FEAT_GUI
      if (gui.in_use)
  	clip_mch_set_selection(cbd);
-@@ -1444,7 +1444,7 @@
+@@ -1513,7 +1513,7 @@
  clip_gen_request_selection(cbd)
      VimClipboard	*cbd;
  {
@@ -37,7 +37,7 @@ diff --git a/src/ui.c b/src/ui.c
  # ifdef FEAT_GUI
      if (gui.in_use)
  	clip_mch_request_selection(cbd);
-@@ -1460,7 +1460,7 @@
+@@ -1529,7 +1529,7 @@
  clip_gen_owner_exists(cbd)
      VimClipboard	*cbd UNUSED;
  {

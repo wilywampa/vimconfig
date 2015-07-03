@@ -1,7 +1,7 @@
-diff -r 2bd96108392e runtime/doc/if_cscop.txt
---- a/runtime/doc/if_cscop.txt	Thu Jan 28 22:58:16 2010 +0100
-+++ b/runtime/doc/if_cscop.txt	Fri Jan 29 16:57:44 2010 +0300
-@@ -257,13 +257,19 @@
+diff --git a/runtime/doc/if_cscop.txt b/runtime/doc/if_cscop.txt
+--- a/runtime/doc/if_cscop.txt
++++ b/runtime/doc/if_cscop.txt
+@@ -256,13 +256,19 @@
  'cscopequickfix' specifies whether to use quickfix window to show cscope
  results.  This is a list of comma-separated values. Each item consists of
  |cscope-find| command (s, g, d, c, t, e, f or i) and flag (+, - or 0).
@@ -18,102 +18,102 @@ diff -r 2bd96108392e runtime/doc/if_cscop.txt
 +Search is performed from start until first command occurrence.
 +The default value is "" (don't use quickfix). The following value
 +seems useful enough: >
- 	:set cscopequickfix=s-,c-,d-,i-,t-,e-
+        :set cscopequickfix=s-,c-,d-,i-,t-,e-
  <
 +Example below will prevent 's' search from jumping to the first location: >
-+	:set cscopequickfix=s-!,c-,t0
++  :set cscopequickfix=s-!,c-,t0
 +<
- 							*cscopetag* *cst*
- If 'cscopetag' set, the commands ":tag" and CTRL-] as well as "vim -t" will
- always use |:cstag| instead of the default :tag behavior.  Effectively, by
-@@ -444,6 +450,22 @@
- 		\:vert scs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
- 	nmap <C-Space><C-Space>d
- 		\:vert scs find d <C-R>=expand("<cword>")<CR><CR>
+                                                        *cscopetag* *cst*
+ If 'cscopetag' is set, the commands ":tag" and CTRL-] as well as "vim -t"
+ will always use |:cstag| instead of the default :tag behavior.  Effectively,
+@@ -453,6 +459,22 @@
+                \:vert scs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
+        nmap <C-Space><C-Space>d
+                \:vert scs find d <C-R>=expand("<cword>")<CR><CR>
 +<
 +
 +Another option would be an interactive mapping like: >
-+	function! MyCsFind(split)
-+	    echo 'Cscope find (c-callers,d-callees,e-grep,f-file,g-def,' .
-+		\'i-incl,s-sym,t-assign): '
-+	    let cmd = getchar()
-+	    exec (a:split ? 'scs' : 'cs') . ' find ' . nr2char(cmd) . ' ' . 
-+		\expand(cmd == 'i' || cmd == 'f' ? '<cfile>' : '<cword>')
-+	endfunction
++  function! MyCsFind(split)
++      echo 'Cscope find (c-callers,d-callees,e-grep,f-file,g-def,' .
++          \'i-incl,s-sym,t-assign): '
++      let cmd = getchar()
++      exec (a:split ? 'scs' : 'cs') . ' find ' . nr2char(cmd) . ' ' . 
++          \expand(cmd == 'i' || cmd == 'f' ? '<cfile>' : '<cword>')
++  endfunction
 +
-+	" ask for search command and use word under cursor
-+	nmap <Leader>cc :call MyCsFind(0)<CR>
-+	" the same plus splitting the window
-+	nmap <Leader>cs :call MyCsFind(1)<CR>
++  " ask for search command and use word under cursor
++  nmap <Leader>cc :call MyCsFind(0)<CR>
++  " the same plus splitting the window
++  nmap <Leader>cs :call MyCsFind(1)<CR>
 +<
  
  ==============================================================================
- 7. Cscope availability and information			*cscope-info*
-diff -r 2bd96108392e src/if_cscope.c
---- a/src/if_cscope.c	Thu Jan 28 22:58:16 2010 +0100
-+++ b/src/if_cscope.c	Fri Jan 29 16:57:44 2010 +0300
-@@ -1265,7 +1265,8 @@
- 		     */
- 		    qi = (bt_quickfix(wp->w_buffer) && wp->w_llist_ref != NULL)
- 			?  wp->w_llist_ref : wp->w_llist;
--		qf_jump(qi, 0, 0, forceit);
-+		if (qfpos[1] != '!')
-+		    qf_jump(qi, 0, 0, forceit);
- 	    }
- 	}
- 	mch_remove(tmp);
-diff -r 2bd96108392e src/option.c
---- a/src/option.c	Thu Jan 28 22:58:16 2010 +0100
-+++ b/src/option.c	Fri Jan 29 16:57:44 2010 +0300
-@@ -6653,18 +6653,43 @@
- 	    p = p_csqf;
- 	    while (*p != NUL)
- 	    {
--		if (vim_strchr((char_u *)CSQF_CMDS, *p) == NULL
--			|| p[1] == NUL
--			|| vim_strchr((char_u *)CSQF_FLAGS, p[1]) == NULL
--			|| (p[2] != NUL && p[2] != ','))
-+		int ok = FALSE;
-+		if (vim_strchr((char_u *)CSQF_CMDS, *p) != NULL
-+			&& p[1] != NUL
-+			&& vim_strchr((char_u *)CSQF_FLAGS, p[1]) != NULL)
-+		{
-+		    switch (p[2])
-+		    {
-+		    case NUL:
-+			p += 2;
-+			ok = TRUE;
-+			break;
-+		    case ',':
-+			p += 3;
-+			ok = TRUE;
-+			break;
-+		    case '!':
-+			if (p[1] == '0')
-+			    break;
-+			if (p[3] == NUL)
-+			{
-+			    p += 3;
-+			    ok = TRUE;
-+			}
-+			else if (p[3] == ',')
-+			{
-+			    p += 4;
-+			    ok = TRUE;
-+			}
-+			break;
-+		    }
+ 7. Cscope availability and information                 *cscope-info*
+diff --git a/src/if_cscope.c b/src/if_cscope.c
+--- a/src/if_cscope.c
++++ b/src/if_cscope.c
+@@ -1307,7 +1307,8 @@
+                     */
+                    qi = (bt_quickfix(wp->w_buffer) && wp->w_llist_ref != NULL)
+                        ?  wp->w_llist_ref : wp->w_llist;
+-          qf_jump(qi, 0, 0, forceit);
++          if (qfpos[1] != '!')
++              qf_jump(qi, 0, 0, forceit);
+            }
+        }
+        mch_remove(tmp);
+diff --git a/src/option.c b/src/option.c
+--- a/src/option.c
++++ b/src/option.c
+@@ -7033,18 +7033,43 @@
+            p = p_csqf;
+            while (*p != NUL)
+            {
+-          if (vim_strchr((char_u *)CSQF_CMDS, *p) == NULL
+-                  || p[1] == NUL
+-                  || vim_strchr((char_u *)CSQF_FLAGS, p[1]) == NULL
+-                  || (p[2] != NUL && p[2] != ','))
++          int ok = FALSE;
++          if (vim_strchr((char_u *)CSQF_CMDS, *p) != NULL
++                  && p[1] != NUL
++                  && vim_strchr((char_u *)CSQF_FLAGS, p[1]) != NULL)
++          {
++              switch (p[2])
++              {
++              case NUL:
++                  p += 2;
++                  ok = TRUE;
++                  break;
++              case ',':
++                  p += 3;
++                  ok = TRUE;
++                  break;
++              case '!':
++                  if (p[1] == '0')
++                      break;
++                  if (p[3] == NUL)
++                  {
++                      p += 3;
++                      ok = TRUE;
++                  }
++                  else if (p[3] == ',')
++                  {
++                      p += 4;
++                      ok = TRUE;
++                  }
++                  break;
++              }
 +
-+		}
-+		if (!ok)
- 		{
- 		    errmsg = e_invarg;
- 		    break;
- 		}
--		else if (p[2] == NUL)
--		    break;
--		else
--		    p += 3;
- 	    }
- 	}
++          }
++          if (!ok)
+                {
+                    errmsg = e_invarg;
+                    break;
+                }
+-          else if (p[2] == NUL)
+-              break;
+-          else
+-              p += 3;
+            }
+        }
      }

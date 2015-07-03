@@ -11,12 +11,12 @@ This should fix the problem to undo/redo delimate like plugins (hopefully).
 diff --git a/runtime/doc/insert.txt b/runtime/doc/insert.txt
 --- a/runtime/doc/insert.txt
 +++ b/runtime/doc/insert.txt
-@@ -375,6 +375,9 @@ CTRL-O		execute one command, return to I
+@@ -377,6 +377,9 @@
  CTRL-\ CTRL-O	like CTRL-O but don't move the cursor	     *i_CTRL-\_CTRL-O*
  CTRL-L		when 'insertmode' is set: go to Normal mode  *i_CTRL-L*
  CTRL-G u	break undo sequence, start new change	     *i_CTRL-G_u*
 +CTRL-G U	don't break undo with next left/right cursor *i_CTRL-G_U*
-+		(but only, if the cursor stays within same
++		(but only if the cursor stays within same
 +		the line)
  -----------------------------------------------------------------------
  
@@ -24,7 +24,7 @@ diff --git a/runtime/doc/insert.txt b/runtime/doc/insert.txt
 diff --git a/src/edit.c b/src/edit.c
 --- a/src/edit.c
 +++ b/src/edit.c
-@@ -193,7 +193,7 @@ static void insert_special __ARGS((int, 
+@@ -196,7 +196,7 @@
  static void internal_format __ARGS((int textwidth, int second_indent, int flags, int format_only, int c));
  static void check_auto_format __ARGS((int));
  static void redo_literal __ARGS((int c));
@@ -33,7 +33,7 @@ diff --git a/src/edit.c b/src/edit.c
  #ifdef FEAT_SPELL
  static void check_spell_redraw __ARGS((void));
  static void spell_back_to_badword __ARGS((void));
-@@ -233,11 +233,11 @@ static void ins_mousescroll __ARGS((int 
+@@ -236,11 +236,11 @@
  #if defined(FEAT_GUI_TABLINE) || defined(PROTO)
  static void ins_tabline __ARGS((int c));
  #endif
@@ -47,7 +47,7 @@ diff --git a/src/edit.c b/src/edit.c
  static void ins_s_right __ARGS((void));
  static void ins_up __ARGS((int startcol));
  static void ins_pageup __ARGS((void));
-@@ -289,6 +289,8 @@ static int	ins_need_undo;		/* call u_sav
+@@ -292,6 +292,8 @@
  
  static int	did_add_space = FALSE;	/* auto_format() added an extra space
  					   under the cursor */
@@ -56,10 +56,10 @@ diff --git a/src/edit.c b/src/edit.c
  
  /*
   * edit(): Start inserting text.
-@@ -758,6 +760,11 @@ edit(cmdchar, startln, count)
-	 */
-	if (c != K_CURSORHOLD)
-	    lastc = c;		/* remember the previous char for CTRL-D */
+@@ -762,6 +764,11 @@
+ 	 */
+ 	if (c != K_CURSORHOLD)
+ 	    lastc = c;		/* remember the previous char for CTRL-D */
 +
 +	if (stop_sync_undo == MAYBE)	/* cursor might come next */
 +	    stop_sync_undo = TRUE;
@@ -68,7 +68,7 @@ diff --git a/src/edit.c b/src/edit.c
  	do
  	{
  	    c = safe_vgetc();
-@@ -1228,7 +1235,7 @@ doESCkey:
+@@ -1232,7 +1239,7 @@
  	    if (mod_mask & (MOD_MASK_SHIFT|MOD_MASK_CTRL))
  		ins_s_left();
  	    else
@@ -77,7 +77,7 @@ diff --git a/src/edit.c b/src/edit.c
  	    break;
  
  	case K_S_LEFT:	/* <S-Left> */
-@@ -1240,7 +1247,7 @@ doESCkey:
+@@ -1244,7 +1251,7 @@
  	    if (mod_mask & (MOD_MASK_SHIFT|MOD_MASK_CTRL))
  		ins_s_right();
  	    else
@@ -86,7 +86,7 @@ diff --git a/src/edit.c b/src/edit.c
  	    break;
  
  	case K_S_RIGHT:	/* <S-Right> */
-@@ -6721,10 +6728,11 @@ redo_literal(c)
+@@ -6735,10 +6742,11 @@
   * For undo/redo it resembles hitting the <ESC> key.
   */
      static void
@@ -101,7 +101,7 @@ diff --git a/src/edit.c b/src/edit.c
      {
  	AppendToRedobuff(ESC_STR);
  	stop_insert(end_insert_pos, FALSE, FALSE);
-@@ -6763,7 +6771,7 @@ spell_back_to_badword()
+@@ -6777,7 +6785,7 @@
  
      spell_bad_len = spell_move_to(curwin, BACKWARD, TRUE, TRUE, NULL);
      if (curwin->w_cursor.col != tpos.col)
@@ -110,7 +110,7 @@ diff --git a/src/edit.c b/src/edit.c
  }
  #endif
  
-@@ -8289,6 +8297,12 @@ ins_ctrl_g()
+@@ -8303,6 +8311,12 @@
  		  Insstart = curwin->w_cursor;
  		  break;
  
@@ -123,7 +123,7 @@ diff --git a/src/edit.c b/src/edit.c
  	/* Unknown CTRL-G command, reserved for future expansion. */
  	default:  vim_beep();
      }
-@@ -9176,7 +9190,7 @@ ins_mouse(c)
+@@ -9211,7 +9225,7 @@
  	    curbuf = curwin->w_buffer;
  	}
  #endif
@@ -132,7 +132,7 @@ diff --git a/src/edit.c b/src/edit.c
  #ifdef FEAT_WINDOWS
  	if (curwin != new_curwin && win_valid(new_curwin))
  	{
-@@ -9280,7 +9294,7 @@ ins_mousescroll(dir)
+@@ -9315,7 +9329,7 @@
  
      if (!equalpos(curwin->w_cursor, tpos))
      {
@@ -141,7 +141,7 @@ diff --git a/src/edit.c b/src/edit.c
  # ifdef FEAT_CINDENT
  	can_cindent = TRUE;
  # endif
-@@ -9298,7 +9312,7 @@ ins_tabline(c)
+@@ -9333,7 +9347,7 @@
  		|| (current_tab != 0 && current_tab != tabpage_index(curtab)))
      {
  	undisplay_dollar();
@@ -150,7 +150,7 @@ diff --git a/src/edit.c b/src/edit.c
  # ifdef FEAT_CINDENT
  	can_cindent = TRUE;
  # endif
-@@ -9324,7 +9338,7 @@ ins_scroll()
+@@ -9359,7 +9373,7 @@
      tpos = curwin->w_cursor;
      if (gui_do_scroll())
      {
@@ -159,7 +159,7 @@ diff --git a/src/edit.c b/src/edit.c
  # ifdef FEAT_CINDENT
  	can_cindent = TRUE;
  # endif
-@@ -9340,7 +9354,7 @@ ins_horscroll()
+@@ -9375,7 +9389,7 @@
      tpos = curwin->w_cursor;
      if (gui_do_horiz_scroll(scrollbar_value, FALSE))
      {
@@ -168,7 +168,7 @@ diff --git a/src/edit.c b/src/edit.c
  # ifdef FEAT_CINDENT
  	can_cindent = TRUE;
  # endif
-@@ -9349,7 +9363,8 @@ ins_horscroll()
+@@ -9384,7 +9398,8 @@
  #endif
  
      static void
@@ -178,7 +178,7 @@ diff --git a/src/edit.c b/src/edit.c
  {
      pos_T	tpos;
  
-@@ -9366,7 +9381,15 @@ ins_left()
+@@ -9401,7 +9416,15 @@
  	 * break undo.  K_LEFT is inserted in im_correct_cursor(). */
  	if (!im_is_preediting())
  #endif
@@ -195,7 +195,7 @@ diff --git a/src/edit.c b/src/edit.c
  #ifdef FEAT_RIGHTLEFT
  	/* If exit reversed string, position is fixed */
  	if (revins_scol != -1 && (int)curwin->w_cursor.col >= revins_scol)
-@@ -9381,13 +9404,15 @@ ins_left()
+@@ -9416,13 +9439,15 @@
       */
      else if (vim_strchr(p_ww, '[') != NULL && curwin->w_cursor.lnum > 1)
      {
@@ -212,7 +212,7 @@ diff --git a/src/edit.c b/src/edit.c
  }
  
      static void
-@@ -9409,7 +9434,7 @@ ins_home(c)
+@@ -9444,7 +9469,7 @@
      curwin->w_cursor.coladd = 0;
  #endif
      curwin->w_curswant = 0;
@@ -221,7 +221,7 @@ diff --git a/src/edit.c b/src/edit.c
  }
  
      static void
-@@ -9429,7 +9454,7 @@ ins_end(c)
+@@ -9464,7 +9489,7 @@
      coladvance((colnr_T)MAXCOL);
      curwin->w_curswant = MAXCOL;
  
@@ -230,7 +230,7 @@ diff --git a/src/edit.c b/src/edit.c
  }
  
      static void
-@@ -9442,7 +9467,7 @@ ins_s_left()
+@@ -9477,7 +9502,7 @@
      undisplay_dollar();
      if (curwin->w_cursor.lnum > 1 || curwin->w_cursor.col > 0)
      {
@@ -239,7 +239,7 @@ diff --git a/src/edit.c b/src/edit.c
  	(void)bck_word(1L, FALSE, FALSE);
  	curwin->w_set_curswant = TRUE;
      }
-@@ -9451,7 +9476,8 @@ ins_s_left()
+@@ -9486,7 +9511,8 @@
  }
  
      static void
@@ -249,7 +249,7 @@ diff --git a/src/edit.c b/src/edit.c
  {
  #ifdef FEAT_FOLDING
      if ((fdo_flags & FDO_HOR) && KeyTyped)
-@@ -9464,7 +9490,13 @@ ins_right()
+@@ -9499,7 +9525,13 @@
  #endif
  	    )
      {
@@ -264,7 +264,7 @@ diff --git a/src/edit.c b/src/edit.c
  	curwin->w_set_curswant = TRUE;
  #ifdef FEAT_VIRTUALEDIT
  	if (virtual_active())
-@@ -9491,13 +9523,14 @@ ins_right()
+@@ -9526,13 +9558,14 @@
      else if (vim_strchr(p_ww, ']') != NULL
  	    && curwin->w_cursor.lnum < curbuf->b_ml.ml_line_count)
      {
@@ -280,7 +280,7 @@ diff --git a/src/edit.c b/src/edit.c
  }
  
      static void
-@@ -9511,7 +9544,7 @@ ins_s_right()
+@@ -9546,7 +9579,7 @@
      if (curwin->w_cursor.lnum < curbuf->b_ml.ml_line_count
  	    || gchar_cursor() != NUL)
      {
@@ -289,7 +289,7 @@ diff --git a/src/edit.c b/src/edit.c
  	(void)fwd_word(1L, FALSE, 0);
  	curwin->w_set_curswant = TRUE;
      }
-@@ -9541,7 +9574,7 @@ ins_up(startcol)
+@@ -9576,7 +9609,7 @@
  #endif
  		)
  	    redraw_later(VALID);
@@ -298,7 +298,7 @@ diff --git a/src/edit.c b/src/edit.c
  #ifdef FEAT_CINDENT
  	can_cindent = TRUE;
  #endif
-@@ -9563,7 +9596,7 @@ ins_pageup()
+@@ -9598,7 +9631,7 @@
  	/* <C-PageUp>: tab page back */
  	if (first_tabpage->tp_next != NULL)
  	{
@@ -307,7 +307,7 @@ diff --git a/src/edit.c b/src/edit.c
  	    goto_tabpage(-1);
  	}
  	return;
-@@ -9573,7 +9606,7 @@ ins_pageup()
+@@ -9608,7 +9641,7 @@
      tpos = curwin->w_cursor;
      if (onepage(BACKWARD, 1L) == OK)
      {
@@ -316,7 +316,7 @@ diff --git a/src/edit.c b/src/edit.c
  #ifdef FEAT_CINDENT
  	can_cindent = TRUE;
  #endif
-@@ -9604,7 +9637,7 @@ ins_down(startcol)
+@@ -9639,7 +9672,7 @@
  #endif
  		)
  	    redraw_later(VALID);
@@ -325,7 +325,7 @@ diff --git a/src/edit.c b/src/edit.c
  #ifdef FEAT_CINDENT
  	can_cindent = TRUE;
  #endif
-@@ -9626,7 +9659,7 @@ ins_pagedown()
+@@ -9661,7 +9694,7 @@
  	/* <C-PageDown>: tab page forward */
  	if (first_tabpage->tp_next != NULL)
  	{
@@ -334,7 +334,7 @@ diff --git a/src/edit.c b/src/edit.c
  	    goto_tabpage(0);
  	}
  	return;
-@@ -9636,7 +9669,7 @@ ins_pagedown()
+@@ -9671,7 +9704,7 @@
      tpos = curwin->w_cursor;
      if (onepage(FORWARD, 1L) == OK)
      {

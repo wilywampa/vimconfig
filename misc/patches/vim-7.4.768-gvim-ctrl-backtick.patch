@@ -31,7 +31,7 @@ diff --git a/src/gui_gtk_x11.c b/src/gui_gtk_x11.c
      /*
       * Reopen the file and append a command to restore v:this_session,
       * as if this save never happened.	This is to avoid conflicts with
-@@ -3143,14 +3141,10 @@
+@@ -3145,14 +3143,10 @@
  	gnome_program_init(VIMPACKAGE, VIM_VERSION_SHORT,
  			   LIBGNOMEUI_MODULE, gui_argc, gui_argv, NULL);
  # if defined(FEAT_FLOAT) && defined(LC_NUMERIC)
@@ -53,7 +53,7 @@ diff --git a/src/gui_gtk_x11.c b/src/gui_gtk_x11.c
 diff --git a/src/version.c b/src/version.c
 --- a/src/version.c
 +++ b/src/version.c
-@@ -729,6 +729,7 @@
+@@ -736,6 +736,7 @@
  	"-xpm",
  # endif
  #endif

@@ -1,7 +1,7 @@
 diff --git a/src/auto/configure b/src/auto/configure
 --- a/src/auto/configure
 +++ b/src/auto/configure
-@@ -9478,7 +9478,7 @@
+@@ -9508,7 +9508,7 @@
  $as_echo "yes" >&6; }
                  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for CYGWIN clipboard support" >&5
  $as_echo_n "checking for CYGWIN clipboard support... " >&6; }
@@ -13,7 +13,7 @@ diff --git a/src/auto/configure b/src/auto/configure
 diff --git a/src/gui_gtk_x11.c b/src/gui_gtk_x11.c
 --- a/src/gui_gtk_x11.c
 +++ b/src/gui_gtk_x11.c
-@@ -5646,6 +5646,8 @@
+@@ -5648,6 +5648,8 @@
      check_copy_area();
  }
  
@@ -22,7 +22,7 @@ diff --git a/src/gui_gtk_x11.c b/src/gui_gtk_x11.c
  /*
   * X Selection stuff, for cutting and pasting text to other windows.
   */
-@@ -5715,6 +5717,8 @@
+@@ -5717,6 +5719,8 @@
  {
  }
  
@@ -35,7 +35,7 @@ diff --git a/src/os_unix.c b/src/os_unix.c
 --- a/src/os_unix.c
 +++ b/src/os_unix.c
 @@ -71,7 +71,13 @@
- 				 * for cygwin_conv_path() */
+                                 * for cygwin_conv_path() */
  #  ifdef FEAT_CYGWIN_WIN32_CLIPBOARD
  #   define WIN32_LEAN_AND_MEAN
 -#   include <windows.h>
@@ -74,9 +74,9 @@ diff --git a/src/version.c b/src/version.c
  
  static char *(features[]) =
  {
-+	"+win32_clipboard",
++  "+win32_clipboard",
  #ifdef HAVE_ACL
- 	"+acl",
+        "+acl",
  #else
 diff --git a/src/winclip.c b/src/winclip.c
 --- a/src/winclip.c

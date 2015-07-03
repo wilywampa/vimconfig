@@ -1,21 +1,21 @@
 diff --git a/src/ex_getln.c b/src/ex_getln.c
 --- a/src/ex_getln.c
 +++ b/src/ex_getln.c
-@@ -6363,6 +6363,10 @@
- #ifdef FEAT_RIGHTLEFT
-     int			save_cmdmsg_rl = cmdmsg_rl;
+@@ -6354,6 +6354,10 @@
+     return (int)ccline.cmdbuff[ccline.cmdpos + offset];
+ }
  #endif
 +#ifdef FEAT_FOLDING
-+    int			save_KeyTyped;
++    int                   save_KeyTyped;
 +#endif
 +
  
-     /* Can't do this recursively.  Can't do it when typing a password. */
-     if (cmdwin_type != 0
-@@ -6497,8 +6501,19 @@
-     RedrawingDisabled = i;
+ #if defined(FEAT_CMDWIN) || defined(PROTO)
+ /*
+@@ -6527,9 +6531,20 @@
+     save_KeyTyped = KeyTyped;
+ #  endif
  
- # ifdef FEAT_AUTOCMD
 +
 +# ifdef FEAT_FOLDING
 +    save_KeyTyped = KeyTyped;
@@ -23,12 +23,13 @@ diff --git a/src/ex_getln.c b/src/ex_getln.c
 +
      /* Trigger CmdwinLeave autocommands. */
      apply_autocmds(EVENT_CMDWINLEAVE, typestr, typestr, FALSE, curbuf);
-+
+ 
 +# ifdef FEAT_FOLDING
 +    /* Restore KeyTyped in case it is modified by autocommands */
 +    KeyTyped = save_KeyTyped;
 +# endif
 +
- # endif
- 
-     /* Restore the command line info. */
++
+ #  ifdef FEAT_FOLDING
+     /* Restore KeyTyped in case it is modified by autocommands */
+     KeyTyped = save_KeyTyped;

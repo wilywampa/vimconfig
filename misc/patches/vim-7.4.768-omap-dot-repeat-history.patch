@@ -1,7 +1,7 @@
 diff --git a/src/normal.c b/src/normal.c
 --- a/src/normal.c
 +++ b/src/normal.c
-@@ -8488,6 +8488,12 @@ nv_dot(cap)
+@@ -8507,6 +8507,12 @@
      if (!checkclearopq(cap->oap))
      {
  	/*
