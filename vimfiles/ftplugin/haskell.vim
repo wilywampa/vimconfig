@@ -85,7 +85,7 @@ setlocal comments=s1fl:{-,mb:-,ex:-},:-- commentstring=--%s
 setlocal cpoptions+=M
 
 silent! call CountJump#Motion#MakeBracketMotion('<buffer>', '', '',
-    \ '^\h\k\+\s*::',
-    \ '^\ze.*\n^\h\k\+\s*::', 0)
+    \ '^\h\k*\s*::',
+    \ '^\ze.*\n^\h\k*\s*::', 0)
 
 " vim:set et ts=2 sts=2 sw=2:
