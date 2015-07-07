@@ -1,0 +1,39 @@
+#!/usr/bin/env python2
+import os
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument('target', nargs='+')
+parser.add_argument('-f', '--force', action='store_true')
+args = parser.parse_args()
+
+targets = 0
+undos = 0
+
+
+def remove(path, quiet=False):
+    if not os.path.exists(path):
+        if not quiet:
+            print('"{0}" does not exist'.format(path))
+        return False
+    writeable = os.access(path, os.W_OK)
+    if writeable or args.force:
+        return True
+    else:
+        print('"{0}" is not writeable'.format(path))
+        return False
+
+
+for target in filter(remove, args.target):
+    os.remove(target)
+    targets += 1
+    root = os.path.dirname(target)
+    tail = os.path.basename(target)
+    undo = os.path.join(root, '.' + tail + '.un~')
+    if remove(undo, quiet=True):
+        os.remove(undo)
+        undos += 1
+
+print('Removed {0} file{1} and {2} undo file{3}'.format(
+    targets, '' if targets == 1 else 's',
+    undos, '' if undos == 1 else 's'))

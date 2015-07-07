@@ -1,0 +1,79 @@
+#!/usr/bin/env python2
+import os
+import shutil
+import sys
+from argparse import ArgumentParser
+from os.path import exists
+
+parser = ArgumentParser()
+parser.add_argument('src', nargs='*')
+parser.add_argument('dest', nargs=1)
+parser.add_argument('-t', '--target')
+parser.add_argument('-f', '--force', action='store_true')
+args = parser.parse_args()
+
+remove = os.path.basename(sys.argv[0]) == 'mvundo'
+
+if args.target:
+    sources = args.dest + args.src
+    target = args.target
+elif max(map(len, [args.src, args.dest])) > 1:
+    raise SystemExit('Ambiguous destination')
+else:
+    sources = args.src
+    target = args.dest[0]
+
+sources = map(os.path.realpath, sources)
+
+if os.path.isdir(target):
+    if len(sources) > 1:
+        raise SystemExit('Destination for multiple files must be a directory')
+    else:
+        target_dir = target
+        target_base = None
+else:
+    target_dir = os.path.dirname(target)
+    target_base = os.path.basename(target)
+
+srcs = 0
+undos = 0
+
+
+def check(path):
+    if not exists(path):
+        print('"{0}" does not exist'.format(path))
+        return False
+    return True
+
+
+def undoify(base):
+    return '.' + base + '.un~'
+
+
+for source in filter(check, sources):
+    target = os.path.join(
+        target_dir, target_base or os.path.basename(source))
+    root = os.path.dirname(source)
+    tail = os.path.basename(source)
+    undo = os.path.join(root, undoify(tail))
+    undo_target = os.path.join(target_dir,
+                               undoify(target_base) if target_base
+                               else undoify(tail))
+    if not args.force and any(map(exists, [target, undo_target])):
+        print('Target "{0}" or "{1}" exists - skipping'.format(
+            target, undo_target))
+        continue
+    shutil.copy(source, target)
+    if remove:
+        os.remove(source)
+    srcs += 1
+    if check(undo):
+        shutil.copy(undo, undo_target)
+        if remove:
+            os.remove(undo)
+        undos += 1
+
+print('{0} {1} file{2} and {3} undo file{4}'.format(
+    'Moved' if remove else 'Copied',
+    srcs, '' if srcs == 1 else 's',
+    undos, '' if undos == 1 else 's'))

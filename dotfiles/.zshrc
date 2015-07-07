@@ -350,6 +350,9 @@ abbrevs=(
 't'     'tail'
 'd'     'du -sh'
 'pyc'   'pyclewn'
+'cpu'   'cpundo'
+'mvu'   'mvundo'
+'rmu'   'rmundo'
 )
 
 # Post-modifier abbreviations
