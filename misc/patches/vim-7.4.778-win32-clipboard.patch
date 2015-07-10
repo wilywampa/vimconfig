@@ -35,7 +35,7 @@ diff --git a/src/os_unix.c b/src/os_unix.c
 --- a/src/os_unix.c
 +++ b/src/os_unix.c
 @@ -71,7 +71,13 @@
-                                 * for cygwin_conv_path() */
+ 				 * for cygwin_conv_path() */
  #  ifdef FEAT_CYGWIN_WIN32_CLIPBOARD
  #   define WIN32_LEAN_AND_MEAN
 -#   include <windows.h>
@@ -74,9 +74,9 @@ diff --git a/src/version.c b/src/version.c
  
  static char *(features[]) =
  {
-+  "+win32_clipboard",
++	"+win32_clipboard",
  #ifdef HAVE_ACL
-        "+acl",
+ 	"+acl",
  #else
 diff --git a/src/winclip.c b/src/winclip.c
 --- a/src/winclip.c

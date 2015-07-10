@@ -6,7 +6,7 @@ diff --git a/src/ex_getln.c b/src/ex_getln.c
  }
  #endif
 +#ifdef FEAT_FOLDING
-+    int                   save_KeyTyped;
++    int			save_KeyTyped;
 +#endif
 +
  
