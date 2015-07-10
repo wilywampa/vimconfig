@@ -240,3 +240,6 @@
 [submodule "vimfiles/bundle/CSApprox"]
 	path = vimfiles/bundle/CSApprox
 	url = https://git::@github.com/vim-scripts/CSApprox.git
+[submodule "vimfiles/bundle/neco-vim"]
+	path = vimfiles/bundle/neco-vim
+	url = https://github.com/Shougo/neco-vim.git
