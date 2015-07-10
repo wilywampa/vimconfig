@@ -357,14 +357,14 @@ vn <C-c> <Esc>'<0v'>g_y
 nn <silent> - :Explore<CR>
 
 " Repeat last command with a bang
-nn @! :<C-u><C-r>:<Home><C-Right>!<CR>
+nn @! :<C-u><C-r><C-r>:<Home><C-Right>!<CR>
 
 " Repeat last command with case of first character switched
-nn @~ :<C-u><C-r>:<C-f>^~<CR>
+nn @~ :<C-u><C-r><C-r>:<C-f>^~<CR>
 
 " Repeat last command with 'verbose' prepended
-nn @& :<C-u><C-r>:<Home>verbose <CR>
-nn @? :<C-u><C-r>:<Home>verbose <CR>
+nn @& :<C-u><C-r><C-r>:<Home>verbose <CR>
+nn @? :<C-u><C-r><C-r>:<Home>verbose <CR>
 
 " Use <C-q> to do what <C-v> used to do
 no <C-q> <C-v>
@@ -729,7 +729,7 @@ func! Redir(cmd) " {{{
     let @+=@"
 endfunc " }}}
 command! -nargs=+ -complete=command Redir call Redir(<q-args>)
-nnoremap <Leader>R :<C-r>:<Home>Redir <CR>
+nnoremap <Leader>R :<C-r><C-r>:<Home>Redir <CR>
 
 " Function to removing trailing carriage return from register
 func! s:FixReg() " {{{
