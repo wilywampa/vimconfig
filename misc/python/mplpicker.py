@@ -232,22 +232,23 @@ class Picker:
 
     def format(self, point):
         label = self.artist.get_label()
-        output = [label] if not label.startswith('_') else []
-        output.append('%.6g' % point[0])
-        output.append('%.6g' % point[1])
-        output.append('[%d]' % point[2])
-        return "\n".join(output)
+        return '\n'.join(filter(None, [
+            ('' if label.startswith('_') else label),
+            ('%.6g' % point[0]),
+            ('%.6g' % point[1]),
+            ('[%d]' % point[2]),
+        ]))
 
     def format_measurement(self, point):
-        output = []
         dx = point[0] - self.point[0]
         dy = point[1] - self.point[1]
-        output.append(r'$\Delta$x: %.4g' % dx)
-        output.append(r'$\Delta$y: %.4g' % dy)
-        output.append(r'$\theta$: %.4g$^\circ$' % np.rad2deg(np.arctan2(dy, dx)))
-        output.append(r'$|\vec{r}|$: %.4g' % np.linalg.norm([dx, dy]))
-        output.append('[%d]' % point[2])
-        return "\n".join(output)
+        return '\n'.join([
+            (r'$\Delta$x: %.4g' % dx),
+            (r'$\Delta$y: %.4g' % dy),
+            (r'$\theta$: %.4g$^\circ$' % np.rad2deg(np.arctan2(dy, dx))),
+            (r'$|\vec{r}|$: %.4g' % np.linalg.norm([dx, dy])),
+            ('[%d]' % point[2]),
+        ])
 
 
 def picker(axes=None):
@@ -261,6 +262,7 @@ def picker(axes=None):
         p = Picker(axes)
         axes._active_picker = p
         return p
+
 
 if __name__ == '__main__':
     plt.figure()
