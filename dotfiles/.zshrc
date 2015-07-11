@@ -939,6 +939,15 @@ undo() {
     fi
 }
 
+badundo() {
+    if [[ ! -e "$(undo ${REPLY:-$1})" ]]; then; return 1; fi
+    vim -u NONE -i NONE -N -Es "${REPLY:-$1}" <<< 'set undofile
+    redir => status
+    execute "rundo ".fnameescape(undofile(expand("%:p")))
+    redir END | if status =~# "Finished reading undo file" | cquit! | endif
+    qall!'
+}
+
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
 _cursor_bar="\033[5 q"
