@@ -1,29 +1,13 @@
-diff --git a/runtime/doc/if_cscop.txt b/runtime/doc/if_cscop.txt
---- a/runtime/doc/if_cscop.txt
-+++ b/runtime/doc/if_cscop.txt
-@@ -453,6 +453,22 @@
- 		\:vert scs find i ^<C-R>=expand("<cfile>")<CR>$<CR>
- 	nmap <C-Space><C-Space>d
- 		\:vert scs find d <C-R>=expand("<cword>")<CR><CR>
-+<
-+
-+Another option would be an interactive mapping like: >
-+  function! MyCsFind(split)
-+      echo 'Cscope find (c-callers,d-callees,e-grep,f-file,g-def,' .
-+          \'i-incl,s-sym,t-assign): '
-+      let cmd = getchar()
-+      exec (a:split ? 'scs' : 'cs') . ' find ' . nr2char(cmd) . ' ' . 
-+          \expand(cmd == 'i' || cmd == 'f' ? '<cfile>' : '<cword>')
-+  endfunction
-+
-+  " ask for search command and use word under cursor
-+  nmap <Leader>cc :call MyCsFind(0)<CR>
-+  " the same plus splitting the window
-+  nmap <Leader>cs :call MyCsFind(1)<CR>
-+<
- 
- ==============================================================================
- 7. Cscope availability and information			*cscope-info*
+# HG changeset patch
+# Parent 691a69ae71349cc2f6bd796055c0c9a759228f81
+Make <M-Left> and <M-Right> move the cursor in insert mode without breaking undo
+
+From https://groups.google.com/d/msg/vim_use/klj6nlDOriI/aeNjtWp_U80J
+This will allow to use <C-G>U<Left> and <C-G>U<Right> to move the cursor without breaking the undo sequence.
+However, a new undo changae will be created if left/right move across lines, so that undo is still workable.
+
+This should fix the problem to undo/redo delimate like plugins (hopefully).
+
 diff --git a/runtime/doc/insert.txt b/runtime/doc/insert.txt
 --- a/runtime/doc/insert.txt
 +++ b/runtime/doc/insert.txt
