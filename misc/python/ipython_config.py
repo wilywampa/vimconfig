@@ -81,6 +81,7 @@ def configure(c):
         'import scipy.io as sio',
         'import subprocess',
         'from ipython_config import dump, globn, load, sortn, sortnkey',
+        'from mathtools import *',
         'from plottools import *',
         ('def setwidth(): os.environ["COLUMNS"] = '
          'subprocess.check_output(["tput", "cols"])'),

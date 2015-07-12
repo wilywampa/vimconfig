@@ -724,6 +724,7 @@ froms = {
         'imap', 'islice', 'izip', 'izip_longest', 'permutations', 'product',
         'repeat', 'starmap', 'takewhile', 'tee'],
     'ipython_config': ['dump', 'globn', 'load', 'sortn', 'sortnkey'],
+    'mathtools': ['cat', 'derivative', 'ecat', 'norm', 'unit'],
     'matplotlib.backends.backend_pdf': ['PdfPages'],
     'matplotlib.pyplot': [
         'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',
@@ -761,8 +762,8 @@ froms = {
         'transpose', 'trapz', 'vectorize', 'vstack', 'where', 'zeros'],
     'numpy.core.records': ['fromarrays'],
     'numpy.linalg': [
-        'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'norm', 'solve',
-        'svd', 'tensorinv', 'tensorsolve'],
+        'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'solve', 'svd',
+        'tensorinv', 'tensorsolve'],
     'plottools': [
         'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
         'merge_dicts', 'pad', 'picker', 'resize', 'savepdf', 'savesvg',
