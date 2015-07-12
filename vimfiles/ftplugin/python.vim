@@ -755,7 +755,7 @@ froms = {
         'nanpercentile', 'nanstd', 'nansum', 'nanvar', 'ndarray',
         'ndenumerate', 'ndfromtxt', 'ndim', 'nditer', 'newaxis', 'ones',
         'outer', 'pad', 'pi', 'r_', 'rad2deg', 'radians', 'random', 'ravel',
-        'ravel_multi_index', 'reshape', 'rot90', 's_', 'savez',
+        'ravel_multi_index', 'reshape', 'rollaxis', 'rot90', 's_', 'savez',
         'savez_compressed', 'seterr', 'sin', 'sinc', 'sinh', 'sqrt',
         'squeeze', 'std', 'take', 'tan', 'tanh', 'tile', 'trace',
         'transpose', 'trapz', 'vectorize', 'vstack', 'where', 'zeros'],
