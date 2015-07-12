@@ -67,7 +67,8 @@ def color_types(self, lexer, stream, options):
     for ttype, value in stream:
         if ttype is Name.Builtin and value in types:
             ttype = Name.Exception
-        elif ttype is Name.Builtin.Pseudo and value in ['True', 'False']:
+        elif ttype is Name.Builtin.Pseudo and value in [
+                'False', 'True', 'None']:
             ttype = Name.Constant
 
         if ttype is Name.Decorator:
