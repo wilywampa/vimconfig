@@ -832,7 +832,7 @@ for ttype, tstr, _, _, _ in tokenize.generate_tokens(readline.next):
         tokens.add(tstr)
 
 for i in imports:
-    if any(map(lambda n: n in unused.values(), i.asnames)):
+    if any(map(lambda n: n.split('.')[0] in unused.values(), i.asnames)):
         remove_unused(i)
         for i2 in imports:
             if i.lrange[-1] == i2.lrange[0]:
