@@ -774,6 +774,7 @@ froms = {
         'degree', 'foot', 'g', 'inch', 'kmh', 'knot', 'lb', 'lbf', 'mach',
         'mph', 'nautical_mile', 'pound', 'pound_force', 'psi',
         'speed_of_sound'],
+    'subprocess': ['PIPE', 'Popen', 'STDOUT', 'call', 'list2cmdline'],
     'time': ['time'],
 }
 
