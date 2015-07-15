@@ -503,14 +503,14 @@ class Options(object):
     aggressive = 2
     diff = False
     experimental = True
-    ignore = None
+    ignore = vim.vars.get('pymode_lint_ignore', None)
     in_place = False
     indent_size = autopep8.DEFAULT_INDENT_SIZE
     line_range = None
     max_line_length = 79
     pep8_passes = 100
     recursive = False
-    select = None
+    select = vim.vars.get('pymode_lint_select', ['E', 'W'])
     verbose = 0
 
 doc_start = re.compile('^\s*[ur]?("""|' + (3 * "'") + ').*')
