@@ -592,6 +592,12 @@ im <C-e> <End>
 ino <expr> <CR> (getline('.')[:col('.')-2] =~ '\(\S\\|^\)\s\+$' ?
     \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) : '').'<CR>'
 ino \<CR> \<CR>
+
+" Make * and # use 'smartcase'
+nn <silent> * *:<C-u>let @/ = @/<CR>zv
+nn <silent> # #:<C-u>let @/ = @/<CR>zv
+nn <silent> g* g*:<C-u>let @/ = @/<CR>zv
+nn <silent> g# g#:<C-u>let @/ = @/<CR>zv
 " }}}
 
 " {{{ Abbreviations to open help
