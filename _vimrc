@@ -2216,7 +2216,7 @@ autocmd VimrcAutocmds VimEnter * silent! FastFoldUpdate
 
 " LaTeX-Box settings
 autocmd VimrcAutocmds FileType plaintex,tex
-    \ nnoremap <buffer> <F5> :<C-u>update<bar>Latexmk<CR> |
+    \ execute 'nnoremap <buffer> <F5> :<C-u>update<bar>Latexmk<CR>' |
     \ nnoremap <buffer> <S-F5> :<C-u>execute "LatexView"<bar>update<bar>execute "Latexmk"<CR>
 let g:LatexBox_completion_close_braces = 0
 let g:tex_flavor = "latex"
