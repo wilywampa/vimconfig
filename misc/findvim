@@ -17,8 +17,8 @@ if [ $? -eq 0 ]; then
   if [[ $# == 0 ]] && [[ -n "$stdin" ]]; then
     panepwd=$(tmux display-message -p "#{pane_current_path}")
     stdin="${${${${stdin#\'}%\'}#\"}%\"}"
-    if [[ "${stdin/\~/$HOME}" != ./* && -e "${stdin/\~/$HOME}" ]]; then
-      vim --servername ${VIMSERVER:-VIM} --remote "${stdin/\~/$HOME}"
+    if [[ ${~stdin} != ./* && -e ${~stdin} ]]; then
+      vim --servername ${VIMSERVER:-VIM} --remote ${~stdin}
     elif [[ -d "$panepwd" ]] && [[ -e "$panepwd"/"${${stdin#./}#/}" ]]; then
       vim --servername ${VIMSERVER:-VIM} --remote "$panepwd"/"${${stdin#./}#/}"
     else
