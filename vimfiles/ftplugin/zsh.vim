@@ -9,6 +9,7 @@ if exists('$TMUX')
   nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>ExecuteMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>ExecuteMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
   xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>ExecuteMotion('visual')<CR>
+  xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>EvalSelection()<CR>
 
   func! s:ExecuteMotion(type)
     if !exists("g:VimuxRunnerIndex")
@@ -30,6 +31,21 @@ if exists('$TMUX')
     call VimuxSendKeys("\<CR>")
     silent! call repeat#invalidate()
     if zoomed | call system("tmux resize-pane -Z") | endif
+  endfunc
+
+  func! s:EvalSelection()
+    call SaveRegs()
+    normal! gvy
+    if @@[0] == '$' || @@[0] == '"' || @@[0] == "'"
+      call VimuxRunCommand('echo ' . @@)
+    elseif @@ =~ '"'
+      call VimuxRunCommand("echo '" . substitute(@@, "'", "''", '') . "'")
+    elseif @@[0] == '[' && @@[len(@@)-1] == ']'
+      call VimuxRunCommand(@@ . ' TEST')
+    else
+      call VimuxRunCommand('echo "${' . @@ . '}"')
+    endif
+    call RestoreRegs()
   endfunc
 endif
 
