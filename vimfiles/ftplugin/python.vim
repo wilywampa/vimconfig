@@ -568,6 +568,10 @@ if has('python') && !exists('*FixImports()')
 function! FixImports()
   let missing = []
   let redefined = []
+  let s:checkers = g:pymode_lint_checkers
+  let s:select = g:pymode_lint_select
+  let g:pymode_lint_checkers = ['pyflakes']
+  let g:pymode_lint_select = ['E0602', 'W0404']
   let l:count = 0
   while 1
     PymodePython code_check()
@@ -947,6 +951,8 @@ if not lines:
 EOF
     endif
   endwhile
+  let g:pymode_lint_checkers = s:checkers
+  let g:pymode_lint_select = s:select
   call pymode#lint#check()
 endfunction
 endif
