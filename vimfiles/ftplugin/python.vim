@@ -923,7 +923,8 @@ for i in imports:
         else:
             lines.append(textwrap.wrap(newline,
                                        subsequent_indent=" " * (
-                                           newline.index('(') + 1)))
+                                           newline.index('(') + 1),
+                                       break_long_words=False))
 
 
 def key(item):
