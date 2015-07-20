@@ -450,8 +450,8 @@ class Interact(QtGui.QMainWindow):
 
         self.set_layout()
         self.draw()
-        self.datas[index-1].menu.setFocus()
-        self.datas[index-1].menu.lineEdit().selectAll()
+        self.datas[index - 1].menu.setFocus()
+        self.datas[index - 1].menu.lineEdit().selectAll()
 
     def get_scale(self, textbox, completer):
         completer.close_popup()
@@ -687,8 +687,7 @@ def create(*data, **kwargs):
 
     # Backwards compatibility
     for d in data:
-        if len(d) == 4 and (isinstance(d[-1], list) or
-                            isinstance(d[-1], tuple)):
+        if len(d) == 4 and isinstance(d[-1], (list, tuple)):
             d[-2] = {'xname': d[-2], 'labels': list(d[-1])}
             d.pop()
         elif len(d) >= 3 and isinstance(d[2], basestring):
