@@ -692,6 +692,8 @@ redefined = {int(k): v.split("'")[1] for k, v in messages
              if start <= int(k) <= end and 'W0404' in v}
 
 aliases = dict(
+    cm='matplotlib.cm',
+    colors='matplotlib.colors',
     it='itertools',
     mpl='matplotlib',
     linalg='numpy.linalg',

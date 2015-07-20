@@ -72,6 +72,8 @@ def configure(c):
         'import ein',
         'import itertools as it',
         'import matplotlib as mpl',
+        'import matplotlib.cm as cm',
+        'import matplotlib.colors as colors',
         'import numpy as np',
         'import operator as op',
         'import os',
