@@ -2086,6 +2086,7 @@ let g:pymode_doc_bind = 'gK'
 let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
 let g:pymode_lint_select = ['C', 'D', 'E', 'R', 'W']
+let g:pymode_lint_checkers = ['pyflakes', 'pep8', 'mccabe', 'callable']
 
 " VCSCommand settings
 let VCSCommandCVSExec = ''
