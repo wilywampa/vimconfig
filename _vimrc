@@ -2020,7 +2020,7 @@ func! s:AckCurrentSearch(ignorecase) " {{{
     else
         let cmd += ["-s", g:ag_flags, '--', "'".@@."'"]
     endif
-    let cmdstr = escape(join(cmd, ' '), '%#')
+    let cmdstr = escape(join(filter(cmd, 'len(v:val)')), '%#')
     execute cmdstr | call histadd(':', cmdstr) | cwindow
     if &buftype == 'quickfix' | execute "normal! gg" | endif
     call RestoreRegs()
