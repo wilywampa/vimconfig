@@ -50,8 +50,8 @@ augroup py_ftplugin
 augroup END
 
 inoremap <expr> <buffer> @
-    \ (getline('.')[:col('.')-1] =~ '^\s*$' \|\|
-    \  getline('.')[col('.')-1] =~ '\w') ? '@' : 'lambda'
+    \ getline('.')[:col('.')-1] =~ '^\s*$' ? '@' :
+    \ (getline('.') =~# 'lambda ' ? repeat('<BS>', 7) . '@' : 'lambda ')
 
 let s:errorformat  = '%+GTraceback%.%#,'
 let s:errorformat .= '%E  File "%f"\, line %l\,%m%\C,'
