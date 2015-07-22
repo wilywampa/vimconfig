@@ -170,7 +170,7 @@ else
 
     if hasMac
         " Reveal current file in Finder
-        nnoremap <silent> <F4> :call system('reveal '.expand('%:p').' > /dev/null')<CR>
+        nnoremap <silent> <F4> :<C-u>call system('reveal '.fnameescape(expand('%:p')))<CR>
 
         " Enable use of option key as meta key
         sil! set macmeta
