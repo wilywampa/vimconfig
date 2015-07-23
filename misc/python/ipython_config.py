@@ -1,5 +1,4 @@
 import cPickle as pickle
-import inspect
 
 
 def _pkl_name(fname):
@@ -7,11 +6,13 @@ def _pkl_name(fname):
 
 
 def dump(obj, fname):
-    pickle.dump(obj, file(_pkl_name(fname), "wb"), -1)
+    with open(_pkl_name(fname), "wb") as f:
+        pickle.dump(obj, f, -1)
 
 
 def load(fname):
-    return pickle.load(file(_pkl_name(fname), "rb"))
+    with open(_pkl_name(fname), "rb") as f:
+        return pickle.load(f)
 
 
 def sortnkey(s):
