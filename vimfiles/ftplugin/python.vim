@@ -510,7 +510,7 @@ class Options(object):
     max_line_length = 79
     pep8_passes = 100
     recursive = False
-    select = vim.vars.get('pymode_lint_select', ['E', 'W'])
+    select = vim.vars.get('pymode_lint_select', None)
     verbose = 0
 
 doc_start = re.compile('^\s*[ur]?("""|' + (3 * "'") + ').*')
@@ -571,7 +571,7 @@ function! FixImports()
   let s:checkers = g:pymode_lint_checkers
   let s:select = g:pymode_lint_select
   let g:pymode_lint_checkers = ['pyflakes']
-  let g:pymode_lint_select = ['E0602', 'W0404']
+  let g:pymode_lint_select = 'E0602,W0404'
   let l:count = 0
   while 1
     PymodePython code_check()
