@@ -92,7 +92,8 @@ def configure(c):
         ('from numpy import (arccos as acos, arccosh as acosh,'
          '                   arcsin as asin, arcsinh as asinh,'
          '                   arctan as atan, arctan2 as atan2,'
-         '                   arctanh as atanh, rad2deg as deg)'),
+         '                   arctanh as atanh, rad2deg as deg,'
+         '                   deg2rad as rad)'),
         'from __builtin__ import all, min, max, sum, any, abs, round',
     ]
     map(add, lines)
