@@ -69,7 +69,7 @@ sil! set breakindent            " Indent wrapped lines
 set tags-=./tags tags^=./tags;  " Search upwards for tags
 
 " Ignore system files
-set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi
+set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi,*.pkl
 set suffixes&vim
 let &suffixes .= ','.substitute(&wildignore, '*', '', 'g')
 
