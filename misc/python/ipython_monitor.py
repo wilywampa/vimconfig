@@ -14,14 +14,14 @@ except ImportError:
     from pygments.formatters import TerminalFormatter
 
 colors = {
-    'black':    0,
-    'red':      1,
-    'green':    2,
-    'yellow':   3,
-    'blue':     4,
-    'magenta':  5,
-    'cyan':     6,
-    'white':    7,
+    'black': 0,
+    'red': 1,
+    'green': 2,
+    'yellow': 3,
+    'blue': 4,
+    'magenta': 5,
+    'cyan': 6,
+    'white': 7,
 }
 
 types = ['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
@@ -51,6 +51,7 @@ while not connected:
     try:
         msg = kc.shell_channel.get_msg(timeout=1)
         connected = True
+        socket = km.connect_iopub()
         print 'IPython monitor connected successfully'
     except KeyboardInterrupt:
         sys.exit(1)
@@ -83,105 +84,130 @@ lexer.add_filter(color_types())
 formatter = TerminalFormatter()
 
 
-def handle_error():
-    global awaiting_msg, received_msg, kc, msg_id
-    if awaiting_msg and received_msg:
-        with open(os.path.join(os.environ['HOME'], '.pyerr'), 'w') as f:
-            f.write('\n'.join(msg['content']['traceback']).encode('utf-8'))
-        msg_id = kc.shell_channel.execute('\n'.join([
-            '%xmode Context', '%colors Linux']),
-            silent=True)
-        awaiting_msg = False
-    else:
-        for line in msg['content']['traceback']:
-            sys.stdout.write('\n' + line)
-        if not awaiting_msg:
-            msg_id = kc.shell_channel.execute('\n'.join([
-                '%xmode Plain', '%colors NoColor', '%tb']),
-                silent=True)
-            awaiting_msg = True
-        else:
-            awaiting_msg = False  # Missed the message
-
-
-def handle_stream():
-    global last_msg_type
-    if last_msg_type != 'stream' and last_msg_type != 'pyerr':
-        sys.stdout.write('\n')
-    if not received_msg:
-        sys.stdout.write(colorize(msg['content']['data'],
-                                  'cyan', bright=True))
-        last_msg_type = msg['msg_type']
-
-
 def colorize(string, color, bold=False, bright=False):
     return ''.join(['\033[', str(colors[color] + (90 if bright else 30)),
                     ';1' if bold else '', 'm', string, '\033[0m'])
 
 
-def print_prompt(color):
-    l = prompt.index('[')
-    r = prompt.index(']')
-    sys.stdout.write(colorize(prompt[:l+1], color))
-    sys.stdout.write(colorize(prompt[l+1:r], color, bold=True))
-    sys.stdout.write(colorize(prompt[r:], color))
+class IPythonMonitor(object):
 
+    def __init__(self):
+        self.clients = set()
+        self.print_idle = False
+        self.awaiting_msg = False
+        self.msg_id = None
+        self.last_msg_type = None  # Only set when text written to stdout
+        self.last_execution_count = None
+        self.skip_pyout = None
 
-print_idle = False
-socket = km.connect_iopub()
-awaiting_msg = False
-msg_id = None
-last_msg_type = None  # Only set when text written to stdout
-last_execution_count = None
-while socket.recv():
-    kc.iopub_channel.flush()
-    msgs = kc.iopub_channel.get_msgs()
-    for msg in msgs:
-        try:
-            received_msg = msg_id and msg['parent_header']['msg_id'] == msg_id
-        except KeyError:
-            received_msg = False
-        if msg['msg_type'] == 'pyin':
-            prompt = ''.join('In [%d]: ' % msg['content']['execution_count'])
-            last_execution_count = msg['content']['execution_count']
-            dots = '.' * len(prompt.rstrip()) + ' '
-            sys.stdout.write('\r')
-            print_prompt('green')
-            code = highlight(msg['content']['code'], lexer, formatter)
-            output = code.rstrip().replace('\n', '\n' + dots)
-            sys.stdout.write(output)
-            print_idle = True
-            last_msg_type = msg['msg_type']
+    def print_prompt(self, color):
+        l = self.prompt.index('[')
+        r = self.prompt.index(']')
+        sys.stdout.write(colorize(self.prompt[:l + 1], color))
+        sys.stdout.write(colorize(self.prompt[l + 1:r], color, bold=True))
+        sys.stdout.write(colorize(self.prompt[r:], color))
 
-        elif msg['msg_type'] == 'pyout':
-            prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
-            last_execution_count = msg['content']['execution_count']
-            spaces = ' ' * len(prompt.rstrip()) + ' '
+    def listen(self):
+        while socket.recv():
+            kc.iopub_channel.flush()
+            msgs = kc.iopub_channel.get_msgs()
+            for msg in msgs:
+                try:
+                    self.received_msg = (
+                        self.msg_id and
+                        msg['parent_header']['msg_id'] == self.msg_id)
+                except KeyError:
+                    self.received_msg = False
+
+                msg_type = msg['msg_type']
+
+                if msg_type == 'shutdown_reply':
+                    sys.exit(0)
+                elif self.awaiting_msg and msg_type == 'pyerr':
+                    self.pyerr(msg)
+                    continue
+
+                client = msg['parent_header']['session']
+                if (msg_type == 'pyin' and
+                        msg['content']['code'] == '"_vim_client";_=_;__=__'):
+                    self.clients.add(client)
+                    self.skip_pyout = client
+                    continue
+                if client not in self.clients:
+                    continue
+                elif msg_type == 'pyout' and client == self.skip_pyout:
+                    self.skip_pyout = None
+                    continue
+
+                try:
+                    getattr(self, msg_type)(msg)
+                except AttributeError:
+                    self.other(msg)
+
+                sys.stdout.flush()
+
+    def pyin(self, msg):
+        self.prompt = ''.join('In [%d]: ' % msg['content']['execution_count'])
+        self.last_execution_count = msg['content']['execution_count']
+        dots = '.' * len(self.prompt.rstrip()) + ' '
+        sys.stdout.write('\r')
+        self.print_prompt('green')
+        code = highlight(msg['content']['code'], lexer, formatter)
+        output = code.rstrip().replace('\n', '\n' + dots)
+        sys.stdout.write(output)
+        self.print_idle = True
+        self.last_msg_type = msg['msg_type']
+
+    def pyout(self, msg):
+        self.prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
+        self.last_execution_count = msg['content']['execution_count']
+        spaces = ' ' * len(self.prompt.rstrip()) + ' '
+        sys.stdout.write('\n')
+        self.print_prompt('red')
+        output = msg['content']['data']['text/plain'].rstrip() \
+            .replace('\n', '\n' + spaces)
+        sys.stdout.write(output)
+        self.last_msg_type = msg['msg_type']
+
+    def pyerr(self, msg):
+        if self.awaiting_msg and self.received_msg:
+            with open(os.path.join(os.environ['HOME'], '.pyerr'), 'w') as f:
+                f.write('\n'.join(msg['content']['traceback']).encode('utf-8'))
+            self.msg_id = kc.shell_channel.execute('\n'.join([
+                '%xmode Context', '%colors Linux']),
+                silent=True)
+            self.awaiting_msg = False
+        else:
+            for line in msg['content']['traceback']:
+                sys.stdout.write('\n' + line)
+            if not self.awaiting_msg:
+                self.msg_id = kc.shell_channel.execute('\n'.join([
+                    '%xmode Plain', '%colors NoColor', '%tb']),
+                    silent=True)
+                self.awaiting_msg = True
+            else:
+                self.awaiting_msg = False  # Missed the message
+        self.last_msg_type = msg['msg_type']
+
+    def stream(self, msg):
+        if self.last_msg_type != 'stream' and self.last_msg_type != 'pyerr':
             sys.stdout.write('\n')
-            print_prompt('red')
-            output = msg['content']['data']['text/plain'].rstrip() \
-                .replace('\n', '\n' + spaces)
-            sys.stdout.write(output)
-            last_msg_type = msg['msg_type']
+        if not self.received_msg:
+            sys.stdout.write(colorize(msg['content']['data'],
+                                      'cyan', bright=True))
+            self.last_msg_type = msg['msg_type']
 
-        elif msg['msg_type'] == 'pyerr':
-            handle_error()
-            last_msg_type = msg['msg_type']
+    def status(self, msg):
+        if msg['content']['execution_state'] == 'idle' and self.print_idle:
+            self.prompt = '\n' + ''.join('In [%d]: ' % (
+                self.last_execution_count + 1))
+            self.print_prompt('green')
+            self.print_idle = False
 
-        elif msg['msg_type'] == 'stream':
-            handle_stream()
+    def other(self, msg):
+        print 'msg_type = %s' % str(msg['msg_type'])
+        print 'msg = %s' % str(msg)
 
-        elif msg['msg_type'] == 'shutdown_reply':
-            sys.exit(0)
 
-        elif (msg['msg_type'] == 'status'
-              and msg['content']['execution_state'] == 'idle'
-              and print_idle):
-            prompt = '\n' + ''.join('In [%d]: ' % (last_execution_count + 1))
-            print_prompt('green')
-            print_idle = False
-
-        elif not msg['msg_type'] == 'status':
-            print 'msg_type = %s' % str(msg['msg_type'])
-            print 'msg = %s' % str(msg)
-        sys.stdout.flush()
+monitor = IPythonMonitor()
+monitor.listen()
