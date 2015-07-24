@@ -57,9 +57,14 @@ function! s:PyclewnMaps()
     nnoremap <M-A> :C info args<CR>
     nnoremap <M-B> :C info breakpoints<CR>:Ccwindow<CR>
     nnoremap <M-c> :C continue<CR>
-    nnoremap <M-F> :C finish<CR>
+    if s:is_pdb
+        nnoremap <M-F> :C return<CR>
+    else
+        nnoremap <M-F> :C finish<CR>
+    endif
     nnoremap <M-L> :C info locals<CR>
     nnoremap <M-Q> :C quit<CR>
+    nmap     <M-r> <M-F>
     nnoremap <M-R> :C run<CR>
     nnoremap <M-s> :C step<CR>
     nnoremap <M-W> :C where<CR>
