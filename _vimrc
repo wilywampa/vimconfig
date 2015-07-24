@@ -2001,8 +2001,10 @@ if executable('ag') | let g:ackprg='ag --nogroup --nocolor --column -S' | endif
 let g:ack_autofold_results=0
 let g:ack_apply_lmappings=0
 let g:ack_apply_qmappings=0
-cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'A'
-cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ? 'Ack!' : 'a'
+cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ?
+    \ 'Ack!' . (len(g:ag_flags) ? ' ' . g:ag_flags : '') : 'A'
+cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ?
+    \ 'Ack!' . (len(g:ag_flags) ? ' ' . g:ag_flags : '') : 'a'
 func! s:AckCurrentSearch(ignorecase) " {{{
     let view = winsaveview() | call SaveRegs()
     keepjumps normal gny
