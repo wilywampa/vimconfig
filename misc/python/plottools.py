@@ -127,6 +127,21 @@ def pad(array, length, filler=float('nan')):
                      mode='constant', constant_values=(filler,))
 
 
+def index_all(mapping, ix, copy=False):
+    """Index all ndarrays in a nested Mapping with the slice object ix."""
+    from collections import Mapping
+    from copy import deepcopy
+    from numpy import ndarray
+    if copy:
+        mapping = deepcopy(mapping)
+    for key, value in mapping.items():
+        if isinstance(value, ndarray):
+            mapping[key] = value[ix]
+        elif isinstance(value, Mapping):
+            index_all(value, ix)
+    return mapping
+
+
 try:
     from attrdict import AttrDict as dict2obj, STRING as _STRING
 except ImportError:
