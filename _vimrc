@@ -594,10 +594,10 @@ ino <expr> <CR> (getline('.')[:col('.')-2] =~ '\(\S\\|^\)\s\+$' ?
 ino \<CR> \<CR>
 
 " Make * and # use 'smartcase'
-nn <silent> * *:<C-u>let @/ = @/<CR>zv
-nn <silent> # #:<C-u>let @/ = @/<CR>zv
-nn <silent> g* g*:<C-u>let @/ = @/<CR>zv
-nn <silent> g# g#:<C-u>let @/ = @/<CR>zv
+nn <silent> * *:<C-u>let @/ = @/<bar>echo @/<CR>zv
+nn <silent> # #:<C-u>let @/ = @/<bar>echo @/<CR>zv
+nn <silent> g* g*:<C-u>let @/ = @/<bar>echo @/<CR>zv
+nn <silent> g# g#:<C-u>let @/ = @/<bar>echo @/<CR>zv
 " }}}
 
 " {{{ Abbreviations to open help
