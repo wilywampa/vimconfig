@@ -822,7 +822,7 @@ def used(name):
 
 
 def remove_unused(i):
-    for index, (name, asname) in enumerate(zip(i.names[:], i.asnames[:])):
+    for asname in i.asnames[:]:
         if not used(asname):
             remove(i, asname)
 
@@ -834,9 +834,9 @@ for lnum, r in redefined.items():
 
 tokens = set()
 readline = (line for line in vim.current.buffer[end:] if line.strip() != '')
-for ttype, tstr, _, _, _ in tokenize.generate_tokens(readline.next):
+for ttype, token, _, _, _ in tokenize.generate_tokens(readline.next):
     if ttype == tokenize.NAME:
-        tokens.add(tstr)
+        tokens.add(token)
 
 for i in imports:
     if any(map(lambda n: n.split('.')[0] in unused.values(), i.asnames)):
