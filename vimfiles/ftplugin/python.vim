@@ -717,7 +717,7 @@ except KeyError:
 
 froms = {
     'bs4': ['BeautifulSoup'],
-    'collections': ['defaultdict', 'deque', 'namedtuple'],
+    'collections': ['Mapping', 'defaultdict', 'deque', 'namedtuple'],
     'contextlib': ['contextmanager'],
     'copy': ['copy', 'deepcopy'],
     'datetime': ['date', 'datetime', 'timedelta'],
@@ -772,8 +772,8 @@ froms = {
         'tensorinv', 'tensorsolve'],
     'plottools': [
         'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
-        'merge_dicts', 'pad', 'picker', 'resize', 'savepdf', 'savesvg',
-        'unique_legend', 'varinfo'],
+        'index_all', 'merge_dicts', 'pad', 'picker', 'resize', 'savepdf',
+        'savesvg', 'unique_legend', 'varinfo'],
     'pprint': ['pprint'],
     're': ['findall', 'match', 'search', 'sub'],
     'scipy.constants': [
@@ -793,6 +793,7 @@ froms_as = dict(
     atan2=('numpy', 'arctan2'),
     atanh=('numpy', 'arctanh'),
     deg=('numpy', 'rad2deg'),
+    rad=('numpy', 'deg2rad'),
 )
 
 try:
