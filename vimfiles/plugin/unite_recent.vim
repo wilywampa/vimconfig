@@ -1,4 +1,4 @@
-if exists('g:loaded_unite_recent')
+if exists('g:loaded_unite_recent') || v:version < 704
   finish
 endif
 let g:loaded_unite_recent = 1
