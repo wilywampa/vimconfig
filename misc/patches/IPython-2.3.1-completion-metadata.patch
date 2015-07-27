@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..d6d5d68 100644
+index b1bc646..2380b73 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -67,6 +67,7 @@ Notes:
@@ -262,7 +262,35 @@ index b1bc646..d6d5d68 100644
      def dispatch_custom_completer(self, text):
          #io.rprint("Custom! '%s' %s" % (text, self.custom_completers)) # dbg
          line = self.line_buffer
-@@ -931,8 +1135,89 @@ class IPCompleter(Completer):
+@@ -901,6 +1105,7 @@ class IPCompleter(Completer):
+ 
+         # Start with a clean slate of completions
+         self.matches[:] = []
++        changed_greedy = False
+         custom_res = self.dispatch_custom_completer(text)
+         if custom_res is not None:
+             # did custom completers produce something?
+@@ -918,6 +1123,19 @@ class IPCompleter(Completer):
+                         # Show the ugly traceback if the matcher causes an
+                         # exception, but do NOT crash the kernel!
+                         sys.excepthook(*sys.exc_info())
++                if not self.matches and self.splitter.delims == GREEDY_DELIMS:
++                    try:
++                        self._greedy_changed('', True, False)
++                        changed_greedy = True
++                        original_text = text
++                        text = self.splitter.split_line(text, cursor_pos)
++                        for matcher in self.matchers:
++                            try:
++                                self.matches.extend(matcher(text))
++                            except:
++                                sys.excepthook(*sys.exc_info())
++                    finally:
++                        self._greedy_changed('', False, True)
+             else:
+                 for matcher in self.matchers:
+                     self.matches = matcher(text)
+@@ -931,8 +1149,93 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
@@ -349,6 +377,10 @@ index b1bc646..d6d5d68 100644
 +
          #io.rprint('COMP TEXT, MATCHES: %r, %r' % (text, self.matches)) # dbg
 -        return text, self.matches
++        if changed_greedy:
++            start = original_text[:original_text.rindex(text)]
++            matches = [start + m for m in matches]
++            text = original_text
 +        return text, matches
  
      def rlcomplete(self, text, state):
