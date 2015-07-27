@@ -1,7 +1,7 @@
 import os
 import sys
-from IPython.kernel import KernelManager
-from IPython.kernel import find_connection_file
+from IPython.kernel import KernelManager, find_connection_file
+from Queue import Empty
 from pygments import highlight
 from pygments.filter import simplefilter
 from pygments.lexers import PythonLexer
@@ -13,16 +13,8 @@ except ImportError:
     print "Couldn't import solarized terminal formatter"
     from pygments.formatters import TerminalFormatter
 
-colors = {
-    'black': 0,
-    'red': 1,
-    'green': 2,
-    'yellow': 3,
-    'blue': 4,
-    'magenta': 5,
-    'cyan': 6,
-    'white': 7,
-}
+colors = {k: i for i, k in enumerate([
+    'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'])}
 
 types = ['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
          'complex', 'dict', 'file', 'float', 'frozenset', 'int', 'list',
@@ -38,9 +30,9 @@ while not connected:
     except IOError:
         continue
     if km is not None:
-        del(km)
+        del km
     if kc is not None:
-        del(kc)
+        del kc
     km = KernelManager(connection_file=fullpath)
     km.load_connection_file()
 
@@ -54,9 +46,12 @@ while not connected:
         socket = km.connect_iopub()
         print 'IPython monitor connected successfully'
     except KeyboardInterrupt:
-        sys.exit(1)
-    except:
-        pass
+        sys.exit(0)
+    except Empty:
+        continue
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
 
 if len(sys.argv) > 1:
     term = open(sys.argv[1], 'w+')
@@ -98,7 +93,6 @@ class IPythonMonitor(object):
         self.msg_id = None
         self.last_msg_type = None  # Only set when text written to stdout
         self.last_execution_count = None
-        self.skip_pyout = None
 
     def print_prompt(self, color):
         l = self.prompt.index('[')
@@ -127,16 +121,12 @@ class IPythonMonitor(object):
                     self.pyerr(msg)
                     continue
 
-                client = msg['parent_header']['session']
-                if (msg_type == 'pyin' and
+                client = msg['parent_header'].get('session', '')
+                if (client and msg_type == 'pyin' and
                         msg['content']['code'] == '"_vim_client";_=_;__=__'):
                     self.clients.add(client)
-                    self.skip_pyout = client
                     continue
                 if client not in self.clients:
-                    continue
-                elif msg_type == 'pyout' and client == self.skip_pyout:
-                    self.skip_pyout = None
                     continue
 
                 try:
@@ -190,7 +180,7 @@ class IPythonMonitor(object):
         self.last_msg_type = msg['msg_type']
 
     def stream(self, msg):
-        if self.last_msg_type != 'stream' and self.last_msg_type != 'pyerr':
+        if self.last_msg_type not in ['pyerr', 'stream']:
             sys.stdout.write('\n')
         if not self.received_msg:
             sys.stdout.write(colorize(msg['content']['data'],
@@ -198,7 +188,7 @@ class IPythonMonitor(object):
             self.last_msg_type = msg['msg_type']
 
     def status(self, msg):
-        if msg['content']['execution_state'] == 'idle' and self.print_idle:
+        if self.print_idle and msg['content']['execution_state'] == 'idle':
             self.prompt = '\n' + ''.join('In [%d]: ' % (
                 self.last_execution_count + 1))
             self.print_prompt('green')
