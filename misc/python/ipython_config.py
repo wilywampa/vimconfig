@@ -72,6 +72,7 @@ def configure(c):
         'import cPickle as pickle',
         'import ein',
         'import itertools as it',
+        'import lambda_filter; lambda_filter.register()',
         'import matplotlib as mpl',
         'import matplotlib.cm as cm',
         'import matplotlib.colors as colors',
