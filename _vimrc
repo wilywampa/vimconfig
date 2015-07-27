@@ -194,7 +194,9 @@ ino <silent> <expr> <C-s> <SID>inCmdWin()? '<CR>' : '<Esc>:<C-u>update<CR>'
 vn <silent> <C-s> <C-c>:<C-u>update<CR>
 
 " Redraw the screen, remove search highlighting, and synchronize syntax
-nn <silent> <expr> <C-l> v:hlsearch ? ':<C-u>nohlsearch<CR>' : '<C-l>'
+if v:version > 704 || (v:version == 704 && has('patch79'))
+    nn <silent> <expr> <C-l> v:hlsearch ? ':<C-u>nohlsearch<CR>' : '<C-l>'
+endif
 nm <silent> g<C-l> :<C-u>syntax sync fromstart<CR><C-l>
 
 " Execute q macro
@@ -958,17 +960,21 @@ if s:hasvimtools
     command! -range -nargs=* KeepPatterns
         \ call vimtools#KeepPatterns(<line1>, <line2>, <q-args>)
     " Complete wildmode with <C-e> if in wildmenu with a trailing slash
-    cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
-        \ "\<C-e>" : "\<C-\>evimtools#KeepPatternsSubstitute()\<CR>\<Left>\<C-]>\<Right>"
+    if exists('*wildmenumode')
+        cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
+            \ "\<C-e>" : "\<C-\>evimtools#KeepPatternsSubstitute()\<CR>\<Left>\<C-]>\<Right>"
+    endif
     nnoremap <silent> & :<C-u>call vimtools#RepeatSubs(0)<CR>:silent! call repeat#set('&')<CR>
     nnoremap <silent> g& :<C-u>call vimtools#RepeatSubs(1)<CR>:silent! call repeat#set('g&')<CR>
 else
-    cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
-        \ "\<C-e>" : '/'
+    if exists('*wildmenumode')
+        cnoremap <expr> / wildmenumode() && (strridx(getcmdline(),'/')==len(getcmdline())-1) ?
+            \ "\<C-e>" : '/'
+    endif
 endif
 
 " Function abbreviations
-if s:hasvimtools
+if s:hasvimtools && v:version >= 704
     cnoremap ( <C-\>evimtools#FuncAbbrevs()<CR><Left><C-]><Right>
 endif
 
@@ -1165,7 +1171,11 @@ func! s:RestoreMarks()
         call setpos("']", s:right_mark)
     endif
 endfunc
-autocmd VimrcAutocmds CursorMoved,TextChanged,InsertLeave * call s:SaveMarks()
+if v:version >= 704 || (v:version == 703 && has('patch867'))
+    autocmd VimrcAutocmds CursorMoved,TextChanged,InsertLeave * call s:SaveMarks()
+else
+    autocmd VimrcAutocmds CursorMoved,InsertLeave * call s:SaveMarks()
+endif
 autocmd VimrcAutocmds BufWritePost * call s:RestoreMarks()
 
 " Turn off diffs automatically
@@ -1179,7 +1189,11 @@ endif
 func! s:OmapSlash(char) " {{{
     augroup omap_slash
         autocmd!
-        autocmd CursorMoved,TextChanged * call s:CheckSearch() | autocmd! omap_slash
+        if v:version >= 704 || (v:version == 703 && has('patch867'))
+            autocmd CursorMoved,TextChanged * call s:CheckSearch() | autocmd! omap_slash
+        else
+            autocmd CursorMoved * call s:CheckSearch() | autocmd! omap_slash
+        endif
     augroup END
     let s:saved_search = getreg('/')
     return a:char
@@ -1434,10 +1448,12 @@ augroup VimrcAutocmds " {{{
         \ endif
 
     " Save position of last text change
-    autocmd TextChanged,TextChangedI *
-        \ if &buflisted && &buftype == '' |
-        \     let g:last_change_buf = bufnr('%') |
-        \ endif
+    if v:version >= 704 || (v:version == 703 && has('patch867'))
+        autocmd TextChanged,TextChangedI *
+            \ if &buflisted && &buftype == '' |
+            \     let g:last_change_buf = bufnr('%') |
+            \ endif
+    endif
 
     " Jump to quickfix result in previous window
     autocmd FileType qf nn <silent> <buffer> <CR> :execute "wincmd p \| "
@@ -1767,8 +1783,13 @@ func! s:SneakMaps() " {{{
             execute mode.'map <C-@>     <Plug>Sneak_S'
             execute mode.'map ,, <Plug>SneakPrevious'
         endfor
-        nnoremap <silent> <expr> <C-l> stridx(string(getmatches()), 'SneakPlugin') == -1 ?
-            \ (v:hlsearch ? ':<C-u>nohlsearch<CR>' : '<C-l>') : sneak#cancel()
+        if v:version > 704 || (v:version == 704 && has('patch79'))
+            nnoremap <silent> <expr> <C-l> stridx(string(getmatches()), 'SneakPlugin') == -1 ?
+                \ (v:hlsearch ? ':<C-u>nohlsearch<CR>' : '<C-l>') : sneak#cancel()
+        else
+            nnoremap <silent> <expr> <C-l> stridx(string(getmatches()), 'SneakPlugin') == -1 ?
+                \ '<C-l>' : sneak#cancel()
+        endif
     endif
 endfunc " }}}
 autocmd VimrcAutocmds VimEnter * call s:SneakMaps()
@@ -1840,16 +1861,18 @@ augroup VimrcAutocmds
 augroup END
 func! s:UniteSettings() " {{{
     setlocal conceallevel=0
-    augroup vimrc_unite
-        autocmd CursorMoved,CursorMovedI,BufEnter <buffer>
-            \ if exists('b:match') |
-            \     silent! call matchdelete(b:match) |
-            \ endif |
-            \ if v:hlsearch |
-            \     let b:match = matchadd('Search', (@/=~#'\\\@<!\u'?"":'\c').@/, 9999) |
-            \ endif
-        autocmd BufLeave,BufHidden <buffer> autocmd! vimrc_unite
-    augroup END
+    if v:version > 704 || (v:version == 704 && has('patch79'))
+        augroup vimrc_unite
+            autocmd CursorMoved,CursorMovedI,BufEnter <buffer>
+                \ if exists('b:match') |
+                \     silent! call matchdelete(b:match) |
+                \ endif |
+                \ if v:hlsearch |
+                \     let b:match = matchadd('Search', (@/=~#'\\\@<!\u'?"":'\c').@/, 9999) |
+                \ endif
+            autocmd BufLeave,BufHidden <buffer> autocmd! vimrc_unite
+        augroup END
+    endif
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
         \."\<Plug>(unite_append_enter)"
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')

@@ -7,7 +7,7 @@
 
 " Init {{{
 
-if has('gui_running')
+if has('gui_running') || (v:version < 703 || (v:version == 703 && !has('patch442')))
     finish
 endif
 
