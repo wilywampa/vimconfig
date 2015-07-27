@@ -1706,7 +1706,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             let g:neocomplete#sources = {}
         endif
         let g:neocomplete#sources._ = ['file', 'file/include', 'member',
-            \ 'buffer', 'syntax', 'include', 'neosnippet', 'omni', 'words']
+            \ 'buffer', 'syntax', 'neosnippet', 'omni', 'words']
         if stridx($VIMBLACKLIST, 'tmux-complete') == -1
             call add(g:neocomplete#sources._, 'tmux-complete')
         endif
@@ -2286,6 +2286,7 @@ Plug 'wilywampa/vim-ipython'
 Plug 'wilywampa/jedi-vim'
 Plug 'xolox/vim-misc'
 Plug 'wilywampa/neocomplete.vim', {'branch': 'simple_cfu'}
+Plug 'wilywampa/neoinclude.vim'
 Plug 'wilywampa/neomru.vim'
 Plug 'wilywampa/neosnippet.vim'
 Plug 'wilywampa/neosnippet-snippets'

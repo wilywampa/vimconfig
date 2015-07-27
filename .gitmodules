@@ -243,3 +243,6 @@
 [submodule "vimfiles/bundle/neco-vim"]
 	path = vimfiles/bundle/neco-vim
 	url = https://github.com/Shougo/neco-vim.git
+[submodule "vimfiles/bundle/neoinclude"]
+	path = vimfiles/bundle/neoinclude
+	url = https://github.com/Shougo/neoinclude.vim.git
