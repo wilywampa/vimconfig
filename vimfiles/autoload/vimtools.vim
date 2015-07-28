@@ -396,6 +396,8 @@ function! vimtools#FuncAbbrevs() " {{{
 endfunction " }}}
 
 function! vimtools#opfunc(type) abort " {{{
+  let g:first_op = 0
+  let g:repeat_op = &opfunc
   let sel_save = &selection
   let cb_save = &clipboard
   let reg_save = @@

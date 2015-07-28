@@ -149,6 +149,8 @@ EOF
   endfunction
 
   function! s:IPyRunMotion(type)
+    let g:first_op = 0
+    let g:repeat_op = &opfunc
     let input = vimtools#opfunc(a:type)
     if exists('b:did_ipython')
       let g:ipy_input = vimtools#opfunc(a:type)
@@ -322,7 +324,7 @@ xnoremap <silent> <buffer> K     :<C-u>call <SID>IPyGetHelp()<CR>
 xnoremap <silent> <buffer> <M-y> :<C-u>call <SID>IPyEval(0)<CR>
 xnoremap <silent> <buffer> <M-e> :<C-u>call <SID>IPyEval(1)<CR>
 inoremap <silent> <expr>   <C-r>? <SID>IPyEval(2)
-nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>IPyRunMotion<CR>g@
+nnoremap <silent> <buffer> <Leader>x :<C-u>let g:first_op=1<bar>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>IPyRunMotion('visual')<CR>

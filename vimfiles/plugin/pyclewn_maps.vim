@@ -76,11 +76,11 @@ function! s:PyclewnMaps()
         \ <C-r>=winnr('#') > 0 ? winnr('#').'wincmd w' : ''<CR><bar><C-r>=winnr().'wincmd w'<CR><CR>
     cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'C print':'Cp')
     cnoreabbrev <expr> Cd ((getcmdtype()==':'&&getcmdpos()<=3)?'Cdisplay':'Cd')
-    nnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>set_print(0)<bar>set opfunc=<SID>PdbRunMotion<CR>g@
+    nnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>set_print(0)<bar>let g:first_op=1<bar>set opfunc=<SID>PdbRunMotion<CR>g@
     nnoremap <silent> <buffer> <Leader>xx :<C-u>call <SID>set_print(0)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
     inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>call <SID>set_print(0)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
     xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>set_print(0)<bar>call <SID>PdbRunMotion('visual')<CR>
-    nnoremap <silent> <buffer> ,p :<C-u>call <SID>set_print(1)<bar>set opfunc=<SID>PdbRunMotion<CR>g@
+    nnoremap <silent> <buffer> ,p :<C-u>call <SID>set_print(1)<bar>let g:first_op=1<bar>set opfunc=<SID>PdbRunMotion<CR>g@
     nnoremap <silent> <buffer> ,pp :<C-u>call <SID>set_print(1)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
     inoremap <silent> <buffer> ,p  <Esc>:<C-u>call <SID>set_print(1)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
     xnoremap <silent> <buffer> ,p :<C-u>call <SID>set_print(1)<bar>call <SID>PdbRunMotion('visual')<CR>

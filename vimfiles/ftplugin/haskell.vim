@@ -66,7 +66,7 @@ func! s:EvalSelection()
   call RestoreRegs()
 endfunc
 
-nnoremap <silent> <buffer> <Leader>x :<C-u>set opfunc=<SID>RunMotionHaskell<CR>g@
+nnoremap <silent> <buffer> <Leader>x :<C-u>let g:first_op=1<bar>set opfunc=<SID>RunMotionHaskell<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>RunMotionHaskell<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>RunMotionHaskell('visual')<CR>
 inoremap <silent> <buffer> <Leader><Leader>x  <Esc>:<C-u>set opfunc=<SID>RunMotionHaskell<Bar>exe 'norm! 'v:count1.'g@_'<CR>
