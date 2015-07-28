@@ -1784,11 +1784,10 @@ func! s:SneakMaps() " {{{
             execute mode.'map ,, <Plug>SneakPrevious'
         endfor
         if v:version > 704 || (v:version == 704 && has('patch79'))
-            nnoremap <silent> <expr> <C-l> stridx(string(getmatches()), 'SneakPlugin') == -1 ?
-                \ (v:hlsearch ? ':<C-u>nohlsearch<CR>' : '<C-l>') : sneak#cancel()
+            nnoremap <silent> <expr> <C-l> sneak#is_sneaking() ?
+                \ sneak#cancel() : (v:hlsearch ? ':<C-u>nohlsearch<CR>' : '<C-l>')
         else
-            nnoremap <silent> <expr> <C-l> stridx(string(getmatches()), 'SneakPlugin') == -1 ?
-                \ '<C-l>' : sneak#cancel()
+            nnoremap <silent> <expr> <C-l> sneak#is_sneaking() ? sneak#cancel() : '<C-l>'
         endif
     endif
 endfunc " }}}
