@@ -13,8 +13,7 @@ class LambdaFilter(PrefilterTransformer):
         try:
             list(self.tokens(line))
         except tokenize.TokenError:
-            self.lines.append(line)
-            return
+            return line
 
         # Split line on semicolons
         cols = [col for ttype, token, (_, col), _, _
