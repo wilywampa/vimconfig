@@ -8,6 +8,11 @@ endif
 
 let b:did_ftplugin = 1
 
+" Detect Cython syntax
+if index(['pxd', 'pxi', 'pyx'], expand('%:e')) != -1
+  set syntax=cython
+endif
+
 func! s:RunPython()
   if !has('gui_running') && !empty($TMUX)
     if !exists("g:VimuxRunnerIndex")
