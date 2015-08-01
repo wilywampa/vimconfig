@@ -1014,6 +1014,7 @@ bindkey -M menuselect '^M' .accept-line
 # Ctrl-E accepts current completion
 bindkey -M menuselect '^E' accept-search
 bindkey -M menuselect '/' accept-search
+bindkey -M menuselect '^[' accept-search
 
 # Faster! (?)
 zstyle ':completion::complete:*' use-cache 1
