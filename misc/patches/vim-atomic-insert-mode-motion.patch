@@ -86,7 +86,7 @@ diff --git a/src/edit.c b/src/edit.c
  	    break;
  
  	case K_S_RIGHT:	/* <S-Right> */
-@@ -6791,10 +6798,11 @@
+@@ -6786,10 +6793,11 @@
   * For undo/redo it resembles hitting the <ESC> key.
   */
      static void
@@ -101,7 +101,7 @@ diff --git a/src/edit.c b/src/edit.c
      {
  	AppendToRedobuff(ESC_STR);
  	stop_insert(end_insert_pos, FALSE, FALSE);
-@@ -6833,7 +6841,7 @@
+@@ -6828,7 +6836,7 @@
  
      spell_bad_len = spell_move_to(curwin, BACKWARD, TRUE, TRUE, NULL);
      if (curwin->w_cursor.col != tpos.col)
@@ -121,7 +121,7 @@ diff --git a/src/edit.c b/src/edit.c
 +		  break;
 +
  	/* Unknown CTRL-G command, reserved for future expansion. */
- 	default:  vim_beep();
+ 	default:  vim_beep(BO_CTRLG);
      }
 @@ -9267,7 +9281,7 @@
  	    curbuf = curwin->w_buffer;
@@ -207,7 +207,7 @@ diff --git a/src/edit.c b/src/edit.c
  	curwin->w_set_curswant = TRUE;	/* so we stay at the end */
      }
      else
- 	vim_beep();
+ 	vim_beep(BO_CRSR);
 +    stop_sync_undo = FALSE;
  }
  
@@ -275,7 +275,7 @@ diff --git a/src/edit.c b/src/edit.c
  	curwin->w_cursor.col = 0;
      }
      else
- 	vim_beep();
+ 	vim_beep(BO_CRSR);
 +    stop_sync_undo = FALSE;
  }
  
