@@ -36,7 +36,7 @@ nnoremap <silent> <buffer> <S-F5> :up<CR>:!python %<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
 nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
 nnoremap <silent> <buffer> ,pi :<C-u>call FixImports()<CR>
-nnoremap          <buffer> ,ip :<C-u>IPython<CR>
+nnoremap          <buffer> ,ip :<C-u>IPythonConsole<CR>
 
 " Move around functions
 nnoremap <silent> <buffer> [[ m':call search('^\s*def ', "bW")<CR>
@@ -68,6 +68,26 @@ let s:errorformat .= '%Z%\S%\&%m,'
 let s:errorformat .= '%-G%.%#'
 
 let s:scratch_name = '--Python--'
+
+python << EOF
+import os
+import subprocess
+from getpass import getuser
+
+
+def get_ipython_file():
+    procs = subprocess.check_output(
+        args=['ps', '-u', getuser(), '-o', 'args']).splitlines()
+
+    for proc in procs:
+        if 'ipython-console' in proc:
+            for arg in proc.split():
+                if arg.endswith('.json'):
+                    return os.path.basename(arg)
+
+    return ''
+EOF
+command! IPythonConsole execute 'IPython ' . pyeval('get_ipython_file()')
 
 if !exists('*s:IPyRunPrompt')
   function! s:IPyRunIPyInput()
@@ -295,7 +315,7 @@ EOF
     let scratch = bufnr(s:scratch_name)
     if scratch == -1
       enew
-      IPython
+      IPythonConsole
     else
       execute "buffer ".scratch
     endif

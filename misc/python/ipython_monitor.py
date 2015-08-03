@@ -2,6 +2,7 @@ import os
 import sys
 from IPython.kernel import KernelManager, find_connection_file
 from Queue import Empty
+from glob import glob
 from pygments import highlight
 from pygments.filter import simplefilter
 from pygments.lexers import PythonLexer
@@ -26,32 +27,44 @@ km = None
 kc = None
 while not connected:
     try:
-        fullpath = find_connection_file('kernel*')
+        filename = find_connection_file('kernel*')
     except IOError:
         continue
-    if km is not None:
-        del km
-    if kc is not None:
-        del kc
-    km = KernelManager(connection_file=fullpath)
-    km.load_connection_file()
 
-    kc = km.client()
-    kc.start_channels()
+    for fullpath in glob(os.path.join(os.path.dirname(filename),
+                                      'kernel*')):
+        if km is not None:
+            del km
+        if kc is not None:
+            del kc
+        km = KernelManager(connection_file=fullpath)
+        km.load_connection_file()
 
-    kc.shell_channel.execute('', silent=True)
-    try:
-        msg = kc.shell_channel.get_msg(timeout=1)
-        connected = True
-        socket = km.connect_iopub()
-        print 'IPython monitor connected successfully'
-    except KeyboardInterrupt:
-        sys.exit(0)
-    except Empty:
-        continue
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
+        kc = km.client()
+        kc.start_channels()
+
+        msg_id = kc.shell_channel.execute(
+            "_appname = get_ipython().config['IPKernelApp']['parent_appname']",
+            user_expressions={'_appname': '_appname'},
+        )
+        try:
+            msg = kc.shell_channel.get_msg(timeout=1)
+            connected = True
+            if msg['parent_header']['msg_id'] == msg_id:
+                appname = msg['content']['user_expressions']['_appname']
+                if appname['data']['text/plain'] == "'ipython-console'":
+                    connected = True
+                    socket = km.connect_iopub()
+                    print 'IPython monitor connected successfully'
+                else:
+                    continue
+        except KeyboardInterrupt:
+            sys.exit(0)
+        except (Empty, KeyError):
+            continue
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
 
 if len(sys.argv) > 1:
     term = open(sys.argv[1], 'w+')
