@@ -49,13 +49,13 @@ while not connected:
         )
         try:
             msg = kc.shell_channel.get_msg(timeout=1)
-            connected = True
             if msg['parent_header']['msg_id'] == msg_id:
                 appname = msg['content']['user_expressions']['_appname']
                 if appname['data']['text/plain'] == "'ipython-console'":
                     connected = True
                     socket = km.connect_iopub()
                     print 'IPython monitor connected successfully'
+                    break
                 else:
                     continue
         except KeyboardInterrupt:
