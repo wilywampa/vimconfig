@@ -1,0 +1,115 @@
+diff --git a/vimpager b/vimpager
+index 289d7e9..0958a81 100755
+--- a/vimpager
++++ b/vimpager
+@@ -154,59 +154,7 @@ main() {
+ 		fi
+ 	fi
+ 
+-	# read settings
+-	vim -N -u "${vimrc}" -E --cmd 'let vimpager = 1' -c '
+-		if !exists("vimpager_use_gvim")
+-			let vimpager_use_gvim = 0
+-		endif
+-
+-		if !exists("vimpager_disable_x11")
+-			let vimpager_disable_x11 = 0
+-		endif
+-
+-		if !exists("vimpager_scrolloff")
+-			let vimpager_scrolloff = "unset"
+-		endif
+-
+-		if !exists("vimpager_passthrough")
+-			let vimpager_passthrough = 1
+-		endif
+-
+-		if !exists("vimpager_less_mode")
+-			let vimpager_less_mode = 1
+-		endif
+-
+-		let use_ansiesc = 0
+-
+-		if has("conceal") && (!exists("vimpager_disable_ansiesc") || vimpager_disable_ansiesc == 0)
+-			let use_ansiesc = 1
+-		endif
+-
+-		call writefile([ vimpager_use_gvim, vimpager_disable_x11, vimpager_scrolloff, vimpager_passthrough, use_ansiesc, vimpager_less_mode ], "'${tmp}'/vimpager_opts")
+-
+-		quit
+-	' </dev/null
+-
+-	[ "$(head_n 1 < "${tmp}/vimpager_opts")" = 1 ] && use_gvim=1
+-
+-	[ "$(head_n 2 < "${tmp}/vimpager_opts" | tail_n 1)" = 1 ] && disable_x11=1
+-
+-	scrolloff=$(head_n 3 < "${tmp}/vimpager_opts" | tail_n 1)
+-
+-	[ "$(head_n 4 < "${tmp}/vimpager_opts" | tail_n 1)" = 0 ] && no_pass_thru=1
+-
+-	if [ "${no_pass_thru}" = 0 ]; then
+-		# check if arithmetic expansion works, passthrough mode relies on it
+-		if [ x$(echo $((2+2)) 2>/dev/null) != x4 ]; then
+-			no_pass_thru=1
+-		fi
+-	fi
+-
+-	[ "$(head_n 5 < "${tmp}/vimpager_opts" | tail_n 1)" != 0 ] && ansiesc_available=1
+-
+-	[ "$(head_n 6 < "${tmp}/vimpager_opts" | tail_n 1)" != 0 ] && use_less_vim=1
+-
+-	rm -f "${tmp}/vimpager_opts"
++	ansiesc_available=1
+ 
+ 	if [ -n "${msys}" -o -n "${cygwin}" ]; then
+ 		# msys/cygwin may be using a native vim, and if we're not in a real
+@@ -387,12 +335,6 @@ main() {
+ 		exit
+ 	fi
+ 
+-	# On cygwin it might be the win32 gvim, but windows paths work for cygwin
+-	# vim just fine as well.
+-	if [ -n "${cygwin}" ]; then
+-		filename=$(cygpath -w "${filename}" | tr '\\' /)
+-	fi
+-
+ 	vim_less -c "${extra_c:-echo}" --cmd "${extra_cmd:-echo}" </dev/tty
+ }
+ 
+@@ -545,12 +487,7 @@ vim_less() {
+ 		load_less_cmd='runtime macros/less.vim'
+ 		scrolloff_cmd='silent! echo' # set in less.vim
+ 	else
+-		if [ "${scrolloff}" = 'unset' ]; then
+-			scrolloff_cmd='silent! echo'
+-		else
+-			scrolloff_cmd="set scrolloff = ${scrolloff}"
+-		fi
+-
++		scrolloff_cmd='silent! echo'
+ 		load_less_cmd='silent! echo'
+ 	fi
+ 
+@@ -564,11 +501,8 @@ vim_less() {
+ 				-u "${vimrc}" \
+ 				--cmd 'let __save_hidden = &hidden | set nohidden' \
+ 				--cmd 'set buftype=nofile modifiable noreadonly' \
+-				--cmd "set rtp^=${tmp}/extra_vim_home" \
+ 				--cmd 'set bg=dark' \
+ 				--cmd 'let vimpager=1' \
+-				--cmd 'call vimpager#init()' \
+-				--cmd "${load_less_cmd}" \
+ 				-c 'let &hidden = __save_hidden' \
+ 				-c "${ansi_command} | ${scrolloff_cmd}" \
+ 				-c "args ${escaped_filename}" \
+@@ -595,10 +529,7 @@ vim_less() {
+ 				-u "${vimrc}" \
+ 				--cmd 'let __save_hidden = &hidden | set nohidden' \
+ 				--cmd 'set buftype=nofile modifiable noreadonly' \
+-				--cmd "set rtp^=${tmp}/extra_vim_home" \
+ 				--cmd 'let vimpager=1' \
+-				--cmd 'call vimpager#init()' \
+-				--cmd "${load_less_cmd}" \
+ 				-c 'let &hidden = __save_hidden' \
+ 				-c "${ansi_command} | ${scrolloff_cmd}" \
+ 				-c "${colors:-echo} | ${restore:-echo} | set lines=${lines} | set columns=${cols}" \
