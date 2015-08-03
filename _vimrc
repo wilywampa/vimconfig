@@ -2325,7 +2325,7 @@ Plug 'wilywampa/haskellmode-vim'
 Plug 'eagletmt/ghcmod-vim'
 Plug 'eagletmt/neco-ghc'
 Plug 'Shougo/neco-vim', {'dir': '$VIMCONFIG/vimfiles/bundle/neco-vim'}
-Plug 'raichoo/haskell-vim'
+Plug 'neovimhaskell/haskell-vim'
 Plug 'ujihisa/unite-haskellimport'
 Plug 'vim-scripts/CSApprox', {'for': 'fugitiveblame'}
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}

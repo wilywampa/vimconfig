@@ -228,9 +228,6 @@
 [submodule "vimfiles/bundle/neco-ghc"]
 	path = vimfiles/bundle/neco-ghc
 	url = https://github.com/eagletmt/neco-ghc.git
-[submodule "vimfiles/bundle/haskell"]
-	path = vimfiles/bundle/haskell
-	url = https://git::@github.com/raichoo/haskell-vim.git
 [submodule "vimfiles/bundle/unite-haskellimport"]
 	path = vimfiles/bundle/unite-haskellimport
 	url = https://github.com/ujihisa/unite-haskellimport.git
@@ -246,3 +243,6 @@
 [submodule "vimfiles/bundle/neoinclude"]
 	path = vimfiles/bundle/neoinclude
 	url = https://github.com/Shougo/neoinclude.vim.git
+[submodule "vimfiles/bundle/haskell"]
+	path = vimfiles/bundle/haskell
+	url = https://github.com/neovimhaskell/haskell-vim.git
