@@ -276,7 +276,11 @@ EOF
         python eval_ipy_input()
       else
         let g:ipy_input = input('>>> ')
+        silent! unlet g:ipy_result
         python eval_ipy_input('g:ipy_result')
+        if !exists('g:ipy_result')
+          return ''
+        endif
         if g:ipy_result =~ "\<NL>"
           set paste
           set pastetoggle=<F10>
