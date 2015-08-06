@@ -161,16 +161,21 @@ class IPythonMonitor(object):
         self.print_idle = True
         self.last_msg_type = msg['msg_type']
 
-    def pyout(self, msg):
-        self.prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
-        self.last_execution_count = msg['content']['execution_count']
-        spaces = ' ' * len(self.prompt.rstrip()) + ' '
-        sys.stdout.write('\n')
-        self.print_prompt('red')
+    def pyout(self, msg, prompt=True, spaces=''):
+        if prompt:
+            self.prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
+            self.last_execution_count = msg['content']['execution_count']
+            spaces = ' ' * len(self.prompt.rstrip()) + ' '
+            sys.stdout.write('\n')
+            self.print_prompt('red')
         output = msg['content']['data']['text/plain'].rstrip() \
             .replace('\n', '\n' + spaces)
         sys.stdout.write(output)
         self.last_msg_type = msg['msg_type']
+
+    def display_data(self, msg):
+        sys.stdout.write('\n')
+        self.pyout(msg, prompt=False)
 
     def pyerr(self, msg):
         if self.awaiting_msg and self.received_msg:
