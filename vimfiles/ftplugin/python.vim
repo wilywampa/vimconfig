@@ -56,7 +56,7 @@ augroup END
 
 inoremap <expr> <buffer> @
     \ getline('.')[:col('.')-1] =~ '^\s*$' ? '@' :
-    \ (getline('.') =~# 'lambda ' ? repeat('<BS>', 7) . '@' : 'lambda ')
+    \ (getline('.')[:col('.')-1] =~# 'lambda\s*$' ? repeat('<BS>', 7) . '@' : 'lambda ')
 
 let s:errorformat  = '%+GTraceback%.%#,'
 let s:errorformat .= '%E  File "%f"\, line %l\,%m%\C,'
@@ -753,6 +753,7 @@ froms = {
     'copy': ['copy', 'deepcopy'],
     'datetime': ['date', 'datetime', 'timedelta'],
     'ein': ['eijk', 'mtimesm', 'mtimesv'],
+    'fractions': ['Fraction', 'gcd'],
     'functools': [
         'cmp_to_key', 'partial', 'total_ordering', 'update_wrapper', 'wraps'],
     'itertools': [
