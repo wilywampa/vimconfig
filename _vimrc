@@ -503,9 +503,9 @@ im <F5> <Esc><F5>
 nn <silent> <expr> <C-k> (<SID>inCmdWin()? '' : "/\<C-f>".(v:count1 + 1))."k:let @/=getline('.')<CR>"
 nn <silent> <expr> <C-j>  <SID>inCmdWin()? "j:let @/=getline('.')<CR>" : '<C-j>'
 
-" Don't open fold when jumping to first or last line in diff mode
+" Don't open fold when jumping to first or last line in diff mode and remember G jumps
 nn <silent> <expr> gg "gg".(&diff ? "" : "zv")
-nn <silent> <expr> G "G".(&diff ? "" : "zv")
+nn <silent> <expr> G "G".(&diff ? "" : "zv") . (v:count ? 'mGmg' : '')
 
 " [count]V/v always selects [count] lines/characters
 nn <expr> V v:count ? "\<Esc>V".(v:count > 1 ? (v:count - 1).'j' : '') : 'V'
