@@ -21,7 +21,10 @@ class LambdaFilter(PrefilterTransformer):
 
         parts = [line[s + 1:e]
                  for s, e in zip([-1] + cols, cols + [len(line)])]
-        parts = [self.parens(part) for part in parts]
+        try:
+            parts = [self.parens(part) for part in parts]
+        except IndexError:
+            return line
         line = ';'.join(parts)
 
         # Replace '\' characters with 'lambda '
