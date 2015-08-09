@@ -10,7 +10,10 @@ let b:did_ftplugin = 1
 
 " Detect Cython syntax
 if index(['pxd', 'pxi', 'pyx'], expand('%:e')) != -1
-  set syntax=cython
+  augroup cython_syntax
+    autocmd!
+    autocmd BufEnter <buffer> set syntax=cython | autocmd! cython_syntax
+  augroup END
 endif
 
 func! s:RunPython()
