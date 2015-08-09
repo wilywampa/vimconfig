@@ -150,7 +150,7 @@ EOF
   function! s:IPyPrintVar()
     call SaveRegs()
     normal! gvy
-    let g:ipy_input = 'from pprint import pprint; pprint('.@".')'
+    let g:ipy_input = @"
     call RestoreRegs()
     call s:IPyRunIPyInput()
   endfunction
