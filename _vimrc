@@ -1998,7 +1998,6 @@ endif
 
 " Surround settings
 xmap <expr> S (mode() == 'v' && col('.') == col('$') ? "h" : "")."\<Plug>VSurround"
-nnoremap <silent> ds<Space> F<Space>"_x,"_x:silent! call repeat#set('ds ')<CR>
 nmap gs <Plug>Ysurround
 nmap gss <Plug>Yssurround
 " Make d surround with ['...'] and D with ["..."]
