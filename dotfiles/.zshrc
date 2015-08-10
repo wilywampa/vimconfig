@@ -892,6 +892,7 @@ za() {
     ag "$@" -- ${mandir}/z*(.)
 }
 
+# Ctrl-F opens Vim as command editor
 _edit-command-line() {
     local tmpfile=${TMPPREFIX:-/tmp/zsh}ecl$$
     _disable-focus
@@ -905,6 +906,11 @@ _edit-command-line() {
     zle send-break  # Force reload from the buffer stack
 }
 zle -N _edit-command-line; vibindkey '^F' _edit-command-line
+
+# Use zsh's builtin edit-command-line with <M-f>
+autoload edit-command-line
+zle -N edit-command-line
+vibindkey 'æ' edit-command-line  # <M-f>
 
 _vared-vipe() {
     LBUFFER='export '${LBUFFER//=/}'="$(echo $'${LBUFFER//=/}' | vipe)"'
@@ -1161,10 +1167,6 @@ TRAPINT() {
     _vim_mode=$_vim_ins_mode
     return $(( 128 + $1 ))
 }
-# Ctrl-F opens Vim as command editor
-autoload edit-command-line
-zle -N edit-command-line
-vibindkey 'æ' edit-command-line  # <M-f>
 _lineup=$'\e[1A'
 _linedown=$'\e[1B'
 [[ -n $SSH_CLIENT ]] && _hostcolor=9 || _hostcolor=3
