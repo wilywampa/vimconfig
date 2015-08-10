@@ -750,6 +750,9 @@ except KeyError:
     pass
 
 froms = {
+    'IPython': ['get_ipython', 'parallel'],
+    'IPython.core.display': ['display'],
+    'IPython.parallel': ['Client', 'Reference', 'interactive'],
     'bs4': ['BeautifulSoup'],
     'collections': ['Mapping', 'defaultdict', 'deque', 'namedtuple'],
     'contextlib': ['contextmanager'],
@@ -811,6 +814,8 @@ froms = {
         'index_all', 'merge_dicts', 'pad', 'picker', 'resize', 'savepdf',
         'savesvg', 'unique_legend', 'varinfo'],
     'pprint': ['pprint'],
+    'pyprimes': ['is_prime', 'primes'],
+    'pyprimes.factors': ['factorise', 'factors'],
     're': ['findall', 'match', 'search', 'sub'],
     'scipy.constants': [
         'degree', 'foot', 'g', 'inch', 'kmh', 'knot', 'lb', 'lbf', 'mach',
