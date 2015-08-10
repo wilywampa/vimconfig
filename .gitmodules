@@ -246,3 +246,6 @@
 [submodule "vimfiles/bundle/haskell"]
 	path = vimfiles/bundle/haskell
 	url = https://github.com/neovimhaskell/haskell-vim.git
+[submodule "vimfiles/bundle/neco-syntax"]
+	path = vimfiles/bundle/neco-syntax
+	url = https://github.com/Shougo/neco-syntax.git
