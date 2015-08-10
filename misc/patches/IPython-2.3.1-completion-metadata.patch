@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..26e8264 100644
+index b1bc646..32b6c01 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -67,6 +67,7 @@ Notes:
@@ -293,7 +293,7 @@ index b1bc646..26e8264 100644
              else:
                  for matcher in self.matchers:
                      self.matches = matcher(text)
-@@ -931,8 +1152,94 @@ class IPCompleter(Completer):
+@@ -931,8 +1152,95 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
@@ -384,6 +384,7 @@ index b1bc646..26e8264 100644
 +        if changed_greedy:
 +            start = original_text[:original_text.rindex(text)]
 +            matches = [start + m for m in matches]
++            self.matches = matches
 +            text = original_text
 +        return text, matches
  
