@@ -32,6 +32,9 @@ endfunc
 
 setlocal define=^\s*\\(def\\\\|class\\)
 
+" Highlight docstrings as comments
+highlight! def link pythonDocstring Comment
+
 noremap  <silent> <buffer> <F5> :up<CR>:<C-u>call <SID>RunPython()<CR>
 imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
