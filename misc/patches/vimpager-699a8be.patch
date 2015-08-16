@@ -1,5 +1,5 @@
 diff --git a/vimpager b/vimpager
-index 289d7e9..0958a81 100755
+index 289d7e9..704c093 100755
 --- a/vimpager
 +++ b/vimpager
 @@ -154,59 +154,7 @@ main() {
@@ -90,26 +90,34 @@ index 289d7e9..0958a81 100755
  		load_less_cmd='silent! echo'
  	fi
  
-@@ -564,11 +501,8 @@ vim_less() {
+@@ -562,14 +499,10 @@ vim_less() {
+ 
+ 			${vim_cmd} -N \
  				-u "${vimrc}" \
- 				--cmd 'let __save_hidden = &hidden | set nohidden' \
+-				--cmd 'let __save_hidden = &hidden | set nohidden' \
++				--cmd 'set nohidden' \
  				--cmd 'set buftype=nofile modifiable noreadonly' \
 -				--cmd "set rtp^=${tmp}/extra_vim_home" \
  				--cmd 'set bg=dark' \
  				--cmd 'let vimpager=1' \
 -				--cmd 'call vimpager#init()' \
 -				--cmd "${load_less_cmd}" \
- 				-c 'let &hidden = __save_hidden' \
+-				-c 'let &hidden = __save_hidden' \
  				-c "${ansi_command} | ${scrolloff_cmd}" \
  				-c "args ${escaped_filename}" \
-@@ -595,10 +529,7 @@ vim_less() {
+ 				-c "silent! e ${escaped_filename}" \
+@@ -593,13 +526,9 @@ vim_less() {
+ 			(
+ 			${vim_cmd} -N \
  				-u "${vimrc}" \
- 				--cmd 'let __save_hidden = &hidden | set nohidden' \
+-				--cmd 'let __save_hidden = &hidden | set nohidden' \
++				--cmd 'set nohidden' \
  				--cmd 'set buftype=nofile modifiable noreadonly' \
 -				--cmd "set rtp^=${tmp}/extra_vim_home" \
  				--cmd 'let vimpager=1' \
 -				--cmd 'call vimpager#init()' \
 -				--cmd "${load_less_cmd}" \
- 				-c 'let &hidden = __save_hidden' \
+-				-c 'let &hidden = __save_hidden' \
  				-c "${ansi_command} | ${scrolloff_cmd}" \
  				-c "${colors:-echo} | ${restore:-echo} | set lines=${lines} | set columns=${cols}" \
+ 				-c "args ${escaped_filename}" \
