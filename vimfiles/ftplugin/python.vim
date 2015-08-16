@@ -145,11 +145,6 @@ EOF
     call s:IPyRunIPyInput()
   endfunction
 
-  function! s:IPyPing()
-    let g:ipy_input = 'print "pong"'
-    call s:IPyRunIPyInput()
-  endfunction
-
   function! s:IPyPrintVar()
     call SaveRegs()
     normal! gvy
@@ -171,10 +166,10 @@ EOF
     call s:IPyRunIPyInput()
   endfunction
 
-  function! s:IPyGetHelp()
+  function! s:IPyGetHelp(level)
     call SaveRegs()
     normal! gvy
-    let g:ipy_input = 'help('.@".')'
+    let g:ipy_input = @" . a:level
     call RestoreRegs()
     call s:IPyRunIPyInput()
   endfunction
@@ -351,13 +346,13 @@ nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>IPyClearWorkspace()<CR>
 nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>IPyCloseWindows()<CR>
 nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>IPyCloseFigures()<CR>
 nnoremap <silent> <buffer> <Leader><Leader>cl :<C-u>call <SID>IPyCloseWindows()<CR>
-nnoremap <silent>          ,pp :<C-u>call <SID>IPyPing()<CR>
-xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>IPyPrintVar()<CR>
-xnoremap <silent> <buffer> <M-s> :<C-u>call <SID>IPyVarInfo()<CR>
-nnoremap <silent> <buffer> <M-P> :<C-u>call <SID>IPyVarInfo(1)<CR>
-xnoremap <silent> <buffer> K     :<C-u>call <SID>IPyGetHelp()<CR>
-xnoremap <silent> <buffer> <M-y> :<C-u>call <SID>IPyEval(0)<CR>
-xnoremap <silent> <buffer> <M-e> :<C-u>call <SID>IPyEval(1)<CR>
+xnoremap <silent> <buffer> <C-p>     :<C-u>call <SID>IPyPrintVar()<CR>
+xnoremap <silent> <buffer> <M-s>     :<C-u>call <SID>IPyVarInfo()<CR>
+nnoremap <silent> <buffer> <M-P>     :<C-u>call <SID>IPyVarInfo(1)<CR>
+xnoremap <silent> <buffer> K         :<C-u>call <SID>IPyGetHelp('?')<CR>
+xnoremap <silent> <buffer> <Leader>K :<C-u>call <SID>IPyGetHelp('??')<CR>
+xnoremap <silent> <buffer> <M-y>     :<C-u>call <SID>IPyEval(0)<CR>
+xnoremap <silent> <buffer> <M-e>     :<C-u>call <SID>IPyEval(1)<CR>
 inoremap <silent> <expr>   <C-r>? <SID>IPyEval(2)
 nnoremap <silent> <buffer> <Leader>x :<C-u>let g:first_op=1<bar>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
