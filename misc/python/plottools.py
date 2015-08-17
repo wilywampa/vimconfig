@@ -142,6 +142,15 @@ def index_all(mapping, ix, copy=False):
     return mapping
 
 
+def azip(*iterables, **kwargs):
+    """Move `axis` (default -1) to the front of ndarrays in `iterables`"""
+    import numpy as np
+    axis = kwargs.pop('axis', -1)
+    return zip((np.rollaxis(i, axis, **kwargs)
+                if isinstance(i, np.ndarray) else i
+                for i in iterables))
+
+
 try:
     from attrdict import AttrDict as dict2obj, STRING as _STRING
 except ImportError:
