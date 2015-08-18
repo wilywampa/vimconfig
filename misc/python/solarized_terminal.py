@@ -133,7 +133,7 @@ solarized_styles = {
     String:                 ('teal',      'teal'),
     String.Backtick:        ('teal',      'teal'),
     String.Char:            ('teal',      'teal'),
-    String.Doc:             ('teal',      'teal'),
+    String.Doc:             ('green',     'green'),
     String.Double:          ('teal',      'teal'),
     String.Escape:          ('darkred',   'darkred'),
     String.Heredoc:         ('teal',      'teal'),
