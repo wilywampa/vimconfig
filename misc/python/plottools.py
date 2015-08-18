@@ -145,10 +145,10 @@ def index_all(mapping, ix, copy=False):
 def azip(*iterables, **kwargs):
     """Move `axis` (default -1) to the front of ndarrays in `iterables`"""
     import numpy as np
+    from itertools import izip
     axis = kwargs.pop('axis', -1)
-    return zip((np.rollaxis(i, axis, **kwargs)
-                if isinstance(i, np.ndarray) else i
-                for i in iterables))
+    return izip(*(np.rollaxis(i, axis, **kwargs)
+                  if isinstance(i, np.ndarray) else i for i in iterables))
 
 
 try:

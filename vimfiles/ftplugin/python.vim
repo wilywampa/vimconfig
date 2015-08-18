@@ -808,7 +808,7 @@ froms = {
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'solve', 'svd',
         'tensorinv', 'tensorsolve'],
     'plottools': [
-        'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
+        'azip', 'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
         'index_all', 'merge_dicts', 'pad', 'picker', 'resize', 'savepdf',
         'savesvg', 'unique_legend', 'varinfo'],
     'pprint': ['pprint'],
