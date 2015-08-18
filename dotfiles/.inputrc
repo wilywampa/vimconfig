@@ -19,6 +19,8 @@ set editing-mode vi
 "\C-l": clear-screen
 "\C-a": "filter\(lambda x: "
 "@:": "\C-p\C-m"
+"\e[1;5C": forward-word
+"\e[1;5D": backward-word
 set keymap vi-command
 "\C-q": redraw-current-line
 "\C-k": kill-whole-line
