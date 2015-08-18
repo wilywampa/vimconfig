@@ -25,6 +25,7 @@ types = ['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
 connected = False
 km = None
 kc = None
+skip = set()
 while not connected:
     try:
         filename = find_connection_file('kernel*')
@@ -33,6 +34,8 @@ while not connected:
 
     for fullpath in glob(os.path.join(os.path.dirname(filename),
                                       'kernel*')):
+        if fullpath in skip:
+            continue
         if km is not None:
             del km
         if kc is not None:
@@ -57,6 +60,7 @@ while not connected:
                     print 'IPython monitor connected successfully'
                     break
                 else:
+                    skip.add(fullpath)
                     continue
         except KeyboardInterrupt:
             sys.exit(0)
