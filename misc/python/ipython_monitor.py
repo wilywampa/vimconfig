@@ -23,8 +23,6 @@ types = ['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
          'unicode']
 
 connected = False
-km = None
-kc = None
 skip = set()
 while not connected:
     try:
@@ -36,10 +34,6 @@ while not connected:
                                       'kernel*')):
         if fullpath in skip:
             continue
-        if km is not None:
-            del km
-        if kc is not None:
-            del kc
         km = KernelManager(connection_file=fullpath)
         km.load_connection_file()
 
@@ -167,7 +161,8 @@ class IPythonMonitor(object):
 
     def pyout(self, msg, prompt=True, spaces=''):
         if prompt:
-            self.prompt = ''.join('Out [%d]: ' % msg['content']['execution_count'])
+            self.prompt = ''.join('Out [%d]: ' %
+                                  msg['content']['execution_count'])
             self.last_execution_count = msg['content']['execution_count']
             spaces = ' ' * len(self.prompt.rstrip()) + ' '
             sys.stdout.write('\n')
