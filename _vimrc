@@ -1430,7 +1430,7 @@ augroup VimrcAutocmds " {{{
     autocmd BufReadPost * nested
         \ if !exists('b:reload_dos') && !&binary && &ff == 'unix'
         \       && (0 < search('\r$', 'nc')) && &buftype == ''
-        \       && expand('<afile>') !~? '\v\.(diff|rej|patch)$' |
+        \       && expand('<afile>') !~? '\v(^fugitive)|(\.(diff|rej|patch)$)' |
         \     let b:reload_dos = 1 |
         \     e ++ff=dos |
         \ endif
