@@ -43,7 +43,7 @@ while not connected:
 
         msg_id = kc.shell_channel.execute(
             "_appname = get_ipython().config['IPKernelApp']['parent_appname']",
-            user_expressions={'_appname': '_appname'},
+            user_expressions={'_appname': '_appname'}, silent=True,
         )
         try:
             msg = kc.shell_channel.get_msg(timeout=1)
