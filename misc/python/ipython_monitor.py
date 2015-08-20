@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 from IPython.kernel import KernelManager, find_connection_file
@@ -11,7 +12,7 @@ try:
     from solarized_terminal import (SolarizedTerminalFormatter as
                                     TerminalFormatter)
 except ImportError:
-    print "Couldn't import solarized terminal formatter"
+    print("Couldn't import solarized terminal formatter")
     from pygments.formatters import TerminalFormatter
 
 colors = {k: i for i, k in enumerate([
@@ -51,7 +52,7 @@ while not connected:
                 if appname['data']['text/plain'] == "'ipython-console'":
                     connected = True
                     socket = km.connect_iopub()
-                    print 'IPython monitor connected successfully'
+                    print('IPython monitor connected successfully')
                     break
                 else:
                     skip.add(fullpath)
@@ -211,9 +212,12 @@ class IPythonMonitor(object):
             self.print_prompt('green')
             self.print_idle = False
 
+    def clear_output(self, msg):
+        print('\033[2K\r', file=sys.stdout, end='')
+
     def other(self, msg):
-        print 'msg_type = %s' % str(msg['msg_type'])
-        print 'msg = %s' % str(msg)
+        print('msg_type = %s' % str(msg['msg_type']))
+        print('msg = %s' % str(msg))
 
 
 monitor = IPythonMonitor()
