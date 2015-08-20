@@ -1881,7 +1881,7 @@ func! s:UniteSettings() " {{{
     inor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()."\<Esc>"
-        \.'gg0y$Q'.":\<C-u>Unite -buffer-name=buffers/neomru "
+        \.'1G0y$Q'.":\<C-u>Unite -buffer-name=buffers/neomru "
         \."-unique buffer neomru/file\<CR>"."\<C-r>\""
     nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
     imap <buffer> <expr> <C-o>v     unite#do_action('vsplit')
