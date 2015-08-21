@@ -143,7 +143,7 @@ def index_all(mapping, ix, copy=False):
 
 
 def azip(*iterables, **kwargs):
-    """Move `axis` (default -1) to the front of ndarrays in `iterables`"""
+    """Move `axis` (default -1) to the front of ndarrays in `iterables`."""
     import numpy as np
     from itertools import izip
     axis = kwargs.pop('axis', -1)
