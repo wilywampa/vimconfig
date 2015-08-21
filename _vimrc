@@ -2124,7 +2124,7 @@ let VCSCommandCVSDiffOpt = '--internal-diff'
 func! s:JediSetup() " {{{
     if exists('*jedi#completions') && &omnifunc != 'CompleteIPython'
         setlocal omnifunc=jedi#completions
-        nnoremap <silent> <buffer> <M-]> :<C-u>call jedi#goto_definitions()<CR>zv
+        nnoremap <silent> <buffer> <M-]> :<C-u>call jedi#goto()<CR>zv
     endif
 endfunc " }}}
 autocmd VimrcAutocmds FileType python call s:JediSetup()
@@ -2132,11 +2132,12 @@ let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#popup_select_first = 0
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
-let g:jedi#goto_definitions_command = ''
+let g:jedi#goto_command = ''
 let g:jedi#rename_command = '<Leader>jr'
 let g:jedi#usages_command = '<Leader>ju'
 let g:jedi#auto_close_doc = 0
 let g:jedi#show_call_signatures = 2
+let g:jedi#smart_auto_mappings = 0
 let g:jedi#use_tag_stack = 1
 if !exists('g:neocomplete#force_omni_input_patterns')
     let g:neocomplete#force_omni_input_patterns = {}
