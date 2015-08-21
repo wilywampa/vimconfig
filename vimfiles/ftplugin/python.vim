@@ -50,6 +50,10 @@ xnoremap <silent> <buffer> [[ m':<C-U>exe "normal! gv"<Bar>call search('^\s*def 
 nnoremap <silent> <buffer> ]] m':call search('^\s*def ', "W")<CR>
 xnoremap <silent> <buffer> ]] m':<C-U>exe "normal! gv"<Bar>call search('^\s*def ', "W")<CR>
 
+" Unite IPython history maps
+nnoremap <silent> <buffer> ,h :<C-u>Unite history/ipython -max-multi-lines=10<CR>
+nnoremap <silent> <buffer> ,H :<C-u>Unite history/ipython:import -max-multi-lines=10<CR>
+
 " Enable omni completion
 setlocal omnifunc=pythoncomplete#Complete
 
@@ -96,7 +100,7 @@ EOF
 command! IPythonConsole execute 'IPython ' . pyeval('get_ipython_file()')
 
 if !exists('*s:IPyRunPrompt')
-  function! s:IPyRunIPyInput()
+  function! IPyRunIPyInput()
     if exists('b:did_ipython')
       redraw
       " Dedent text in case first non-blank line is indented
@@ -116,7 +120,7 @@ EOF
     let g:ipy_input = input('IPy: ')
     if len(g:ipy_input)
       let g:last_ipy_input = g:ipy_input
-      call s:IPyRunIPyInput()
+      call IPyRunIPyInput()
     else
       unlet g:ipy_input
     endif
@@ -125,24 +129,24 @@ EOF
   function! s:IPyRepeatCommand()
     if exists('g:last_ipy_input')
       let g:ipy_input = g:last_ipy_input
-      call s:IPyRunIPyInput()
+      call IPyRunIPyInput()
     endif
   endfunction
 
   function! s:IPyClearWorkspace()
     let g:ipy_input = 'plt.close("all")'."\n".'%reset -s -f'
     let g:ipy_input .= "\n".'from PyQt4 import QtCore; QtCore.QCoreApplication.instance().closeAllWindows()'
-    call s:IPyRunIPyInput()
+    call IPyRunIPyInput()
   endfunction
 
   function! s:IPyCloseWindows()
     let g:ipy_input = 'from PyQt4 import QtCore; QtCore.QCoreApplication.instance().closeAllWindows()'
-    call s:IPyRunIPyInput()
+    call IPyRunIPyInput()
   endfunction
 
   function! s:IPyCloseFigures()
     let g:ipy_input = 'plt.close("all")'
-    call s:IPyRunIPyInput()
+    call IPyRunIPyInput()
   endfunction
 
   function! s:IPyPrintVar()
@@ -150,7 +154,7 @@ EOF
     normal! gvy
     let g:ipy_input = @"
     call RestoreRegs()
-    call s:IPyRunIPyInput()
+    call IPyRunIPyInput()
   endfunction
 
   function! s:IPyVarInfo(...)
@@ -163,7 +167,7 @@ EOF
       call RestoreRegs()
     endif
     let g:ipy_input = 'from plottools import varinfo; varinfo('.input.')'
-    call s:IPyRunIPyInput()
+    call IPyRunIPyInput()
   endfunction
 
   function! s:IPyGetHelp(level)
@@ -171,7 +175,7 @@ EOF
     normal! gvy
     let g:ipy_input = @" . a:level
     call RestoreRegs()
-    call s:IPyRunIPyInput()
+    call IPyRunIPyInput()
   endfunction
 
   function! s:IPyRunMotion(type)
@@ -188,7 +192,7 @@ EOF
         call setpos('.', getpos("']"))
         python run_this_line(False)
       else
-        call s:IPyRunIPyInput()
+        call IPyRunIPyInput()
       endif
     else
       let zoomed = _VimuxTmuxWindowZoomed()
@@ -313,7 +317,7 @@ EOF
     call setpos("'<", left_save)
     call setpos("'>", right_save)
     call winrestview(view)
-    call s:IPyRunIPyInput()
+    call IPyRunIPyInput()
   endfunction
 
   function! s:IPyScratchBuffer()
