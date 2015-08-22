@@ -38,8 +38,7 @@ def flatten(d, prefix=''):
                     new = {key + '[%d]' % i: a
                            for i, a in enumerate(array)}
                     out.update(new)
-                    queue.extend([q for q in new.keys()
-                                  if new[q].ndim > 2])
+                    queue.extend(q for q in new.keys() if new[q].ndim > 2)
     return out
 
 
@@ -190,8 +189,8 @@ class CustomQCompleter(TabCompleter):
                     if len(word) > 1 and word.startswith('!')]
 
         self.local_completion_prefix = QtCore.QString(
-            '^' + ''.join(['(?=.*%s)' % word for word in includes]) +
-            ''.join(['(?!.*%s)' % word for word in excludes]) + '.+')
+            '^' + ''.join('(?=.*%s)' % word for word in includes) +
+            ''.join('(?!.*%s)' % word for word in excludes) + '.+')
 
         self.updateModel()
         if self.completionCount() == 0:
@@ -357,7 +356,7 @@ class Interact(QtGui.QMainWindow):
         if title is not None:
             self.setWindowTitle(title)
         else:
-            self.setWindowTitle(', '.join([d[1] for d in data]))
+            self.setWindowTitle(', '.join(d[1] for d in data))
         self.grid = QtGui.QGridLayout()
 
         self.frame = QtGui.QWidget()
@@ -629,7 +628,7 @@ class Interact(QtGui.QMainWindow):
               event.modifiers() & CONTROL_MODIFIER and
               event.modifiers() & QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_P):
-            print "\n".join([str(self.data_dict(d)) for d in self.datas])
+            print "\n".join(str(self.data_dict(d)) for d in self.datas)
             return True
         return super(Interact, self).event(event)
 
