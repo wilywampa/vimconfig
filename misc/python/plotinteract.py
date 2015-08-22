@@ -486,9 +486,9 @@ class Interact(QtGui.QMainWindow):
     @staticmethod
     def plot(axes, x, y, label):
         try:
-            axes.plot(x, y, label=label)
+            return len(axes.plot(x, y, label=label))
         except ValueError:
-            axes.plot(x, y.T, label=label)
+            return len(axes.plot(x, y.T, label=label))
 
     def draw(self):
         twin = any(map(lambda x: x.twin, self.datas))
@@ -520,8 +520,11 @@ class Interact(QtGui.QMainWindow):
                     self.plot(axes, d.obj[xtext][..., i] * xscale,
                               d.obj[text][..., i] * scale, label=l)
             else:
-                self.plot(axes, d.obj[xtext] * xscale, d.obj[text] * scale,
-                          label=d.labels)
+                n = self.plot(axes, d.obj[xtext] * xscale, d.obj[text] * scale,
+                              label=d.labels)
+                if n > 1:
+                    d.labels = ['%s %d' % (d.labels, i) for i in range(n)]
+                    return self.draw()
             axes.set_xlabel('')
             x.append(xtext + ' (' + d.name + ')')
             y.append(text + ' (' + d.name + ')')
