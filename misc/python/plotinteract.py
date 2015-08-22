@@ -307,9 +307,11 @@ class DataObj(object):
         self.scale_box, self.scale_compl = new_scale_box()
         self.xscale_box, self.xscale_compl = new_scale_box()
 
-        self.process_kwargs(kwargs)
+        self.kwargs = kwargs
+        self.process_kwargs()
 
-    def process_kwargs(self, kwargs):
+    def process_kwargs(self):
+        kwargs = self.kwargs
         if 'yname' in kwargs:
             self.menu.setCurrentIndex(self.menu.findText(kwargs['yname']))
         if 'yscale' in kwargs:
@@ -320,7 +322,7 @@ class DataObj(object):
             self.xscale_box.setText(str(kwargs['xscale']))
 
     def duplicate(self):
-        self.parent.add_data(self.obj, self.name)
+        self.parent.add_data(self.obj, self.name, kwargs=self.kwargs)
         data = self.parent.datas[-1]
         data.menu.setCurrentIndex(self.menu.currentIndex())
         data.scale_box.setText(self.scale_box.text())
