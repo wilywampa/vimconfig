@@ -742,6 +742,7 @@ aliases = dict(
     sc='scipy.constants',
     si='scipy.interpolate',
     signal='scipy.signal',
+    sint='scipy.integrate',
     sio='scipy.io',
     spatial='scipy.spatial',
 )
@@ -808,6 +809,7 @@ froms = {
         'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize', 'vstack',
         'where', 'zeros'],
     'numpy.core.records': ['fromarrays'],
+    'numpy.random': ['rand', 'randint', 'randn'],
     'numpy.linalg': [
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'solve', 'svd',
         'tensorinv', 'tensorsolve'],
@@ -823,6 +825,7 @@ froms = {
         'degree', 'foot', 'g', 'inch', 'kmh', 'knot', 'lb', 'lbf', 'mach',
         'mph', 'nautical_mile', 'pound', 'pound_force', 'psi',
         'speed_of_sound'],
+    'scipy.integrate': ['cumtrapz', 'quad', 'romb', 'simps'],
     'subprocess': ['PIPE', 'Popen', 'STDOUT', 'call', 'check_output',
         'list2cmdline'],
     'time': ['time'],
