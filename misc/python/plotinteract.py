@@ -491,6 +491,7 @@ class Interact(QtGui.QMainWindow):
             return len(axes.plot(x, y.T, label=label))
 
     def draw(self):
+        self.mpl_toolbar.home = self.draw
         twin = any(map(lambda x: x.twin, self.datas))
         if twin and len(self.fig.axes) < 2:
             self.fig.add_axes(self.axes2)
