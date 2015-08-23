@@ -2147,6 +2147,7 @@ let g:neocomplete#force_omni_input_patterns.python =
 
 " DirDiff settings
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
+let g:DirDiffEnableMappings = 1
 
 " EasyAlign settings
 let g:easy_align_ignore_comment = 0
