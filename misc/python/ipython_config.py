@@ -71,6 +71,7 @@ def configure(c):
         'from __future__ import division',
         'import IPython.parallel as px',
         'import cPickle as pickle',
+        'import collections',
         'import ein',
         'import ipython_autocd as _; _.register()',
         'import itertools as it',
@@ -89,9 +90,12 @@ def configure(c):
         'import scipy.optimize as opt',
         'import subprocess',
         'from IPython.parallel import Client',
+        'from bunch import Bunch, bunchify, unbunchify',
         'from collections import defaultdict, namedtuple',
         'from ipython_config import dump, globn, load, sortn, sortnkey',
-        'from itertools import chain, count, imap, islice, izip',
+        ('from itertools import (chain, count, cycle, dropwhile, groupby, '
+         '                       ifilter, ifilterfalse, imap, islice, izip, '
+         '                       izip_longest, starmap, takewhile, tee)'),
         'from mathtools import *',
         'from plottools import *',
         ('def setwidth(): os.environ["COLUMNS"] = '
