@@ -1950,7 +1950,7 @@ nn <silent> <M-/> :<C-u>Unite line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
 nn <silent> <Leader>o :<C-u>Unite outline <CR>
-nn <silent> ,h :<C-u>Unite haskellimport<CR>
+nn <silent> ,h :<C-u>Unite history/ipython -max-multi-lines=10<CR>
 nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
 nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>

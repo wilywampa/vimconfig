@@ -73,6 +73,7 @@ inoremap <silent> <buffer> <Leader><Leader>x  <Esc>:<C-u>set opfunc=<SID>RunMoti
 nnoremap <silent> <buffer> <S-F5> :<C-u>call VimuxRunCommand(':load '.fnameescape(expand('%:p')))<CR>
 xnoremap <silent> <buffer> <C-p> :<C-u>call <SID>EvalSelection()<CR>
 nnoremap <silent> <buffer> K :<C-u>call Haddock()<CR>
+nnoremap <silent> <buffer> ,h :<C-u>Unite haskellimport<CR>
 
 let b:ghc_staticoptions = '-ignore-dot-ghci'
 
