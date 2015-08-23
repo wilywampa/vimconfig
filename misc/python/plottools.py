@@ -152,37 +152,32 @@ def azip(*iterables, **kwargs):
 
 
 try:
-    from attrdict import AttrDict as dict2obj, STRING as _STRING
+    from bunch import Bunch as dict2obj
 except ImportError:
-    class dict2obj(dict):
+    try:
+        from attrdict import AttrDict as dict2obj
+    except ImportError:
+        class dict2obj(dict):
 
-        """Add attribute-style access to a dictionary."""
+            """Add attribute-style access to a dictionary."""
 
-        def __init__(self, d=None, **kwargs):
-            if d is None:
-                d = {}
-            if kwargs:
-                d.update(**kwargs)
-            for key, val in d.items():
-                setattr(self, key, val)
-            for key in self.__class__.__dict__.keys():
-                if not (key.startswith('__') and key.endswith('__')):
-                    setattr(self, key, getattr(self, key))
+            def __init__(self, d=None, **kwargs):
+                if d is None:
+                    d = {}
+                if kwargs:
+                    d.update(**kwargs)
+                for key, val in d.items():
+                    setattr(self, key, val)
+                for key in self.__class__.__dict__.keys():
+                    if not (key.startswith('__') and key.endswith('__')):
+                        setattr(self, key, getattr(self, key))
 
-        def __setattr__(self, name, value):
-            if isinstance(value, (list, tuple)):
-                value = [self.__class__(x)
-                         if isinstance(x, dict) else x for x in value]
-            else:
-                if isinstance(value, dict):
-                    value = self.__class__(value)
-            super(dict2obj, self).__setattr__(name, value)
-            self[name] = value
-
-else:
-    # Make invalid attribute names still show up in IPython completion
-    def _valid_name(cls, name):
-        return (isinstance(name, _STRING) and not hasattr(cls, name) and
-                not name.startswith('__'))
-
-    dict2obj._valid_name = _valid_name
+            def __setattr__(self, name, value):
+                if isinstance(value, (list, tuple)):
+                    value = [self.__class__(x)
+                             if isinstance(x, dict) else x for x in value]
+                else:
+                    if isinstance(value, dict):
+                        value = self.__class__(value)
+                super(dict2obj, self).__setattr__(name, value)
+                self[name] = value

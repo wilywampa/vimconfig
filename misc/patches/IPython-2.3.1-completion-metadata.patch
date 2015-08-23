@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..184a01e 100644
+index b1bc646..1daaf6e 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -67,6 +67,7 @@ Notes:
@@ -10,7 +10,7 @@ index b1bc646..184a01e 100644
  import glob
  import inspect
  import itertools
-@@ -74,12 +75,19 @@ import keyword
+@@ -74,12 +75,18 @@ import keyword
  import os
  import re
  import sys
@@ -18,10 +18,9 @@ index b1bc646..184a01e 100644
 +import types
 +import repr as REPR
 +try:
-+    import funcsigs
++    from funcsigs import signature
 +except ImportError:
-+    import warnings
-+    warnings.warn('funcsigs unavailable')
++    from IPython.utils.signatures import signature
  
  from IPython.config.configurable import Configurable
  from IPython.core.error import TryNext
@@ -31,7 +30,7 @@ index b1bc646..184a01e 100644
  from IPython.utils.dir2 import dir2
  from IPython.utils.process import arg_split
  from IPython.utils.py3compat import builtin_mod, string_types
-@@ -89,6 +97,40 @@ from IPython.utils.traitlets import CBool, Enum
+@@ -89,6 +96,40 @@ from IPython.utils.traitlets import CBool, Enum
  # Globals
  #-----------------------------------------------------------------------------
  
@@ -72,7 +71,7 @@ index b1bc646..184a01e 100644
  # Public API
  __all__ = ['Completer','IPCompleter']
  
-@@ -97,6 +139,7 @@ if sys.platform == 'win32':
+@@ -97,6 +138,7 @@ if sys.platform == 'win32':
  else:
      PROTECTABLES = ' ()[]{}?=\\|;:\'#*"^&'
  
@@ -80,7 +79,7 @@ index b1bc646..184a01e 100644
  #-----------------------------------------------------------------------------
  # Main functions and classes
  #-----------------------------------------------------------------------------
-@@ -426,6 +469,64 @@ def get__all__entries(obj):
+@@ -426,6 +468,64 @@ def get__all__entries(obj):
      return [w for w in words if isinstance(w, string_types)]
  
  
@@ -145,7 +144,7 @@ index b1bc646..184a01e 100644
  class IPCompleter(Completer):
      """Extension of the completer class with IPython-specific features"""
  
-@@ -538,6 +639,7 @@ class IPCompleter(Completer):
+@@ -538,6 +638,7 @@ class IPCompleter(Completer):
                           self.file_matches,
                           self.magic_matches,
                           self.python_func_kw_matches,
@@ -153,7 +152,7 @@ index b1bc646..184a01e 100644
                           ]
  
      def all_completions(self, text):
-@@ -804,6 +906,112 @@ class IPCompleter(Completer):
+@@ -804,6 +905,112 @@ class IPCompleter(Completer):
                      argMatches.append("%s=" %namedArg)
          return argMatches
  
@@ -266,7 +265,7 @@ index b1bc646..184a01e 100644
      def dispatch_custom_completer(self, text):
          #io.rprint("Custom! '%s' %s" % (text, self.custom_completers)) # dbg
          line = self.line_buffer
-@@ -901,6 +1109,7 @@ class IPCompleter(Completer):
+@@ -901,6 +1108,7 @@ class IPCompleter(Completer):
  
          # Start with a clean slate of completions
          self.matches[:] = []
@@ -274,7 +273,7 @@ index b1bc646..184a01e 100644
          custom_res = self.dispatch_custom_completer(text)
          if custom_res is not None:
              # did custom completers produce something?
-@@ -918,6 +1127,20 @@ class IPCompleter(Completer):
+@@ -918,6 +1126,20 @@ class IPCompleter(Completer):
                          # Show the ugly traceback if the matcher causes an
                          # exception, but do NOT crash the kernel!
                          sys.excepthook(*sys.exc_info())
@@ -295,7 +294,7 @@ index b1bc646..184a01e 100644
              else:
                  for matcher in self.matchers:
                      self.matches = matcher(text)
-@@ -931,8 +1154,95 @@ class IPCompleter(Completer):
+@@ -931,8 +1153,93 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
@@ -347,9 +346,7 @@ index b1bc646..184a01e 100644
 +            info = ''
 +            if _hassource(obj):
 +                try:
-+                    info += obj.__name__ + unicode(
-+                        funcsigs.signature(
-+                            obj)) + '\n\n'
++                    info += obj.__name__ + unicode(signature(obj)) + '\n\n'
 +                except Exception as e:
 +                    if type(e) in EXCEPTIONS - set(
 +                        [AttributeError, KeyError, NameError, TypeError,
