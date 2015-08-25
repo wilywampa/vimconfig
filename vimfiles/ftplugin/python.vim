@@ -82,6 +82,7 @@ let s:scratch_name = '--Python--'
 python << EOF
 import os
 import subprocess
+import vim
 from getpass import getuser
 
 
@@ -93,6 +94,7 @@ def get_ipython_file():
         if 'ipython-console' in proc:
             for arg in proc.split():
                 if arg.endswith('.json'):
+                    vim.command('let g:ipython_connected = 1')
                     return os.path.basename(arg)
 
     return ''
@@ -101,7 +103,7 @@ command! IPythonConsole execute 'IPython ' . pyeval('get_ipython_file()')
 
 if !exists('*s:IPyRunPrompt')
   function! IPyRunIPyInput()
-    if exists('b:did_ipython')
+    if exists('b:did_ipython') || get(g:, 'ipython_connected', 0)
       redraw
       " Dedent text in case first non-blank line is indented
 python << EOF
