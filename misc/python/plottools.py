@@ -152,7 +152,7 @@ def azip(*iterables, **kwargs):
 
 
 try:
-    from bunch import Bunch as dict2obj
+    from bunch import bunchify as dict2obj
 except ImportError:
     try:
         from attrdict import AttrDict as dict2obj
