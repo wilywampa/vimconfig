@@ -18,10 +18,10 @@ except ImportError:
 colors = {k: i for i, k in enumerate([
     'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'])}
 
-types = ['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
-         'complex', 'dict', 'file', 'float', 'frozenset', 'int', 'list',
-         'long', 'object', 'set', 'str', 'super', 'tuple', 'type', 'unichr',
-         'unicode']
+types = set(['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
+             'complex', 'dict', 'file', 'float', 'format', 'frozenset', 'help',
+             'int', 'list', 'long', 'object', 'set', 'str', 'super', 'tuple',
+             'type', 'unichr', 'unicode'])
 
 connected = False
 skip = set()
