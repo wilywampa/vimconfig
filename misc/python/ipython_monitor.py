@@ -100,7 +100,7 @@ class IPythonMonitor(object):
 
     def __init__(self):
         self.clients = set()
-        self.print_idle = False
+        self.execution_count_id = None
         self.awaiting_msg = False
         self.msg_id = None
         self.last_msg_type = None  # Only set when text written to stdout
@@ -157,20 +157,21 @@ class IPythonMonitor(object):
         code = highlight(msg['content']['code'], lexer, formatter)
         output = code.rstrip().replace('\n', '\n' + dots)
         sys.stdout.write(output)
-        self.print_idle = True
+        self.execution_count_id = msg['parent_header']['msg_id']
         self.last_msg_type = msg['msg_type']
 
     def pyout(self, msg, prompt=True, spaces=''):
+        self.last_execution_count = msg['content']['execution_count']
         if prompt:
             self.prompt = ''.join('Out [%d]: ' %
                                   msg['content']['execution_count'])
-            self.last_execution_count = msg['content']['execution_count']
             spaces = ' ' * len(self.prompt.rstrip()) + ' '
             sys.stdout.write('\n')
             self.print_prompt('red')
         output = msg['content']['data']['text/plain'].rstrip() \
             .replace('\n', '\n' + spaces)
         sys.stdout.write(output)
+        self.execution_count_id = msg['parent_header']['msg_id']
         self.last_msg_type = msg['msg_type']
 
     def display_data(self, msg):
@@ -206,11 +207,12 @@ class IPythonMonitor(object):
             self.last_msg_type = msg['msg_type']
 
     def status(self, msg):
-        if self.print_idle and msg['content']['execution_state'] == 'idle':
+        if (msg['content']['execution_state'] == 'idle' and
+                msg['parent_header']['msg_id'] == self.execution_count_id):
             self.prompt = '\n' + ''.join('In [%d]: ' % (
                 self.last_execution_count + 1))
             self.print_prompt('green')
-            self.print_idle = False
+            self.execution_count_id = None
 
     def clear_output(self, msg):
         print('\033[2K\r', file=sys.stdout, end='')
