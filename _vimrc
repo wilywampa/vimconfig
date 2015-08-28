@@ -1428,7 +1428,7 @@ augroup VimrcAutocmds " {{{
 
     " Load files with mixed line endings as DOS format
     autocmd BufReadPost * nested
-        \ if !exists('b:reload_dos') && !&binary && &ff == 'unix'
+        \ if get(g:, 'reload_dos', 1) && !exists('b:reload_dos') && !&binary && &ff == 'unix'
         \       && (0 < search('\r$', 'nc')) && &buftype == ''
         \       && expand('<afile>') !~? '\v(^fugitive)|(\.(diff|rej|patch)$)' |
         \     let b:reload_dos = 1 |
