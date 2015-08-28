@@ -758,6 +758,7 @@ froms = {
     'IPython': ['get_ipython', 'parallel'],
     'IPython.core.display': ['display'],
     'IPython.parallel': ['Client', 'Reference', 'interactive'],
+    'IPython.utils.text': ['LSString', 'SList'],
     'bs4': ['BeautifulSoup'],
     'collections': ['Mapping', 'defaultdict', 'deque', 'namedtuple'],
     'contextlib': ['contextmanager'],

@@ -90,6 +90,7 @@ def configure(c):
         'import scipy.optimize as opt',
         'import subprocess',
         'from IPython.parallel import Client',
+        'from IPython.utils.text import SList',
         'from bunch import Bunch, bunchify, unbunchify',
         'from collections import defaultdict, namedtuple',
         'from ipython_config import dump, globn, load, sortn, sortnkey',
