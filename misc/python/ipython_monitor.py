@@ -161,7 +161,9 @@ class IPythonMonitor(object):
         self.last_msg_type = msg['msg_type']
 
     def pyout(self, msg, prompt=True, spaces=''):
-        self.last_execution_count = msg['content']['execution_count']
+        if 'execution_count' in msg['content']:
+            self.last_execution_count = msg['content']['execution_count']
+            self.execution_count_id = msg['parent_header']['msg_id']
         if prompt:
             self.prompt = ''.join('Out [%d]: ' %
                                   msg['content']['execution_count'])
@@ -171,7 +173,6 @@ class IPythonMonitor(object):
         output = msg['content']['data']['text/plain'].rstrip() \
             .replace('\n', '\n' + spaces)
         sys.stdout.write(output)
-        self.execution_count_id = msg['parent_header']['msg_id']
         self.last_msg_type = msg['msg_type']
 
     def display_data(self, msg):
