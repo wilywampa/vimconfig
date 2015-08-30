@@ -208,6 +208,33 @@ class Bunch(dict):
         args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
         return '%s(%s)' % (self.__class__.__name__, args)
 
+
+    def __dir__(self):
+        return list(iterkeys(self))
+
+    def _repr_pretty_(self, p, cycle):
+        start = 'Bunch('
+        end = ')'
+        if cycle:
+            return p.text('{start}...{end}'.format(start=start, end=end))
+        p.begin_group(len(start), start)
+        keys = self.keys()
+        try:
+            keys.sort()
+        except Exception as e:
+            # Sometimes the keys don't sort.
+            pass
+        for idx, key in p._enumerate(keys):
+            if idx:
+                p.text(',')
+                p.breakable()
+            p.pretty(key)
+            p.text(': ')
+            p.pretty(self[key])
+        p.end_group(len(end), end)
+
+    __members__ = __dir__ # for python2.x compatibility
+
     @staticmethod
     def fromDict(d):
         """ Recursively transforms a dictionary into a Bunch via copy.
