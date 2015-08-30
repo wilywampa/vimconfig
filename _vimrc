@@ -1865,18 +1865,6 @@ augroup VimrcAutocmds
 augroup END
 func! s:UniteSettings() " {{{
     setlocal conceallevel=0
-    if v:version > 704 || (v:version == 704 && has('patch79'))
-        augroup vimrc_unite
-            autocmd CursorMoved,CursorMovedI,BufEnter <buffer>
-                \ if exists('b:match') |
-                \     silent! call matchdelete(b:match) |
-                \ endif |
-                \ if v:hlsearch |
-                \     let b:match = matchadd('Search', (@/=~#'\\\@<!\u'?"":'\c').@/, 9999) |
-                \ endif
-            autocmd BufLeave,BufHidden <buffer> autocmd! vimrc_unite
-        augroup END
-    endif
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
         \."\<Plug>(unite_append_enter)"
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
