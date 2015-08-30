@@ -421,7 +421,7 @@ index dd508b4..7d2eb5f 100644
  
 +    if _safe_isinstance(obj, 'bunch', 'Bunch') or\
 +            _safe_isinstance(obj, 'attrdict', 'AttrDict'):
-+        words |= set(obj.keys())
++        words = set(obj.keys())
 +
  
      # for objects with Enthought's traits, add trait_names() list
