@@ -108,6 +108,32 @@ def savesvg(basename, **kwargs):
         f.savefig(basename + str(f.number) + '.svg', format='svg', **kwargs)
 
 
+def savehtml(file_or_name, html_attrs=None, **kwargs):
+    """Save all open figures to an HTML file."""
+    import base64
+    from io import BytesIO
+
+    def save(fid):
+        for n in _plt.get_fignums():
+            with BytesIO() as b:
+                _plt.figure(n).savefig(b, format='png', **kwargs)
+                b.seek(0)
+                value = b.getvalue()
+            fid.write('<img src="data:image/png;base64,{0}"{1}><br>\n'.format(
+                base64.b64encode(value),
+                (' ' + ' '.join('{0}="{1}"'.format(a, html_attrs[a])
+                                for a in html_attrs)) if html_attrs else '',
+            ))
+
+    if hasattr(file_or_name, 'write'):
+        save(file_or_name)
+    else:
+        if not file_or_name.endswith('.html'):
+            file_or_name += '.html'
+        with open(file_or_name, 'w') as fid:
+            save(fid)
+
+
 def varinfo(var):
     """Pretty print information about a variable."""
     from pprint import pprint
