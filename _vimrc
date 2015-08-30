@@ -653,10 +653,14 @@ command! -nargs=+ -bang -complete=command Bufdo call Bufdo(<q-args>, <bang>0)
 " Like windo but restore current and previous window
 func! Windo(command) " {{{
     let cwin = winnr()
+    let cwinbuf = winbufnr(cwin)
     let pwin = winnr('#')
+    let pwinbuf = winbufnr(pwin)
     execute 'windo '.a:command
     silent! execute pwin.'wincmd w'
+    if winbufnr(winnr()) != pwinbuf | silent! execute bufwinnr(pwinbuf).'wincmd w' | endif
     silent! execute cwin.'wincmd w'
+    if winbufnr(winnr()) != cwinbuf | silent! execute bufwinnr(cwinbuf).'wincmd w' | endif
 endfunc " }}}
 command! -nargs=+ -complete=command Windo call Windo(<q-args>)
 
