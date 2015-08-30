@@ -1084,6 +1084,9 @@ _complete-files-or-previous-dir() {
 zle -N _complete-files-or-previous-dir
 bindkey '^^' _complete-files-or-previous-dir
 
+# Don't expand ~ or $param at the start of a word
+zstyle ':completion:*' keep-prefix true
+
 #[[[1 Prompt stuff
 export _PSVARLEN=0
 local userhost=$(print -P "%n@%m")
