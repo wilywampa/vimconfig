@@ -1929,6 +1929,8 @@ func! s:UniteSettings() " {{{
     inor <buffer> <expr> <BS> getline('.')[col('.')-3:col('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
     inor <buffer> <C-r>% <C-r>#
     inor <buffer> <expr> <C-r>$ expand('#:t')
+    nmap <buffer> S <Plug>(unite_append_end)<Plug>(unite_delete_backward_line)
+    nmap <buffer> s <Plug>(unite_append_enter)<BS>
     sil! nunmap <buffer> ?
 endfunc " }}}
 nn <silent> "" :<C-u>Unite -start-insert history/yank<CR>
