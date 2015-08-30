@@ -1463,8 +1463,8 @@ augroup VimrcAutocmds " {{{
     " Open files as read-only automatically
     autocmd SwapExists * let v:swapchoice = 'o'
 
-    " Remove ':qa' from history
-    autocmd VimEnter * call histdel(':', '^qa!\=$')
+    " Remove quit command from history
+    autocmd VimEnter * call histdel(':', '^w\?q\%[all]!\?$')
 
     " Preserve previous window when preview window opens during completion
     autocmd InsertEnter * let s:pwinid += 1 | call setwinvar(winnr('#'), 'pwin', s:pwinid)
