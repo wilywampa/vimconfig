@@ -822,24 +822,6 @@ ipython() {
     command ipython "$@" --pylab --autocall 1
 }
 
-_add-right-paren() {
-    zle self-insert
-    if [[ $LBUFFER == *\$\( ]] && [[ $RBUFFER == "" ]]; then
-        RBUFFER=")"
-    fi
-}
-zle -N _add-right-paren; bindkey -M viins '(' _add-right-paren
-
-_remove-right-paren() {
-    if [[ $RBUFFER == ")" ]] && [[ $LBUFFER == *\$\(* ]]; then
-        LBUFFER=$LBUFFER$RBUFFER
-        RBUFFER=
-    else
-        zle self-insert
-    fi
-}
-zle -N _remove-right-paren; bindkey -M viins ')' _remove-right-paren
-
 _remove-for-vared() {
     zle self-insert
     if [[ $LBUFFER == "vared !$" ]]; then
