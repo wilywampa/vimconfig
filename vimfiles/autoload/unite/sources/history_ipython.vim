@@ -31,8 +31,11 @@ endfunction
 function! s:source.hooks.on_init(args, context)
   let a:context.source__input = get(a:args, 0, a:context.input)
   if a:context.source__input == '' || a:context.unite__is_restart
-    let a:context.source__input = unite#util#input('Pattern: ',
-        \ a:context.source__input)
+    try
+      let a:context.source__input = unite#util#input('Pattern: ',
+          \ a:context.source__input)
+    catch /^Vim:Interrupt$/
+    endtry
   endif
 
   call unite#print_source_message('Pattern: '
