@@ -1,5 +1,5 @@
 diff --git a/vimpager b/vimpager
-index 289d7e9..704c093 100755
+index 289d7e9..981a684 100755
 --- a/vimpager
 +++ b/vimpager
 @@ -154,59 +154,7 @@ main() {
@@ -63,7 +63,15 @@ index 289d7e9..704c093 100755
  
  	if [ -n "${msys}" -o -n "${cygwin}" ]; then
  		# msys/cygwin may be using a native vim, and if we're not in a real
-@@ -387,12 +335,6 @@ main() {
+@@ -294,6 +242,7 @@ main() {
+ 	while [ $# -gt 0 ] ; do
+ 	        case "$1" in
+ 	                "+G"|"+") vim_cmd="${vim_cmd} +"; shift ;;
++			"-f") no_pass_thru=1; shift ;;
+ 			"-c")
+ 				shift
+ 				if [ -z "${extra_c}" ]; then
+@@ -387,12 +336,6 @@ main() {
  		exit
  	fi
  
@@ -76,7 +84,7 @@ index 289d7e9..704c093 100755
  	vim_less -c "${extra_c:-echo}" --cmd "${extra_cmd:-echo}" </dev/tty
  }
  
-@@ -545,12 +487,7 @@ vim_less() {
+@@ -545,12 +488,7 @@ vim_less() {
  		load_less_cmd='runtime macros/less.vim'
  		scrolloff_cmd='silent! echo' # set in less.vim
  	else
@@ -90,7 +98,7 @@ index 289d7e9..704c093 100755
  		load_less_cmd='silent! echo'
  	fi
  
-@@ -562,14 +499,10 @@ vim_less() {
+@@ -562,14 +500,10 @@ vim_less() {
  
  			${vim_cmd} -N \
  				-u "${vimrc}" \
@@ -106,7 +114,7 @@ index 289d7e9..704c093 100755
  				-c "${ansi_command} | ${scrolloff_cmd}" \
  				-c "args ${escaped_filename}" \
  				-c "silent! e ${escaped_filename}" \
-@@ -593,13 +526,9 @@ vim_less() {
+@@ -593,13 +527,9 @@ vim_less() {
  			(
  			${vim_cmd} -N \
  				-u "${vimrc}" \
