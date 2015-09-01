@@ -342,7 +342,8 @@ class DataObj(object):
         if ok:
             self.name = unicode(text)
             self.label.setText(text + ':')
-            if not isinstance(self.labels, list):
+            if (hasattr(self, 'old_label') or
+                    not isinstance(self.labels, (list, tuple))):
                 self.labels = self.name
             self.parent.draw()
 
@@ -516,7 +517,7 @@ class Interact(QtGui.QMainWindow):
             xscale = self.get_scale(d.xscale_box, d.xscale_compl)
             text = self.get_key(d.menu)
             xtext = self.get_key(d.xmenu)
-            if isinstance(d.labels, list):
+            if isinstance(d.labels, (list, tuple)):
                 for i, l in enumerate(d.labels):
                     self.plot(axes, d.obj[xtext][..., i] * xscale,
                               d.obj[text][..., i] * scale, label=l)
@@ -524,7 +525,8 @@ class Interact(QtGui.QMainWindow):
                 n = self.plot(axes, d.obj[xtext] * xscale, d.obj[text] * scale,
                               label=d.labels)
                 if n > 1:
-                    d.labels = ['%s %d' % (d.labels, i) for i in range(n)]
+                    d.old_label = d.labels
+                    d.labels = ['%s %d' % (d.old_label, i) for i in range(n)]
                     return self.draw()
             axes.set_xlabel('')
             x.append(xtext + ' (' + d.name + ')')
