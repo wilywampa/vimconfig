@@ -444,7 +444,7 @@ magic-abbrev-expand() {
             LBUFFER=$left${globalabbrevs[$pre]:-$pre}
         fi
     fi
-    if [[ $KEYS == " " ]]; then
+    if [[ $KEYS == " " && $RBUFFER == "" ]]; then
         zle magic-space # Add space or do history expansion
     else
         [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]] && LBUFFER=$LBUFFER$KEYS
