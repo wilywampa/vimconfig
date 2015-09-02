@@ -253,7 +253,7 @@ func! s:escape(file) abort " {{{
 endfunc " }}}
 func! s:edit_dotfile(key) abort " {{{
     if type(g:file_dict[a:key]) == type([])
-        if s:simplify(expand('%:p')) == s:simplify(g:file_dict[a:key][0])
+        if v:count == 2 || s:simplify(expand('%:p')) == s:simplify(g:file_dict[a:key][0])
             execute 'edit '.s:escape(g:file_dict[a:key][1]).'|normal! zv'
         else
             execute 'edit '.s:escape(g:file_dict[a:key][0]).'|normal! zv'
