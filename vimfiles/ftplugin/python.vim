@@ -735,6 +735,7 @@ aliases = dict(
     it='itertools',
     mpl='matplotlib',
     linalg='numpy.linalg',
+    ma='numpy.ma',
     np='numpy',
     op='operator',
     opt='scipy.optimize',
