@@ -26,11 +26,10 @@ else:
 sources = map(os.path.realpath, sources)
 
 if os.path.isdir(target):
-    if len(sources) > 1:
-        raise SystemExit('Destination for multiple files must be a directory')
-    else:
-        target_dir = target
-        target_base = None
+    target_dir = target
+    target_base = None
+elif len(sources) > 1:
+    raise SystemExit('Destination for multiple files must be a directory')
 else:
     target_dir = os.path.dirname(target)
     target_base = os.path.basename(target)
