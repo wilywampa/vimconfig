@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import concatenate, newaxis, rollaxis, squeeze
 
-__all__ = ['cat', 'derivative', 'ecat', 'norm', 'unit']
+__all__ = ['cat', 'derivative', 'ecat', 'norm0', 'unit']
 
 
 def cat(*arrays):
@@ -35,11 +35,11 @@ def ecat(*arrays):
     return concatenate([a[..., newaxis] for a in arrays], axis=-1)
 
 
-def norm(array):
+def norm0(array):
     """Compute the norm of an array along the first axis."""
     return np.linalg.norm(array, axis=0)
 
 
 def unit(array):
     """Compute the unit vectors along the first axis of an array."""
-    return array / norm(array)
+    return array / norm0(array)
