@@ -168,11 +168,10 @@ def index_all(mapping, ix, copy=False):
     return mapping
 
 
-def azip(*iterables, **kwargs):
+def azip(axis=-1, *iterables, **kwargs):
     """Move `axis` (default -1) to the front of ndarrays in `iterables`."""
     import numpy as np
     from itertools import izip
-    axis = kwargs.pop('axis', -1)
     return izip(*(np.rollaxis(i, axis, **kwargs)
                   if isinstance(i, np.ndarray) else i for i in iterables))
 
