@@ -1863,15 +1863,12 @@ augroup VimrcAutocmds
     autocmd FileType unite call s:UniteSettings()
     autocmd CursorHold * silent! call unite#sources#history_yank#_append()
 augroup END
+
 func! s:UniteSettings() " {{{
     setlocal conceallevel=0
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
         \."\<Plug>(unite_append_enter)"
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
-    inor <silent> <buffer> <expr> <C-s>= unite#do_action('split')
-    nnor <silent> <buffer> <expr> <C-s>= unite#do_action('split')
-    inor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
-    nnor <silent> <buffer> <expr> <C-s>" unite#do_action('vsplit')
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()."\<Esc>"
         \.'1G0y$Q'.":\<C-u>Unite -buffer-name=buffers/neomru "
         \."-unique buffer neomru/file\<CR>"."\<C-r>\""
@@ -1882,12 +1879,6 @@ func! s:UniteSettings() " {{{
     imap <buffer> <expr> <C-o><C-s> unite#do_action('split')
     imap <buffer> <expr> <C-o>t     unite#do_action('tabopen')
     imap <buffer> <expr> <C-o><C-t> unite#do_action('tabopen')
-    imap <buffer> <expr> <C-o>d     unite#do_action('tabswitch')
-    imap <buffer> <expr> <C-o><C-d> unite#do_action('tabswitch')
-    imap <buffer> <expr> <C-o>o     unite#do_action('view')
-    imap <buffer> <expr> <C-o><C-o> unite#do_action('view')
-    imap <buffer> <expr> <C-o>r     unite#do_action('open')
-    imap <buffer> <expr> <C-o><C-r> unite#do_action('open')
     nmap <buffer> <expr> ` b:unite['profile_name'] == 'source/grep'
         \ ? ':call <SID>LastActiveWindow()<CR>'
         \ : '<Plug>(unite_exit)'
@@ -1908,7 +1899,6 @@ func! s:UniteSettings() " {{{
     nmap <buffer> M <Plug>(unite_toggle_mark_current_candidate_up)
     nmap <buffer> <F1>  <Plug>(unite_quick_help)
     imap <buffer> <F1>  <Esc><Plug>(unite_quick_help)
-    nmap <buffer>  S A<C-u>
     imap <buffer> <C-Space> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-@> <Plug>(unite_toggle_mark_current_candidate)
     imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
@@ -1921,6 +1911,7 @@ func! s:UniteSettings() " {{{
     nmap <buffer> s <Plug>(unite_append_enter)<BS>
     sil! nunmap <buffer> ?
 endfunc " }}}
+
 nn <silent> "" :<C-u>Unite -start-insert history/yank<CR>
 nn <silent> "' :<C-u>Unite -start-insert register<CR>
 nn <silent> <expr> ,a ":\<C-u>Unite "
@@ -1953,6 +1944,7 @@ nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
 nnoremap <silent> ,u :UniteResume<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
+
 func! s:UniteTogglePathSearch() " {{{
     if s:UnitePathSearchMode
         call unite#custom#source('buffer,neomru/file','matchers',
@@ -1969,6 +1961,7 @@ func! s:UniteTogglePathSearch() " {{{
     endif
     return ''
 endfunc " }}}
+
 func! s:UniteSetup() " {{{
     call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
@@ -1978,6 +1971,23 @@ func! s:UniteSetup() " {{{
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
+    endfor
+    function! s:action_replace(action, candidates) " {{{
+        for index in range(0, len(a:candidates) - 1)
+            if index > 0 || len(a:candidates) == 1
+                call unite#util#command_with_restore_cursor(a:action)
+            endif
+            call unite#take_action('open', a:candidates[index])
+            if index == 0 | let win = winnr() | endif
+        endfor
+        silent! execute win . "wincmd w"
+    endfunction " }}}
+    for type in ['split', 'vsplit']
+        let replace = {'is_selectable': 1, 'description': type . ' replacing current window'}
+        execute "function! replace.func(candidates)\n" .
+            \   "    call s:action_replace('" . type . "', a:candidates)\n" .
+            \   "endfunction"
+        call unite#custom#action('openable', type, replace)
     endfor
 endfunc " }}}
 " }}}
