@@ -32,8 +32,8 @@ def dot(a, b, axisa=0, axisb=0):
     n = a.shape[axisa]
     if n != b.shape[axisb]:
         raise ValueError(_error(a, b, axisa, axisb))
-    stra = '%si%s' % (_LS[:axisa], _LS[axisa:len(a.shape)-1])
-    strb = '%si%s' % (_LS[:axisb], _LS[axisb:len(b.shape)-1])
+    stra = '%si%s' % (_LS[:axisa], _LS[axisa:len(a.shape) - 1])
+    strb = '%si%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
     series = ''.join(sorted(filter(lambda x: x in stra or x in strb, _LS)))
     return _ein(a, b, stra, strb, series)
 
@@ -42,12 +42,12 @@ def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
     """Matrix/vector multiplication along specified axes of ndarrays."""
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     n = a.shape[axisa]
-    if n != a.shape[axisa+1] or n != b.shape[axisb]:
+    if n != a.shape[axisa + 1] or n != b.shape[axisb]:
         raise ValueError(_error(a, b, axisa, axisb))
     transposea = kwargs.get('ta', transposea)
     stra = '%s%s%s' % (_LS[:axisa], 'ji' if transposea else 'ij',
-                       _LS[axisa:len(a.shape)-2])
-    strb = '%sj%s' % (_LS[:axisb], _LS[axisb:len(b.shape)-1])
+                       _LS[axisa:len(a.shape) - 2])
+    strb = '%sj%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
     series = ''.join(sorted(filter(lambda x: x in stra or x in strb, _LS)))
     if axisc < 0:
         axisc += len(series) + 1
@@ -60,15 +60,15 @@ def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
     """Matrix/matrix multiplication along specified axes of ndarrays."""
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     n = a.shape[axisa]
-    if n != a.shape[axisa+1] or n != b.shape[axisb] or n != b.shape[axisb+1]:
+    if not (n == a.shape[axisa + 1] == b.shape[axisb] == b.shape[axisb + 1]):
         raise ValueError(_error(a, b, axisa, axisb))
     transposea = kwargs.get('ta', transposea)
     transposeb = kwargs.get('tb', transposeb)
     transposec = kwargs.get('tc', transposec)
     stra = '%s%s%s' % (_LS[:axisa], 'ji' if transposea else 'ij',
-                       _LS[axisa:len(a.shape)-2])
+                       _LS[axisa:len(a.shape) - 2])
     strb = '%s%s%s' % (_LS[:axisb], 'kj' if transposeb else 'jk',
-                       _LS[axisb:len(b.shape)-2])
+                       _LS[axisb:len(b.shape) - 2])
     series = ''.join(sorted(filter(lambda x: x in stra or x in strb, _LS)))
     if axisc < 0:
         axisc += len(series) + 2
@@ -91,11 +91,11 @@ def cross(a, b, axisa=0, axisb=0, axisc=0):
         raise ValueError(_error(a, b, axisa, axisb))
     if n == 2:
         return _cross2d(a, b, axisa, axisb, axisc)
-    strb = '%sj%s' % (_LS[:axisa], _LS[axisa:len(a.shape)-1])
+    strb = '%sj%s' % (_LS[:axisa], _LS[axisa:len(a.shape) - 1])
     strc = 'ik%s' % strb.replace('j', '')
     a = _ein(eijk, a, 'ijk', strb, strc)
     stra = strc
-    strb = '%sk%s' % (_LS[:axisb], _LS[axisb:len(b.shape)-1])
+    strb = '%sk%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
     series = ''.join(sorted(filter(lambda x: x in stra or x in strb, _LS)))
     if axisc < 0:
         axisc += len(series) + 1
@@ -104,11 +104,11 @@ def cross(a, b, axisa=0, axisb=0, axisc=0):
 
 
 def _cross2d(a, b, axisa, axisb, axisc):
-    strb = '%si%s' % (_LS[:axisa], _LS[axisa:len(a.shape)-1])
+    strb = '%si%s' % (_LS[:axisa], _LS[axisa:len(a.shape) - 1])
     strc = 'j%s' % strb.replace('i', '')
     a = _ein(eij, a, 'ij', strb, strc)
     stra = strc
-    strb = '%sj%s' % (_LS[:axisb], _LS[axisb:len(b.shape)-1])
+    strb = '%sj%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
     series = ''.join(sorted(filter(lambda x: x in stra or x in strb, _LS)))
     if axisc < 0:
         axisc += len(series) + 1
