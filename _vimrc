@@ -1975,7 +1975,8 @@ func! s:UniteSetup() " {{{
     function! s:action_replace(action, candidates) " {{{
         for index in range(0, len(a:candidates) - 1)
             if index > 0 || len(a:candidates) == 1
-                call unite#util#command_with_restore_cursor(a:action)
+                call unite#util#command_with_restore_cursor(
+                    \ substitute(a:action, '^split$', 'belowright &', ''))
             endif
             call unite#take_action('open', a:candidates[index])
             if index == 0 | let win = winnr() | endif
