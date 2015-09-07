@@ -216,6 +216,8 @@ class IPythonMonitor(object):
             self.execution_count_id = None
 
     def clear_output(self, msg):
+        if self.last_msg_type == 'pyin':
+            print('\n')
         print('\033[2K\r', file=sys.stdout, end='')
 
     def other(self, msg):
