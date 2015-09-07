@@ -90,7 +90,8 @@ def configure(c):
         'import scipy.optimize as opt',
         'import subprocess',
         'from IPython.parallel import Client',
-        'from IPython.utils.text import SList',
+        'from IPython.external.path import Path, path',
+        'from IPython.utils.text import LSString, SList',
         'from bunch import Bunch, bunchify, unbunchify',
         'from collections import defaultdict, namedtuple',
         'from ipython_config import dump, globn, load, sortn, sortnkey',
@@ -108,7 +109,10 @@ def configure(c):
          '                   arctan as atan, arctan2 as atan2,'
          '                   arctanh as atanh, rad2deg as deg,'
          '                   deg2rad as rad)'),
+        ('from numpy.ma import (getdata, getmaskarray, masked_all,'
+         '                      masked_array as marray)'),
         'from subprocess import PIPE, Popen, call, check_output',
-        'from __builtin__ import all, min, max, sum, any, abs, round',
+        'from __builtin__ import abs, all, any, max, min, round, sum',
+        'ip = get_ipython()',
     ]
     map(add, lines)
