@@ -1,4 +1,28 @@
 import cPickle as pickle
+import numpy.ma as ma
+_print_templates = ma.core._print_templates
+
+
+def _marray_pprint(a, p, cycle):
+    """Print mask as 'False' if mask is all False."""
+    try:
+        n = len(a.shape)
+        name = 'array'
+
+        parameters = dict(name=name, nlen=" " * len(name),
+                          data=str(a), mask=str(a._mask),
+                          fill=str(a.fill_value), dtype=str(a.dtype))
+        if not ma.getmaskarray(a).any():
+            parameters['mask'] = 'False'
+        if a.dtype.names:
+            if n <= 1:
+                p.text(_print_templates['short_flx'] % parameters)
+            p.text(_print_templates['long_flx'] % parameters)
+        elif n <= 1:
+            p.text(_print_templates['short_std'] % parameters)
+        p.text(_print_templates['long_std'] % parameters)
+    except Exception:
+        p.text(repr(a))
 
 
 def _pkl_name(fname):
@@ -62,6 +86,12 @@ def configure(c):
     else:
         if "solarizedlight" in pygments.styles.get_all_styles():
             c.IPythonWidget.syntax_style = "solarizedlight"
+
+    try:
+        c.PlainTextFormatter.type_printers.items
+    except (AttributeError, NameError):
+        c.PlainTextFormatter.type_printers = {}
+    c.PlainTextFormatter.type_printers[ma.core.MaskedArray] = _marray_pprint
 
     def add(item):
         if item not in c.InteractiveShellApp.exec_lines:
