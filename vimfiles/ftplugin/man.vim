@@ -34,6 +34,10 @@ endfunction
 setlocal foldmethod=expr foldexpr=ManFold(v:lnum) foldlevel=1
 nnoremap <buffer> G G
 
+if !exists('vimpager')
+    finish
+endif
+
 " Set tmux window title to title of man page
 function! s:SetTmuxTitle()
     if !empty($TMUX)
