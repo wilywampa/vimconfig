@@ -753,6 +753,7 @@ except KeyError:
 froms = {
     'IPython': ['get_ipython', 'parallel'],
     'IPython.core.display': ['display'],
+    'IPython.external.path': ['Path', 'path'],
     'IPython.parallel': ['Client', 'Reference', 'interactive'],
     'IPython.utils.text': ['LSString', 'SList'],
     'bs4': ['BeautifulSoup'],
@@ -808,6 +809,7 @@ froms = {
         'tanh', 'tile', 'trace', 'transpose', 'trapz', 'vectorize', 'vstack',
         'where', 'zeros'],
     'numpy.core.records': ['fromarrays'],
+    'numpy.ma': ['getdata', 'getmaskarray', 'masked_all'],
     'numpy.random': ['rand', 'randint', 'randn'],
     'numpy.linalg': [
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'solve', 'svd',
@@ -839,6 +841,7 @@ froms_as = dict(
     atan2=('numpy', 'arctan2'),
     atanh=('numpy', 'arctanh'),
     deg=('numpy', 'rad2deg'),
+    marray=('numpy.ma', 'masked_array'),
     rad=('numpy', 'deg2rad'),
 )
 
