@@ -771,7 +771,7 @@ froms = {
         'imap', 'islice', 'izip', 'izip_longest', 'permutations', 'product',
         'repeat', 'starmap', 'takewhile', 'tee'],
     'ipython_config': ['dump', 'globn', 'load', 'sortn', 'sortnkey'],
-    'mathtools': ['cat', 'derivative', 'ecat', 'norm', 'unit'],
+    'mathtools': ['cat', 'derivative', 'ecat', 'norm0', 'unit'],
     'matplotlib.backends.backend_pdf': ['PdfPages'],
     'matplotlib.pyplot': [
         'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',
@@ -812,8 +812,8 @@ froms = {
     'numpy.ma': ['getdata', 'getmaskarray', 'masked_all'],
     'numpy.random': ['rand', 'randint', 'randn'],
     'numpy.linalg': [
-        'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'lstsq', 'solve', 'svd',
-        'tensorinv', 'tensorsolve'],
+        'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'norm', 'lstsq', 'solve',
+        'svd', 'tensorinv', 'tensorsolve'],
     'plottools': [
         'azip', 'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
         'index_all', 'merge_dicts', 'pad', 'picker', 'resize', 'savepdf',
