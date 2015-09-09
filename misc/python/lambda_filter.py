@@ -1,6 +1,7 @@
 import tokenize
 from IPython import get_ipython
 from IPython.core.prefilter import PrefilterTransformer
+from io import StringIO
 
 
 class LambdaFilter(PrefilterTransformer):
@@ -39,7 +40,7 @@ class LambdaFilter(PrefilterTransformer):
     @staticmethod
     def tokens(line):
         try:
-            return tokenize.generate_tokens(iter([line]).next)
+            return tokenize.generate_tokens(StringIO(line).readline)
         except tokenize.TokenError:
             return []
 

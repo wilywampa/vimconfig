@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import matplotlib.pyplot as _plt
 from plotinteract import create, merge_dicts  # noqa
 
@@ -138,10 +139,10 @@ def varinfo(var):
     """Pretty print information about a variable."""
     from pprint import pprint
     import numpy
-    print type(var)
+    print(type(var))
     pprint(var)
     if isinstance(var, numpy.ndarray):
-        print var.shape
+        print(var.shape)
 
 
 def pad(array, length, filler=float('nan')):

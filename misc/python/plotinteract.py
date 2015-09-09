@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 import matplotlib as mpl
 import numpy as np
 import re
@@ -636,7 +636,7 @@ class Interact(QtGui.QMainWindow):
               event.modifiers() & CONTROL_MODIFIER and
               event.modifiers() & QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_P):
-            print "\n".join(str(self.data_dict(d)) for d in self.datas)
+            print("\n".join(str(self.data_dict(d)) for d in self.datas))
             return True
         return super(Interact, self).event(event)
 
