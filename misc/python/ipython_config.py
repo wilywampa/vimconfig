@@ -1,6 +1,54 @@
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 import numpy.ma as ma
 _print_templates = ma.core._print_templates
+
+_imports = """\
+from __future__ import division
+import IPython.parallel as px
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+import collections
+import ein
+import ipython_autocd as _; _.register()
+import itertools as it
+import lambda_filter as _; _.register()
+import matplotlib as mpl
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+import numpy as np
+import operator as op
+import os
+import plottools as pt
+import re
+import scipy.constants as sc
+import scipy.interpolate as si
+import scipy.io as sio
+import scipy.optimize as opt
+import subprocess
+from IPython.parallel import Client
+from IPython.external.path import Path, path
+from IPython.utils.text import LSString, SList
+from bunch import Bunch, bunchify, unbunchify
+from collections import defaultdict, namedtuple
+from ipython_config import dump, globn, load, sortn, sortnkey
+from itertools import (chain, count, cycle, dropwhile, groupby, ifilter,
+                       ifilterfalse, imap, islice, izip, izip_longest,
+                       starmap, takewhile, tee)
+from mathtools import *
+from plottools import *
+from numpy import (arccos as acos, arccosh as acosh, arcsin as asin,
+                   arcsinh as asinh, arctan as atan, arctan2 as atan2,
+                   arctanh as atanh, rad2deg as deg, deg2rad as rad)
+from numpy.ma import (getdata, getmaskarray, masked_all,
+                      masked_array as marray)
+from subprocess import PIPE, Popen, call, check_output
+from __builtin__ import abs, all, any, max, min, round, sum
+"""
 
 
 def _marray_pprint(a, p, cycle):
@@ -98,51 +146,12 @@ def configure(c):
             c.InteractiveShellApp.exec_lines.append(item)
 
     lines = [
-        'from __future__ import division',
-        'import IPython.parallel as px',
-        'import cPickle as pickle',
-        'import collections',
-        'import ein',
-        'import ipython_autocd as _; _.register()',
-        'import itertools as it',
-        'import lambda_filter as _; _.register()',
-        'import matplotlib as mpl',
-        'import matplotlib.cm as cm',
-        'import matplotlib.colors as colors',
-        'import numpy as np',
-        'import operator as op',
-        'import os',
-        'import plottools as pt',
-        'import re',
-        'import scipy.constants as sc',
-        'import scipy.interpolate as si',
-        'import scipy.io as sio',
-        'import scipy.optimize as opt',
-        'import subprocess',
-        'from IPython.parallel import Client',
-        'from IPython.external.path import Path, path',
-        'from IPython.utils.text import LSString, SList',
-        'from bunch import Bunch, bunchify, unbunchify',
-        'from collections import defaultdict, namedtuple',
-        'from ipython_config import dump, globn, load, sortn, sortnkey',
-        ('from itertools import (chain, count, cycle, dropwhile, groupby, '
-         '                       ifilter, ifilterfalse, imap, islice, izip, '
-         '                       izip_longest, starmap, takewhile, tee)'),
-        'from mathtools import *',
-        'from plottools import *',
+        _imports,
         ('def setwidth(): os.environ["COLUMNS"] = '
          'subprocess.check_output(["tput", "cols"])'),
-        'env = {k: v for k, v in os.environ.iteritems()}',
+        'env = {k: v for k, v in os.environ.items()}',
         'exec("del who" if "who" in globals() else "pass")',
-        ('from numpy import (arccos as acos, arccosh as acosh,'
-         '                   arcsin as asin, arcsinh as asinh,'
-         '                   arctan as atan, arctan2 as atan2,'
-         '                   arctanh as atanh, rad2deg as deg,'
-         '                   deg2rad as rad)'),
-        ('from numpy.ma import (getdata, getmaskarray, masked_all,'
-         '                      masked_array as marray)'),
-        'from subprocess import PIPE, Popen, call, check_output',
-        'from __builtin__ import abs, all, any, max, min, round, sum',
         'ip = get_ipython()',
     ]
-    map(add, lines)
+    for line in lines:
+        add(line)
