@@ -250,6 +250,12 @@ zle -N _vi-last-line; bindkey -M vicmd 'G' _vi-last-line
 self-insert-no-autoremove() { LBUFFER="$LBUFFER$KEYS" }
 zle -N self-insert-no-autoremove; bindkey '|' self-insert-no-autoremove
 
+_previous-dir() {
+    cd "$OLDPWD"; zle reset-prompt
+}
+zle -N _previous-dir
+vibindkey '^^' _previous-dir
+
 #[[[1 Abbreviations
 typeset -Ag abbrevs
 abbrevs=(
@@ -1075,14 +1081,10 @@ zstyle ':completion:*:kill:*' command 'ps --forest -u $USER -o pid,tty,cputime,c
 zstyle ':completion:*:functions' ignored-patterns '_*'
 
 # Fast completion for files only
-zle -C complete-files menu-complete _generic
+zle -C complete-files expand-or-complete-prefix _generic
 zstyle ':completion:complete-files:*' completer _files
-zstyle ':completion:complete-files:*' menu 'select=0'
-_complete-files-or-previous-dir() {
-    [[ -z $BUFFER ]] && {cd "$OLDPWD"; zle reset-prompt} || zle complete-files
-}
-zle -N _complete-files-or-previous-dir
-bindkey '^^' _complete-files-or-previous-dir
+vibindkey '^]' complete-files
+bindkey -M menuselect '^]' complete-files
 
 # Don't expand ~ or $param at the start of a word
 zstyle ':completion:*' keep-prefix true
