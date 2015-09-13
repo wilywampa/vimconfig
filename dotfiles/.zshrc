@@ -884,6 +884,7 @@ za() {
 _edit-command-line() {
     local tmpfile=${TMPPREFIX:-/tmp/zsh}ecl$$
     _disable-focus
+    _set-block-cursor
     print -R - "$PREBUFFER$BUFFER" >$tmpfile
     exec </dev/tty
     vim -u NONE -i NONE -N --cmd "$VIMOPTIONS" \
@@ -891,6 +892,7 @@ _edit-command-line() {
     print -Rz - "$(<$tmpfile)"
     command rm -f $tmpfile
     _enable-focus
+    _set-bar-cursor
     zle send-break  # Force reload from the buffer stack
 }
 zle -N _edit-command-line; vibindkey '^F' _edit-command-line
