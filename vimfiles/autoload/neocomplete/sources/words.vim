@@ -14,13 +14,15 @@ let s:source = {
     \ }
 
 python << EOF
-import re
+import string
 import vim
 words = set([])
+chars = string.ascii_letters + string.digits + '_'
 
 def add_words(buffer):
     global words
-    words = words.union(set(re.findall('\w{4,}', ' '.join(buffer[:]))))
+    words |= set(word for line in buffer for word in line.split()
+                 if len(word) >= 4 and all(c in chars for c in word))
 EOF
 
 function! s:UpdateWordList()
