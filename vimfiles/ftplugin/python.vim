@@ -9,7 +9,7 @@ endif
 let b:did_ftplugin = 1
 
 " Detect Cython syntax
-if index(['pxd', 'pxi', 'pyx'], expand('%:e')) != -1
+if index(['pxd', 'pxi', 'pyx', 'pyxbld'], expand('%:e')) != -1
   augroup cython_syntax
     autocmd!
     autocmd BufEnter <buffer> set syntax=cython | autocmd! cython_syntax
@@ -790,8 +790,8 @@ froms = {
         'arcsinh', 'arctan', 'arctan2', 'arctanh', 'array', 'array_equal',
         'asarray', 'average', 'c_', 'column_stack', 'concatenate', 'cos',
         'cosh', 'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad',
-        'degrees', 'dot', 'dstack', 'dtype', 'einsum', 'empty', 'exp', 'eye',
-        'fromfile', 'fromiter', 'genfromtxt', 'gradient', 'hstack',
+        'degrees', 'diff', 'dot', 'dstack', 'dtype', 'einsum', 'empty', 'exp',
+        'eye', 'fromfile', 'fromiter', 'genfromtxt', 'gradient', 'hstack',
         'index_exp', 'inner', 'isinf', 'isnan', 'isreal', 'ix_', 'linspace',
         'loadtxt', 'mat', 'matrix', 'mean', 'median', 'meshgrid', 'mgrid',
         'nanargmax', 'nanargmin', 'nan', 'nanmax', 'nanmean', 'nanmedian',
