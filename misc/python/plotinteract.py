@@ -6,7 +6,7 @@ import scipy.constants as const
 import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
-from itertools import cycle
+from itertools import cycle, product
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as
                                                 FigureCanvas,
@@ -19,6 +19,12 @@ if sys.platform == 'darwin':
     CONTROL_MODIFIER = QtCore.Qt.MetaModifier
 else:
     CONTROL_MODIFIER = QtCore.Qt.ControlModifier
+
+
+def styles():
+    """Return a cycle of 2-tuples of line style and color."""
+    return cycle(product(['-', '--', '-.', ':'],
+                         mpl.rcParams['axes.color_cycle']))
 
 
 def flatten(d, prefix=''):
@@ -533,10 +539,9 @@ class Interact(QtGui.QMainWindow):
             y.append(text + ' (' + d.name + ')')
 
         lines = self.axes.get_lines() + self.axes2.get_lines()
-        clist = cycle(mpl.rcParams['axes.color_cycle'])
-        for index, line in enumerate(lines):
-            line.set_linestyle(self.get_linestyle(index))
-            line.set_color(clist.next())
+        for line, (style, color) in zip(lines, styles()):
+            line.set_linestyle(style)
+            line.set_color(color)
 
         self.axes.set_xlabel('\n'.join(xlabel))
         self.axes.set_ylabel('\n'.join(ylabel))
@@ -558,11 +563,6 @@ class Interact(QtGui.QMainWindow):
     def draw_warnings(self):
         self.axes.text(0.05, 0.05, '\n'.join(self.warnings),
                        transform=self.axes.transAxes, color='red')
-
-    def get_linestyle(self, index):
-        styles = ['-', '--', '-.', ':']
-        ncolors = len(mpl.rcParams['axes.color_cycle'])
-        return styles[((index + 1) // ncolors) % len(styles)]
 
     def canvas_key_press(self, event):
         key_press_handler(event, self.canvas, self.mpl_toolbar)
