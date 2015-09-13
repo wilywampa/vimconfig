@@ -177,33 +177,36 @@ def azip(*iterables, **kwargs):
                   if isinstance(i, np.ndarray) else i for i in iterables))
 
 
+class _dict2obj(dict):
+
+    """Add attribute-style access to a dictionary."""
+
+    def __init__(self, d=None, **kwargs):
+        if d is None:
+            d = {}
+        if kwargs:
+            d.update(**kwargs)
+        for key, val in d.items():
+            setattr(self, key, val)
+        for key in self.__class__.__dict__.keys():
+            if not (key.startswith('__') and key.endswith('__')):
+                setattr(self, key, getattr(self, key))
+
+    def __setattr__(self, name, value):
+        if isinstance(value, (list, tuple)):
+            value = [self.__class__(x)
+                     if isinstance(x, dict) else x for x in value]
+        else:
+            if isinstance(value, dict):
+                value = self.__class__(value)
+        super(dict2obj, self).__setattr__(name, value)
+        self[name] = value
+
+
 try:
     from bunch import bunchify as dict2obj
 except ImportError:
     try:
         from attrdict import AttrDict as dict2obj
     except ImportError:
-        class dict2obj(dict):
-
-            """Add attribute-style access to a dictionary."""
-
-            def __init__(self, d=None, **kwargs):
-                if d is None:
-                    d = {}
-                if kwargs:
-                    d.update(**kwargs)
-                for key, val in d.items():
-                    setattr(self, key, val)
-                for key in self.__class__.__dict__.keys():
-                    if not (key.startswith('__') and key.endswith('__')):
-                        setattr(self, key, getattr(self, key))
-
-            def __setattr__(self, name, value):
-                if isinstance(value, (list, tuple)):
-                    value = [self.__class__(x)
-                             if isinstance(x, dict) else x for x in value]
-                else:
-                    if isinstance(value, dict):
-                        value = self.__class__(value)
-                super(dict2obj, self).__setattr__(name, value)
-                self[name] = value
+        dict2obj = _dict2obj
