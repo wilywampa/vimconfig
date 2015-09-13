@@ -31,7 +31,10 @@ import scipy.io as sio
 import scipy.optimize as opt
 import subprocess
 from IPython.parallel import Client
-from IPython.external.path import Path, path
+try:
+    from IPython.external.path import path, path as Path
+except ImportError:
+    from IPython.external.path import Path, Path as path
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import defaultdict, namedtuple
