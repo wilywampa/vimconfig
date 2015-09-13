@@ -177,6 +177,14 @@ def azip(*iterables, **kwargs):
                   if isinstance(i, np.ndarray) else i for i in iterables))
 
 
+def styles(order=('-', '--', '-.', ':')):
+    """Generate a cycle of line styles to pair with `axes.color_cycle`."""
+    from itertools import cycle
+    from matplotlib import rcParams
+    from numpy import repeat
+    return cycle(repeat(order, len(rcParams['axes.color_cycle'])))
+
+
 class _dict2obj(dict):
 
     """Add attribute-style access to a dictionary."""
