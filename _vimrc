@@ -601,6 +601,10 @@ nn <silent> * *:<C-u>let @/ = @/<bar>echo @/<CR>zv
 nn <silent> # #:<C-u>let @/ = @/<bar>echo @/<CR>zv
 nn <silent> g* g*:<C-u>let @/ = @/<bar>echo @/<CR>zv
 nn <silent> g# g#:<C-u>let @/ = @/<bar>echo @/<CR>zv
+
+" Toggle IPython history storage
+nn <silent> ,ih :<C-u>let g:ipython_store_history = !get(g:, 'ipython_store_history', 1)<CR>
+    \ :<C-u>echo 'IPython history ' . (g:ipython_store_history ? 'enabled' : 'disabled')<CR>
 " }}}
 
 " {{{ Abbreviations to open help
@@ -2348,14 +2352,16 @@ silent! call neocomplete#custom#source('include', 'converters',
     \  'converter_delimiter', 'converter_case',
     \  'converter_disable_abbr', 'converter_abbr'])
 
-" Add current directory and red arrow if ignorecase is not set to status line
+" Add ignorecase, eventignore, and IPython history status to status line
 silent! call airline#parts#define('ignorecase',
     \ {'condition': '!&ignorecase', 'text': '↑', 'accent': 'red'})
 silent! call airline#parts#define('eventignore',
     \ {'condition': '&eventignore != ""', 'text': '!', 'accent': 'red'})
+silent! call airline#parts#define('history',
+    \ {'condition': '!get(g:, "ipython_store_history", 1)', 'text': '☢', 'accent': 'red'})
 silent! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
 silent! let g:airline_section_c = airline#section#create(
-    \ ['ignorecase', 'eventignore', '%<', 'file', g:airline_symbols.space, 'readonly'])
+    \ ['ignorecase', 'eventignore', 'history', '%<', 'file', g:airline_symbols.space, 'readonly'])
 
 " Solarized settings
 if mobileSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
