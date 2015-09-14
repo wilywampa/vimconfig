@@ -1842,7 +1842,7 @@ func! s:VimfilerSettings() " {{{
     nnoremap <buffer> gOt :<C-U>call gtfo#open#term(b:vimfiler.current_dir, "win")<CR>
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> N"
-    exe "nunmap <buffer> go"
+    exe "nunmap <buffer> go" | exe "nunmap <buffer> <Leader>"
     silent! call fugitive#detect(expand('%:p'))
 endfunc " }}}
 " }}}
@@ -1886,7 +1886,9 @@ func! s:UniteSettings() " {{{
     nmap <buffer> <expr> ` b:unite['profile_name'] == 'source/grep'
         \ ? ':call <SID>LastActiveWindow()<CR>'
         \ : '<Plug>(unite_exit)'
-    imap <buffer> <expr> ` '<Plug>(unite_exit)'
+    inor <buffer> <expr> <C-s> unite#mappings#set_current_sorters(
+        \ ['sorter_ftime', 'sorter_reverse'])
+    imap <buffer> ` <Plug>(unite_exit)
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
     inor <buffer> <C-f> <Esc><C-d>
