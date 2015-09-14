@@ -831,6 +831,7 @@ froms = {
 }
 
 froms_as = dict(
+    S=('ipython_config', 'SliceIndex'),
     acos=('numpy', 'arccos'),
     acosh=('numpy', 'arccosh'),
     asin=('numpy', 'arcsin'),

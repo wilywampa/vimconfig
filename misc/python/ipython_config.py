@@ -38,7 +38,7 @@ except ImportError:
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import defaultdict, namedtuple
-from ipython_config import dump, globn, load, sortn, sortnkey
+from ipython_config import SliceIndex as S, dump, globn, load, sortn, sortnkey
 from itertools import (chain, count, cycle, dropwhile, groupby, ifilter,
                        ifilterfalse, imap, islice, izip, izip_longest,
                        starmap, takewhile, tee)
@@ -112,6 +112,32 @@ def globn(pathname):
     """Like glob.glob but try to sort numerically."""
     from glob import glob
     return sortn(glob(pathname))
+
+
+class SliceIndex(object):
+
+    """Allow indexing generators with square brackets."""
+
+    def __init__(self, iterator):
+        if not hasattr(iterator, 'next'):
+            iterator = iterator()
+        self.iterator = iter(iterator)
+
+    def __iter__(self):
+        for elt in self.iterator:
+            yield elt
+
+    def __getitem__(self, ix):
+        from itertools import islice
+        try:
+            return next(islice(self.iterator, ix, ix + 1))
+        except TypeError:
+            start, stop, step = ix.start, ix.stop, ix.step
+            if stop is None:
+                return islice(self.iterator, start, stop, step)
+            if stop == -1:
+                stop = None
+            return list(islice(self.iterator, start, stop, step))
 
 
 def configure(c):
