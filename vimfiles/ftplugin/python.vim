@@ -613,15 +613,18 @@ messages = [(m['lnum'], m['text']) for m in
     vim.eval('copy(g:PymodeLocList.current()._loclist)')]
 missing = sorted([m.split("'")[1] for _, m in messages if 'E0602' in m])
 redefined = sorted([m.split("'")[1] for _, m in messages if 'W0404' in m])
+unused = sorted([m.split("'")[1] for _, m in messages if 'W0611' in m])
 EOF
     if l:count > 10 || (l:count > 0 &&
         \ pyeval('redefined') == redefined &&
-        \ pyeval('missing') == missing)
+        \ pyeval('missing') == missing &&
+        \ pyeval('unused') == unused)
       break
     endif
     let l:count += 1
     let missing = pyeval('missing')
     let redefined = pyeval('redefined')
+    let unused = pyeval('unused')
     let loclist = g:PymodeLocList.current()
     let messages = copy(loclist._loclist)
     if exists('g:python_autoimport_debug_file')
