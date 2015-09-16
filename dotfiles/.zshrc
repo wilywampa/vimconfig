@@ -143,7 +143,6 @@ alias lla='ls -lshA --color=auto'
 alias llas='ls -lshrtA --color=auto'
 alias llsa='ls -lshrtA --color=auto'
 alias lu='ls -1U --color=auto'
-alias lua='ls -1UA --color=auto'
 alias llu='ls -1lUsh --color=auto'
 alias llua='ls -1lUshA --color=auto'
 alias llau='ls -1lUshA --color=auto'
@@ -377,7 +376,6 @@ pmabbrevs=(
 'lls'   'ls --color=auto -lshrt'
 'llas'  'ls --color=auto -lshrtA'
 'lu'    'ls -1U --color=auto'
-'lua'   'ls -1UA --color=auto'
 'llu'   'ls -1lUsh --color=auto'
 'llua'  'ls -1lUshA --color=auto'
 'llau'  'ls -1lUshA --color=auto'
@@ -1034,9 +1032,6 @@ zstyle ':completion:*' auto-description 'specify: %d'
 # Don't prompt for a huge list, page it!
 zstyle ':completion:*:default' list-prompt '%S%M matches%s'
 
-# Don't prompt for a huge list, menu it!
-zstyle ':completion:*:default' menu 'select=0'
-
 unsetopt LIST_AMBIGUOUS
 setopt COMPLETE_IN_WORD
 
@@ -1083,10 +1078,12 @@ zstyle ':completion:*:kill:*' command 'ps --forest -u $USER -o pid,tty,cputime,c
 zstyle ':completion:*:functions' ignored-patterns '_*'
 
 # Fast completion for files only
-zle -C complete-files expand-or-complete-prefix _generic
+# Use menu immediately and include hidden files to avoid refreshing file list
+zle -C complete-files complete-word _generic
 zstyle ':completion:complete-files:*' completer _files
+zstyle ':completion:complete-files:*' file-patterns '*(D):all-files'
 vibindkey '^]' complete-files
-bindkey -M menuselect '^]' complete-files
+bindkey -M menuselect '^]' word-complete  # cycle through menu with <C-]>
 
 # Don't expand ~ or $param at the start of a word
 zstyle ':completion:*' keep-prefix true
