@@ -51,8 +51,8 @@ nnoremap <silent> <buffer> ]] m':call search('^\s*def ', "W")<CR>
 xnoremap <silent> <buffer> ]] m':<C-U>exe "normal! gv"<Bar>call search('^\s*def ', "W")<CR>
 
 " Unite IPython history maps
-nnoremap <silent> <buffer> ,h :<C-u>Unite history/ipython -max-multi-lines=10<CR>
-nnoremap <silent> <buffer> ,H :<C-u>Unite history/ipython:import -max-multi-lines=10<CR>
+nnoremap <silent> <buffer> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -no-split -no-resize<CR>
+nnoremap <silent> <buffer> ,H :<C-u>Unite history/ipython:import -max-multi-lines=100 -no-split -no-resize<CR>
 
 " Enable omni completion
 setlocal omnifunc=pythoncomplete#Complete

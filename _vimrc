@@ -436,7 +436,7 @@ else
 endif
 
 " Close quickfix window/location list
-nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>wincmd z<CR>
+nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<CR>
 
 " Switch to quickfix or location list window
 nn <silent> <C-w><Space> :copen<CR>
@@ -1941,11 +1941,11 @@ nn <silent> <M-/> :<C-u>Unite line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
 nn <silent> <Leader>o :<C-u>Unite outline <CR>
-nn <silent> ,h :<C-u>Unite history/ipython -max-multi-lines=10<CR>
+nn <silent> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -no-split -no-resize<CR>
 nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
 nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>
-nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>wincmd z<bar>silent! UniteClose<CR>
+nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
 nnoremap <silent> ,u :UniteResume<CR>
