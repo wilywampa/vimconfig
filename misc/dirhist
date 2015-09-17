@@ -22,7 +22,7 @@ def get_commands(directory):
         with open(home + "/" + HISTFILE, "r") as f:
             continued = False
             for line in f.readlines():
-                line = line.strip()
+                line = line.rstrip('\n')
                 if not continued and not line.endswith('\\'):
                     try:
                         cmd_dir, command = line.split(";", 1)
@@ -52,6 +52,7 @@ def get_commands(directory):
     commands = remove_duplicates(commands)
 
     return "\n".join(commands)
+
 
 if __name__ == '__main__':
     try:

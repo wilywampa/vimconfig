@@ -909,8 +909,13 @@ zle -N _vared-vipe; vibindkey 'Å' _vared-vipe  # <M-E>
 # Append to history file
 _log-command() {
     if [[ "$1" != " "* ]]; then
+        local -a lines
         lines=(${(f)1})
-        echo "${PWD}"\;${(j:\\\n:)${lines//\\/\\\\}} >> $HOME/.directory_history
+        printf "%s;%s" "$PWD" "${lines[1]}" >> $HOME/.directory_history
+        for line in ${lines[2,-1]}; do
+            printf '\\\n%s' "$line" >> $HOME/.directory_history
+        done
+        printf "\n" >> $HOME/.directory_history
     fi
 }
 add-zsh-hook preexec _log-command
