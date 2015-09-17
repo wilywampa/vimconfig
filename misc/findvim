@@ -12,20 +12,37 @@ local fmt='#{pane_current_command},,#{pane_id}'
 # Check if tab diff is requested with findvim -d file1 file2
 [[ $# == 3 ]] && [[ "$1" == "-d" ]] && dodiff=1 || dodiff=0
 
+remote() {
+  local line=
+  local file="$1"
+  if [[ "$1" =~ ':([0-9]+)$' ]]; then
+    line=$match
+    [[ "$1" =~ '^(.*):' ]] && file="$match"
+  elif [[ "$1" =~ '\(([0-9]+)\)$' ]]; then
+    line=$match
+    [[ "$1" =~ '^(.*)\(' ]] && file="$match"
+  fi
+  if [[ -n $line ]]; then
+    vim --servername ${VIMSERVER:-VIM} --remote +$line "$file"
+  else
+    vim --servername ${VIMSERVER:-VIM} --remote "$file"
+  fi
+}
+
 vim --serverlist | grep -q "\b${VIMSERVER:-VIM}\b" 2>&1 > /dev/null
 if [ $? -eq 0 ]; then
   if [[ $# == 0 ]] && [[ -n "$stdin" ]]; then
     panepwd=$(tmux display-message -p "#{pane_current_path}")
     stdin="${${${${stdin#\'}%\'}#\"}%\"}"
-    if [[ ${~stdin} != ./* && -e ${~stdin} ]]; then
-      vim --servername ${VIMSERVER:-VIM} --remote ${~stdin}
-    elif [[ -d "$panepwd" ]] && [[ -e "$panepwd"/"${${stdin#./}#/}" ]]; then
-      vim --servername ${VIMSERVER:-VIM} --remote "$panepwd"/"${${stdin#./}#/}"
+    if [[ ${~stdin} != ./* && -e ${${~stdin}%%[:(]*} ]]; then
+      remote "${~stdin}"
+    elif [[ -d "$panepwd" ]] && [[ -e "$panepwd"/"${${${stdin#./}#/}%%[:(]*}" ]]; then
+      remote "$panepwd"/"${${stdin#./}#/}"
     else
       tmux display-message "${stdin} does not exist"
     fi
   elif [[ $dodiff == 0 ]]; then
-    vim --servername ${VIMSERVER:-VIM} --remote "$@"
+    remote "$@"
   fi
   for win in $(tmux list-windows -F '#{window_id}'); do
     for pane in $(tmux list-panes -t$win -F "$fmt"); do
