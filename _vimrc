@@ -1984,6 +1984,7 @@ func! s:UniteSetup() " {{{
     endfor
     function! s:action_replace(action, candidates) " {{{
         for index in range(0, len(a:candidates) - 1)
+            if index == 1 | wincmd o | endif
             if index > 0 || len(a:candidates) == 1
                 call unite#util#command_with_restore_cursor(
                     \ substitute(a:action, '^split$', 'belowright &', ''))
