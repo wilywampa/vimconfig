@@ -319,11 +319,15 @@ if maparg('c', 'n') == ''
 endif
 
 " Copy file/path with/without line number
-nn <silent> <C-g> <C-g>:let @+=expand('%:p')<CR>:let @*=@+<CR>:let @"=@+<CR>
-nn <silent> g<C-g> g<C-g>:let @+=expand('%:p:h')<CR>:let @*=@+<CR>:let @"=@+<CR>
-nn <silent> 1<C-g> 1<C-g>:let @+=expand('%:p:t')<CR>:let @*=@+<CR>:let @"=@+<CR>
-nn <silent> <M-g> <C-g>:let @+=expand('%:p').':'.line('.')<CR>:let @*=@+<CR>:let @"=@+<CR>
-nn <silent> <M-G> <C-g>:let @+=expand('%:p:t').':'.line('.')<CR>:let @*=@+<CR>:let @"=@+<CR>
+function! s:copy(arg) abort " {{{
+    let @+ = a:arg | let @* = @+ | let @" = @+
+    echo 'copied: ' . @"
+endfunction " }}}
+nn <silent> <C-g> <C-g>:let @+ = expand('%:p')<CR>:let @* = @+<CR>:let @" = @+<CR>
+nn <silent> g<C-g> g<C-g>:let @+ = expand('%:p:h')<CR>:let @* = @+<CR>:let @" = @+<CR>
+nn <silent> 1<C-g> 1<C-g>:call <SID>copy(expand('%:p:t'))<CR>
+nn <silent> <M-g> <C-g>:call <SID>copy(expand('%:p').':'.line('.'))<CR>
+nn <silent> <M-G> <C-g>:call <SID>copy(expand('%:p:t').':'.line('.'))<CR>
 
 " Change tab position
 nn <silent> <C-w><C-e>     :tabm<CR>
