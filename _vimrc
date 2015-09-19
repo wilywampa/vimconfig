@@ -608,7 +608,7 @@ nn <silent> g# g#:<C-u>let @/ = @/<bar>echo @/<CR>zv
 
 " Toggle IPython history storage
 nn <silent> ,ih :<C-u>let g:ipython_store_history = !get(g:, 'ipython_store_history', 1)<CR>
-    \ :<C-u>echo 'IPython history ' . (g:ipython_store_history ? 'enabled' : 'disabled')<CR>
+    \:<C-u>echo 'IPython history ' . (g:ipython_store_history ? 'enabled' : 'disabled')<CR>
 " }}}
 
 " {{{ Abbreviations to open help
