@@ -15,6 +15,7 @@ except ImportError:
 import collections
 import ein
 import ipython_autocd as _; _.register()
+import ipython_config as _; _._install_magics()
 import itertools as it
 import lambda_filter as _; _.register()
 import matplotlib as mpl
@@ -138,6 +139,25 @@ class SliceIndex(object):
             if stop == -1:
                 stop = None
             return list(islice(self.iterator, start, stop, step))
+
+
+def _install_magics():
+    import io
+    from IPython import get_ipython
+    from IPython.core import magic
+
+    @magic.register_line_magic
+    def run_cython(args):
+        """Run a Cython file using %%cython magic."""
+        args = magic.arg_split(args, posix=True)
+        filename = args.pop()
+        if '--force' not in args:
+            args.append('--force')
+        ip = get_ipython()
+        ip.extension_manager.load_extension('cython')
+        with io.open(filename, 'r', encoding='utf-8') as f:
+            ip.run_cell_magic('cython', ' '.join(args), f.read())
+    del run_cython
 
 
 def configure(c):
