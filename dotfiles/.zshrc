@@ -300,7 +300,7 @@ abbrevs=(
 'slog'  'svn log -r 1:HEAD'
 'srm'   'svn rm'
 'surl'  'info=$(svn info); echo ${${info[(fr)URL: *]}[(w)-1]}'
-'ec'    'echo'
+'ec'    'printf "%s\n"'
 'so'    'source'
 'ez'    'vim $(readlink -f ~/.zshrc)'
 'sz'    'source ~/.zshrc'
