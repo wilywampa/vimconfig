@@ -75,7 +75,7 @@ alias e='vim'
 alias vims='vim -S ~/session.vis'
 alias vimr='vim -S =(<~/periodic_session.vis)'
 alias gvims='gvim -S ~/session.vis'
-alias ez='vim $(readlink -f ~/.zshrc)'
+alias ez='vim ${~${:-~/.zshrc}:A}'
 alias vno='vim -u NONE -i NONE -N --cmd "$VIMOPTIONS"'
 
 # svn
@@ -302,7 +302,7 @@ abbrevs=(
 'surl'  'info=$(svn info); echo ${${info[(fr)URL: *]}[(w)-1]}'
 'ec'    'printf "%s\n"'
 'so'    'source'
-'ez'    'vim $(readlink -f ~/.zshrc)'
+'ez'    'vim ${~${:-~/.zshrc}:A}'
 'sz'    'source ~/.zshrc'
 'szv'   'source ~/.zshrc; vims'
 'wh'    'whence'
@@ -526,7 +526,7 @@ _cyg-list-expand-or-copy-cwd() {
 }
 zle -N _cyg-list-expand-or-copy-cwd
 _cyg-path() {
-    echo $(readlink -f "$1") | tr -d '\n' > /dev/clipboard
+    echo "${1:A}" | tr -d '\n' > /dev/clipboard
 }
 _cyg-copy() {
     noglob echo "$@" | tr -d '\n' > /dev/clipboard
@@ -559,7 +559,7 @@ _xclip-list-expand-or-copy-cwd() {
 }
 zle -N _xclip-list-expand-or-copy-cwd
 _xclip-path() {
-    echo $(readlink -f "$1") | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+    echo "${1:A}" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
 }
 _xclip-copy() {
     noglob echo "$@" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
@@ -874,8 +874,7 @@ bindkey -M viins '~' _insert-home
 bindkey -M isearch '~' self-insert
 
 za() {
-    local mandir=${$(readlink -f $(man -w zsh)):h}
-    ag "$@" -- ${mandir}/z*(.)
+    ag "$@" -- "${$(man -w zsh):A:h}"/z*(.)
 }
 
 # Ctrl-F opens Vim as command editor
