@@ -509,27 +509,27 @@ _cygyank() {
 zle -N _cygyank
 _cyg-vi-yank() {
     zle vi-yank
-    echo "${CUTBUFFER//\\/\\\\}" | tr -d '\n' > /dev/clipboard
+    printf "%s" "${CUTBUFFER}" > /dev/clipboard
 }
 zle -N _cyg-vi-yank
 _cyg-vi-yank-eol() {
     zle vi-yank-eol
-    echo "${CUTBUFFER//\\/\\\\}" | tr -d '\n' > /dev/clipboard
+    printf "%s" "${CUTBUFFER}" > /dev/clipboard
 }
 zle -N _cyg-vi-yank-eol
 _cyg-list-expand-or-copy-cwd() {
     if [[ $BUFFER =~ \\* ]]; then
         zle list-expand
     else
-        echo $PWD | tr -d '\n' > /dev/clipboard
+        printf "%s" "${PWD}" > /dev/clipboard
     fi
 }
 zle -N _cyg-list-expand-or-copy-cwd
 _cyg-path() {
-    echo "${1:A}" | tr -d '\n' > /dev/clipboard
+    printf "%s" "${1:A}" > /dev/clipboard
 }
 _cyg-copy() {
-    noglob echo "$@" | tr -d '\n' > /dev/clipboard
+    printf "%s" "$@" > /dev/clipboard
 }
 
 _xclipyank() {
@@ -542,27 +542,27 @@ _xclipyank() {
 zle -N _xclipyank
 _xclip-vi-yank() {
     zle vi-yank
-    echo "${CUTBUFFER//\\/\\\\}" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+    printf "%s" "${CUTBUFFER}" | xclip -i -sel p -f | xclip -i -sel c
 }
 zle -N _xclip-vi-yank
 _xclip-vi-yank-eol() {
     zle vi-yank-eol
-    echo "${CUTBUFFER//\\/\\\\}" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+    printf "%s" "${CUTBUFFER}" | xclip -i -sel p -f | xclip -i -sel c
 }
 zle -N _xclip-vi-yank-eol
 _xclip-list-expand-or-copy-cwd() {
     if [[ $BUFFER =~ \\* ]]; then
         zle list-expand
     else
-        echo $PWD | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+        printf "%s" "${PWD}" | xclip -i -sel p -f | xclip -i -sel c
     fi
 }
 zle -N _xclip-list-expand-or-copy-cwd
 _xclip-path() {
-    echo "${1:A}" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+    printf "%s" "${1:A}" | xclip -i -sel p -f | xclip -i -sel c
 }
 _xclip-copy() {
-    noglob echo "$@" | tr -d '\n' | xclip -i -sel p -f | xclip -i -sel c
+    printf "%s" "$@" | xclip -i -sel p -f | xclip -i -sel c
 }
 
 
