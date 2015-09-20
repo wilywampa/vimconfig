@@ -3,7 +3,11 @@ try:
 except ImportError:
     import pickle
 import numpy.ma as ma
+from IPython.utils.text import SList
 _print_templates = ma.core._print_templates
+
+__all__ = ['S', 'SliceIndex', 'dump', 'fields_dict', 'globn', 'items_dict',
+           'load', 'sortn', 'sortnkey']
 
 _imports = """\
 from __future__ import division
@@ -39,7 +43,7 @@ except ImportError:
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import defaultdict, namedtuple
-from ipython_config import SliceIndex as S, dump, globn, load, sortn, sortnkey
+from ipython_config import *
 from itertools import (chain, count, cycle, dropwhile, groupby, ifilter,
                        ifilterfalse, imap, islice, izip, izip_longest,
                        starmap, takewhile, tee)
@@ -139,6 +143,28 @@ class SliceIndex(object):
             if stop == -1:
                 stop = None
             return list(islice(self.iterator, start, stop, step))
+S = SliceIndex
+
+
+def items_dict(slist, key=None):
+    """Return a list of dictionaries representing the fields of each line."""
+    fields = slist.fields()
+    items = [{k: f for k, f in zip(fields[0], item)} for item in fields[1:]]
+    if key:
+        return {i[key]: i for i in items}
+    else:
+        return items
+
+
+def fields_dict(slist, type=SList):
+    """Return a dictionary with a list of values for each field."""
+    fields = slist.fields()
+    names = fields.pop(0)
+    out = {}
+    for i, name in enumerate(names[:-1]):
+        out[name] = type(slist.fields(i)[1:])
+    out[names[-1]] = type([' '.join(f[i + 1:]) for f in fields])
+    return out
 
 
 def _install_magics():
