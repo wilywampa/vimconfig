@@ -184,11 +184,9 @@ def configure(c):
         if "solarizedlight" in pygments.styles.get_all_styles():
             c.IPythonWidget.syntax_style = "solarizedlight"
 
-    try:
-        c.PlainTextFormatter.type_printers.items
-    except (AttributeError, NameError):
-        c.PlainTextFormatter.type_printers = {}
-    c.PlainTextFormatter.type_printers[ma.core.MaskedArray] = _marray_pprint
+    c.PlainTextFormatter.type_printers.update({
+        ma.core.MaskedArray: _marray_pprint,
+    })
 
     def add(item):
         if item not in c.InteractiveShellApp.exec_lines:
