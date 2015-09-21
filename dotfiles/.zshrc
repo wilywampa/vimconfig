@@ -1084,7 +1084,7 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 # Fast completion for files only
 # Use menu immediately and include hidden files to avoid refreshing file list
 zle -C complete-files complete-word _generic
-zstyle ':completion:complete-files:*' completer _files
+zstyle ':completion:complete-files:*' completer _tilde _files
 zstyle ':completion:complete-files:*' file-patterns '*(D):all-files'
 vibindkey '^]' complete-files
 bindkey -M menuselect '^]' word-complete  # cycle through menu with <C-]>
