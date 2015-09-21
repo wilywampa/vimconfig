@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..1daaf6e 100644
+index b1bc646..8c51673 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -67,6 +67,7 @@ Notes:
@@ -35,7 +35,7 @@ index b1bc646..1daaf6e 100644
  #-----------------------------------------------------------------------------
  
 +repr_ = REPR.Repr()
-+repr_.maxdict = 0
++repr_.maxother = 50
 +TYPES_LIST = tuple([getattr(types, a)
 +                    for a in dir(types) if isinstance(getattr(types, a), type)])
 +EXCEPTIONS = set(filter(lambda e: type(e) == type and issubclass(e, Exception),
@@ -152,7 +152,7 @@ index b1bc646..1daaf6e 100644
                           ]
  
      def all_completions(self, text):
-@@ -804,6 +905,112 @@ class IPCompleter(Completer):
+@@ -804,6 +905,113 @@ class IPCompleter(Completer):
                      argMatches.append("%s=" %namedArg)
          return argMatches
  
@@ -161,6 +161,7 @@ index b1bc646..1daaf6e 100644
 +        def get_keys(obj):
 +            # Only allow completion for known in-memory dict-like types
 +            if isinstance(obj, dict) or\
++               obj is os.environ or\
 +               _safe_isinstance(obj, 'attrdict', 'AttrDict') or\
 +               _safe_isinstance(obj, 'h5py.highlevel', 'AttributeManager') or\
 +               _safe_isinstance(obj, 'h5py.highlevel', 'HLObject') or\
@@ -265,7 +266,7 @@ index b1bc646..1daaf6e 100644
      def dispatch_custom_completer(self, text):
          #io.rprint("Custom! '%s' %s" % (text, self.custom_completers)) # dbg
          line = self.line_buffer
-@@ -901,6 +1108,7 @@ class IPCompleter(Completer):
+@@ -901,6 +1109,7 @@ class IPCompleter(Completer):
  
          # Start with a clean slate of completions
          self.matches[:] = []
@@ -273,7 +274,7 @@ index b1bc646..1daaf6e 100644
          custom_res = self.dispatch_custom_completer(text)
          if custom_res is not None:
              # did custom completers produce something?
-@@ -918,6 +1126,20 @@ class IPCompleter(Completer):
+@@ -918,6 +1127,20 @@ class IPCompleter(Completer):
                          # Show the ugly traceback if the matcher causes an
                          # exception, but do NOT crash the kernel!
                          sys.excepthook(*sys.exc_info())
@@ -294,7 +295,7 @@ index b1bc646..1daaf6e 100644
              else:
                  for matcher in self.matchers:
                      self.matches = matcher(text)
-@@ -931,8 +1153,93 @@ class IPCompleter(Completer):
+@@ -931,8 +1154,94 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
@@ -327,11 +328,12 @@ index b1bc646..1daaf6e 100644
 +                    if type(e) in EXCEPTIONS - set(
 +                            [AttributeError, KeyError, TypeError]):
 +                        raise
-+                    if type(obj) in TYPES_LIST:
++                    if isinstance(obj, TYPES_LIST):
 +                        matches.append(
 +                            m + '\0' + '%s: %s' %
 +                            (type(obj).__name__,
-+                             repr_.repr(obj)[: 50]))
++                             repr_.repr1(obj, 1)[: 50] if isinstance(obj, dict)
++                             else repr_.repr(obj)[: 50]))
 +                    else:
 +                        try:
 +                            matches.append(
@@ -390,7 +392,7 @@ index b1bc646..1daaf6e 100644
      def rlcomplete(self, text, state):
          """Return the state-th possible completion for 'text'.
 diff --git a/utils/dir2.py b/utils/dir2.py
-index dd508b4..7d2eb5f 100644
+index dd508b4..55d2a3c 100644
 --- a/utils/dir2.py
 +++ b/utils/dir2.py
 @@ -13,6 +13,7 @@
