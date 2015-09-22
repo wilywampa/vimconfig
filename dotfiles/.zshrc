@@ -463,8 +463,7 @@ magic-abbrev-expand-or-complete-word() {
     magic-abbrev-expand || zle complete-word
 }
 zle -N magic-abbrev-expand-or-complete-word
-bindkey -M viins '^I' magic-abbrev-expand-or-complete-word
-bindkey -M vicmd '^I' magic-abbrev-expand-or-complete-word
+vibindkey '^I' magic-abbrev-expand-or-complete-word
 
 _accept-line() { magic-abbrev-expand; zle reset-prompt; zle accept-line }
 zle -N _accept-line; vibindkey '^M' _accept-line
@@ -1036,6 +1035,9 @@ zstyle ':completion:*' auto-description 'specify: %d'
 # Don't prompt for a huge list, page it!
 zstyle ':completion:*:default' list-prompt '%S%M matches%s'
 
+# Don't prompt for a huge list, menu it!
+zstyle ':completion:*:default' menu 'select=0'
+
 unsetopt LIST_AMBIGUOUS
 setopt COMPLETE_IN_WORD
 
@@ -1084,8 +1086,9 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 # Fast completion for files only
 # Use menu immediately and include hidden files to avoid refreshing file list
 zle -C complete-files complete-word _generic
-zstyle ':completion:complete-files:*' completer _tilde _files
+zstyle ':completion:complete-files:*' completer _files _tilde
 zstyle ':completion:complete-files:*' file-patterns '*(D):all-files'
+zstyle ':completion:complete-files:*' menu 'yes=0' 'select=0'
 vibindkey '^]' complete-files
 bindkey -M menuselect '^]' word-complete  # cycle through menu with <C-]>
 
