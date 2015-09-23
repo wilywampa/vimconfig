@@ -686,12 +686,14 @@ if mobileSSH | call s:KeyCodes() | endif
 
 func! s:CmdwinMappings() " {{{
     " Make 'gf' work in command window
-    nnoremap <silent> <buffer> gf :let cfile=expand('<cfile>')<CR>:q<CR>
-        \:exe 'e '.cfile<CR>
-    nnoremap <silent> <buffer> <C-w>f :let cfile=expand('<cfile>')<CR>:q<CR>
-        \:exe 'vsplit '.cfile<CR>
-    nnoremap <silent> <buffer> <C-w>gf :let cfile=expand('<cfile>')<CR>:q<CR>
-        \:exe 'tabe '.cfile<CR>
+    function! s:cfile_map(map, cmd) abort " {{{
+        return printf('nnoremap <silent> <buffer> %s :let cfile = ' .
+            \ 'expand("<cfile>")<CR>:quit<CR>:execute "%s " . cfile<CR>', a:map, a:cmd)
+    endfunction " }}}
+    execute s:cfile_map('gf',         'edit')
+    execute s:cfile_map('<C-w><C-f>', 'belowright vsplit')
+    execute s:cfile_map('<C-w>f',     'belowright split')
+    execute s:cfile_map('<C-w>gf',    'tabedit')
 
     " Delete item under cursor from history
     nnoremap <silent> <buffer> dD :call histdel(g:cmdwinType,'\V\^'.
