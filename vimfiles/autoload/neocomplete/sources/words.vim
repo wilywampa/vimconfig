@@ -14,25 +14,22 @@ let s:source = {
     \ }
 
 python << EOF
-import string
+import re
 import vim
-words = set([])
-chars = string.ascii_letters + string.digits + '_'
+words = set()
 
 def add_words(buffer):
-    global words
-    words |= set(word for line in buffer for word in line.split()
-                 if len(word) >= 4 and all(c in chars for c in word))
+    words.update(set(re.findall('\w{4,}', ' '.join(buffer[:]))))
 EOF
 
 function! s:UpdateWordList()
 python << EOF
-words = set([])
-bufnrs = []
+words.clear()
+bufnrs = set()
 for w in vim.windows:
     if w.buffer.number not in bufnrs:
         add_words(w.buffer)
-        bufnrs.append(w.buffer.number)
+        bufnrs.add(w.buffer.number)
 altbuf = int(vim.eval('bufnr("#")'))
 if altbuf > 0 and altbuf not in bufnrs:
     add_words(vim.buffers[altbuf])
@@ -44,6 +41,7 @@ function! s:source.hooks.on_init(context)
 endfunction
 
 function! s:source.gather_candidates(context)
+    call s:UpdateWordList()
     return pyeval('list(words)')
 endfunction
 
@@ -81,6 +79,7 @@ function! neocomplete#sources#words#complete(findstart, base)
         return start
     else
         let results = []
+        call s:UpdateWordList()
         python << EOF
 base = vim.eval('a:base')
 for word in words:
@@ -91,11 +90,6 @@ EOF
         return results
     endif
 endfunction
-
-augroup words_complete
-    autocmd!
-    autocmd BufWinEnter,BufWrite,CmdwinEnter,WinEnter * call s:UpdateWordList()
-augroup END
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
