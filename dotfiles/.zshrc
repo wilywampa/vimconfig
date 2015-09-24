@@ -795,22 +795,20 @@ zle -N tmux-next; vibindkey '^[[27;5;9~' tmux-next
 tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
+typeset -TU VIMBLACKLIST vimblacklist ,
 vimblacklist=(vimshell tmux-complete jedi clang_complete textobj-clang \
     textobj-function-clang libclang haskellmode ghcmod neco-ghc haskell)
-export VIMBLACKLIST=${(j:,:)vimblacklist}
 
 vim-blacklist-add() {
     for i in "$@"; do
         vimblacklist=($vimblacklist "$i")
     done
-    export VIMBLACKLIST=${(j:,:)vimblacklist}
 }
 
 vim-blacklist-remove() {
     for i in "$@"; do
         vimblacklist[${vimblacklist[(i)$i]}]=()
     done
-    export VIMBLACKLIST=${(j:,:)vimblacklist}
 }
 
 zmodload -i zsh/parameter
