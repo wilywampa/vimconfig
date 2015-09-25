@@ -598,7 +598,8 @@ im <C-e> <End>
 
 " Remove trailing whitespace with <CR> (<BS> can delete multiple characters so use <Del>)
 ino <expr> <CR> (getline('.')[:col('.')-2] =~ '\(\S\\|^\)\s\+$' ?
-    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) : '').'<CR>'
+    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) : '').
+    \ (pumvisible() ? '<C-y>' : '') . '<CR>'
 ino \<CR> \<CR>
 
 " Make * and # use 'smartcase'
