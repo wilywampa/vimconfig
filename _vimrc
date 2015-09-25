@@ -1945,7 +1945,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name="
 nn <silent> <M-p> :<C-u>Unite neomru/directory<CR>
 nn <silent> <C-o> :<C-u>Unite file<CR>
 nn <silent> <M-/> :<C-u>Unite line:forward<CR>
-nn <silent> <M-/> :<C-u>Unite line:backward<CR>
+nn <silent> <M-?> :<C-u>Unite line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
 nn <silent> <Leader>o :<C-u>Unite outline <CR>
@@ -2153,8 +2153,8 @@ let g:jedi#popup_select_first = 0
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
 let g:jedi#goto_command = ''
-let g:jedi#rename_command = '<Leader>jr'
-let g:jedi#usages_command = '<Leader>ju'
+let g:jedi#rename_command = '<silent> <Leader>jr'
+let g:jedi#usages_command = '<silent> <Leader>ju'
 let g:jedi#auto_close_doc = 0
 let g:jedi#show_call_signatures = 2
 let g:jedi#smart_auto_mappings = 0
