@@ -29,7 +29,7 @@ def get_commands(directory):
                     except ValueError:
                         continue
                 elif continued and line.endswith('\\'):
-                    command += line[:-1] + '\\n'
+                    command += line[:-1] + r'\\n'
                     continue
                 elif continued:
                     command += line
@@ -37,7 +37,7 @@ def get_commands(directory):
                 else:  # line ends with backslash
                     try:
                         cmd_dir, command = line.split(";", 1)
-                        command = command[:-1] + '\\n'
+                        command = command[:-1] + r'\\n'
                         continued = True
                         continue
                     except ValueError:
