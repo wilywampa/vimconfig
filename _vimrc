@@ -1649,12 +1649,12 @@ if !hasWin | call extend(g:pathogen_disabled, ['misc','shell']) | endif
 if s:readonly
     call add(g:pathogen_disabled, 'fugitive')
     call add(g:pathogen_disabled, 'neocomplete')
+    call add(g:pathogen_disabled, 'neosnippet')
     call add(g:pathogen_disabled, 'neosnippet-snippets')
     call add(g:pathogen_disabled, 'pymode')
     call add(g:pathogen_disabled, 'scriptease')
     call add(g:pathogen_disabled, 'tabular')
     call add(g:pathogen_disabled, 'targets')
-    call add(g:pathogen_disabled, 'unite')
     call add(g:pathogen_disabled, 'vcscommand')
     call add(g:pathogen_disabled, 'vimfiler')
 endif
