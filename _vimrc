@@ -65,6 +65,7 @@ set nojoinspaces                " Don't add two spaces after punctuation
 set gdefault                    " Substitute all occurrences by default
 set nostartofline               " Don't jump to start of line for various motions
 set isfname+={,}                " Interpret {} as part of a filename
+set isfname-==                  " but not =
 sil! set breakindent            " Indent wrapped lines
 set tags-=./tags tags^=./tags;  " Search upwards for tags
 
