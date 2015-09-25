@@ -18,6 +18,7 @@ let s:wsPrev=''
 let s:wsEnabledPrev=0
 
 function! s:TagbarSame()
+    if !exists('*tagbar#currenttag') | return 1 | endif
     try
         return g:airline_section_x =~? 'tagbar'
             \ && (tagbar#currenttag('%s','','') == s:tagPrev)

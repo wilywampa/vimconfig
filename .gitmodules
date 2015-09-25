@@ -146,10 +146,6 @@
 	path = vimfiles/bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
 	branch = master
-[submodule "vimfiles/bundle/tagbar"]
-	path = vimfiles/bundle/tagbar
-	url = https://github.com/wilywampa/tagbar.git
-	branch = master
 [submodule "vimfiles/bundle/targets"]
 	path = vimfiles/bundle/targets
 	url = https://github.com/wellle/targets.vim.git

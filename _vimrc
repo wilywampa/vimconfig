@@ -1679,13 +1679,6 @@ endif
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
 
-" Tagbar configuration
-nnoremap <silent> <Leader>t :TagbarToggle<CR>
-let g:tagbar_iconchars=['▶','▼']
-let g:tagbar_sort=0
-let g:tagbar_autofocus=1
-let g:tagbar_map_showproto='r'
-
 " OmniCppComplete options
 let OmniCpp_ShowPrototypeInAbbr=1
 let OmniCpp_MayCompleteScope=1
@@ -1948,7 +1941,7 @@ nn <silent> <M-/> :<C-u>Unite line:forward<CR>
 nn <silent> <M-?> :<C-u>Unite line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
-nn <silent> <Leader>o :<C-u>Unite outline <CR>
+nn <silent> <Leader>o :<C-u>Unite -vertical outline<CR>
 nn <silent> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -no-split -no-resize<CR>
 nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
@@ -2322,7 +2315,6 @@ Plug 'wilywampa/vim-colors-solarized', {'dir': '$VIMCONFIG/vimfiles/bundle/solar
 Plug 'ervandew/supertab'
 Plug 'wilywampa/vim-surround'
 Plug 'scrooloose/syntastic', {'on': ['SyntasticInfo', 'SyntasticCheck']}
-Plug 'wilywampa/tagbar'
 Plug 'wellle/targets.vim'
 Plug 'wilywampa/tmux-complete.vim'
 Plug 'christoomey/vim-tmux-navigator'
