@@ -403,6 +403,7 @@ function! vimtools#opfunc(type) abort " {{{
   let reg_save = @@
   let left_save = getpos("'<")
   let right_save = getpos("'>")
+  let vimode_save = visualmode()
   try
     set selection=inclusive clipboard-=unnamed clipboard-=unnamedplus
     if a:type =~ '^\d\+$'
@@ -424,6 +425,7 @@ function! vimtools#opfunc(type) abort " {{{
     let @@ = reg_save
     let &selection = sel_save
     let &clipboard = cb_save
+    exe "normal! " . vimode_save . "\<Esc>"
     call setpos("'<", left_save)
     call setpos("'>", right_save)
   endtry
