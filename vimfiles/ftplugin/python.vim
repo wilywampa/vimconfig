@@ -503,7 +503,7 @@ augroup python_ftplugin
       \   let g:neocomplete#force_omni_input_patterns.python =
       \     '\%([^(). \t]\.\|^\s*@\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*' |
       \ endif
-  autocmd InsertEnter *.pxd,*.pxi,*.pyx
+  autocmd InsertEnter *.pxd,*.pxi,*.pyx,*.pyxbld
       \ if &omnifunc ==# 'jedi#completions' |
       \   setlocal omnifunc= |
       \ endif |
