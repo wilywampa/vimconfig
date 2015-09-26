@@ -551,7 +551,7 @@ xno g] g_h
 nn <silent> du :diffupdate<CR>
 
 " Insert home directory after typing $~
-ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".$HOME : '~'
+ino <expr> ~ getline('.')[virtcol('.')-2] == '$' ? "\<BS>".$HOME : '~'
 cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".$HOME : '~'
 
 " Make @: work immediately after restarting vim
@@ -587,18 +587,18 @@ cno <expr> ! getcmdtype() == ':' && getcmdline() == '!' ? '!<CR>' : '!'
 " Move cursor in insert mode without splitting undo
 ino <Left>  <C-g>U<Left>
 ino <Right> <C-g>U<Right>
-ino <expr> <Home> col('.') == match(getline('.'), '\S') + 1 ?
-    \ repeat('<C-g>U<Left>', col('.') - 1) :
-    \ (col('.') < match(getline('.'), '\S') ?
+ino <expr> <Home> virtcol('.') == match(getline('.'), '\S') + 1 ?
+    \ repeat('<C-g>U<Left>', virtcol('.') - 1) :
+    \ (virtcol('.') < match(getline('.'), '\S') ?
     \     repeat('<C-g>U<Right>', match(getline('.'), '\S') + 0) :
-    \     repeat('<C-g>U<Left>', col('.') - 1 - match(getline('.'), '\S')))
-ino <expr> <End> repeat('<C-g>U<Right>', col('$') - col('.'))
+    \     repeat('<C-g>U<Left>', virtcol('.') - 1 - match(getline('.'), '\S')))
+ino <expr> <End> repeat('<C-g>U<Right>', virtcol('$') - virtcol('.'))
 im <C-b> <Home>
 im <C-e> <End>
 
 " Remove trailing whitespace with <CR> (<BS> can delete multiple characters so use <Del>)
-ino <expr> <CR> (getline('.')[:col('.')-2] =~ '\(\S\\|^\)\s\+$' ?
-    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) : '').
+ino <expr> <CR> (getline('.')[:virtcol('.')-2] =~ '\(\S\\|^\)\s\+$' ?
+    \ repeat('<Left><Del>', len(matchstr(getline('.')[:virtcol('.')-2], '\s\+$'))) : '').
     \ (pumvisible() ? '<C-y>' : '') . '<CR>'
 ino \<CR> \<CR>
 
@@ -1007,9 +1007,9 @@ endfunc " }}}
 cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
 inoremap <C-@> <Esc>"_dT/"_s
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
-inoremap <expr> <M-w> getline('.')[:col('.')-1] =~ '^\S*\s*$' ? '<C-u>' :
-    \ (col('.') == 0 ? '<BS>' : (getline('.')[col('.')-2] =~ '\s' ?
-    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) :
+inoremap <expr> <M-w> getline('.')[:virtcol('.')-1] =~ '^\S*\s*$' ? '<C-u>' :
+    \ (virtcol('.') == 0 ? '<BS>' : (getline('.')[virtcol('.')-2] =~ '\s' ?
+    \ repeat('<Left><Del>', len(matchstr(getline('.')[:virtcol('.')-2], '\s\+$'))) :
     \ '<Esc>"_dT<Space>"_s'))
 
 " !$ inserts last WORD of previous command
@@ -1237,7 +1237,7 @@ func! s:CharClass(c, big) abort " {{{
 endfunc " }}}
 func! s:BackWord(big) abort " {{{
     let pos = getpos('.')
-    let col = col('.')
+    let col = virtcol('.')
     if col == 1 | return '' | endif
     let line = getline('.')
     let col -= 1
@@ -1252,17 +1252,17 @@ func! s:BackWord(big) abort " {{{
 endfunc " }}}
 func! s:ForwardWord(big) abort " {{{
     let pos = getpos('.')
-    let col = col('.')
-    if col == col('$') | return '' | endif
+    let col = virtcol('.')
+    if col == virtcol('$') | return '' | endif
     let line = getline('.')
     let cls = s:CharClass(line[col-1], a:big)
     let col += 1
     " Go one char past end of current word
     if cls != 0
-        while col < col('$') && s:CharClass(line[col-1], a:big) == cls | let col += 1 | endwhile
+        while col < virtcol('$') && s:CharClass(line[col-1], a:big) == cls | let col += 1 | endwhile
     endif
     " Go to next non-white
-    while col < col('$') && s:CharClass(line[col-1], a:big) == 0 | let col += 1 | endwhile
+    while col < virtcol('$') && s:CharClass(line[col-1], a:big) == 0 | let col += 1 | endwhile
     return repeat("\<C-g>U\<Right>", col - pos[2])
 endfunc " }}}
 inoremap <expr> <C-Left> <SID>BackWord(0)
@@ -1725,7 +1725,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         let g:neocomplete#sources.haskell = g:neocomplete#sources._ + ['ghc']
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
-            if pumvisible() || getline('.')[col('.')-2] =~ '\S'
+            if pumvisible() || getline('.')[virtcol('.')-2] =~ '\S'
                 return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
                     \: (neocomplete#helper#get_force_omni_complete_pos(
                     \   neocomplete#get_cur_text(1)) >= 0 ?
@@ -1911,7 +1911,8 @@ func! s:UniteSettings() " {{{
     imap <buffer> <C-n> <Esc><Plug>(unite_rotate_next_source)<Plug>(unite_insert_enter)
     inor <buffer> . \.
     inor <buffer> \. .
-    inor <buffer> <expr> <BS> getline('.')[col('.')-3:col('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
+    inor <buffer> <expr> <BS>
+        \ getline('.')[virtcol('.')-3:virtcol('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
     inor <buffer> <C-r>% <C-r>#
     inor <buffer> <expr> <C-r>$ expand('#:t')
     nmap <buffer> S <Plug>(unite_append_end)<Plug>(unite_delete_backward_line)
@@ -2010,7 +2011,7 @@ if has('python')
 endif
 
 " Surround settings
-xmap <expr> S (mode() == 'v' && col('.') == col('$') ? "h" : "")."\<Plug>VSurround"
+xmap <expr> S (mode() == 'v' && virtcol('.') == virtcol('$') ? "h" : "")."\<Plug>VSurround"
 nmap gs <Plug>Ysurround
 nmap gss <Plug>Yssurround
 " Make d surround with ['...'] and D with ["..."]
