@@ -76,7 +76,7 @@ alias vims='vim -S ~/session.vis'
 alias vimr='vim -S =(<~/periodic_session.vis)'
 alias gvims='gvim -S ~/session.vis'
 alias ez='vim ${~${:-~/.zshrc}:A}'
-alias vno='vim -u NONE -i NONE -N --cmd "$VIMOPTIONS"'
+alias vno='vim $VIMOPTIONS'
 
 # svn
 alias svnadd="svn st | grep '^?' | awk '{print \$2}' | s | xargs svn add"
@@ -198,6 +198,11 @@ vibindkey() {
     bindkey -M viins "$@"
     bindkey -M vicmd "$@"
 }
+insbindkey() {
+    bindkey -M viins "$@"
+    bindkey -M isearch "$1" self-insert
+    bindkey -M command "$1" self-insert
+}
 compdef _bindkey vibindkey
 bindkey -v
 autoload -U up-line-or-beginning-search
@@ -254,6 +259,23 @@ _previous-dir() {
 }
 zle -N _previous-dir
 vibindkey '^^' _previous-dir
+
+# Enable built-in surround plugin
+autoload -Uz surround
+zle -N delete-surround surround
+zle -N add-surround surround
+zle -N change-surround surround
+bindkey -a cs change-surround
+bindkey -a ds delete-surround
+bindkey -a gs add-surround
+bindkey -M visual S add-surround 2> /dev/null
+
+# Enable built-in run-help functionality
+unalias run-help >& /dev/null
+autoload -Uz run-help
+autoload -Uz run-help-git
+autoload -Uz run-help-svn
+bindkey -a '?' run-help
 
 #[[[1 Abbreviations
 typeset -Ag abbrevs
@@ -340,7 +362,7 @@ abbrevs=(
 'vcb'   'cd $VIMCONFIG/vimfiles/bundle'
 'v'     'vim'
 'e'     'vim'
-'vno'   'vim -u NONE -i NONE -N --cmd "$VIMOPTIONS"'
+'vno'   'vim $VIMOPTIONS'
 'vp'    'vimpager -f'
 'ipy'   'ipython'
 'xt'    'xclip -o >& /dev/null || echo -n "not "; echo connected'
@@ -469,10 +491,10 @@ _accept-line() { magic-abbrev-expand; zle reset-prompt; zle accept-line }
 zle -N _accept-line; vibindkey '^M' _accept-line
 zle -N magic-abbrev-expand
 zle -N no-magic-abbrev-expand
-bindkey -M viins " " magic-abbrev-expand
-bindkey -M viins "/" magic-abbrev-expand
-bindkey -M viins "|" magic-abbrev-expand
-bindkey -M viins ";" magic-abbrev-expand
+insbindkey " " magic-abbrev-expand
+insbindkey "/" magic-abbrev-expand
+insbindkey "|" magic-abbrev-expand
+insbindkey ";" magic-abbrev-expand
 bindkey -M viins "^O" no-magic-abbrev-expand
 
 #[[[1 Functions
@@ -646,17 +668,17 @@ _escalate() {
 }
 zle -N _escalate; vibindkey '^K' _escalate
 
-_backward-delete-WORD () {
+_backward-kill-WORD () {
     local WORDCHARS=${WORDCHARS}"\"\`'\@,:"
-    zle backward-delete-word
+    zle backward-kill-word
 }
-zle -N _backward-delete-WORD; vibindkey '÷' _backward-delete-WORD  # <M-w>
+zle -N _backward-kill-WORD; vibindkey '÷' _backward-kill-WORD  # <M-w>
 
-_backward-delete-to-slash () {
+_backward-kill-to-slash () {
     local WORDCHARS=${WORDCHARS//\//}
-    zle backward-delete-word
+    zle backward-kill-word
 }
-zle -N _backward-delete-to-slash; vibindkey '^@' _backward-delete-to-slash
+zle -N _backward-kill-to-slash; vibindkey '^@' _backward-kill-to-slash
 
 md() { mkdir -p "$@" && cd "$@" }
 
@@ -715,16 +737,18 @@ _vim-pipe() {
 }
 zle -N _vim-pipe; bindkey 'ð' _vim-pipe  # <M-p>
 
-_fg-job() {
-    if [[ -n $(jobs) ]]; then
+_fg-job-or-yank() {
+    if [[ -z $BUFFER && -n $(jobs) ]]; then
         _set-block-cursor
         _disable-focus
         fg
         zle reset-prompt
         _tmux-name-auto
+    else
+        zle yank
     fi
 }
-zle -N _fg-job; vibindkey '^Z' _fg-job
+zle -N _fg-job-or-yank; vibindkey '^Z' _fg-job-or-yank
 
 autoload -Uz add-zsh-hook
 # Ring bell after long commands finish
@@ -795,7 +819,7 @@ zle -N tmux-next; vibindkey '^[[27;5;9~' tmux-next
 tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
-typeset -TU VIMBLACKLIST vimblacklist ,
+typeset -TUgx VIMBLACKLIST vimblacklist ,
 vimblacklist=(vimshell tmux-complete jedi clang_complete textobj-clang \
     textobj-function-clang libclang haskellmode ghcmod neco-ghc haskell)
 
@@ -830,7 +854,7 @@ _remove-for-vared() {
         LBUFFER=${LBUFFER/\$/}
     fi
 }
-zle -N _remove-for-vared; bindkey -M viins '$' _remove-for-vared
+zle -N _remove-for-vared; insbindkey '$' _remove-for-vared
 
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs
@@ -847,7 +871,7 @@ _repeat-prev-command() {
         zle self-insert
     fi
 }
-zle -N _repeat-prev-command; vibindkey ':' _repeat-prev-command
+zle -N _repeat-prev-command; insbindkey ':' _repeat-prev-command
 
 _check-previous-exit-code() {
     if [[ $BUFFER == '&' ]]; then
@@ -866,9 +890,7 @@ _insert-home() {
         LBUFFER+=\~
     fi
 }
-zle -N _insert-home
-bindkey -M viins '~' _insert-home
-bindkey -M isearch '~' self-insert
+zle -N _insert-home; insbindkey '~' _insert-home
 
 za() {
     ag "$@" -- "${$(man -w zsh):A:h}"/z*(.)
@@ -881,8 +903,7 @@ _edit-command-line() {
     _set-block-cursor
     print -R - "$PREBUFFER$BUFFER" >$tmpfile
     exec </dev/tty
-    vim -u NONE -i NONE -N --cmd "$VIMOPTIONS" \
-        --cmd 'ino <C-s> <Esc>:wqa!<CR>' --cmd 'nn <C-s> :wqa!<CR>' $tmpfile
+    vim $VIMOPTIONS --cmd 'ino <C-s> <Esc>:wqa!<CR>' --cmd 'nn <C-s> :wqa!<CR>' $tmpfile
     print -Rz - "$(<$tmpfile)"
     command rm -f $tmpfile
     _enable-focus
@@ -923,8 +944,7 @@ awkp() {
 _glob-newest() {
     LBUFFER=${LBUFFER}'(om[1])'
 }
-zle -N _glob-newest
-bindkey -M viins 'î' _glob-newest  # <M-n>
+zle -N _glob-newest; insbindkey 'î' _glob-newest  # <M-n>
 
 undo() {
     if [[ "$1" == *.un~ ]]; then
@@ -990,8 +1010,9 @@ export DATEFMT='%a %d%b%Y %T'
 export VIMSERVER=VIM
 export TAR_OPTIONS='-k'
 export INPUTRC=$HOME/.inputrc
-export VIMOPTIONS="set ai bs=indent,eol,start clipboard= et gd hls ic is \
-    nosol nowrap nf=hex nu rnu sc sm sts=4 sw=4 wmnu wim=longest:full,full"
+VIMOPTIONS=('-u' 'NONE' '-i' 'NONE' '-N' "--cmd" "inoremap Y y$" \
+    "--cmd" "set ai bs=indent,eol,start clipboard= et gd hls ic is nosmd \
+    nosol nowrap nf=hex nu rnu sc si sm sts=4 sw=4 wmnu wim=longest:full,full")
 
 #[[[1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
@@ -1088,7 +1109,7 @@ zstyle ':completion:complete-files:*' completer _files _tilde
 zstyle ':completion:complete-files:*' file-patterns '*(D):all-files'
 zstyle ':completion:complete-files:*' menu 'yes=0' 'select=0'
 vibindkey '^]' complete-files
-bindkey -M menuselect '^]' word-complete  # cycle through menu with <C-]>
+bindkey -M menuselect '^]' complete-word  # cycle through menu with <C-]>
 
 # Don't expand ~ or $param at the start of a word
 zstyle ':completion:*' keep-prefix true
@@ -1288,6 +1309,8 @@ if [[ $OSTYPE == 'cygwin' ]]; then
     hash -d f=/cygdrive/f
     hash -d j=/cygdrive/j
     hash -d l=/cygdrive/l
+    hash -d u=/cygdrive/u
+    hash -d z=/cygdrive/z
 fi
 
 #[[[1 Machine-specific settings
