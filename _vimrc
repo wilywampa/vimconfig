@@ -1694,14 +1694,11 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
 
     if !s:readonly
         " NeoComplete settings
-        set completefunc=neocomplete#mappings#complete
         let g:neocomplete#enable_at_startup=1
         let g:neocomplete#enable_smart_case=1
         let g:neocomplete#max_list=200
         let g:neocomplete#min_keyword_length=4
-        let g:neocomplete#enable_refresh_always=1
         let g:neocomplete#sources#buffer#cache_limit_size=3000000
-        let g:neocomplete#enable_auto_close_preview=0
         let g:tmuxcomplete#trigger=''
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}
@@ -2174,7 +2171,6 @@ if stridx($VIMBLACKLIST, 'clang_complete') == -1
     if !exists('g:neocomplete#force_omni_input_patterns')
         let g:neocomplete#force_omni_input_patterns = {}
     endif
-    let g:neocomplete#force_overwrite_completefunc = 1
     let g:neocomplete#force_omni_input_patterns.c =
         \ '\([^.[:digit:] *\t]\|\w\d\)\%(\.\|->\)\w*'
     let g:neocomplete#force_omni_input_patterns.cpp =
@@ -2300,7 +2296,7 @@ Plug 'wilywampa/vim-indent-guides', {'on': '<Plug>IndentGuidesToggle'}
 Plug 'wilywampa/vim-ipython'
 Plug 'wilywampa/jedi-vim'
 Plug 'xolox/vim-misc'
-Plug 'wilywampa/neocomplete.vim', {'branch': 'simple_cfu'}
+Plug 'Shougo/neocomplete.vim'
 Plug 'Shougo/neoinclude.vim'
 Plug 'wilywampa/neomru.vim'
 Plug 'wilywampa/neosnippet.vim'
