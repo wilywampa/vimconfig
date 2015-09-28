@@ -2,11 +2,12 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let s:source = {
-    \ 'name'    : 'matlab-complete',
-    \ 'kind'    : 'keyword',
-    \ 'mark'    : '[MATLAB]',
-    \ 'rank'    :  200,
-    \ 'sorters' : 'sorter_alpha',
+    \ 'name'      : 'matlab-complete',
+    \ 'kind'      : 'keyword',
+    \ 'mark'      : '[MATLAB]',
+    \ 'rank'      :  200,
+    \ 'sorters'   : 'sorter_alpha',
+    \ 'filenames' : {'matlab': 1},
     \ }
 
 function! s:source.gather_candidates(context)

@@ -1709,17 +1709,6 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             \ '\h\w*\(\(\.\((''\?\)\?\w*\('')\?\)\?\)\+'
             \ .'\|{\d\+}\(\.\((''\?\)\?\w*\('')\?\)\?\)\+'
             \ .'\|{\d*\}\?\)\?'
-        if !exists('g:neocomplete#sources')
-            let g:neocomplete#sources = {}
-        endif
-        let g:neocomplete#sources._ = ['file', 'file/include', 'member',
-            \ 'buffer', 'syntax', 'neosnippet', 'omni', 'words']
-        if stridx($VIMBLACKLIST, 'tmux-complete') == -1
-            call add(g:neocomplete#sources._, 'tmux-complete')
-        endif
-        let g:neocomplete#sources.vim = g:neocomplete#sources._ + ['vim']
-        let g:neocomplete#sources.matlab = g:neocomplete#sources._ + ['matlab-complete']
-        let g:neocomplete#sources.haskell = g:neocomplete#sources._ + ['ghc']
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
             if pumvisible() || getline('.')[virtcol('.')-2] =~ '\S'
