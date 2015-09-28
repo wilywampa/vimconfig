@@ -1939,7 +1939,7 @@ nn <silent> <M-/> :<C-u>Unite line:forward<CR>
 nn <silent> <M-?> :<C-u>Unite line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
-nn <silent> <Leader>o :<C-u>Unite -vertical outline<CR>
+nn <silent> <Leader>o :<C-u>Unite -vertical -winwidth=60 outline<CR>
 nn <silent> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -no-split -no-resize<CR>
 nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
