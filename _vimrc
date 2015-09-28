@@ -1026,7 +1026,7 @@ cnoremap <expr> $ getcmdline()[getcmdpos()-2] == '!' ?
 func! QuitSearch() " {{{
     if getcmdtype() !~ '[/?]' | return '' | endif
     let visual = mode() =~? "[v\<C-v>]"
-    return "\<C-e>\<C-u>\<C-c>:\<C-u>call search('".
+    return "\<C-e>\<C-u>\<C-c>m`:\<C-u>call search('".
         \ substitute(getcmdline(), "'", "''", 'g')."', '".
         \ (getcmdtype() == '/' ? '' : 'b')."')\<CR>zv".(visual ? 'm>gv' : "")
 endfunc " }}}
