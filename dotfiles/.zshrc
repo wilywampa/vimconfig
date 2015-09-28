@@ -753,27 +753,31 @@ zle -N _fg-job-or-yank; vibindkey '^Z' _fg-job-or-yank
 autoload -Uz add-zsh-hook
 # Ring bell after long commands finish
 if [[ -o interactive ]] && zmodload zsh/datetime; then
+    zbell_lasttime=0
     zbell_duration=5
     zbell_ignore=(vi vim vims view vimdiff gvim gvims gview gvimdiff man \
         more less e ez tmux tmx matlab vimr)
-    zbell_timestamp=$EPOCHSECONDS
     zbell_begin() {
-        zbell_timestamp=$EPOCHSECONDS
+        zbell_timestamp=${zbell_timestamp:-$EPOCHSECONDS}
         zbell_lastcmd=$1
     }
     zbell_end() {
-        ran_long=$(( $EPOCHSECONDS - $zbell_timestamp >= $zbell_duration ))
-        has_ignored_cmd=0
-        for cmd in ${(s:;:)zbell_lastcmd//|/;}; do
-            words=(${(z)cmd})
-            util=${words[1]}
-            if (( ${zbell_ignore[(i)$util]} <= ${#zbell_ignore} )); then
-                has_ignored_cmd=1
-                break
+        if [ $zbell_timestamp ]; then
+            zbell_lasttime=$(( $EPOCHSECONDS - $zbell_timestamp ))
+            unset zbell_timestamp
+            ran_long=$(( $zbell_lasttime >= $zbell_duration ))
+            has_ignored_cmd=0
+            for cmd in ${(s:;:)zbell_lastcmd//|/;}; do
+                words=(${(z)cmd})
+                util=${words[1]}
+                if (( ${zbell_ignore[(i)$util]} <= ${#zbell_ignore} )); then
+                    has_ignored_cmd=1
+                    break
+                fi
+            done
+            if (( ! $has_ignored_cmd )) && (( ran_long )); then
+                print -n "\a"
             fi
-        done
-        if (( ! $has_ignored_cmd )) && (( ran_long )); then
-            print -n "\a"
         fi
     }
     add-zsh-hook preexec zbell_begin
@@ -1250,7 +1254,7 @@ else
 fi
 RPROMPT=${RPROMPT}"%{$reset_color%}\$psvar[1]%1(V, ,)"
 RPROMPT=${RPROMPT}"%{$fg_bold[green]%}%T%{$reset_color%}"
-RPROMPT=${RPROMPT}" !%{$fg[red]%}%!%{$reset_color%}%{${_linedown}%}"
+RPROMPT=${RPROMPT}" !%{$fg[red]%}\${zbell_lasttime}s%{$reset_color%}%{${_linedown}%}"
 
 # Auto-correct prompt
 SPROMPT="Correct $fg[red]%R$reset_color to $fg[green]%r$reset_color? (Yes, No, Abort, Edit) "
