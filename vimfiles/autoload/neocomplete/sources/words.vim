@@ -13,6 +13,8 @@ let s:source = {
     \ 'converters' : [],
     \ }
 
+let s:checked = 0
+
 python << EOF
 import re
 import vim
@@ -23,6 +25,7 @@ def add_words(buffer):
 EOF
 
 function! s:UpdateWordList()
+    let s:checked = 1
 python << EOF
 words.clear()
 bufnrs = set()
@@ -41,7 +44,9 @@ function! s:source.hooks.on_init(context)
 endfunction
 
 function! s:source.gather_candidates(context)
-    call s:UpdateWordList()
+    if !s:checked
+        call s:UpdateWordList()
+    endif
     return pyeval('list(words)')
 endfunction
 
@@ -90,6 +95,11 @@ EOF
         return results
     endif
 endfunction
+
+augroup words_complete
+    autocmd!
+    autocmd InsertEnter * let s:checked = 0
+augroup END
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
