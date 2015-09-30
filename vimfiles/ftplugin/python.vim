@@ -109,7 +109,7 @@ if !exists('*s:IPyRunPrompt')
 python << EOF
 import textwrap
 import vim
-vim.vars['ipy_input'] = textwrap.dedent(vim.vars['ipy_input'])
+vim.vars['ipy_input'] = textwrap.dedent(vim.vars['ipy_input']).strip()
 EOF
       python run_ipy_input()
       unlet g:ipy_input
