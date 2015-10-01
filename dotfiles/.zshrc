@@ -87,7 +87,7 @@ alias svndi="svnst | awk '{print \$2}' | s | xargs svn di"
 alias slog="svn log -r 1:HEAD"
 alias srm="svn rm"
 local cmds=''"'"'+/^Index:'"'"' "+1" =(svn di --diff-cmd diff)'
-alias svndiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
+alias svndiff='vim -c "set buftype=nowrite" '$cmds
 svnexport() {
     mkdir -p "$1"
     svn st | grep '^[MA]' | awk '{print $2}' | xargs -I {} cp --parents {} "$1"
@@ -125,13 +125,13 @@ alias gfom='git fetch origin master'
 alias gpom='git pull origin master'
 alias gurl='git config --get remote.origin.url'
 local cmds=''"'"'+/^diff --git'"'"' "+1" =(git diff --no-ext-diff)'
-alias gdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
+alias gdiff='vim -c "set buftype=nowrite" '$cmds
 local cmds=''"'"'+/^diff --git'"'"' "+1" =(git diff --cached --no-ext-diff)'
-alias gdiffc='vim -c "set buftype=nowrite scrolloff=999" '$cmds
+alias gdiffc='vim -c "set buftype=nowrite" '$cmds
 local cmds=''"'"'+/^diff --git'"'"' "+1" =(git diff --no-ext-diff origin)'
-alias gnew='vim -c "set buftype=nowrite scrolloff=999" '$cmds
+alias gnew='vim -c "set buftype=nowrite" '$cmds
 local cmds=''"'"'+/^diff --git'"'"' "+1" =(hg diff --git)'
-alias hgdiff='vim -c "set buftype=nowrite scrolloff=999" '$cmds
+alias hgdiff='vim -c "set buftype=nowrite" '$cmds
 
 # ls
 alias l='ls -h --color=auto'
