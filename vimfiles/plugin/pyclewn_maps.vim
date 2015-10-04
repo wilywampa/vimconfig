@@ -35,7 +35,7 @@ function! s:PyclewnMaps()
             let input = vimtools#opfunc(a:type)
             for line in split(input, '\n')
                 if line =~ '\S'
-                    execute 'C '.((s:print || !s:is_pdb) ? 'print ' : '').
+                    execute 'C '.(s:print ? (s:is_pdb ? 'pp' : 'print') . ' ' : '').
                         \ escape(matchstr(line, '\S.*$'), '"|')
                 endif
             endfor
