@@ -436,7 +436,7 @@ magic-abbrev-expand() {
         lastidx=${LBUFFER[(I) ]}
         (( ${LBUFFER[(I)\|]} > $lastidx )) && lastidx=${LBUFFER[(I)\|]}
         (( ${LBUFFER[(I);]} > $lastidx )) && lastidx=${LBUFFER[(I);]}
-        if [[ $LBUFFER == *$\(* ]]; then
+        if [[ $LBUFFER == *\ $\(* ]]; then
             (( $((${LBUFFER[(I)$\(]}+1)) > $lastidx )) && lastidx=$((${LBUFFER[(I)$\(]}+1))
         fi
         pre=${LBUFFER[$lastidx+1,-1]}
