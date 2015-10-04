@@ -14,6 +14,9 @@ keyseq: "\ESC[1;5A" ctrl-up
 bind: ctrl-left escape b i
 bind: ctrl-right escape e w i
 bind: ctrl-up up enter
+bind: ó : s t e p enter
+bind: î : n e x t enter
+bind: ã : c o n t i n u e enter
 completionPaging: False
 completionPromptLimit: Just 99999
 maxhistorysize: Just 5000
