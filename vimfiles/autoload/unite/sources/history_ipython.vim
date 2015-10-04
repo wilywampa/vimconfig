@@ -43,11 +43,12 @@ function! s:source.hooks.on_init(args, context)
 endfunction
 
 function! s:source.gather_candidates(args, context)
-  return map(copy(IPythonHistory(a:context.source__input)), "{
-      \ 'word' : v:val.code,
-      \ 'abbr' : printf('# %d/%d -\n%s', v:val.session, v:val.line, v:val.code),
-      \ 'is_multiline' : 1,
-      \ }")
+  return map(copy(IPythonHistory(a:context.source__input)), '{
+      \ "word" : v:val.code,
+      \ "abbr" : printf("'''''' %d/%d '''''' %s", v:val.session, v:val.line,
+      \                 v:val.code =~ "\n" ? "\n" . v:val.code : v:val.code),
+      \ "is_multiline" : 1,
+      \ }')
 endfunction
 
 let s:source.action_table.send = {
