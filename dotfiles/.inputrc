@@ -11,7 +11,6 @@ set editing-mode vi
 "\C-p": history-search-backward
 "\C-n": history-search-forward
 "\C-q": redraw-current-line
-"\C-k": kill-whole-line
 "\C-x": "\C-e\C-k\C-q"
 "\C-b": beginning-of-line
 "\C-e": end-of-line
@@ -21,6 +20,9 @@ set editing-mode vi
 "@:": "\C-p\C-m"
 "\e[1;5C": forward-word
 "\e[1;5D": backward-word
+"\C-]": complete
+"\C-i": menu-complete
+"\e[Z": menu-complete-backward
 set keymap vi-command
 "\C-q": redraw-current-line
 "\C-k": kill-whole-line
@@ -29,5 +31,7 @@ set keymap vi-command
 "\C-l": clear-screen
 "@:": "\C-p\C-m"
 set show-all-if-ambiguous on
+set show-all-if-unmodified on
+set menu-complete-display-prefix on
 set completion-query-items 0
 set page-completions off
