@@ -476,7 +476,7 @@ magic-abbrev-expand() {
         [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]] && LBUFFER=$LBUFFER$KEYS
     fi
     [[ $ins_space == 1 ]] && LBUFFER=${LBUFFER}' '
-    [[ $LBUFFER == $lbuffer_start ]] && return 1 || return 0
+    [[ $LBUFFER == $lbuffer_start ]] && return 1 || {zle split-undo; return 0}
 }
 
 no-magic-abbrev-expand() { LBUFFER+=' ' }
@@ -842,7 +842,7 @@ vim-blacklist-remove() {
 zmodload -i zsh/parameter
 insert-last-command-output() { LBUFFER+="$(eval $history[$((HISTCMD-1))])" }
 zle -N insert-last-command-output
-bindkey '^X' insert-last-command-output
+bindkey '^X^O' insert-last-command-output
 
 unalias ipython >& /dev/null
 ipython() {
@@ -966,6 +966,12 @@ badundo() {
     redir END | if status =~# "Finished reading undo file" | cquit! | endif
     qall!'
 }
+
+_insert-date() {
+    zle split-undo
+    LBUFFER=${LBUFFER}${${$(date +$DATEFMT)[(w)2]}#0##}
+}
+zle -N _insert-date; bindkey '^X^D' _insert-date
 
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
