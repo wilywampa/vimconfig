@@ -244,6 +244,7 @@ bindkey -M viins '^J' vi-open-line-below
 bindkey -M viins '^U' backward-kill-line
 bindkey -M viins '^B' vi-beginning-of-line
 bindkey -M viins '^E' vi-end-of-line
+bindkey -M viins '^X' undefined-key  # Ensure ^X is not bound to self-insert
 
 _vi-last-line() {
     zle end-of-buffer-or-history
@@ -496,6 +497,9 @@ insbindkey "/" magic-abbrev-expand
 insbindkey "|" magic-abbrev-expand
 insbindkey ";" magic-abbrev-expand
 bindkey -M viins "^O" no-magic-abbrev-expand
+
+# Define split-undo for old versions of zsh
+(( +widgets[split-undo] )) || {split-undo() {}; zle -N split-undo}
 
 #[[[1 Functions
 b2h() {
