@@ -11,7 +11,7 @@ set editing-mode vi
 "\C-p": history-search-backward
 "\C-n": history-search-forward
 "\C-q": redraw-current-line
-"\C-x": "\C-e\C-k\C-q"
+"\C-x": "\C-e\C-u\C-q"
 "\C-b": beginning-of-line
 "\C-e": end-of-line
 "\C-^": "\C-e()\C-m"
