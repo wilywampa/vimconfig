@@ -17,6 +17,7 @@ set editing-mode vi
 "\C-n": history-search-forward
 "\C-p": history-search-backward
 "\C-q": redraw-current-line
+"\C-t": transpose-words
 "\C-w": backward-kill-word
 "\C-x": "\C-e\C-u\C-q"
 "\e[1;5C": forward-word
@@ -32,6 +33,7 @@ set keymap vi-command
 "\C-k": kill-whole-line
 "\C-l": clear-screen
 "\C-q": redraw-current-line
+"\C-t": transpose-words
 "\C-x": "\C-k\C-qi"
 
 set show-all-if-ambiguous on

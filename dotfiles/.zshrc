@@ -232,6 +232,7 @@ bindkey -M isearch '^E' accept-search
 bindkey -M isearch '^M' accept-search
 bindkey -M isearch '^[' accept-search
 bindkey -M isearch '/' accept-search
+vibindkey '^T' transpose-words
 # Ctrl + arrow keys
 vibindkey '^[[1;5A' up-line-or-beginning-search
 vibindkey '^[[1;5B' down-line-or-beginning-search
@@ -694,7 +695,7 @@ _time-command() {
     BUFFER="time ( "$BUFFER" )"
     CURSOR=$(( $CURSOR + 7 ))
 }
-zle -N _time-command; vibindkey '^T' _time-command
+zle -N _time-command; vibindkey '^X^T' _time-command
 
 _vim-args() {
     local pat literal
