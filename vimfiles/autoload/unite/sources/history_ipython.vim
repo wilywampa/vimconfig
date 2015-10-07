@@ -29,7 +29,12 @@ function! s:source.hooks.on_syntax(args, context)
 endfunction
 
 function! s:source.hooks.on_init(args, context)
-  let a:context.source__input = get(a:args, 0, a:context.input)
+  let args = unite#helper#parse_source_args(a:args)
+  let a:context.source__session = get(a:context, 'source__session', -1)
+  if a:context.source__session == -1
+    let a:context.source__session = get(args, 0, -1)
+  endif
+  let a:context.source__input = a:context.input
   if a:context.source__input == '' || a:context.unite__is_restart
     try
       let a:context.source__input = unite#util#input('Pattern: ',
@@ -43,11 +48,14 @@ function! s:source.hooks.on_init(args, context)
 endfunction
 
 function! s:source.gather_candidates(args, context)
-  return map(copy(IPythonHistory(a:context.source__input)), '{
+  return map(IPythonHistory(a:context.source__input,
+      \                     a:context.source__session), '{
       \ "word" : v:val.code,
       \ "abbr" : printf("'''''' %d/%d '''''' %s", v:val.session, v:val.line,
       \                 v:val.code =~ "\n" ? "\n" . v:val.code : v:val.code),
       \ "is_multiline" : 1,
+      \ "source__session": v:val.session,
+      \ "source__context" : a:context,
       \ }')
 endfunction
 
@@ -58,6 +66,18 @@ let s:source.action_table.send = {
 function! s:source.action_table.send.func(candidate)
   let g:ipy_input = a:candidate.word
   call IPyRunIPyInput()
+endfunction
+
+let s:source.action_table.session = {
+    \ 'description' : "get history for candidate's session",
+    \ 'is_quit' : 0,
+    \ 'is_invalidate_cache' : 1,
+    \ }
+function! s:source.action_table.session.func(candidate)
+  let context = a:candidate.source__context
+  let context.source__input = unite#util#input('Pattern: ',
+      \ context.source__input)
+  let context.source__session = a:candidate.source__session
 endfunction
 
 let &cpo = s:save_cpo
