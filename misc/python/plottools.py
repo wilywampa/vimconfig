@@ -172,9 +172,22 @@ def index_all(mapping, ix, copy=False):
 def azip(*iterables, **kwargs):
     """Move `axis` (default -1) to the front of ndarrays in `iterables`."""
     import numpy as np
-    from itertools import izip
-    return izip(*(np.rollaxis(i, kwargs.pop('axis', -1), **kwargs)
+    from itertools import imap, izip
+    return izip(*(imap(kwargs.pop('func', lambda x: x),
+                       np.rollaxis(i, kwargs.pop('axis', -1), **kwargs))
                   if isinstance(i, np.ndarray) else i for i in iterables))
+
+
+def unmask(arr):
+    """Return a view of the unmasked portion of an array."""
+    import numpy as np
+    import numpy.ma as ma
+    if not isinstance(arr, ma.MaskedArray):
+        return arr
+    ix = np.argwhere(~np.all(arr.mask, axis=tuple(range(arr.ndim - 1))))
+    if not ix.size:
+        return arr[..., :0]
+    return arr[..., ix[0]:ix[-1] + 1]
 
 
 def styles(order=('-', '--', '-.', ':')):
