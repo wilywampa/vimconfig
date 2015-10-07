@@ -1,35 +1,39 @@
-# Show auto complete options on first tab press
 set bell-style none
 set input-meta on
 set output-meta on
 set convert-meta off
+
+# Insert mode bindings
 set keymap vi
 set editing-mode vi
-"\C-w": backward-kill-word
-"\e[A": history-search-backward
-"\e[B": history-search-forward
-"\C-p": history-search-backward
-"\C-n": history-search-forward
-"\C-q": redraw-current-line
-"\C-x": "\C-e\C-u\C-q"
+"@:": "\C-p\C-m"
+"\C-]": complete
+"\C-^": "\C-e()\C-m"
+"\C-a": "filter\(lambda x: "
 "\C-b": beginning-of-line
 "\C-e": end-of-line
-"\C-^": "\C-e()\C-m"
+"\C-i": menu-complete
 "\C-l": clear-screen
-"\C-a": "filter\(lambda x: "
-"@:": "\C-p\C-m"
+"\C-n": history-search-forward
+"\C-p": history-search-backward
+"\C-q": redraw-current-line
+"\C-w": backward-kill-word
+"\C-x": "\C-e\C-u\C-q"
 "\e[1;5C": forward-word
 "\e[1;5D": backward-word
-"\C-]": complete
-"\C-i": menu-complete
+"\e[A": history-search-backward
+"\e[B": history-search-forward
 "\e[Z": menu-complete-backward
+
+# Command mode bindings
 set keymap vi-command
-"\C-q": redraw-current-line
-"\C-k": kill-whole-line
-"\C-x": "\C-k\C-qi"
-"\C-^": "A()\C-m"
-"\C-l": clear-screen
 "@:": "\C-p\C-m"
+"\C-^": "A()\C-m"
+"\C-k": kill-whole-line
+"\C-l": clear-screen
+"\C-q": redraw-current-line
+"\C-x": "\C-k\C-qi"
+
 set show-all-if-ambiguous on
 set show-all-if-unmodified on
 set menu-complete-display-prefix on
