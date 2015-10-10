@@ -35,6 +35,7 @@ import scipy.interpolate as si
 import scipy.io as sio
 import scipy.optimize as opt
 import subprocess
+from IPython.core.display import display
 from IPython.parallel import Client
 try:
     from IPython.external.path import path, path as Path
