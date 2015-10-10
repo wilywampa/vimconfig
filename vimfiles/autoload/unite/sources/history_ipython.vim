@@ -56,13 +56,13 @@ function! s:source.gather_candidates(args, context)
       \ "is_multiline" : 1,
       \ "source__session": v:val.session,
       \ "source__context" : a:context,
+      \ "action__regtype" : "V",
       \ }')
 endfunction
 
 let s:source.action_table.send = {
     \ 'description' : 'run in IPython',
     \ }
-
 function! s:source.action_table.send.func(candidate)
   let g:ipy_input = a:candidate.word
   call IPyRunIPyInput()
