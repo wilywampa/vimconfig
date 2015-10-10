@@ -9,6 +9,8 @@ endif
 let SelectTextObjectLoaded=1
 
 func! s:SelectTextObject(obj, motion, visual)
+  let eventignore = &eventignore
+  set eventignore+=all
   try
     if a:obj ==# 'b'
       let left = '('
@@ -72,11 +74,13 @@ func! s:SelectTextObject(obj, motion, visual)
     elseif a:motion == 'i' && line[col('.')-2] == left && line[col('.')] == right
       execute "normal! v"
     elseif a:motion == 'i' && line[col('.')-3] == left && line[col('.')-1] == right
+        \ && line[col('.')-2] != right && line[col('.')-2] != left
       execute "normal! hv"
     else
       execute "normal! v".a:motion.a:obj.(linewise ? 'V' : '')
     endif
   finally
+    let &eventignore = eventignore
     echo
   endtry
 endfunc
