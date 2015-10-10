@@ -500,7 +500,7 @@ insbindkey ";" magic-abbrev-expand
 bindkey -M viins "^O" no-magic-abbrev-expand
 
 # Define split-undo for old versions of zsh
-(( +widgets[split-undo] )) || {split-undo() {}; zle -N split-undo}
+(( $+widgets[split-undo] )) || {split-undo() {}; zle -N split-undo}
 
 #[[[1 Functions
 b2h() {
