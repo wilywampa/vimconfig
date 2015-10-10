@@ -755,6 +755,7 @@ froms = {
     'IPython.parallel': ['Client', 'Reference', 'interactive'],
     'IPython.utils.text': ['LSString', 'SList'],
     'bs4': ['BeautifulSoup'],
+    'bunch': ['Bunch', 'bunchify', 'unbunchify'],
     'collections': ['Mapping', 'defaultdict', 'deque', 'namedtuple'],
     'contextlib': ['contextmanager'],
     'copy': ['copy', 'deepcopy'],
