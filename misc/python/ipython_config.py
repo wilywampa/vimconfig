@@ -3,6 +3,7 @@ try:
 except ImportError:
     import pickle
 import numpy.ma as ma
+import sys
 from IPython.utils.text import SList
 _print_templates = ma.core._print_templates
 
@@ -11,13 +12,14 @@ __all__ = ['S', 'SliceIndex', 'dump', 'fields_dict', 'globn', 'items_dict',
 
 _imports = """\
 from __future__ import division
-import IPython.parallel as px
+import IPython.parallel as px  # python2
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
 import collections
 import ein
+import ipyparallel as px  # python3
 import ipython_autocd as _; _.register()
 import ipython_config as _; _._install_magics()
 import itertools as it
@@ -35,19 +37,25 @@ import scipy.interpolate as si
 import scipy.io as sio
 import scipy.optimize as opt
 import subprocess
+import sys
 from IPython.core.display import display
-from IPython.parallel import Client
-try:
-    from IPython.external.path import path, path as Path
-except ImportError:
-    from IPython.external.path import Path, Path as path
+from IPython.parallel import Client  # python2
+try:  # python2
+    from IPython.external.path import path  # python2
+except ImportError:  # python2
+    from IPython.external.path import Path as path  # python2
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import defaultdict, namedtuple
+from path import path  # python3
+from ipyparallel import Client  # python3
 from ipython_config import *
-from itertools import (chain, count, cycle, dropwhile, groupby, ifilter,
-                       ifilterfalse, imap, islice, izip, izip_longest,
+from itertools import (chain, count, cycle, dropwhile, groupby, islice,
                        starmap, takewhile, tee)
+from itertools import ifilter, ifilterfalse, izip, izip_longest  # python2
+from itertools import filterfalse, zip_longest  # python3
+izip, izip_longest = zip, zip_longest  # python3
+imap, ifilterfalse = map, filterfalse  # python3
 from mathtools import *
 from plottools import *
 from numpy import (arccos as acos, arccosh as acosh, arcsin as asin,
@@ -56,7 +64,8 @@ from numpy import (arccos as acos, arccosh as acosh, arcsin as asin,
 from numpy.ma import (getdata, getmaskarray, masked_all,
                       masked_array as marray)
 from subprocess import PIPE, Popen, call, check_output
-from __builtin__ import abs, all, any, max, min, round, sum
+from __builtin__ import abs, all, any, max, min, round, sum  # python2
+from builtins    import abs, all, any, max, min, round, sum  # python3
 """
 
 
@@ -220,7 +229,9 @@ def configure(c):
             c.InteractiveShellApp.exec_lines.append(item)
 
     lines = [
-        _imports,
+        '\n'.join(line for line in _imports.splitlines()
+                  if not line.endswith(
+                  'python2' if sys.version_info[0] == 3 else 'python3')),
         ('def setwidth(): os.environ["COLUMNS"] = '
          'subprocess.check_output(["tput", "cols"])'),
         'env = {k: v for k, v in os.environ.items()}',

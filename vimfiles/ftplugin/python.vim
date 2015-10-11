@@ -81,6 +81,7 @@ let s:scratch_name = '--Python--'
 
 python << EOF
 import os
+import re
 import subprocess
 import vim
 from getpass import getuser
@@ -91,11 +92,11 @@ def get_ipython_file():
         args=['ps', '-u', getuser(), '-o', 'args']).splitlines()
 
     for proc in procs:
-        if 'ipython-console' in proc:
+        if 'ipython-console' in proc or 'ipykernel' in proc:
             for arg in proc.split():
-                if arg.endswith('.json'):
+                if re.match('^(.*/)?kernel-[0-9]+\.json$', arg):
                     vim.command('let g:ipython_connected = 1')
-                    return os.path.basename(arg)
+                    return arg
 
     return ''
 EOF

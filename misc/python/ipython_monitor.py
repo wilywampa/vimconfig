@@ -1,13 +1,21 @@
 from __future__ import print_function
 import os
+import re
 import sys
-from IPython.kernel import KernelManager, find_connection_file
-from Queue import Empty
+try:
+    from jupyter_client import KernelManager, find_connection_file
+except ImportError:
+    from IPython.kernel import KernelManager, find_connection_file
+try:
+    from Queue import Empty
+except ImportError:
+    from queue import Empty
 from glob import glob
 from pygments import highlight
 from pygments.filter import simplefilter
 from pygments.lexers import PythonLexer
 from pygments.token import Name
+from six import PY3
 try:
     from solarized_terminal import (SolarizedTerminalFormatter as
                                     TerminalFormatter)
@@ -23,40 +31,41 @@ types = set(['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
              'int', 'list', 'long', 'object', 'set', 'str', 'super', 'tuple',
              'type', 'unichr', 'unicode'])
 
+
+def paths():
+    for fullpath in glob(os.path.join(os.path.dirname(filename), 'kernel*')):
+        if not re.match('^(.*/)?kernel-[0-9]+.json', fullpath):
+            continue
+        yield fullpath
+
+
 connected = False
-skip = set()
 while not connected:
     try:
         filename = find_connection_file('kernel*')
     except IOError:
         continue
 
-    for fullpath in glob(os.path.join(os.path.dirname(filename),
-                                      'kernel*')):
-        if fullpath in skip:
-            continue
+    for fullpath in paths():
         km = KernelManager(connection_file=fullpath)
         km.load_connection_file()
 
         kc = km.client()
         kc.start_channels()
+        try:
+            send = kc.execute
+        except AttributeError:
+            send = kc.shell_channel.execute
+        if not hasattr(kc, 'iopub_channel'):
+            kc.iopub_channel = kc.sub_channel
 
-        msg_id = kc.shell_channel.execute(
-            "_appname = get_ipython().config['IPKernelApp']['parent_appname']",
-            user_expressions={'_appname': '_appname'}, silent=True,
-        )
+        send('', silent=True)
         try:
             msg = kc.shell_channel.get_msg(timeout=1)
-            if msg['parent_header']['msg_id'] == msg_id:
-                appname = msg['content']['user_expressions']['_appname']
-                if appname['data']['text/plain'] == "'ipython-console'":
-                    connected = True
-                    socket = km.connect_iopub()
-                    print('IPython monitor connected successfully')
-                    break
-                else:
-                    skip.add(fullpath)
-                    continue
+            connected = True
+            socket = km.connect_iopub()
+            print('IPython monitor connected successfully')
+            break
         except KeyboardInterrupt:
             sys.exit(0)
         except (Empty, KeyError):
@@ -75,8 +84,8 @@ def color_types(self, lexer, stream, options):
     for ttype, value in stream:
         if ttype is Name.Builtin and value in types:
             ttype = Name.Exception
-        elif ttype is Name.Builtin.Pseudo and value in [
-                'False', 'True', 'None']:
+        elif ttype is Name.Builtin.Pseudo and value in (
+                'False', 'True', 'None'):
             ttype = Name.Constant
 
         if ttype is Name.Decorator:
@@ -115,7 +124,6 @@ class IPythonMonitor(object):
 
     def listen(self):
         while socket.recv():
-            kc.iopub_channel.flush()
             msgs = kc.iopub_channel.get_msgs()
             for msg in msgs:
                 try:
@@ -129,12 +137,12 @@ class IPythonMonitor(object):
 
                 if msg_type == 'shutdown_reply':
                     sys.exit(0)
-                elif self.awaiting_msg and msg_type == 'pyerr':
+                elif self.awaiting_msg and msg_type in ('error', 'pyerr'):
                     self.pyerr(msg)
                     continue
 
                 client = msg['parent_header'].get('session', '')
-                if (client and msg_type == 'pyin' and
+                if (client and msg_type in ('execute_input', 'pyin') and
                         msg['content']['code'] == '"_vim_client";_=_;__=__'):
                     self.clients.add(client)
                     continue
@@ -182,8 +190,9 @@ class IPythonMonitor(object):
     def pyerr(self, msg):
         if self.awaiting_msg and self.received_msg:
             with open(os.path.join(os.environ['HOME'], '.pyerr'), 'w') as f:
-                f.write('\n'.join(msg['content']['traceback']).encode('utf-8'))
-            self.msg_id = kc.shell_channel.execute('\n'.join([
+                tb = '\n'.join(msg['content']['traceback'])
+                f.write(tb if PY3 else tb.encode('utf-8'))
+            self.msg_id = send('\n'.join([
                 '%xmode Context', '%colors Linux']),
                 silent=True)
             self.awaiting_msg = False
@@ -191,7 +200,7 @@ class IPythonMonitor(object):
             for line in msg['content']['traceback']:
                 sys.stdout.write('\n' + line)
             if not self.awaiting_msg:
-                self.msg_id = kc.shell_channel.execute('\n'.join([
+                self.msg_id = send('\n'.join([
                     '%xmode Plain', '%colors NoColor', '%tb']),
                     silent=True)
                 self.awaiting_msg = True
@@ -200,11 +209,14 @@ class IPythonMonitor(object):
         self.last_msg_type = msg['msg_type']
 
     def stream(self, msg):
-        if self.last_msg_type not in ['pyerr', 'stream']:
+        if self.last_msg_type not in ('pyerr', 'error', 'stream'):
             sys.stdout.write('\n')
         if not self.received_msg:
-            sys.stdout.write(colorize(msg['content']['data'],
-                                      'cyan', bright=True))
+            try:
+                data = msg['content']['data']
+            except KeyError:
+                data = msg['content']['text']
+            sys.stdout.write(colorize(data, 'cyan', bright=True))
             self.last_msg_type = msg['msg_type']
 
     def status(self, msg):
@@ -216,13 +228,17 @@ class IPythonMonitor(object):
             self.execution_count_id = None
 
     def clear_output(self, msg):
-        if self.last_msg_type == 'pyin':
+        if self.last_msg_type in ('execute_input', 'pyin'):
             print('\n')
         print('\033[2K\r', file=sys.stdout, end='')
 
     def other(self, msg):
         print('msg_type = %s' % str(msg['msg_type']))
         print('msg = %s' % str(msg))
+
+    execute_input = pyin
+    execute_result = pyout
+    error = pyerr
 
 
 monitor = IPythonMonitor()

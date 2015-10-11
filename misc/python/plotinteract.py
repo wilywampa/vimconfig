@@ -14,6 +14,11 @@ from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as
                                                 as NavigationToolbar)
 from matplotlib.figure import Figure
 from mplpicker import picker
+from six import string_types, text_type
+try:
+    from PyQt4.QtCore import QString
+except ImportError:
+    QString = str
 
 if sys.platform == 'darwin':
     CONTROL_MODIFIER = QtCore.Qt.MetaModifier
@@ -144,7 +149,7 @@ class TabCompleter(QtGui.QCompleter):
 
     def confirm(self):
         try:
-            text = unicode(self.textbox.currentText())
+            text = text_type(self.textbox.currentText())
         except AttributeError:
             pass
         else:
@@ -186,15 +191,15 @@ class CustomQCompleter(TabCompleter):
         self.filterProxyModel.setFilterRegExp(pattern)
 
     def splitPath(self, path):
-        words = [unicode(QtCore.QRegExp.escape(word.replace(r'\ ', ' ')))
-                 for word in re.split(r'(?<!\\)\s+', unicode(path))]
+        words = [text_type(QtCore.QRegExp.escape(word.replace(r'\ ', ' ')))
+                 for word in re.split(r'(?<!\\)\s+', text_type(path))]
 
         includes = [re.sub(r'^\\\\!', '!', word) for word in words
                     if not word.startswith('!')]
         excludes = [word[1:] for word in words
                     if len(word) > 1 and word.startswith('!')]
 
-        self.local_completion_prefix = QtCore.QString(
+        self.local_completion_prefix = QString(
             '^' + ''.join('(?=.*%s)' % word for word in includes) +
             ''.join('(?!.*%s)' % word for word in excludes) + '.+')
 
@@ -283,7 +288,7 @@ class DataObj(object):
 
             def text_changed(text):
                 cursor_pos = scale_box.cursorPosition()
-                text = unicode(scale_box.text())[:cursor_pos]
+                text = text_type(scale_box.text())[:cursor_pos]
                 prefix = re.split(r'\W', text)[-1].strip()
                 scale_compl.setCompletionPrefix(prefix)
                 scale_compl.complete()
@@ -292,10 +297,10 @@ class DataObj(object):
             def complete_text(text):
                 if not scale_box.text():
                     return scale_box.setText(u'1.0')
-                text = unicode(text)
+                text = text_type(text)
                 cursor_pos = scale_box.cursorPosition()
-                before_text = unicode(scale_box.text())[:cursor_pos]
-                after_text = unicode(scale_box.text())[cursor_pos:]
+                before_text = text_type(scale_box.text())[:cursor_pos]
+                after_text = text_type(scale_box.text())[cursor_pos:]
                 prefix_len = len(re.split(r'\W', before_text)[-1].strip())
                 part = before_text[-prefix_len:]
                 if len(part) and text.startswith(part):
@@ -321,11 +326,11 @@ class DataObj(object):
         if 'yname' in kwargs:
             self.menu.setCurrentIndex(self.menu.findText(kwargs['yname']))
         if 'yscale' in kwargs:
-            self.scale_box.setText(str(kwargs['yscale']))
+            self.scale_box.setText(text_type(kwargs['yscale']))
         if 'xname' in kwargs:
             self.xmenu.setCurrentIndex(self.menu.findText(kwargs['xname']))
         if 'xscale' in kwargs:
-            self.xscale_box.setText(str(kwargs['xscale']))
+            self.xscale_box.setText(text_type(kwargs['xscale']))
 
     def duplicate(self):
         self.parent.add_data(self.obj, self.name, kwargs=self.kwargs)
@@ -346,7 +351,7 @@ class DataObj(object):
                                               'Rename data object',
                                               'New label:')
         if ok:
-            self.name = unicode(text)
+            self.name = text_type(text)
             self.label.setText(text + ':')
             if (hasattr(self, 'old_label') or
                     not isinstance(self.labels, (list, tuple))):
@@ -463,16 +468,16 @@ class Interact(QtGui.QMainWindow):
 
     def get_scale(self, textbox, completer):
         completer.close_popup()
-        text = unicode(textbox.text())
+        text = text_type(textbox.text())
         try:
             return eval(text, const.__dict__, {})
         except Exception as e:
-            self.warnings.append('Error setting scale: ' + str(e))
+            self.warnings.append('Error setting scale: ' + text_type(e))
             return 1.0
 
     def get_key(self, menu):
-        key = unicode(menu.itemText(menu.currentIndex()))
-        text = unicode(menu.lineEdit().text())
+        key = text_type(menu.itemText(menu.currentIndex()))
+        text = text_type(menu.lineEdit().text())
         if key != text:
             self.warnings.append(
                 'Plotted key (%s) does not match typed key (%s)' %
@@ -611,10 +616,10 @@ class Interact(QtGui.QMainWindow):
 
     @staticmethod
     def data_dict(d):
-        return dict(xname=str(d.xmenu.lineEdit().text()),
-                    yname=str(d.menu.lineEdit().text()),
-                    xscale=str(d.xscale_box.text()),
-                    yscale=str(d.scale_box.text()))
+        return dict(xname=text_type(d.xmenu.lineEdit().text()),
+                    yname=text_type(d.menu.lineEdit().text()),
+                    xscale=text_type(d.xscale_box.text()),
+                    yscale=text_type(d.scale_box.text()))
 
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
@@ -636,7 +641,7 @@ class Interact(QtGui.QMainWindow):
               event.modifiers() & CONTROL_MODIFIER and
               event.modifiers() & QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_P):
-            print("\n".join(str(self.data_dict(d)) for d in self.datas))
+            print("\n".join(text_type(self.data_dict(d)) for d in self.datas))
             return True
         return super(Interact, self).event(event)
 
@@ -697,7 +702,7 @@ def create(*data, **kwargs):
         if len(d) == 4 and isinstance(d[-1], (list, tuple)):
             d[-2] = {'xname': d[-2], 'labels': list(d[-1])}
             d.pop()
-        elif len(d) >= 3 and isinstance(d[2], basestring):
+        elif len(d) >= 3 and isinstance(d[2], string_types):
             if len(d) == 3:
                 d[-1] = {'xname': d[-1]}
             else:
