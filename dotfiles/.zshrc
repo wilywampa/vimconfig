@@ -36,8 +36,6 @@ alias reset='reset; source ~/.zshrc'
 alias com='command'
 alias killbg='kill ${${(v)jobstates#*:*:}%=*}'
 alias whence='whence -f'
-alias zargs='autoload -U zargs; zargs'
-alias zmv='autoload -U zmv; zmv'
 
 # grep
 alias grep='grep --color=auto'
@@ -262,15 +260,30 @@ _previous-dir() {
 zle -N _previous-dir
 vibindkey '^^' _previous-dir
 
-# Enable built-in surround plugin
-autoload -Uz surround
-zle -N delete-surround surround
-zle -N add-surround surround
-zle -N change-surround surround
-bindkey -a cs change-surround
-bindkey -a ds delete-surround
-bindkey -a gs add-surround
-bindkey -M visual S add-surround 2> /dev/null
+# Enable built-in surround plugin and text objects
+autoload -Uz is-at-least
+if is-at-least 5.0.8; then
+    autoload -Uz surround
+    autoload -Uz select-bracketed
+    autoload -Uz select-quoted
+    zle -N delete-surround surround
+    zle -N add-surround surround
+    zle -N change-surround surround
+    zle -N select-bracketed
+    zle -N select-quoted
+    bindkey -a cs change-surround
+    bindkey -a ds delete-surround
+    bindkey -a gs add-surround
+    for m in visual viopp; do
+        for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+            bindkey -M $m $c select-bracketed
+        done
+        for c in {a,i}{\',\",\`}; do
+            bindkey -M $m $c select-quoted
+        done
+        bindkey -M $m S add-surround
+    done
+fi
 
 # Enable built-in run-help functionality
 unalias run-help >& /dev/null
@@ -472,7 +485,7 @@ magic-abbrev-expand() {
             LBUFFER=$left${globalabbrevs[$pre]:-$pre}
         fi
     fi
-    if [[ $KEYS == " " && $RBUFFER == "" ]]; then
+    if [[ $KEYS == " " ]] && (is-at-least 5.1.1 || [[ $RBUFFER == "" ]]); then
         zle magic-space # Add space or do history expansion
     else
         [[ ! $KEYS =~ "[$(echo '\015')$(echo '\t')]" ]] && LBUFFER=$LBUFFER$KEYS
@@ -977,6 +990,9 @@ _insert-date() {
     LBUFFER=${LBUFFER}${${$(date +$DATEFMT)[(w)2]}#0##}
 }
 zle -N _insert-date; bindkey '^X^D' _insert-date
+
+autoload -Uz zargs
+autoload -Uz zmv
 
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
