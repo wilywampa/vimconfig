@@ -54,7 +54,8 @@ function! s:source.gather_candidates(args, context)
       \ "abbr" : printf("'''''' %d/%d '''''' %s", v:val.session, v:val.line,
       \                 v:val.code =~ "\n" ? "\n" . v:val.code : v:val.code),
       \ "is_multiline" : 1,
-      \ "source__session": v:val.session,
+      \ "source__session" : v:val.session,
+      \ "source__line" : v:val.line,
       \ "source__context" : a:context,
       \ "action__regtype" : "V",
       \ }')
@@ -62,10 +63,13 @@ endfunction
 
 let s:source.action_table.send = {
     \ 'description' : 'run in IPython',
+    \ 'is_selectable' : 1,
     \ }
-function! s:source.action_table.send.func(candidate)
-  let g:ipy_input = a:candidate.word
-  call IPyRunIPyInput()
+function! s:source.action_table.send.func(candidates)
+  for candidate in a:candidates
+    let g:ipy_input = candidate.word
+    call IPyRunIPyInput()
+  endfor
 endfunction
 
 let s:source.action_table.session = {
@@ -78,6 +82,19 @@ function! s:source.action_table.session.func(candidate)
   let context.source__input = unite#util#input('Pattern: ',
       \ context.source__input)
   let context.source__session = a:candidate.source__session
+endfunction
+
+let s:source.action_table.macro = {
+    \ 'description' : 'create IPython macro',
+    \ 'is_selectable' : 1,
+    \ }
+function! s:source.action_table.macro.func(candidates)
+  let g:ipy_input = printf('%%macro %s %s',
+      \ unite#util#input('Macro name: '),
+      \ join(map(a:candidates,
+      \ 'printf("%s/%s", v:val.source__session, v:val.source__line)'))
+      \ )
+  call IPyRunIPyInput()
 endfunction
 
 let &cpo = s:save_cpo
