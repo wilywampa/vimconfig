@@ -48,6 +48,13 @@ function! s:source.hooks.on_init(args, context)
 endfunction
 
 function! s:source.gather_candidates(args, context)
+  if !exists('*IPythonHistory')
+    echohl WarningMsg
+    echomsg 'IPythonHistory() does not exist'
+    echohl None
+    return []
+  endif
+
   return map(IPythonHistory(a:context.source__input,
       \                     a:context.source__session), '{
       \ "word" : v:val.code,
