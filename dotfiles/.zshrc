@@ -613,7 +613,7 @@ path() {_xclip-path "$@"}
 copy() {_xclip-copy "$@"}
 
 _escalate-kill() {
-    r="^kill"
+    r="^ *kill"
     if [[ ! $BUFFER =~ $r ]] && [[ $history[$((HISTCMD-1))] =~ $r ]]; then
         BUFFER=$history[$((HISTCMD-1))]
     elif [[ ! $BUFFER =~ $r ]]; then
@@ -631,18 +631,19 @@ _escalate-kill() {
 zle -N _escalate-kill
 
 _escalate-whence() {
-    if [[ ! $BUFFER =~ "^wh" ]] && [[ $history[$((HISTCMD-1))] =~ "^wh" ]]; then
+    r="^ *wh"
+    if [[ ! $BUFFER =~ $r ]] && [[ $history[$((HISTCMD-1))] =~ $r ]]; then
         BUFFER=$history[$((HISTCMD-1))]
-    elif [[ ! $BUFFER =~ "^wh" ]]; then
+    elif [[ ! $BUFFER =~ $r ]]; then
         return
     fi
-    if [[ $BUFFER =~ "^whence [^- ]" ]]; then
+    if [[ $BUFFER =~ ${r}"ence [^- ]" ]]; then
         BUFFER=${BUFFER/whence /whence -p }
-    elif [[ $BUFFER =~ "^whence -p" ]]; then
+    elif [[ $BUFFER =~ ${r}"ence -p" ]]; then
         BUFFER=${BUFFER/whence -p /whence -a }
-    elif [[ $BUFFER =~ "^whence -a" ]]; then
+    elif [[ $BUFFER =~ ${r}"ence -a" ]]; then
         BUFFER=${BUFFER/whence -a /which }
-    elif [[ $BUFFER =~ "^which" ]] && [[ ! $BUFFER =~ "^where" ]]; then
+    elif [[ $BUFFER =~ ${r}"ich" ]] && [[ ! $BUFFER =~ ${r}"ere" ]]; then
         BUFFER=${BUFFER/which /where }
     fi
     CURSOR=$#BUFFER
@@ -650,16 +651,17 @@ _escalate-whence() {
 zle -N _escalate-whence
 
 _escalate-rm() {
-    if [[ ! $BUFFER =~ "^rm" ]] && [[ $history[$((HISTCMD-1))] =~ "^rm" ]]; then
+    r="^ *rm"
+    if [[ ! $BUFFER =~ ${r} ]] && [[ $history[$((HISTCMD-1))] =~ ${r} ]]; then
         BUFFER=$history[$((HISTCMD-1))]
-    elif [[ ! $BUFFER =~ "^rm" ]]; then
+    elif [[ ! $BUFFER =~ ${r} ]]; then
         return
     fi
-    if [[ $BUFFER =~ "^rm [^- ]" ]]; then
+    if [[ $BUFFER =~ ${r}" [^- ]" ]]; then
         BUFFER=${BUFFER/rm /rm -r }
-    elif [[ $BUFFER =~ "^rm -r" ]]; then
+    elif [[ $BUFFER =~ ${r}" -r" ]]; then
         BUFFER=${BUFFER/rm -r /rm -f }
-    elif [[ $BUFFER =~ "^rm -f" ]]; then
+    elif [[ $BUFFER =~ ${r}" -f" ]]; then
         BUFFER=${BUFFER/rm -f /rm -rf }
     fi
     CURSOR=$#BUFFER
@@ -667,20 +669,19 @@ _escalate-rm() {
 zle -N _escalate-rm
 
 _escalate() {
-    r="^kill"
-    if [[ ${BUFFER[1,2]} == "wh" ]]; then
+    if [[ $BUFFER =~ "^ *wh" ]]; then
         _escalate-whence
-    elif [[ ${BUFFER[1,2]} == "rm" ]]; then
+    elif [[ $BUFFER =~ "^ *rm" ]]; then
         _escalate-rm
-    elif [[ ${BUFFER[1,4]} == "kill" ]]; then
+    elif [[ $BUFFER =~ "^ *kill" ]]; then
         _escalate-kill
-    elif [[ ${BUFFER[1,6]} == "find ." ]]; then
+    elif [[ $BUFFER =~ "^ *(noglob )?find ." ]]; then
         BUFFER=${BUFFER/find ./find \$PWD}; CURSOR=$(($CURSOR+3))
-    elif [[ ${history[$((HISTCMD-1))][1,2]} == "wh" ]]; then
+    elif [[ ${history[$((HISTCMD-1))]} =~ "^ *wh" ]]; then
         _escalate-whence
-    elif [[ ${history[$((HISTCMD-1))][1,2]} == "rm" ]]; then
+    elif [[ ${history[$((HISTCMD-1))]} =~ "^ *rm" ]]; then
         _escalate-rm
-    elif [[ ${history[$((HISTCMD-1))][1,4]} == "kill" ]]; then
+    elif [[ ${history[$((HISTCMD-1))]} =~ "^ *kill" ]]; then
         _escalate-kill
     fi
 }
