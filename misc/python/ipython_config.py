@@ -52,10 +52,8 @@ from ipyparallel import Client  # python3
 from ipython_config import *
 from itertools import (chain, count, cycle, dropwhile, groupby, islice,
                        starmap, takewhile, tee)
-from itertools import ifilter, ifilterfalse, izip, izip_longest  # python2
-from itertools import filterfalse, zip_longest  # python3
-izip, izip_longest = zip, zip_longest  # python3
-imap, ifilterfalse = map, filterfalse  # python3
+from six.moves import (filter as ifilter, filterfalse as ifilterfalse, map as
+                       imap, xrange, zip as izip, zip_longest as izip_longest)
 from mathtools import *
 from plottools import *
 from numpy import (arccos as acos, arccosh as acosh, arcsin as asin,
