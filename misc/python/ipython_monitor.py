@@ -15,7 +15,6 @@ from pygments import highlight
 from pygments.filter import simplefilter
 from pygments.lexers import PythonLexer
 from pygments.token import Name
-from six import PY3
 try:
     from solarized_terminal import (SolarizedTerminalFormatter as
                                     TerminalFormatter)
@@ -30,6 +29,17 @@ types = set(['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
              'complex', 'dict', 'file', 'float', 'format', 'frozenset', 'help',
              'int', 'list', 'long', 'object', 'set', 'str', 'super', 'tuple',
              'type', 'unichr', 'unicode'])
+
+traceback_command = """\
+%xmode Plain
+%colors NoColor
+with open('{name}', 'w') as _f:
+    _f.writelines(get_ipython().
+                  InteractiveTB.structured_traceback(
+                      *get_ipython()._get_exc_info()))
+%xmode Context
+%colors Linux
+""".format(name=os.path.expanduser('~/.pyerr'))
 
 
 def paths():
@@ -110,8 +120,6 @@ class IPythonMonitor(object):
     def __init__(self):
         self.clients = set()
         self.execution_count_id = None
-        self.awaiting_msg = False
-        self.msg_id = None
         self.last_msg_type = None  # Only set when text written to stdout
         self.last_execution_count = None
 
@@ -122,24 +130,25 @@ class IPythonMonitor(object):
         sys.stdout.write(colorize(self.prompt[l + 1:r], color, bold=True))
         sys.stdout.write(colorize(self.prompt[r:], color))
 
+    def get_msgs(self):
+        try:
+            kc.iopub_channel.flush()
+            return kc.iopub_channel.get_msgs()
+        except AttributeError:
+            msgs = []
+            while True:
+                try:
+                    msgs.append(kc.iopub_channel.get_msg(timeout=0.001))
+                except Empty:
+                    return msgs
+
     def listen(self):
         while socket.recv():
-            msgs = kc.iopub_channel.get_msgs()
-            for msg in msgs:
-                try:
-                    self.received_msg = (
-                        self.msg_id and
-                        msg['parent_header']['msg_id'] == self.msg_id)
-                except KeyError:
-                    self.received_msg = False
-
+            for msg in self.get_msgs():
                 msg_type = msg['msg_type']
 
                 if msg_type == 'shutdown_reply':
                     sys.exit(0)
-                elif self.awaiting_msg and msg_type in ('error', 'pyerr'):
-                    self.pyerr(msg)
-                    continue
 
                 client = msg['parent_header'].get('session', '')
                 if (client and msg_type in ('execute_input', 'pyin') and
@@ -188,36 +197,20 @@ class IPythonMonitor(object):
         self.pyout(msg, prompt=False)
 
     def pyerr(self, msg):
-        if self.awaiting_msg and self.received_msg:
-            with open(os.path.join(os.environ['HOME'], '.pyerr'), 'w') as f:
-                tb = '\n'.join(msg['content']['traceback'])
-                f.write(tb if PY3 else tb.encode('utf-8'))
-            self.msg_id = send('\n'.join([
-                '%xmode Context', '%colors Linux']),
-                silent=True)
-            self.awaiting_msg = False
-        else:
-            for line in msg['content']['traceback']:
-                sys.stdout.write('\n' + line)
-            if not self.awaiting_msg:
-                self.msg_id = send('\n'.join([
-                    '%xmode Plain', '%colors NoColor', '%tb']),
-                    silent=True)
-                self.awaiting_msg = True
-            else:
-                self.awaiting_msg = False  # Missed the message
+        for line in msg['content']['traceback']:
+            sys.stdout.write('\n' + line)
+        send(traceback_command, silent=True)
         self.last_msg_type = msg['msg_type']
 
     def stream(self, msg):
         if self.last_msg_type not in ('pyerr', 'error', 'stream'):
             sys.stdout.write('\n')
-        if not self.received_msg:
-            try:
-                data = msg['content']['data']
-            except KeyError:
-                data = msg['content']['text']
-            sys.stdout.write(colorize(data, 'cyan', bright=True))
-            self.last_msg_type = msg['msg_type']
+        try:
+            data = msg['content']['data']
+        except KeyError:
+            data = msg['content']['text']
+        sys.stdout.write(colorize(data, 'cyan', bright=True))
+        self.last_msg_type = msg['msg_type']
 
     def status(self, msg):
         if (msg['content']['execution_state'] == 'idle' and
