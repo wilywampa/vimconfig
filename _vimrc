@@ -1875,8 +1875,9 @@ func! s:UniteSettings() " {{{
     nmap <buffer> <expr> ` b:unite['profile_name'] == 'source/grep'
         \ ? ':call <SID>LastActiveWindow()<CR>'
         \ : '<Plug>(unite_exit)'
-    inor <buffer> <expr> <C-s> unite#mappings#set_current_sorters(
-        \ ['sorter_ftime', 'sorter_reverse'])
+    inor <buffer> <expr> <C-s> unite#mappings#get_current_sorters() == [] ?
+        \ unite#mappings#set_current_sorters(['sorter_ftime', 'sorter_reverse']) :
+        \ unite#mappings#set_current_sorters([])
     imap <buffer> ` <Plug>(unite_exit)
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
