@@ -172,10 +172,11 @@ def index_all(mapping, ix, copy=False):
 def azip(*iterables, **kwargs):
     """Move `axis` (default -1) to the front of ndarrays in `iterables`."""
     import numpy as np
-    from itertools import imap, izip
-    return izip(*(imap(kwargs.pop('func', lambda x: x),
-                       np.rollaxis(i, kwargs.pop('axis', -1), **kwargs))
-                  if isinstance(i, np.ndarray) else i for i in iterables))
+    from six.moves import map as imap, zip as izip
+    return izip(*(
+        imap(kwargs.get('func', lambda x: x),
+             np.rollaxis(i, kwargs.get('axis', -1), kwargs.get('start', 0)))
+        if isinstance(i, np.ndarray) else i for i in iterables))
 
 
 def unmask(arr):
