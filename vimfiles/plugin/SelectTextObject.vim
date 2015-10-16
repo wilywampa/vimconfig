@@ -68,6 +68,10 @@ func! s:SelectTextObject(obj, motion, visual)
       let linewise = s:GetLinewise(left, right)
     endif
 
+    if mode() =~# "[Vv\<C-v>]"
+      execute "normal! \<Esc>"
+    endif
+
     " Need to manually select character if single character in pair for inner motion
     if a:motion == 'i' && line[col('.')-1] == left && line[col('.')+1] == right
       execute "normal! lv"
