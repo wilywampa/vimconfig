@@ -80,7 +80,6 @@ let s:errorformat .= '%-G%.%#'
 let s:scratch_name = '--Python--'
 
 python << EOF
-import os
 import re
 import subprocess
 import vim
@@ -541,7 +540,7 @@ class Options(object):
     in_place = False
     indent_size = autopep8.DEFAULT_INDENT_SIZE
     line_range = None
-    max_line_length = 79
+    max_line_length = int(vim.vars.get('pymode_options_max_line_length', 80))
     pep8_passes = 100
     recursive = False
     select = vim.vars.get('pymode_lint_select', None)
@@ -611,7 +610,7 @@ function! FixImports()
     PymodePython code_check()
     python << EOF
 messages = [(m['lnum'], m['text']) for m in
-    vim.eval('copy(g:PymodeLocList.current()._loclist)')]
+            vim.eval('copy(g:PymodeLocList.current()._loclist)')]
 missing = sorted([m.split("'")[1] for _, m in messages if 'E0602' in m])
 redefined = sorted([m.split("'")[1] for _, m in messages if 'W0404' in m])
 unused = sorted([m.split("'")[1] for _, m in messages if 'W0611' in m])
@@ -656,7 +655,7 @@ last_from = None               # Last from ... import
 try:
     root = ast.parse('\n'.join(vim.current.buffer))
 except SyntaxError as e:
-    root = ast.parse('\n'.join(vim.current.buffer[:e.lineno-1]))
+    root = ast.parse('\n'.join(vim.current.buffer[:e.lineno - 1]))
 
 
 def import_len(node):
@@ -678,7 +677,7 @@ def import_len(node):
                 set([n.asname for n in node.names])):
             break
         elif length >= len(vim.current.buffer):
-                break
+            break
         if len(tries) > 1:
             tries.pop(0)
         else:
@@ -817,7 +816,7 @@ froms = {
     'plottools': [
         'azip', 'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
         'index_all', 'merge_dicts', 'pad', 'picker', 'resize', 'savepdf',
-        'savesvg', 'unique_legend', 'varinfo'],
+        'savesvg', 'unique_legend', 'unmask', 'varinfo'],
     'pprint': ['pprint'],
     'pyprimes': ['is_prime', 'primes'],
     'pyprimes.factors': ['factorise', 'factors'],
@@ -828,7 +827,7 @@ froms = {
         'speed_of_sound'],
     'scipy.integrate': ['cumtrapz', 'quad', 'romb', 'simps'],
     'subprocess': ['PIPE', 'Popen', 'STDOUT', 'call', 'check_output',
-        'list2cmdline'],
+                   'list2cmdline'],
     'time': ['time'],
 }
 
@@ -985,8 +984,8 @@ def key(item):
 lines = sorted(sorted(lines), key=key)
 lines = [l for ls in lines for l in ls]
 if start:
-    if vim.current.buffer[start-1:end] != lines:
-        vim.current.buffer[start-1:end] = lines
+    if vim.current.buffer[start - 1:end] != lines:
+        vim.current.buffer[start - 1:end] = lines
 elif lines:
     if re.match(r'^(@|class\s|def\s)', vim.current.buffer[0]):
         lines.extend(['', ''])
