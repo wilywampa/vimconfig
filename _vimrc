@@ -605,10 +605,10 @@ ino <expr> <CR> (getline('.')[:virtcol('.')-2] =~ '\(\S\\|^\)\s\+$' ?
 ino \<CR> \<CR>
 
 " Make * and # use 'smartcase'
-nn <silent> * *:<C-u>let @/ = @/<bar>echo @/<CR>zv
-nn <silent> # #:<C-u>let @/ = @/<bar>echo @/<CR>zv
-nn <silent> g* g*:<C-u>let @/ = @/<bar>echo @/<CR>zv
-nn <silent> g# g#:<C-u>let @/ = @/<bar>echo @/<CR>zv
+nn <silent> * *:<C-u>let @/ = @/<bar>echo @/<CR><C-o>nzv
+nn <silent> # #:<C-u>let @/ = @/<bar>echo @/<CR><C-o>nzv
+nn <silent> g* g*:<C-u>let @/ = @/<bar>echo @/<CR><C-o>nzv
+nn <silent> g# g#:<C-u>let @/ = @/<bar>echo @/<CR><C-o>nzv
 
 " Toggle IPython history storage
 nn <silent> ,ih :<C-u>let g:ipython_store_history = !get(g:, 'ipython_store_history', 1)<CR>
