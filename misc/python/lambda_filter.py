@@ -26,16 +26,19 @@ class LambdaFilter(PrefilterTransformer):
             parts = [self.parens(part) for part in parts]
         except IndexError:
             return line
-        line = ';'.join(parts)
+        newline = ';'.join(parts)
 
         # Replace '\' characters with 'lambda '
         cols = [col for _, token, (_, col), _, _
-                in self.tokens(line) if token == '\\' and
-                line[col + 1:].strip() != '']
+                in self.tokens(newline) if token == '\\' and
+                newline[col + 1:].strip() != '']
         for col in reversed(cols):
-            line = line[:col] + 'lambda ' + line[col + 1:]
+            newline = newline[:col] + 'lambda ' + newline[col + 1:]
 
-        return line
+        if newline.strip() != line.strip():
+            get_ipython().auto_rewrite_input(newline)
+
+        return newline
 
     @staticmethod
     def tokens(line):
