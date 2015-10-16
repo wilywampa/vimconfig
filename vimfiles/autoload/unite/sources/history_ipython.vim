@@ -104,6 +104,33 @@ function! s:source.action_table.macro.func(candidates)
   call IPyRunIPyInput()
 endfunction
 
+let s:source.action_table.yank = {
+    \ 'description' : 'yank candidates',
+    \ 'is_selectable' : 1,
+    \ 'is_quit' : 1,
+    \ }
+function! s:source.action_table.yank.func(candidates)
+  if len(a:candidates) == 1 && a:candidates[0].word !~ "\n"
+    let text = a:candidates[0].word
+    let mode = 'v'
+  else
+    let text = join(map(copy(a:candidates), 'v:val.word'), "\n\n")
+    let mode = 'V'
+  endif
+  call setreg('"', text, mode)
+  if has('clipboard')
+    if &clipboard =~# '\<unnamed\>'
+      call setreg('*', text, mode)
+    endif
+    if &clipboard =~# '\<unnamedplus\>'
+      call setreg('+', text, mode)
+    endif
+  endif
+
+  echohl Question | echo 'Yanked:' | echohl Normal
+  echo text
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
