@@ -68,6 +68,8 @@ set isfname+={,}                " Interpret {} as part of a filename
 set isfname-==                  " but not =
 sil! set breakindent            " Indent wrapped lines
 set tags-=./tags tags^=./tags;  " Search upwards for tags
+set complete-=i                 " Don't complete from included files
+set complete-=u                 " Don't complete from unloaded buffers
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi,*.pkl
