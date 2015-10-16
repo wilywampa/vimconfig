@@ -255,7 +255,13 @@ self-insert-no-autoremove() { LBUFFER="$LBUFFER$KEYS" }
 zle -N self-insert-no-autoremove; bindkey '|' self-insert-no-autoremove
 
 _previous-dir() {
-    cd "$OLDPWD"; zle reset-prompt
+    if [[ $BUFFER =~ '^[0-9]+$' ]]; then
+        cd "${${dirstack[$(( $BUFFER )) ]}:-$OLDPWD}"
+        BUFFER=
+    else
+        cd "$OLDPWD"
+    fi
+    zle reset-prompt
 }
 zle -N _previous-dir
 vibindkey '^^' _previous-dir
