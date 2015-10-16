@@ -137,10 +137,10 @@ def savehtml(file_or_name, html_attrs=None, **kwargs):
 
 def varinfo(var):
     """Pretty print information about a variable."""
-    from pprint import pprint
     import numpy
+    from IPython.core.display import display
     print(type(var))
-    pprint(var)
+    display(var)
     if isinstance(var, numpy.ndarray):
         print(var.shape)
 
