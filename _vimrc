@@ -1941,7 +1941,7 @@ nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>
 nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
-nnoremap <silent> ,u :UniteResume<CR>
+nnoremap <silent> ,u :UniteResume -split<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 
 func! s:UniteTogglePathSearch() " {{{
