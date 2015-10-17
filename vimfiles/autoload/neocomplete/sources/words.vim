@@ -1,4 +1,7 @@
 if !has('python')
+    function! neocomplete#sources#words#define()
+        return {}
+    endfunction
     finish
 endif
 

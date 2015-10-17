@@ -79,6 +79,7 @@ let s:errorformat .= '%-G%.%#'
 
 let s:scratch_name = '--Python--'
 
+if has('python')
 python << EOF
 import re
 import subprocess
@@ -100,8 +101,9 @@ def get_ipython_file():
     return ''
 EOF
 command! IPythonConsole execute 'IPython ' . pyeval('get_ipython_file()')
+endif
 
-if !exists('*s:IPyRunPrompt')
+if !exists('*s:IPyRunPrompt') && has('python')
   function! IPyRunIPyInput()
     if exists('b:did_ipython') || get(g:, 'ipython_connected', 0)
       redraw
