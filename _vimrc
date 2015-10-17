@@ -2268,6 +2268,9 @@ let g:exchange_indent = '=='
 
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
+if filereadable(expand('$HOME/.plugged'))
+    source $HOME/.plugged
+endif
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
 Plug 'Konfekt/FastFold'
 Plug 'wilywampa/Gundo', {'branch': 'dev', 'on': 'GundoToggle'}
@@ -2337,9 +2340,6 @@ Plug 'vim-scripts/CSApprox', {'for': 'fugitiveblame'}
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
-if filereadable(expand('$HOME/.plugged'))
-    source $HOME/.plugged
-endif
 call plug#end()
 endif " }}}
 
