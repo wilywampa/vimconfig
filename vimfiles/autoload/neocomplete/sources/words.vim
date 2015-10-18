@@ -1,4 +1,4 @@
-if !has('python')
+if !(has('python') || has('python3'))
     function! neocomplete#sources#words#define()
         return {}
     endfunction
@@ -18,7 +18,19 @@ let s:source = {
 
 let s:checked = 0
 
-python << EOF
+if has('python3') && get(g:, 'pymode_python', '') !=# 'python'
+  command! -nargs=1 Python2or3 python3 <args>
+  function! s:pyeval(arg) abort " {{{
+    return py3eval(a:arg)
+  endfunction " }}}
+else
+  command! -nargs=1 Python2or3 python <args>
+  function! s:pyeval(arg) abort " {{{
+    return pyeval(a:arg)
+  endfunction " }}}
+endif
+
+Python2or3 << EOF
 import re
 import vim
 words = set()
@@ -29,7 +41,7 @@ EOF
 
 function! s:UpdateWordList()
     let s:checked = 1
-python << EOF
+Python2or3 << EOF
 words.clear()
 bufnrs = set()
 for w in vim.windows:
@@ -50,7 +62,7 @@ function! s:source.gather_candidates(context)
     if !s:checked
         call s:UpdateWordList()
     endif
-    return pyeval('list(words)')
+    return s:pyeval('list(words)')
 endfunction
 
 function! neocomplete#sources#words#define()
@@ -88,11 +100,11 @@ function! neocomplete#sources#words#complete(findstart, base)
     else
         let results = []
         call s:UpdateWordList()
-        python << EOF
+        Python2or3 << EOF
 base = vim.eval('a:base')
 for word in words:
     if word.startswith(base):
-        vim.command('call add(results, {"word": pyeval("word"),'
+        vim.command('call add(results, {"word": s:pyeval("word"),'
                                        '"menu": "[w]"})')
 EOF
         return results
