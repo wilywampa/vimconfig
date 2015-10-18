@@ -9,28 +9,45 @@ endif
 let b:did_my_ftplugin=1
 
 if executable('astyle')
-  if has("python")
+  if has("python") || has('python3')
     setlocal formatexpr=FormatArtisticStyle()
   else
     setlocal formatprg=astyle
   endif
 endif
 
-if has("python")
+if has('python3') && get(g:, 'pymode_python', '') !=# 'python'
+  command! -nargs=1 Python2or3 python3 <args>
+else
+  command! -nargs=1 Python2or3 python <args>
+endif
+
+if has("python") || has('python3')
   function! FormatArtisticStyle() abort " {{{
     if !empty(v:char)
       return 1
     else
-            python << EOF
+            Python2or3 << EOF
 import subprocess
+import sys
 import vim
 from subprocess import PIPE
+
+PY3 = sys.version_info[0] == 3
+string_type = str if PY3 else basestring
+
 lnum, count = vim.vvars['lnum'] - 1, vim.vvars['count']
 lines = '\n'.join(vim.current.buffer[lnum:lnum+count])
 args = vim.vars.get('astyle_args', '')
-args = args.split() if isinstance(args, basestring) else list(args)
+args = args.split() if isinstance(args, string_type) else list(args)
+
 p = subprocess.Popen(['astyle'] + args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-new_lines, err = p.communicate(lines)
+new_lines, err = p.communicate(lines.encode('utf-8') if PY3 else lines)
+
+if PY3:
+    new_lines = str(new_lines, 'utf-8')
+    err = str(err, 'utf-8')
+
 if err:
     vim.command('echomsg "%s"' % str(err.strip()))
 elif new_lines != lines:
