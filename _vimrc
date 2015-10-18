@@ -2316,7 +2316,7 @@ Plug 'wilywampa/gitv', {'on': 'Gitv'}
 Plug 'wilywampa/vim-gtfo'
 Plug 'wilywampa/vim-indent-guides', {'on': '<Plug>IndentGuidesToggle'}
 Plug 'wilywampa/vim-ipython'
-Plug 'wilywampa/jedi-vim'
+Plug 'davidhalter/jedi-vim'
 Plug 'xolox/vim-misc'
 Plug 'Shougo/neocomplete.vim'
 Plug 'Shougo/neoinclude.vim'

@@ -80,7 +80,7 @@
 	branch = dev
 [submodule "vimfiles/bundle/jedi"]
 	path = vimfiles/bundle/jedi
-	url = https://github.com/wilywampa/jedi-vim.git
+	url = https://github.com/davidhalter/jedi-vim.git
 	branch = master
 [submodule "vimfiles/bundle/misc"]
 	path = vimfiles/bundle/misc
