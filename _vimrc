@@ -1908,7 +1908,9 @@ func! s:UniteSettings() " {{{
     inor <buffer> <expr> <C-r>$ expand('#:t')
     nmap <buffer> S <Plug>(unite_append_end)<Plug>(unite_delete_backward_line)
     nmap <buffer> s <Plug>(unite_append_enter)<BS>
-    sil! nunmap <buffer> ?
+    for key in ['?', '<Up>', '<Down>', '<Left>', '<Right>']
+        execute 'silent! nunmap <buffer> ' . key
+    endfor
 endfunc " }}}
 
 nn <silent> "" :<C-u>Unite -start-insert history/yank<CR>
@@ -1941,7 +1943,8 @@ nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>
 nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
-nnoremap <silent> ,u :UniteResume -split<CR>
+nn <silent> ,u :<C-u>UniteResume -split<CR>
+nn <silent> U :<C-u>Unite<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 
 func! s:UniteTogglePathSearch() " {{{
@@ -1990,6 +1993,28 @@ func! s:UniteSetup() " {{{
             \   "endfunction"
         call unite#custom#action('openable', type, replace)
     endfor
+
+    let s:backup = {
+        \ 'description' : 'backup files',
+        \ 'is_quit' : 0,
+        \ 'is_invalidate_cache' : 1,
+        \ 'is_selectable' : 1,
+        \ }
+    function! s:backup.func(candidates) " {{{
+        for candidate in a:candidates
+            let time = strftime('%a_%d%b%y_%H%M')
+            let filename = candidate.action__path . '.' . time
+
+            call unite#sources#file#copy_files(filename, [candidate])
+
+            if filereadable(undofile(candidate.action__path))
+                call unite#sources#file#copy_files(
+                    \ undofile(candidate.action__path . '.' . time),
+                    \ [{'action__path': undofile(candidate.action__path)}])
+            endif
+        endfor
+    endfunction " }}}
+    call unite#custom#action('file_base', 'backup', s:backup)
 endfunc " }}}
 " }}}
 
