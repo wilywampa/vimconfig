@@ -29,6 +29,12 @@ function! s:source.hooks.on_syntax(args, context)
 endfunction
 
 function! s:source.hooks.on_init(args, context)
+  if !exists('*IPythonHistory')
+    call unite#print_source_error(
+          \ 'IPythonHistory() does not exist', s:source.name)
+    return
+  endif
+
   let args = unite#helper#parse_source_args(a:args)
   let a:context.source__session = get(a:context, 'source__session', -1)
   if a:context.source__session == -1
@@ -49,9 +55,6 @@ endfunction
 
 function! s:source.gather_candidates(args, context)
   if !exists('*IPythonHistory')
-    echohl WarningMsg
-    echomsg 'IPythonHistory() does not exist'
-    echohl None
     return []
   endif
 
