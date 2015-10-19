@@ -243,6 +243,7 @@ bindkey -M viins '^J' vi-open-line-below
 bindkey -M viins '^U' backward-kill-line
 bindkey -M viins '^B' vi-beginning-of-line
 bindkey -M viins '^E' vi-end-of-line
+bindkey -M viins '^X^U' undo
 bindkey -M viins '^X' undefined-key  # Ensure ^X is not bound to self-insert
 
 _vi-last-line() {
