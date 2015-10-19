@@ -1874,13 +1874,13 @@ func! s:UniteSettings() " {{{
     imap <buffer> <expr> <C-o><C-s> unite#do_action('split')
     imap <buffer> <expr> <C-o>t     unite#do_action('tabopen')
     imap <buffer> <expr> <C-o><C-t> unite#do_action('tabopen')
-    nmap <buffer> <expr> ` b:unite['profile_name'] == 'source/grep'
-        \ ? ':call <SID>LastActiveWindow()<CR>'
-        \ : '<Plug>(unite_exit)'
+    nmap <buffer> <expr> ` stridx(join(b:unite.source_names), 'grep') == -1
+        \ ? '<Plug>(unite_exit)'
+        \ : ':call <SID>LastActiveWindow()<CR>'
     inor <buffer> <expr> <C-s> unite#mappings#get_current_sorters() == [] ?
         \ unite#mappings#set_current_sorters(['sorter_ftime', 'sorter_reverse']) :
         \ unite#mappings#set_current_sorters([])
-    imap <buffer> ` <Plug>(unite_exit)
+    imap <buffer> ` <Esc>`
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
     inor <buffer> <C-f> <Esc><C-d>
@@ -1913,15 +1913,26 @@ func! s:UniteSettings() " {{{
     endfor
 endfunc " }}}
 
+function! s:grep_options() abort " {{{
+    let path = unite#util#input('Path: ', '.', 'file')
+    let opts = unite#util#input('Options: ', get(g:, 'ag_flags', ''))
+    call unite#start([['grep', path, opts]])
+endfunction " }}}
+nn <silent> ,A :<C-u>call <SID>grep_options()<CR>
+
+function! s:grep() abort " {{{
+    let inp = unite#util#input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
+    call unite#start([['grep', '.', get(g:, 'ag_flags', ''), inp]])
+endfunction " }}}
+nn <silent> ,a :<C-u>call <SID>grep()<CR>
+
 nn <silent> "" :<C-u>Unite -start-insert history/yank<CR>
 nn <silent> "' :<C-u>Unite -start-insert register<CR>
-nn <silent> <expr> ,a ":\<C-u>Unite "
-    \."-no-quit -auto-resize grep:".getcwd()."\<CR>"
 nn ,<C-a> :<C-u>Unite -no-quit -auto-resize grep:
 com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
 nn <silent> ,b :<C-u>Unite bookmark<CR>
-nn <silent> ,vr :Unite -no-quit vimgrep:**/*<CR>
-nn <silent> ,vn :Unite -no-quit vimgrep:**<CR>
+nn <silent> ,vr :<C-u>Unite vimgrep:**/*<CR>
+nn <silent> ,vn :<C-u>Unite vimgrep:**<CR>
 nn <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
 nn <silent> <C-h> :<C-u>Unite -buffer-name=buffers buffer<CR>
 nn <silent> g<C-h> :<C-u>Unite -buffer-name=buffers buffer:+<CR>
@@ -1944,7 +1955,9 @@ nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<bar>silent! UniteClose
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
 nn <silent> ,u :<C-u>UniteResume -split<CR>
-nn <silent> U :<C-u>Unite<CR>
+nn <silent> U :<C-u>Unite -direction=botright<CR>
+nn <silent> <Leader>U :<C-u>call unite#mappings#_choose_action(
+    \ unite#get_candidates([['file', expand('%')]]))<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 
 func! s:UniteTogglePathSearch() " {{{
@@ -1971,6 +1984,8 @@ func! s:UniteSetup() " {{{
         \ {'start_insert': 1, 'direction': 'dynamicbottom', 'prompt_direction': 'top'})
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
+    call unite#custom#default_action(
+        \ 'source/grep/jump_list,source/vimgrep/jump_list', 'persist_open')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor
@@ -2015,6 +2030,13 @@ func! s:UniteSetup() " {{{
         endfor
     endfunction " }}}
     call unite#custom#action('file_base', 'backup', s:backup)
+
+    let s:help = {'description' : 'open help'}
+    function! s:help.func(candidate)
+        call vimtools#OpenHelp(a:candidate.word)
+    endfunction
+    call unite#custom#action('source/help/common', 'help', s:help)
+    call unite#custom#default_action('source/help/common', 'help')
 endfunc " }}}
 " }}}
 
@@ -2057,31 +2079,27 @@ cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ?
     \ 'Ack!' . (len(g:ag_flags) ? ' ' . g:ag_flags : '') : 'A'
 cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ?
     \ 'Ack!' . (len(g:ag_flags) ? ' ' . g:ag_flags : '') : 'a'
-func! s:AckCurrentSearch(ignorecase) " {{{
+func! s:AckCurrentSearch(ignorecase, visual) " {{{
     let view = winsaveview() | call SaveRegs()
-    keepjumps normal gny
-    call winrestview(view)
-    let cmd = ['Ack!']
-    if @/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$'
-        let cmd += ['-w']
+    execute printf('keepjumps normal! g%sy', a:visual ? 'v' : 'n')
+    let pattern = @@
+    call RestoreRegs() | call winrestview(view)
+    let args = split(g:ag_flags)
+    if !a:visual && (@/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$')
+        call add(args, '-w')
     endif
-    if &ignorecase && a:ignorecase
-        if @/ =~ '\u'
-            let cmd += [g:ag_flags, '--', "'".@@."'"]
-        else
-            let cmd += [g:ag_flags, '--', "'".tolower(@@)."'"]
-        endif
-    else
-        let cmd += ["-s", g:ag_flags, '--', "'".@@."'"]
+    if !&ignorecase || !a:ignorecase
+        call add(args, '-s')
+    elseif a:visual || @/ !~ '\u'
+        let pattern = tolower(pattern)
     endif
-    let cmdstr = escape(join(filter(cmd, 'len(v:val)')), '%#')
-    execute cmdstr | call histadd(':', cmdstr) | cwindow
-    if &buftype == 'quickfix' | execute "normal! gg" | endif
-    call RestoreRegs()
+    call unite#start([['grep', '.', join(args)]], {'input': pattern, 'auto_resize': 1})
 endfunc " }}}
-nnoremap <silent> ga :<C-u>call <SID>AckCurrentSearch(1)<CR>
-nnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0)<CR>
-if !exists('g:ag_flags') | let g:ag_flags = '' | endif
+nnoremap <silent> ga :<C-u>call <SID>AckCurrentSearch(1, 0)<CR>
+nnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0, 0)<CR>
+xnoremap <silent> ga :<C-u>call <SID>AckCurrentSearch(1, 1)<CR>
+xnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0, 1)<CR>
+let g:ag_flags = get(g:, 'ag_flags', '')
 
 " tmux navigator settings
 let g:tmux_navigator_no_mappings = 1
