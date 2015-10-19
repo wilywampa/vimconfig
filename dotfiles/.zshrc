@@ -813,7 +813,7 @@ _tmux-name-win() {
     if [[ -n $TMUX ]] && [[ -z $(jobs) ]] && [[ -z $NOAUTONAME ]]; then
         if [[ $(tmux display-message -p -t $TMUX_PANE '#{window_panes}') -eq 1 ]]; then
             name=$(print -n "/${${PWD/#$HOME/\~}##*/}/")
-            if [[ ${#name} -gt 23 ]]; then; name=${name[1,9]}...${name[-9,-1]}; fi
+            if [[ ${#name} -gt 25 ]]; then; name=${name[1,10]}…${name[-10,-1]}; fi
             tmux rename-window -t $TMUX_PANE $name
         fi
     fi
