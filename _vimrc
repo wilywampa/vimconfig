@@ -1908,7 +1908,7 @@ func! s:UniteSettings() " {{{
     inor <buffer> <expr> <C-r>$ expand('#:t')
     nmap <buffer> S <Plug>(unite_append_end)<Plug>(unite_delete_backward_line)
     nmap <buffer> s <Plug>(unite_append_enter)<BS>
-    for key in ['?', '<Up>', '<Down>', '<Left>', '<Right>']
+    for key in ['?', '<Up>', '<Down>', '<Left>', '<Right>', 'b', 'e', 't']
         execute 'silent! nunmap <buffer> ' . key
     endfor
 endfunc " }}}
@@ -1916,13 +1916,14 @@ endfunc " }}}
 function! s:grep_options() abort " {{{
     let path = unite#util#input('Path: ', '.', 'file')
     let opts = unite#util#input('Options: ', get(g:, 'ag_flags', ''))
-    call unite#start([['grep', path, opts]])
+    let inp = unite#util#input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
+    if len(inp) | call unite#start([['grep', path, opts, inp]]) | endif
 endfunction " }}}
 nn <silent> ,A :<C-u>call <SID>grep_options()<CR>
 
 function! s:grep() abort " {{{
     let inp = unite#util#input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
-    call unite#start([['grep', '.', get(g:, 'ag_flags', ''), inp]])
+    if len(inp) | call unite#start([['grep', '.', get(g:, 'ag_flags', ''), inp]]) | endif
 endfunction " }}}
 nn <silent> ,a :<C-u>call <SID>grep()<CR>
 
