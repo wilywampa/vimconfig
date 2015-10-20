@@ -1,16 +1,16 @@
 from __future__ import division, print_function
-import matplotlib.pyplot as _plt
+import matplotlib.pyplot as plt
 from plotinteract import create, merge_dicts  # noqa
 
 
 def fg(fig=None):
     """Raise figure to foreground."""
-    _plt.figure((fig or _plt.gcf()).number)
-    if _plt.get_backend()[0:2].lower() == 'qt':
-        _plt.get_current_fig_manager().window.activateWindow()
-        _plt.get_current_fig_manager().window.raise_()
-    elif _plt.get_backend()[0:2].lower() == 'wx':
-        _plt.get_current_fig_manager().window.Raise()
+    plt.figure((fig or plt.gcf()).number)
+    if plt.get_backend()[0:2].lower() == 'qt':
+        plt.get_current_fig_manager().window.activateWindow()
+        plt.get_current_fig_manager().window.raise_()
+    elif plt.get_backend()[0:2].lower() == 'wx':
+        plt.get_current_fig_manager().window.Raise()
 
 
 def _snap(**kwargs):
@@ -48,9 +48,9 @@ def _fmt(x=None, y=None, label=None, **kwargs):
 def cursor(fig=None, **kwargs):
     """Add mpldatacursor to a figure."""
     from mpldatacursor import datacursor
-    _plt.figure((fig or _plt.gcf()).number)
+    plt.figure((fig or plt.gcf()).number)
     cursors = []
-    for ax in _plt.gcf().get_axes():
+    for ax in plt.gcf().get_axes():
         cursors.append(datacursor(axes=ax, formatter=_fmt,
                                   props_override=_snap, **kwargs))
         [a.draggable() for a in cursors[-1].annotations.values()]
@@ -60,51 +60,50 @@ def cursor(fig=None, **kwargs):
 def picker(fig=None, **kwargs):
     """Add mplpicker to a figure."""
     from mplpicker import picker
-    _plt.figure((fig or _plt.gcf()).number)
-    return [picker(ax, **kwargs) for ax in _plt.gcf().get_axes()]
+    plt.figure((fig or plt.gcf()).number)
+    return [picker(ax, **kwargs) for ax in plt.gcf().get_axes()]
 
 
 def unique_legend(**kwargs):
     """Add a legend with each label used only once."""
-    hs, ls = _plt.gca().get_legend_handles_labels()
     handles, labels = [], []
-    for h, l in zip(hs, ls):
+    for h, l in zip(*plt.gca().get_legend_handles_labels()):
         if l not in labels:
             handles.append(h)
             labels.append(l)
-    return _plt.legend(handles, labels, **kwargs)
+    return plt.legend(handles, labels, **kwargs)
 
 
 def fig(num=1):
     """Raise a figure to foreground by number with 1 as default."""
-    fg(_plt.figure(num))
+    fg(plt.figure(num))
 
 
 def figdo(*args):
     """Apply functions to all open figures."""
-    [func(_plt.figure(n)) for n in _plt.get_fignums() for func in args]
+    [func(plt.figure(n)) for n in plt.get_fignums() for func in args]
 
 
 def resize(width, height):
     """Resize the active figure window."""
-    _plt.get_current_fig_manager().resize(width, height)
+    plt.get_current_fig_manager().resize(width, height)
 
 
 def cl():
     """Close all figures."""
-    _plt.close('all')
+    plt.close('all')
 
 
 def savepdf(filename, **kwargs):
     """Save all open figures to a PDF file."""
     from matplotlib.backends.backend_pdf import PdfPages
     with PdfPages(filename) as pp:
-        [pp.savefig(_plt.figure(n), **kwargs) for n in _plt.get_fignums()]
+        [pp.savefig(plt.figure(n), **kwargs) for n in plt.get_fignums()]
 
 
 def savesvg(basename, **kwargs):
     """Save all open figures to SVG files."""
-    figs = [_plt.figure(n) for n in _plt.get_fignums()]
+    figs = [plt.figure(n) for n in plt.get_fignums()]
     for f in figs:
         f.savefig(basename + str(f.number) + '.svg', format='svg', **kwargs)
 
@@ -115,9 +114,9 @@ def savehtml(file_or_name, html_attrs=None, **kwargs):
     from io import BytesIO
 
     def save(fid):
-        for n in _plt.get_fignums():
+        for n in plt.get_fignums():
             with BytesIO() as b:
-                _plt.figure(n).savefig(b, format='png', **kwargs)
+                plt.figure(n).savefig(b, format='png', **kwargs)
                 b.seek(0)
                 value = b.getvalue()
             fid.write('<img src="data:image/png;base64,{0}"{1}><br>\n'.format(
