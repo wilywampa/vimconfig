@@ -1914,15 +1914,15 @@ func! s:UniteSettings() " {{{
 endfunc " }}}
 
 function! s:grep_options() abort " {{{
-    let path = unite#util#input('Path: ', '.', 'file')
-    let opts = unite#util#input('Options: ', get(g:, 'ag_flags', ''))
-    let inp = unite#util#input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
+    let path = input('Path: ', '.', 'file')
+    let opts = input('Options: ', get(g:, 'ag_flags', ''))
+    let inp = input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
     if len(inp) | call unite#start([['grep', path, opts, inp]]) | endif
 endfunction " }}}
 nn <silent> ,A :<C-u>call <SID>grep_options()<CR>
 
 function! s:grep() abort " {{{
-    let inp = unite#util#input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
+    let inp = input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
     if len(inp) | call unite#start([['grep', '.', get(g:, 'ag_flags', ''), inp]]) | endif
 endfunction " }}}
 nn <silent> ,a :<C-u>call <SID>grep()<CR>
