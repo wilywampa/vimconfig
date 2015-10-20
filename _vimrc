@@ -2173,8 +2173,8 @@ let VCSCommandCVSDiffOpt = '--internal-diff'
 func! s:JediSetup() " {{{
     if exists('*jedi#completions') && &omnifunc != 'CompleteIPython'
         setlocal omnifunc=jedi#completions
-        nnoremap <silent> <buffer> <M-]> :<C-u>call jedi#goto()<CR>zv
     endif
+    nnoremap <silent> <buffer> <M-]> :<C-u>call jedi#goto()<CR>zv
 endfunc " }}}
 autocmd VimrcAutocmds FileType python call s:JediSetup()
 let g:jedi#use_tabs_not_buffers = 0
