@@ -1104,7 +1104,10 @@ zstyle ':completion:*:manuals' separate-sections true
 
 # complete with a menu for xwindow ids
 zstyle ':completion:*:windows' menu on=0
-zstyle ':completion:*:expand:*' tag-order all-expansions
+
+# Insert all expansions first but give a menu with individual expansions
+zstyle ':completion:*:expand:*' tag-order 'all-expansions expansions'
+zstyle ':completion:*:expand:*' group-order all-expansions expansions
 
 # more errors allowed for large words and fewer for small words
 zstyle ':completion:*:approximate:*' max-errors 'reply=( $(( ($#PREFIX+$#SUFFIX)/3 )) )'
