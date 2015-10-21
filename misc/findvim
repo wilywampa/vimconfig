@@ -23,7 +23,7 @@ remote() {
     [[ "$1" =~ '^(.*)\(' ]] && file="$match"
   fi
   if [[ -n $line ]]; then
-    vim --servername ${VIMSERVER:-VIM} --remote +$line "$file"
+    vim --servername ${VIMSERVER:-VIM} --remote +"${line}|foldo!" "$file"
   else
     vim --servername ${VIMSERVER:-VIM} --remote "$file"
   fi
