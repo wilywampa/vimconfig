@@ -108,22 +108,31 @@ def savesvg(basename, **kwargs):
         f.savefig(basename + str(f.number) + '.svg', format='svg', **kwargs)
 
 
-def savehtml(file_or_name, html_attrs=None, **kwargs):
+def savehtml(file_or_name, html_attrs=None, header=None, footer=None,
+             template=None, **kwargs):
     """Save all open figures to an HTML file."""
     import base64
     from io import BytesIO
+    from textwrap import dedent
+
+    template = template or dedent("""\
+    <center><img src="data:image/png;base64,{img}"{attrs}><br></center>
+    """)
+    attrs = (' ' + ' '.join('{0}="{1}"'.format(a, html_attrs[a])
+                            for a in html_attrs)) if html_attrs else ''
 
     def save(fid):
+        if header:
+            fid.write(header)
         for n in plt.get_fignums():
             with BytesIO() as b:
                 plt.figure(n).savefig(b, format='png', **kwargs)
                 b.seek(0)
                 value = b.getvalue()
-            fid.write('<img src="data:image/png;base64,{0}"{1}><br>\n'.format(
-                base64.b64encode(value),
-                (' ' + ' '.join('{0}="{1}"'.format(a, html_attrs[a])
-                                for a in html_attrs)) if html_attrs else '',
-            ))
+            fid.write(template.format(
+                img=base64.b64encode(value).decode('ascii'), attrs=attrs))
+        if footer:
+            fid.write(footer)
 
     if hasattr(file_or_name, 'write'):
         save(file_or_name)
