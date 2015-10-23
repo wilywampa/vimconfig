@@ -68,8 +68,7 @@ set isfname+={,}                " Interpret {} as part of a filename
 set isfname-==                  " but not =
 sil! set breakindent            " Indent wrapped lines
 set tags-=./tags tags^=./tags;  " Search upwards for tags
-set complete-=i                 " Don't complete from included files
-set complete-=u                 " Don't complete from unloaded buffers
+set complete=.,w,t              " Don't complete from non-visible buffers
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi,*.pkl
@@ -1874,7 +1873,7 @@ func! s:UniteSettings() " {{{
     imap <buffer> <expr> <C-o><C-s> unite#do_action('split')
     imap <buffer> <expr> <C-o>t     unite#do_action('tabopen')
     imap <buffer> <expr> <C-o><C-t> unite#do_action('tabopen')
-    nmap <buffer> <expr> ` stridx(join(b:unite.source_names), 'grep') == -1
+    nmap <buffer> <expr> <silent> ` stridx(join(b:unite.source_names), 'grep') == -1
         \ ? '<Plug>(unite_exit)'
         \ : ':call <SID>LastActiveWindow()<CR>'
     inor <buffer> <expr> <C-s> unite#mappings#get_current_sorters() == [] ?
