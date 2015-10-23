@@ -316,7 +316,7 @@ EOF
     call SaveRegs()
     let left_save = getpos("'<")
     let right_save = getpos("'>")
-    normal! gg0vG$y
+    execute "normal! " . get(g:, 'ipython_scratch_motion', 'yap')
     let g:ipy_input = @@
     call RestoreRegs()
     call setpos("'<", left_save)
