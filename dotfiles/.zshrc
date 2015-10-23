@@ -1050,7 +1050,7 @@ export VIMSERVER=VIM
 export TAR_OPTIONS='-k'
 export INPUTRC=$HOME/.inputrc
 VIMOPTIONS=('-u' 'NONE' '-i' 'NONE' '-N' "--cmd" "nnoremap Y y$" \
-    "--cmd" "set ai bs=indent,eol,start clipboard= et gd hls ic is nosmd \
+    "--cmd" "set ai bs=indent,eol,start clipboard= et gd hid hls ic is nosmd \
     nosol nowrap nf=hex nu rnu sc si sm sts=4 sw=4 wmnu wim=longest:full,full")
 
 #[[[1 Completion Stuff
