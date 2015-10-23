@@ -1524,6 +1524,9 @@ if exists('vimpager')
     augroup END
 endif
 
+" Try to detect git repository for git log
+autocmd VimrcAutocmds VimEnter * if exists('vimpager')|silent! call fugitive#detect(getcwd())|endif
+
 " Match highlighting
 func! s:MatchHighlights() " {{{
     for n in range(1, 5)
@@ -1650,7 +1653,6 @@ if !hasWin | call extend(g:pathogen_disabled, ['misc','shell']) | endif
 
 " Disable some plugins if in read-only mode
 if s:readonly
-    call add(g:pathogen_disabled, 'fugitive')
     call add(g:pathogen_disabled, 'neocomplete')
     call add(g:pathogen_disabled, 'neosnippet')
     call add(g:pathogen_disabled, 'neosnippet-snippets')
