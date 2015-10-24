@@ -41,13 +41,13 @@ import sys
 from IPython.core.display import display
 from IPython.parallel import Client  # python2
 try:  # python2
-    from IPython.external.path import path  # python2
+    from IPython.external.path import path as Path  # python2
 except ImportError:  # python2
-    from IPython.external.path import Path as path  # python2
+    from IPython.external.path import Path # python2
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import defaultdict, namedtuple
-from path import path  # python3
+from path import Path  # python3
 from ipyparallel import Client  # python3
 from ipython_config import *
 from itertools import (chain, count, cycle, dropwhile, groupby, islice,
