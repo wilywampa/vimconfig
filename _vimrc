@@ -1956,6 +1956,8 @@ nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>
 nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u>UnitePrevious<CR>
 nn <silent> ]u :<C-u>UniteNext<CR>
+nn <silent> [U :<C-u>UniteFirst<CR>
+nn <silent> ]U :<C-u>UniteLast<CR>
 nn <silent> ,u :<C-u>UniteResume -split<CR>
 nn <silent> U :<C-u>Unite -direction=botright<CR>
 nn <silent> <Leader>U :<C-u>call unite#mappings#_choose_action(
@@ -1986,8 +1988,6 @@ func! s:UniteSetup() " {{{
         \ {'start_insert': 1, 'direction': 'dynamicbottom', 'prompt_direction': 'top'})
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
-    call unite#custom#default_action(
-        \ 'source/grep/jump_list,source/vimgrep/jump_list', 'persist_open')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor
@@ -2039,6 +2039,17 @@ func! s:UniteSetup() " {{{
     endfunction
     call unite#custom#action('source/help/common', 'help', s:help)
     call unite#custom#default_action('source/help/common', 'help')
+
+    let s:jump_open = {
+        \ 'description' : 'persistent open if Unite window is active else regular open',
+        \ 'is_quit' : 0,
+        \ }
+    function! s:jump_open.func(candidate)
+        let unite = unite#get_current_unite()
+        call unite#take_action(bufwinnr(unite.bufnr) < 0 ? 'open' : 'persist_open', a:candidate)
+    endfunction
+    call unite#custom#action('jump_list', 'jump_open', s:jump_open)
+    call unite#custom#default_action('source/grep/jump_list,source/vimgrep/jump_list', 'jump_open')
 endfunc " }}}
 " }}}
 
