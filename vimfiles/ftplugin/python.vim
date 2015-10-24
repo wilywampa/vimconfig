@@ -316,9 +316,11 @@ EOF
     call SaveRegs()
     let left_save = getpos("'<")
     let right_save = getpos("'>")
+    let vimode = visualmode()
     execute "normal! " . get(g:, 'ipython_scratch_motion', 'yap')
     let g:ipy_input = @@
     call RestoreRegs()
+    execute "normal! " . vimode . "\<Esc>"
     call setpos("'<", left_save)
     call setpos("'>", right_save)
     call winrestview(view)
