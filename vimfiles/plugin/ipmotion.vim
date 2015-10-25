@@ -54,7 +54,7 @@ endif
 let g:loaded_ipmotion = 1
 
 if !exists('g:ip_boundary')
-  let g:ip_boundary='\s*$'
+  let g:ip_boundary='\s*\r\?$'
 endif
 if !exists('g:ip_skipfold')
   let g:ip_skipfold=1
@@ -189,12 +189,12 @@ endfunction
 
 augroup ipmotion
   autocmd!
-  autocmd FileType fortran let b:ip_boundary = '[!C[:blank:]]*$'
-  autocmd FileType c,cpp,arduino let b:ip_boundary = '\s*\(//\)\?\s*$'
-  autocmd FileType matlab let b:ip_boundary = '[%[:blank:]]*$'
-  autocmd FileType help let b:ip_boundary = '[<>[:blank:]]*$'
-  autocmd FileType gitcommit let b:ip_boundary = '[#[:blank:]]*$'
-  autocmd FileType diff,git let b:ip_boundary = '[[:blank:]+-]*$'
+  autocmd FileType fortran let b:ip_boundary = '[!C[:blank:]]*\r\?$'
+  autocmd FileType c,cpp,arduino let b:ip_boundary = '\s*\(//\)\?\s*\r\?$'
+  autocmd FileType matlab let b:ip_boundary = '[%[:blank:]]*\r\?$'
+  autocmd FileType help let b:ip_boundary = '[<>[:blank:]]*\r\?$'
+  autocmd FileType gitcommit let b:ip_boundary = '[#[:blank:]]*\r\?$'
+  autocmd FileType diff,git let b:ip_boundary = '[[:blank:]+-]*\r\?$'
 augroup END
 
 " vim:set et ts=2 sts=2 sw=2:
