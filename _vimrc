@@ -474,7 +474,7 @@ nn <silent> ,.. :lcd ..<CR>:pwd<CR>:sil! call repeat#set(",..")<CR>
 ino <M-p> <C-r>"
 
 " Go to older position in jump list
-nn <S-Tab> <C-o>
+nn <S-Tab> <C-o>zv
 
 " Make <C-d>/<C-u> scroll 1/3 page
 no <expr> <C-d> (v:count ? "" : (winheight('.')) / 3 + 1)."\<C-d>"
@@ -1590,6 +1590,7 @@ let ls_sort = has('mac') ? ' --sort=none' : ''
 call s:CreateAbbrev('ve',   'verbose',                         ':'   )
 call s:CreateAbbrev('so',   'source',                          ':'   )
 call s:CreateAbbrev('ec',   'echo',                            ':@>' )
+call s:CreateAbbrev('es',   'echo string',                     ':@>' )
 call s:CreateAbbrev('dt',   'diffthis',                        ':'   )
 call s:CreateAbbrev('do',   'diffoff \| set nowrap',           ':'   )
 call s:CreateAbbrev('du',   'diffupdate',                      ':'   )
@@ -1892,8 +1893,8 @@ func! s:UniteSettings() " {{{
     imap <buffer> ` <Esc>`
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
-    inor <buffer> <C-f> <Esc><C-d>
-    inor <buffer> <C-b> <Esc><C-u>
+    inor <buffer> <C-b> <Home>
+    inor <buffer> <C-e> <End>
     nmap <buffer> <C-f> <C-d>
     nmap <buffer> <C-b> <C-u>
     nmap <buffer> <C-p> <Plug>(unite_narrowing_input_history)
@@ -1917,24 +1918,35 @@ func! s:UniteSettings() " {{{
     inor <buffer> <expr> <C-r>$ expand('#:t')
     nmap <buffer> S <Plug>(unite_append_end)<Plug>(unite_delete_backward_line)
     nmap <buffer> s <Plug>(unite_append_enter)<BS>
+    nmap <buffer> [u k<CR>
+    nmap <buffer> ]u j<CR>
+    nmap <buffer> [U gg<CR>
+    nmap <buffer> ]U G<CR>
+    nnor <buffer> <C-g> :<C-u>call <SID>grep_options()<CR>
     for key in ['?', '<Up>', '<Down>', '<Left>', '<Right>', 'b', 'e', 't']
         execute 'silent! nunmap <buffer> ' . key
     endfor
 endfunc " }}}
 
-function! s:grep_options() abort " {{{
-    let path = input('Path: ', '.', 'file')
-    let opts = input('Options: ', get(g:, 'ag_flags', ''))
+function! s:grep(...) abort " {{{
+    let path = len(a:000) >= 1 ? a:1 : input('Path: ', '.', 'file')
+    let opts = len(a:000) >= 2 ? a:2 : input('Options: ', get(g:, 'ag_flags', ''))
     let inp = input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
-    if len(inp) | call unite#start([['grep', path, opts, inp]]) | endif
+    if len(inp) | call histadd('/', inp) | call unite#start([['grep', path, opts, inp]]) | endif
+endfunction
+function! s:grep_options() abort
+    for source in unite#get_sources()
+        if source.name =~ 'grep'
+            let context = source.unite__context
+            let context.source__extra_opts =
+                \ input('Options: ', join(split(g:ag_flags) +
+                \                         split(context.source__extra_opts)))
+            call unite#force_redraw()
+        endif
+    endfor
 endfunction " }}}
-nn <silent> ,A :<C-u>call <SID>grep_options()<CR>
-
-function! s:grep() abort " {{{
-    let inp = input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
-    if len(inp) | call unite#start([['grep', '.', get(g:, 'ag_flags', ''), inp]]) | endif
-endfunction " }}}
-nn <silent> ,a :<C-u>call <SID>grep()<CR>
+nn <silent> ,a :<C-u>call <SID>grep('.', get(g:, 'ag_flags', ''))<CR>
+nn <silent> ,A :<C-u>call <SID>grep()<CR>
 
 nn <silent> "" :<C-u>Unite -start-insert history/yank<CR>
 nn <silent> "' :<C-u>Unite -start-insert register<CR>
@@ -1962,8 +1974,8 @@ nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
 nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>
 nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<bar>silent! UniteClose<CR>
-nn <silent> [u :<C-u>UnitePrevious<CR>
-nn <silent> ]u :<C-u>UniteNext<CR>
+nn <silent> [u :<C-u><C-r>=v:count1<CR>UnitePrevious<CR>
+nn <silent> ]u :<C-u><C-r>=v:count1<CR>UniteNext<CR>
 nn <silent> [U :<C-u>UniteFirst<CR>
 nn <silent> ]U :<C-u>UniteLast<CR>
 nn <silent> ,u :<C-u>UniteResume -split<CR>
@@ -2109,6 +2121,7 @@ func! s:AckCurrentSearch(ignorecase, visual) " {{{
     if !a:visual && (@/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$')
         call add(args, '-w')
     endif
+    if a:visual | call histadd('/', pattern) | endif
     if !&ignorecase || !a:ignorecase
         call add(args, '-s')
     elseif a:visual || @/ !~ '\u'
