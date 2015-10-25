@@ -62,7 +62,8 @@ function! s:source.gather_candidates(args, context)
       \                     a:context.source__session), '{
       \ "word" : v:val.code,
       \ "abbr" : printf("'''''' %d/%d '''''' %s", v:val.session, v:val.line,
-      \                 v:val.code =~ "\n" ? "\n" . v:val.code : v:val.code),
+      \   v:val.code =~ "\n" ?
+      \     "\n" . join(split(v:val.code, "\n")[:50], "\n") : v:val.code),
       \ "is_multiline" : 1,
       \ "source__session" : v:val.session,
       \ "source__line" : v:val.line,
