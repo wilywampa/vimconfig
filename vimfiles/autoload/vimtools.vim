@@ -437,8 +437,15 @@ function! vimtools#SourceMotion(type) " {{{
   let lines = split(input, '\n')
   if exists('*scriptease#scriptid')
     let sid = scriptease#scriptid('%')
-    let l:pat = '\v\C^func.*\zs<s:|\<SID\>'
-    call map(lines, 'substitute(v:val, l:pat, "<SNR>'.sid.'_", "g")')
+    if sid
+      let pat = '\v\C<s:\h(\w*#)*\w*\ze\('
+      for line in filter(copy(lines), 'v:val =~ pat')
+        let name = matchstr(line, pat)[2:]
+        call map(lines,
+            \ "substitute(v:val, '\\V\\C\\(s:\\|<SID>\\)'.name,
+            \             '<SNR>'.sid.'_'.name, 'g')")
+      endfor
+    endif
   endif
   call writefile(lines, tmpfile)
   execute "source ".tmpfile
