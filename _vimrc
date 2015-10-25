@@ -590,12 +590,21 @@ cno <expr> ! getcmdtype() == ':' && getcmdline() == '!' ? '!<CR>' : '!'
 " Move cursor in insert mode without splitting undo
 ino <Left>  <C-g>U<Left>
 ino <Right> <C-g>U<Right>
-ino <expr> <Home> virtcol('.') == match(getline('.'), '\S') + 1 ?
-    \ repeat('<C-g>U<Left>', virtcol('.') - 1) :
-    \ (virtcol('.') < match(getline('.'), '\S') ?
-    \     repeat('<C-g>U<Right>', match(getline('.'), '\S') + 0) :
-    \     repeat('<C-g>U<Left>', virtcol('.') - 1 - match(getline('.'), '\S')))
-ino <expr> <End> repeat('<C-g>U<Right>', virtcol('$') - virtcol('.'))
+function! s:home() abort " {{{
+  let line = getline('.')
+  let before = strchars(line[:col('.')-1]) - 1
+  let after = strchars(line[col('.')-1:])
+  let blanks = strchars(matchstr(line, '^\s*'))
+  if before < blanks
+    return repeat("\<C-g>U\<Right>", blanks - before)
+  elseif before == blanks
+    return repeat("\<C-g>U\<Left>", blanks)
+  else
+    return repeat("\<C-g>U\<Left>", before - blanks + (after ? 0 : 1))
+  endif
+endfunction " }}}
+inoremap <expr> <Home> <SID>home()
+inoremap <expr> <End> repeat("<C-g>U<Right>", strchars(getline('.')[col('.')-1:]))
 im <C-b> <Home>
 im <C-e> <End>
 
@@ -1237,13 +1246,12 @@ func! s:CharClass(c, big) abort " {{{
     else
         return 1
     endif
-endfunc " }}}
-func! s:BackWord(big) abort " {{{
-    let pos = getpos('.')
-    let col = virtcol('.')
-    if col == 1 | return '' | endif
-    let line = getline('.')
-    let col -= 1
+endfunc
+func! s:BackWord(big) abort
+    let pos = strchars(getline('.')) - strchars(getline('.')[col('.')-1:]) + 1
+    if pos == 1 | return '' | endif
+    let line = split(getline('.'), '\zs')
+    let col = strchars(getline('.')[:col('.')-1]) - 1
     " Skip white space before the word
     while col > 1 && s:CharClass(line[col-1], a:big) == 0 | let col -= 1 | endwhile
     let cls = s:CharClass(line[col-1], a:big)
@@ -1251,22 +1259,22 @@ func! s:BackWord(big) abort " {{{
     while col > 1 && s:CharClass(line[col-1], a:big) == cls | let col -= 1 | endwhile
     " Check for overshoot
     if cls != s:CharClass(line[col-1], a:big) | let col += 1 | endif
-    return repeat("\<C-g>U\<Left>", pos[2] - col)
-endfunc " }}}
-func! s:ForwardWord(big) abort " {{{
-    let pos = getpos('.')
-    let col = virtcol('.')
-    if col == virtcol('$') | return '' | endif
-    let line = getline('.')
-    let cls = s:CharClass(line[col-1], a:big)
-    let col += 1
+    return repeat("\<C-g>U\<Left>", pos - col)
+endfunc
+func! s:ForwardWord(big) abort
+    let pos = strchars(getline('.')) - strchars(getline('.')[col('.')-1:]) + 1
+    let end = strchars(getline('.'))
+    if pos > end | return '' | endif
+    let line = split(getline('.'), '\zs')
+    let cls = s:CharClass(line[pos-1], a:big)
+    let col = pos + 1
     " Go one char past end of current word
     if cls != 0
-        while col < virtcol('$') && s:CharClass(line[col-1], a:big) == cls | let col += 1 | endwhile
+        while col <= end && s:CharClass(line[col-1], a:big) == cls | let col += 1 | endwhile
     endif
     " Go to next non-white
-    while col < virtcol('$') && s:CharClass(line[col-1], a:big) == 0 | let col += 1 | endwhile
-    return repeat("\<C-g>U\<Right>", col - pos[2])
+    while col <= end && s:CharClass(line[col-1], a:big) == 0 | let col += 1 | endwhile
+    return repeat("\<C-g>U\<Right>", col - pos)
 endfunc " }}}
 inoremap <expr> <C-Left> <SID>BackWord(0)
 inoremap <expr> <M-Left> <SID>BackWord(1)
