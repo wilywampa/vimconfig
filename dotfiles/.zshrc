@@ -2,7 +2,7 @@
 HISTFILE=~/.histfile
 HISTSIZE=99999
 SAVEHIST=50000
-setopt auto_cd beep extended_glob no_match notify no_beep share_history
+setopt autocd beep extended_glob no_match notify no_beep share_history
 setopt inc_append_history extended_history interactive_comments
 setopt hist_expire_dups_first hist_ignore_dups hist_ignore_space
 # End of lines configured by zsh-newuser-install
@@ -16,14 +16,14 @@ compinit -C
 
 #[[[1 Basic settings
 # Automatically use directory stack
-setopt auto_pushd pushd_minus pushd_silent pushd_to_home pushd_ignoredups
+setopt auto_pushd pushd_minus pushd_silent pushd_to_home pushd_ignore_dups
 
 # Be able to use ^S and ^Q and rebind ^W
 stty -ixon -ixoff
 stty werase undef
 
 # Try to correct misspelled commands
-setopt CORRECT
+setopt correct
 
 #[[[1 Aliases
 # zsh
@@ -1083,7 +1083,7 @@ vibindkey '^[[Z' reverse-menu-complete
 bindkey -M menuselect '^[[Z' reverse-menu-complete
 
 # Bring up completion menu after pressing tab once
-setopt AUTO_MENU
+setopt auto_menu
 
 # Enter executes line instead of exiting menu
 bindkey -M menuselect '^M' .accept-line
@@ -1118,8 +1118,8 @@ zstyle ':completion:*:default' list-prompt '%S%M matches%s'
 # Don't prompt for a huge list, menu it!
 zstyle ':completion:*:default' menu 'select=0'
 
-unsetopt LIST_AMBIGUOUS
-setopt COMPLETE_IN_WORD
+unsetopt list_ambiguous
+setopt complete_in_word
 
 # Separate man page sections. Neat.
 zstyle ':completion:*:manuals' separate-sections true
@@ -1206,7 +1206,7 @@ _short-pwd() {
 }
 # Show vi input mode
 autoload -U colors && colors
-setopt PROMPT_SUBST
+setopt prompt_subst
 _vim_ins_mode="%{$fg[black]%}%{$bg[cyan]%}i%{$reset_color%}"
 _vim_cmd_mode="%{$fg[black]%}%{$bg[yellow]%}n%{$reset_color%}"
 _vim_mode=$_vim_ins_mode
