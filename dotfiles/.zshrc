@@ -1273,15 +1273,15 @@ _svn_current_branch_name() {
         fi
     else
         if [[ $url =~ branches ]]; then
-            end=$(echo ${url[${url[(i)branches]}+9,-1]})
+            last=$(echo ${url[${url[(i)branches]}+9,-1]})
         elif [[ $url =~ tags ]]; then
-            end=$(echo ${url[${url[(i)tags]}+5,-1]})
+            last=$(echo ${url[${url[(i)tags]}+5,-1]})
         elif [[ $url =~ svn ]]; then
-            end=$(echo ${url[${url[(i)svn]}+4,-1]})
+            last=$(echo ${url[${url[(i)svn]}+4,-1]})
         else
-            end=${url[(ws:/:)-1]}
+            last=${url[(ws:/:)-1]}
         fi
-        echo ${end[(ws:/:)1]}
+        echo ${last[(ws:/:)1]}
     fi
 }
 
