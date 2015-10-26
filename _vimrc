@@ -11,6 +11,9 @@ augroup END
 " Check if in read-only mode to disable unnecessary plugins
 if !exists('s:readonly') | let s:readonly = &readonly || exists('vimpager') | endif
 
+" Make sure $MYVIMRC gets set
+if empty($MYVIMRC) | let $MYVIMRC = expand('<sfile>') | endif
+
 set shiftwidth=4                " Number of spaces to indent
 set expandtab                   " Use spaces instead of tabs
 set softtabstop=4
