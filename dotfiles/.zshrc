@@ -1049,9 +1049,31 @@ export DATEFMT='%a %d%b%Y %T'
 export VIMSERVER=VIM
 export TAR_OPTIONS='-k'
 export INPUTRC=$HOME/.inputrc
-VIMOPTIONS=('-u' 'NONE' '-i' 'NONE' '-N' "--cmd" "nnoremap Y y$" \
-    "--cmd" "set ai bs=indent,eol,start clipboard= et gd hid hls ic is nosmd \
-    nosol nowrap nf=hex nu rnu sc si sm sts=4 sw=4 wmnu wim=longest:full,full")
+_vim_maps=(
+"nnoremap @! :<C-u><C-r><C-r>:<Home><C-Right>!<CR>"
+"nnoremap @? :<C-u><C-r><C-r>:<Home>verbose <CR>"
+"cnoremap <C-p> <Up>"
+"cnoremap <C-n> <Down>"
+"nnoremap <S-Tab> <C-o>zv"
+"nnoremap <Leader>a ggVG"
+"vnoremap <Leader>a <Esc>ggVG"
+"nnoremap Y y$"
+"nnoremap <C-v> \"+gP"
+"cnoremap <C-v> <C-r>=substitute(@+, '\n', '', 'g')<CR>"
+"inoremap <C-v> <C-r>+"
+"inoremap <C-b> <Home>"
+"inoremap <C-e> <End>"
+"inoremap <C-f> <C-e>"
+"nnoremap <C-s> :<C-u>update<CR>"
+"inoremap <C-s> <Esc>:<C-u>update<CR>"
+"xnoremap <C-s> <Esc>:<C-u>update<CR>"
+"nnoremap _ -"
+)
+VIMOPTIONS=('-u' 'NONE' '-i' 'NONE' '-N' \
+    "--cmd" $'set <C-Left>=\e[1;5D' "--cmd" $'set <C-Right>=\e[1;5C' \
+    "--cmd" "set ai bs=indent,eol,start cb=unnamed,unnamedplus et gd hid hls \
+    ic is nosmd nosol nowrap nf=hex nu rnu sc si sm sts=4 sw=4 wmnu \
+    wim=longest:full,full" "--cmd" ${(j:|:)_vim_maps})
 
 #[[[1 Completion Stuff
 [[ -z "$modules[zsh/complist]" ]] && zmodload zsh/complist
