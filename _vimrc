@@ -1877,13 +1877,15 @@ func! s:UniteSettings() " {{{
     imap <silent> <buffer> <expr> <C-d> <SID>UniteTogglePathSearch()."\<Esc>"
         \.'1G0y$Q'.":\<C-u>Unite -buffer-name=buffers/neomru "
         \."-unique buffer neomru/file\<CR>"."\<C-r>\""
-    nmap <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
-    imap <buffer> <expr> <C-o>v     unite#do_action('vsplit')
-    imap <buffer> <expr> <C-o><C-v> unite#do_action('vsplit')
-    imap <buffer> <expr> <C-o>s     unite#do_action('split')
-    imap <buffer> <expr> <C-o><C-s> unite#do_action('split')
-    imap <buffer> <expr> <C-o>t     unite#do_action('tabopen')
-    imap <buffer> <expr> <C-o><C-t> unite#do_action('tabopen')
+    nnor <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
+    inor <buffer> <expr> <C-o>v     unite#do_action('vsplit')
+    inor <buffer> <expr> <C-o><C-v> unite#do_action('vsplit')
+    inor <buffer> <expr> <C-o>s     unite#do_action('split')
+    inor <buffer> <expr> <C-o><C-s> unite#do_action('split')
+    inor <buffer> <expr> <C-o>t     unite#do_action('tabopen')
+    inor <buffer> <expr> <C-o><C-t> unite#do_action('tabopen')
+    nnor <buffer> <expr> <C-^>      unite#do_action('persist_open')
+    inor <buffer> <expr> <C-^>      unite#do_action('persist_open')
     nmap <buffer> <expr> <silent> ` stridx(join(b:unite.source_names), 'grep') == -1
         \ ? '<Plug>(unite_exit)'
         \ : ':call <SID>LastActiveWindow()<CR>'
