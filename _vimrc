@@ -615,10 +615,10 @@ ino <expr> <CR> (getline('.')[:virtcol('.')-2] =~ '\(\S\\|^\)\s\+$' ?
 ino \<CR> \<CR>
 
 " Make * and # use 'smartcase'
-nn <silent> * *:<C-u>let @/ = @/<bar>echo @/<CR><C-o>nzv
-nn <silent> # #:<C-u>let @/ = @/<bar>echo @/<CR><C-o>nzv
-nn <silent> g* g*:<C-u>let @/ = @/<bar>echo @/<CR><C-o>nzv
-nn <silent> g# g#:<C-u>let @/ = @/<bar>echo @/<CR><C-o>nzv
+nn <silent> * *:<C-u>let @/ = @/<bar>echo '/'.@/<CR><C-o>nzv
+nn <silent> # #:<C-u>let @/ = @/<bar>echo '?'.@/<CR><C-o>nzv
+nn <silent> g* g*:<C-u>let @/ = @/<bar>echo '/'.@/<CR><C-o>nzv
+nn <silent> g# g#:<C-u>let @/ = @/<bar>echo '?'.@/<CR><C-o>nzv
 
 " Toggle IPython history storage
 nn <silent> ,ih :<C-u>let g:ipython_store_history = !get(g:, 'ipython_store_history', 1)<CR>
@@ -2070,6 +2070,20 @@ func! s:UniteSetup() " {{{
     endfunction
     call unite#custom#action('jump_list', 'jump_open', s:jump_open)
     call unite#custom#default_action('source/grep/jump_list,source/vimgrep/jump_list', 'jump_open')
+
+    let s:search = {
+        \ 'description' : 'search for word or text',
+        \ 'is_quit' : 1,
+        \ }
+    function! s:search.func(candidate)
+        let @/ = a:candidate.word
+        try
+            normal! nzv
+        catch
+            call unite#print_error(v:exception)
+        endtry
+    endfunction
+    call unite#custom#action('common', 'search', s:search)
 endfunc " }}}
 " }}}
 
@@ -2411,6 +2425,7 @@ Plug 'eagletmt/ghcmod-vim'
 Plug 'eagletmt/neco-ghc'
 Plug 'Shougo/neco-vim', {'dir': '$VIMCONFIG/vimfiles/bundle/neco-vim'}
 Plug 'Shougo/neco-syntax'
+Plug 'Shougo/neoyank'
 Plug 'neovimhaskell/haskell-vim'
 Plug 'ujihisa/unite-haskellimport'
 Plug 'vim-scripts/CSApprox', {'for': 'fugitiveblame'}

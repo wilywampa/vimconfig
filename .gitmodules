@@ -245,3 +245,6 @@
 [submodule "vimfiles/bundle/neco-syntax"]
 	path = vimfiles/bundle/neco-syntax
 	url = https://github.com/Shougo/neco-syntax.git
+[submodule "vimfiles/bundle/neoyank"]
+	path = vimfiles/bundle/neoyank
+	url = https://github.com/Shougo/neoyank.vim.git
