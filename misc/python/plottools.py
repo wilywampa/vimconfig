@@ -182,7 +182,7 @@ def azip(*iterables, **kwargs):
     import numpy as np
     from six.moves import map as imap, zip as izip
     return izip(*(
-        imap(kwargs.get('func', lambda x: x),
+        imap(kwargs.get('func', unmask),
              np.rollaxis(i, kwargs.get('axis', -1), kwargs.get('start', 0)))
         if isinstance(i, np.ndarray) else i for i in iterables))
 
