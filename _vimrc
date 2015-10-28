@@ -1986,7 +1986,7 @@ nn <silent> ]U :<C-u>UniteLast<CR>
 nn <silent> ,u :<C-u>UniteResume -split<CR>
 nn <silent> U :<C-u>Unite -direction=botright<CR>
 nn <silent> <Leader>U :<C-u>call unite#mappings#_choose_action(
-    \ unite#get_candidates([['file', expand('%')]]))<CR>
+    \ unite#get_candidates([['file', expand('%')]], {'profile_name': 'all_files'}))<CR>
 if !exists('s:UnitePathSearchMode') | let s:UnitePathSearchMode=0 | endif
 
 func! s:UniteTogglePathSearch() " {{{
@@ -2011,6 +2011,7 @@ func! s:UniteSetup() " {{{
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context',
         \ {'start_insert': 1, 'direction': 'dynamicbottom', 'prompt_direction': 'top'})
+    call unite#custom#profile('all_files', 'matchers', ['matcher_default'])
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
