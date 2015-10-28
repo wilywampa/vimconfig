@@ -78,7 +78,7 @@ else
     endif
     let zoomed = _VimuxTmuxWindowZoomed()
     if zoomed | call system("tmux resize-pane -Z") | endif
-    let input = vimtools#opfunc(a:type)
+    let input = a:type ==# 'scratch' ? s:matlab_input : vimtools#opfunc(a:type)
     call VimuxSendKeys("\<C-e>\<C-u>")
     for line in split(input, '\r')
       call VimuxSendText(line)
@@ -155,14 +155,15 @@ else
       echohl None
       return
     endif
-    let zoomed = _VimuxTmuxWindowZoomed()
-    if zoomed | call system("tmux resize-pane -Z") | endif
-    call VimuxSendKeys("\<C-e>\<C-u>")
-    for line in range(1, line('$'))
-      call VimuxSendText(getline(line))
-      call VimuxSendKeys("\<CR>")
-    endfor
-    if zoomed | call system("tmux resize-pane -Z") | endif
+    let view = winsaveview()
+    call SaveRegs()
+    let left_save = getpos("'<")
+    let right_save = getpos("'>")
+    let vimode = visualmode()
+    execute "normal! " . get(g:, 'matlab_scratch_motion', 'yap')
+    let s:matlab_input = @@
+    call RestoreRegs()
+    call s:RunMotionMATLAB('scratch')
   endfunction
 
   if !exists('*s:ScratchBufferMATLAB')
