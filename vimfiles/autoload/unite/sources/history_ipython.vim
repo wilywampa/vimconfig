@@ -135,6 +135,22 @@ function! s:source.action_table.yank.func(candidates)
   echo text
 endfunction
 
+let s:source.action_table.append = {
+    \ 'description' : 'append candidates',
+    \ 'is_selectable' : 1,
+    \ }
+function! s:source.action_table.append.func(candidates)
+  put = join(map(copy(a:candidates), 'v:val.word'), \"\n\n\")
+endfunction
+
+let s:source.action_table.insert = {
+    \ 'description' : 'insert candidates',
+    \ 'is_selectable' : 1,
+    \ }
+function! s:source.action_table.insert.func(candidates)
+  put! = join(map(copy(a:candidates), 'v:val.word'), \"\n\n\")
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
