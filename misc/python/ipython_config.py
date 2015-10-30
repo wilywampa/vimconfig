@@ -6,6 +6,7 @@ import numpy.ma as ma
 import sys
 from IPython.utils.text import SList
 _print_templates = ma.core._print_templates
+PY3 = sys.version_info[0] == 3
 
 __all__ = ['S', 'SliceIndex', 'dump', 'fields_dict', 'globn', 'items_dict',
            'load', 'sortn', 'sortnkey']
@@ -132,7 +133,7 @@ class SliceIndex(object):
     """Allow indexing generators with square brackets."""
 
     def __init__(self, iterator):
-        if not hasattr(iterator, 'next'):
+        if not hasattr(iterator, '__next__' if PY3 else 'next'):
             iterator = iterator()
         self.iterator = iter(iterator)
 
@@ -228,8 +229,7 @@ def configure(c):
 
     lines = [
         '\n'.join(line for line in _imports.splitlines()
-                  if not line.endswith(
-                  'python2' if sys.version_info[0] == 3 else 'python3')),
+                  if not line.endswith('python2' if PY3 else 'python3')),
         ('def setwidth(): os.environ["COLUMNS"] = '
          'subprocess.check_output(["tput", "cols"])'),
         'env = {k: v for k, v in os.environ.items()}',

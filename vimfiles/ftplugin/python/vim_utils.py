@@ -15,9 +15,11 @@ except NameError:
 
 def get_ipython_file():
     procs = subprocess.check_output(
-        args=['ps', '-u', getuser(), '-o', 'args']).splitlines()
+        args=['ps', '-u', getuser(), '-o', 'args'])
+    if not isinstance(procs, str):
+        procs = procs.decode('utf-8')  # Python 3
 
-    for proc in procs:
+    for proc in procs.splitlines():
         if 'ipython-console' in proc or 'ipykernel' in proc:
             for arg in proc.split():
                 if re.match('^(.*/)?kernel-[0-9]+\.json$', arg):
