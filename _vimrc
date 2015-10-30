@@ -1892,9 +1892,11 @@ func! s:UniteSettings() " {{{
     nmap <buffer> <expr> <silent> ` stridx(join(b:unite.source_names), 'grep') == -1
         \ ? '<Plug>(unite_exit)'
         \ : ':call <SID>LastActiveWindow()<CR>'
-    inor <buffer> <expr> <C-s> unite#mappings#get_current_sorters() == [] ?
-        \ unite#mappings#set_current_sorters(['sorter_ftime', 'sorter_reverse']) :
-        \ unite#mappings#set_current_sorters([])
+    nmap <buffer> <expr> <C-s> unite#mappings#set_current_sorters(
+        \ unite#mappings#get_current_sorters() == [] ? ['sorter_ftime', 'sorter_reverse'] : [])
+        \ . "\<Plug>(unite_redraw)"
+    imap <buffer> <expr> <C-s> unite#mappings#set_current_sorters(
+        \ unite#mappings#get_current_sorters() == [] ? ['sorter_ftime', 'sorter_reverse'] : [])
     imap <buffer> ` <Esc>`
     imap <buffer> <C-o> <Plug>(unite_choose_action)
     nmap <buffer> <C-o> <Plug>(unite_choose_action)
