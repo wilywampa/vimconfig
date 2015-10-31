@@ -44,7 +44,8 @@ function! s:source.hooks.on_init(args, context)
   if a:context.source__input == '' || a:context.unite__is_restart
     try
       let a:context.source__input = unite#util#input('Pattern: ',
-          \ a:context.source__input)
+          \ a:context.source__input,
+          \ 'customlist,unite#helper#complete_search_history')
     catch /^Vim:Interrupt$/
     endtry
   endif
@@ -91,7 +92,8 @@ let s:source.action_table.session = {
 function! s:source.action_table.session.func(candidate)
   let context = a:candidate.source__context
   let context.source__input = unite#util#input('Pattern: ',
-      \ context.source__input)
+      \ context.source__input,
+      \ 'customlist,unite#helper#complete_search_history')
   let context.source__session = a:candidate.source__session
 endfunction
 
