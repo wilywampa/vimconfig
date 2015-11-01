@@ -117,9 +117,12 @@ if !exists('*s:IPyRunPrompt') && (has('python') || has('python3'))
 Python2or3 << EOF
 import textwrap
 import vim
-vim.vars['ipy_input'] = textwrap.dedent(vim.vars['ipy_input']).strip()
+ipy_input = vim.vars['ipy_input']
+if not isinstance(ipy_input, str):
+    ipy_input = str(ipy_input, vim.eval('&encoding') or 'utf-8')
+vim.vars['ipy_input'] = textwrap.dedent(ipy_input).strip()
 EOF
-      python run_ipy_input()
+      Python2or3 run_ipy_input()
       unlet g:ipy_input
     else
       echo 'Not connected to IPython'
@@ -196,7 +199,8 @@ EOF
       let g:ipy_input = vimtools#opfunc(a:type)
       if &buftype == ''
         let g:ipy_input = substitute(g:ipy_input,
-            \ '__file__', "r'".escape(expand('%:p'), "'")."'", 'g')
+            \ '\v["'']@<!__file__["'']@!',
+            \ "r'".escape(expand('%:p'), "'")."'", 'g')
       endif
       call IPyRunIPyInput()
     else
@@ -283,11 +287,11 @@ EOF
       if a:mode != 2
         normal! gvy
         let g:ipy_input = @@
-        python eval_ipy_input()
+        Python2or3 eval_ipy_input()
       else
         let g:ipy_input = input('>>> ')
         silent! unlet g:ipy_result
-        python eval_ipy_input('g:ipy_result')
+        Python2or3 eval_ipy_input('g:ipy_result')
         if !exists('g:ipy_result')
           return ''
         endif
