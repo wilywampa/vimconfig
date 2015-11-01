@@ -1861,9 +1861,11 @@ let g:unite_source_history_yank_limit=500
 let g:unite_marked_icon='✓'
 let g:unite_cursor_line_highlight='CursorLine'
 if executable('ag')
-    let g:unite_source_grep_command='ag'
-    let g:unite_source_grep_default_opts='--nogroup --nocolor --column -S'
-    let g:unite_source_grep_recursive_opt=''
+    let g:unite_source_grep_command = 'ag'
+    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column -S'
+    let g:unite_source_grep_recursive_opt = ''
+    let g:unite_source_rec_async_command =
+        \ ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', '']
 endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_registers=['"', '+', '*']
@@ -1934,9 +1936,19 @@ func! s:UniteSettings() " {{{
     nmap <buffer> [U gg<CR>
     nmap <buffer> ]U G<CR>
     nnor <buffer> <C-g> :<C-u>call <SID>grep_options()<CR>
-    for key in ['?', '<Up>', '<Down>', '<Left>', '<Right>', 'b', 'e', 't']
+    xmap <buffer> * <Plug>(unite_toggle_mark_selected_candidates)
+    for key in ['<Up>', '<Down>', '<Left>', '<Right>'] + split('?Nbet', '\zs')
         execute 'silent! nunmap <buffer> ' . key
     endfor
+    function! s:prev_bufnr(bufnr) abort " {{{
+        silent! let unite = getbufvar(a:bufnr, 'unite')
+        if type(unite) != type({}) || bufwinnr(a:bufnr) < 1 | return | endif
+        let bufnr = winbufnr(winnr('#'))
+        if index(['help', 'quickfix'], getbufvar(bufnr, '&buftype')) == -1
+            let unite.prev_bufnr = bufnr
+        endif
+    endfunction " }}}
+    autocmd WinEnter <buffer> call s:prev_bufnr(+expand('<abuf>'))
 endfunc " }}}
 
 function! s:grep(...) abort " {{{
@@ -2368,6 +2380,9 @@ let g:neocomplete#sources#omni#input_patterns.tex = '\\\h\w*{'
 
 " vim-exchange settings
 let g:exchange_indent = '=='
+
+" neomru settings
+let g:neomru#file_mru_limit = 2000
 
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
