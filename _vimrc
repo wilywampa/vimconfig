@@ -2068,8 +2068,11 @@ endfunc " }}}
 " }}}
 
 " Gundo settings
-if has('python')
+if has('python') || has('python3')
     nnoremap <silent> <Leader>u :GundoToggle<CR>
+    if !has('python')
+        let g:gundo_prefer_python3=1
+    endif
     let g:gundo_help=0
     let g:gundo_preview_bottom=1
     let g:gundo_close_on_revert=1
