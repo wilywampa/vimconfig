@@ -594,17 +594,17 @@ cno <expr> ! getcmdtype() == ':' && getcmdline() == '!' ? '!<CR>' : '!'
 ino <Left>  <C-g>U<Left>
 ino <Right> <C-g>U<Right>
 function! s:home() abort " {{{
-  let line = getline('.')
-  let before = strchars(line[:col('.')-1]) - 1
-  let after = strchars(line[col('.')-1:])
-  let blanks = strchars(matchstr(line, '^\s*'))
-  if before < blanks
-    return repeat("\<C-g>U\<Right>", blanks - before)
-  elseif before == blanks
-    return repeat("\<C-g>U\<Left>", blanks)
-  else
-    return repeat("\<C-g>U\<Left>", before - blanks + (after ? 0 : 1))
-  endif
+    let line = getline('.')
+    let before = strchars(line[:col('.')-1]) - 1
+    let after = strchars(line[col('.')-1:])
+    let blanks = strchars(matchstr(line, '^\s*'))
+    if before < blanks
+        return repeat("\<C-g>U\<Right>", blanks - before)
+    elseif before == blanks
+        return repeat("\<C-g>U\<Left>", blanks)
+    else
+        return repeat("\<C-g>U\<Left>", before - blanks + (after ? 0 : 1))
+    endif
 endfunction " }}}
 inoremap <expr> <Home> <SID>home()
 inoremap <expr> <End> repeat("<C-g>U<Right>", strchars(getline('.')[col('.')-1:]))
@@ -626,6 +626,10 @@ nn <silent> g# g#:<C-u>let @/ = @/<bar>echo '?'.@/<CR><C-o>nzv
 " Toggle IPython history storage
 nn <silent> ,ih :<C-u>let g:ipython_store_history = !get(g:, 'ipython_store_history', 1)<CR>
     \:<C-u>echo 'IPython history ' . (g:ipython_store_history ? 'enabled' : 'disabled')<CR>
+
+" Insert date
+ino <silent> <expr> <C-x><C-d> strftime('%d%b%Y')
+cno <expr> <C-x><C-d> strftime('%d%b%Y')
 " }}}
 
 " {{{ Abbreviations to open help
@@ -797,7 +801,7 @@ func! s:CycleSearchMode() " {{{
     endif
     return l:cmd
 endfunc " }}}
-cnoremap <expr> <C-x> getcmdtype() =~ '[/?:]' ?
+cnoremap <expr> <C-x><C-x> getcmdtype() =~ '[/?:]' ?
     \ "\<C-\>e\<SID>CycleSearchMode()\<CR>" : ""
 
 " Close other windows or close other tabs
