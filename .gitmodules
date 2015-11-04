@@ -248,3 +248,6 @@
 [submodule "vimfiles/bundle/neoyank"]
 	path = vimfiles/bundle/neoyank
 	url = https://github.com/Shougo/neoyank.vim.git
+[submodule "vimfiles/bundle/gitgutter"]
+	path = vimfiles/bundle/gitgutter
+	url = https://github.com/airblade/vim-gitgutter.git

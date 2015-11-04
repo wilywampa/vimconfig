@@ -2415,6 +2415,7 @@ Plug 'Shougo/neoyank'
 Plug 'neovimhaskell/haskell-vim'
 Plug 'ujihisa/unite-haskellimport'
 Plug 'vim-scripts/CSApprox', {'for': 'fugitiveblame'}
+Plug 'airblade/vim-gitgutter'
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
@@ -2428,15 +2429,18 @@ silent! call neocomplete#custom#source('include', 'converters',
     \  'converter_disable_abbr', 'converter_abbr'])
 
 " Add ignorecase, eventignore, and IPython history status to status line
-silent! call airline#parts#define('ignorecase',
-    \ {'condition': '!&ignorecase', 'text': '↑', 'accent': 'red'})
-silent! call airline#parts#define('eventignore',
-    \ {'condition': '&eventignore != ""', 'text': '!', 'accent': 'red'})
-silent! call airline#parts#define('history',
-    \ {'condition': '!get(g:, "ipython_store_history", 1)', 'text': '☢', 'accent': 'red'})
-silent! let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
-silent! let g:airline_section_c = airline#section#create(
-    \ ['ignorecase', 'eventignore', 'history', '%<', 'file', g:airline_symbols.space, 'readonly'])
+function! s:airline() " {{{
+    call airline#parts#define('ignorecase',
+        \ {'condition': '!&ignorecase', 'text': '↑', 'accent': 'red'})
+    call airline#parts#define('eventignore',
+        \ {'condition': '&eventignore != ""', 'text': '!', 'accent': 'red'})
+    call airline#parts#define('history',
+        \ {'condition': '!get(g:, "ipython_store_history", 1)', 'text': '☢', 'accent': 'red'})
+    let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
+    let g:airline_section_c = airline#section#create(['ignorecase', 'eventignore', 'history', '%<',
+        \ 'file', g:airline_symbols.space, 'readonly'])
+endfunction " }}}
+autocmd VimrcAutocmds VimEnter * silent! call s:airline()
 
 " Solarized settings
 if mobileSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
