@@ -1835,7 +1835,6 @@ augroup VimrcAutocmds
 augroup END
 
 func! s:UniteSettings() " {{{
-    setlocal conceallevel=0
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
         \."\<Plug>(unite_append_enter)"
     nnor <silent> <buffer> <expr> <C-q> unite#do_action('delete')
@@ -2049,7 +2048,8 @@ func! s:UniteSetup() " {{{
         call unite#take_action(bufwinnr(unite.bufnr) < 0 ? 'open' : 'persist_open', a:candidate)
     endfunction
     call unite#custom#action('jump_list', 'jump_open', s:jump_open)
-    call unite#custom#default_action('source/grep/jump_list,source/vimgrep/jump_list', 'jump_open')
+    call unite#custom#default_action(join(map(filter(keys(unite#get_all_sources()),
+        \ 'v:val =~ "grep"'), '"source/" . v:val . "/jump_list"'), ','), 'jump_open')
 
     let s:search = {
         \ 'description' : 'search for word or text',
@@ -2064,6 +2064,32 @@ func! s:UniteSetup() " {{{
         endtry
     endfunction
     call unite#custom#action('common', 'search', s:search)
+
+    let s:hash_command = {
+        \ 'description': 'run command with git hash as argument',
+        \ 'is_quit': 1,
+        \ }
+    function! s:hash_command.func(candidate)
+        execute join([input('Command: ', 'Gedit', 'command'),
+            \         matchstr(a:candidate.word, '\v\x{7,}')])
+    endfunction
+    call unite#custom#action('word', 'hash_command', s:hash_command)
+    function! s:git_lg(...) abort
+        call fugitive#detect(fnameescape(expand('%:p:h')))
+        if !exists('b:git_dir') | return | endif
+        let cmd = ['git', '--git-dir=' . shellescape(b:git_dir), '--no-pager', 'lg']
+        if a:0
+            let root = expand('%:p:h')
+            while len(root) > 1 && !isdirectory(root . '/.git') && !filereadable(root . '/.git')
+                let root = fnamemodify(root, ':h')
+            endwhile
+            call insert(cmd, '--work-tree=' . shellescape(root), 2)
+            let cmd += ['--', shellescape(expand('%:p'))]
+        endif
+        call unite#start([['output/shellcmd', join(cmd)]], {'default_action': 'hash_command'})
+    endfunction
+    nnoremap <silent> gL :<C-u>call <SID>git_lg()<CR>
+    nnoremap <silent> g<Leader>L :<C-u>call <SID>git_lg('file')<CR>
 endfunc " }}}
 " }}}
 
