@@ -19,6 +19,7 @@
 	printbranch = rev-parse --abbrev-ref HEAD
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 	drymerge = merge --no-commit --no-ff
+	dc = mergetool --tool diffconflicts
 [color]
 	diff = auto
 	status = auto
