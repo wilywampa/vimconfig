@@ -628,8 +628,8 @@ nn <silent> ,ih :<C-u>let g:ipython_store_history = !get(g:, 'ipython_store_hist
     \:<C-u>echo 'IPython history ' . (g:ipython_store_history ? 'enabled' : 'disabled')<CR>
 
 " Insert date
-ino <silent> <expr> <C-x><C-d> strftime('%d%b%Y')
-cno <expr> <C-x><C-d> strftime('%d%b%Y')
+ino <silent> <expr> <C-x><C-d> substitute(strftime('%d%b%Y'), '^0*', '', '')
+cno <expr> <C-x><C-d> substitute(strftime('%d%b%Y'), '^0*', '', '')
 " }}}
 
 " {{{ Abbreviations to open help
