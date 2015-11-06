@@ -118,9 +118,10 @@ class TabCompleter(QtGui.QCompleter):
 
     def __init__(self, words, *args, **kwargs):
         QtGui.QCompleter.__init__(self, words, *args, **kwargs)
-        self.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.setMaxVisibleItems(50)
         self.words = words
+        self.skip = False
+        self.skip_text = None
         self.connect(self.popup(), SIGNAL('activated(int)'), self.confirm)
 
     def set_textbox(self, textbox):
@@ -151,7 +152,9 @@ class TabCompleter(QtGui.QCompleter):
         try:
             text = text_type(self.textbox.currentText())
         except AttributeError:
-            pass
+            if self.skip_text is not None:
+                self.skip = True
+                return self.emit(SIGNAL('activated(QString)'), self.skip_text)
         else:
             if self.words.findText(text) == -1:
                 self.select_completion(0)
@@ -183,8 +186,8 @@ class CustomQCompleter(TabCompleter):
 
         pattern = QtCore.QRegExp(
             self.local_completion_prefix,
-            QtCore.Qt.CaseSensitive
-            if re.match('.*[A-Z]', self.local_completion_prefix)
+            QtCore.Qt.CaseSensitive if re.search(
+                '[A-Z]', self.local_completion_prefix)
             else QtCore.Qt.CaseInsensitive,
             QtCore.QRegExp.RegExp)
 
@@ -287,6 +290,10 @@ class DataObj(object):
             scale_compl.set_textbox(scale_box)
 
             def text_changed(text):
+                scale_compl.skip_text = None
+                if scale_compl.skip:
+                    scale_compl.skip = False
+                    return
                 cursor_pos = scale_box.cursorPosition()
                 text = text_type(scale_box.text())[:cursor_pos]
                 prefix = re.split(r'\W', text)[-1].strip()
@@ -302,16 +309,22 @@ class DataObj(object):
                 before_text = text_type(scale_box.text())[:cursor_pos]
                 after_text = text_type(scale_box.text())[cursor_pos:]
                 prefix_len = len(re.split(r'\W', before_text)[-1].strip())
-                part = before_text[-prefix_len:]
-                if len(part) and text.startswith(part):
+                part = before_text[-prefix_len:] if prefix_len else ''
+                if not part and scale_compl.skip_text:
+                    part = scale_compl.skip_text[0]
+                if part and text.startswith(part):
                     scale_box.setText(before_text[:cursor_pos - prefix_len] +
                                       text + after_text)
                     scale_box.setCursorPosition(cursor_pos -
                                                 prefix_len + len(text))
 
+            def highlight(text):
+                scale_compl.skip_text = text
+
             connect(scale_box, SIGNAL('editingFinished()'), draw)
             connect(scale_box, SIGNAL('textChanged(QString)'), text_changed)
             connect(scale_compl, SIGNAL('activated(QString)'), complete_text)
+            connect(scale_compl, SIGNAL('highlighted(QString)'), highlight)
 
             return scale_box, scale_compl
 
