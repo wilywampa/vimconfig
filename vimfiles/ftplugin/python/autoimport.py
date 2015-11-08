@@ -12,7 +12,7 @@ Import = namedtuple('Import',
                     ['module', 'names', 'asnames', 'alias', 'lrange'])
 
 imports = []
-start = None                   # Start of import block near top of file
+start = 0                      # Start of import block near top of file
 end = len(vim.current.buffer)  # End of import block
 blank = None                   # First blank line after start of import block
 first = None                   # First regular import or import ... as
