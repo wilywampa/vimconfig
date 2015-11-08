@@ -2135,27 +2135,29 @@ cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ?
     \ 'Ack!' . (len(g:ag_flags) ? ' ' . g:ag_flags : '') : 'A'
 cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ?
     \ 'Ack!' . (len(g:ag_flags) ? ' ' . g:ag_flags : '') : 'a'
-func! s:AckCurrentSearch(ignorecase, visual) " {{{
+func! s:AckCurrentSearch(ignorecase, visual, args) " {{{
     let view = winsaveview() | call SaveRegs()
     execute printf('keepjumps normal! g%sy', a:visual ? 'v' : 'n')
     let pattern = @@
     call RestoreRegs() | call winrestview(view)
-    let args = split(g:ag_flags)
+    let args = split(a:args ? input('Options: ', g:ag_flags) : g:ag_flags)
     if !a:visual && (@/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$')
         call add(args, '-w')
     endif
     if a:visual | call histadd('/', pattern) | endif
     if !&ignorecase || !a:ignorecase
         call add(args, '-s')
-    elseif a:visual || @/ !~ '\u'
+    elseif index(args, '-s') == -1 && (a:visual || @/ !~ '\u')
         let pattern = tolower(pattern)
     endif
     call unite#start([['grep', '.', join(args)]], {'input': pattern, 'auto_resize': 1})
 endfunc " }}}
-nnoremap <silent> ga :<C-u>call <SID>AckCurrentSearch(1, 0)<CR>
-nnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0, 0)<CR>
-xnoremap <silent> ga :<C-u>call <SID>AckCurrentSearch(1, 1)<CR>
-xnoremap <silent> gA :<C-u>call <SID>AckCurrentSearch(0, 1)<CR>
+nnoremap <silent> ga     :<C-u>call <SID>AckCurrentSearch(1, 0, 0)<CR>
+nnoremap <silent> gA     :<C-u>call <SID>AckCurrentSearch(0, 0, 0)<CR>
+nnoremap <silent> g<C-a> :<C-u>call <SID>AckCurrentSearch(1, 0, 1)<CR>
+xnoremap <silent> ga     :<C-u>call <SID>AckCurrentSearch(1, 1, 0)<CR>
+xnoremap <silent> gA     :<C-u>call <SID>AckCurrentSearch(0, 1, 0)<CR>
+xnoremap <silent> g<C-a> :<C-u>call <SID>AckCurrentSearch(1, 1, 1)<CR>
 let g:ag_flags = get(g:, 'ag_flags', '')
 
 " tmux navigator settings
