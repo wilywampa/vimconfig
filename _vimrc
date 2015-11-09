@@ -727,6 +727,9 @@ func! s:CmdwinMappings() " {{{
     " Close window
     nnoremap <silent> <buffer> <Leader>w :q<CR>
     nnoremap <silent> <buffer> ZZ :q<CR>
+
+    " Don't delete trailing trailing with <CR> in command window
+    inoremap <buffer> <expr> <CR> (pumvisible() ? '<C-y>' : '') . '<CR>'
 endfunc " }}}
 
 " Delete hidden buffers
@@ -1992,7 +1995,7 @@ func! s:UniteSetup() " {{{
     endfor
     function! s:action_replace(action, candidates) " {{{
         for index in range(0, len(a:candidates) - 1)
-            if index == 1 | wincmd o | endif
+            if index == 1 | silent wincmd o | endif
             if index > 0 || len(a:candidates) == 1
                 call unite#util#command_with_restore_cursor(
                     \ substitute(a:action, '^split$', 'belowright &', ''))
