@@ -2089,10 +2089,11 @@ func! s:UniteSetup() " {{{
             call insert(cmd, '--work-tree=' . shellescape(root), 2)
             let cmd += ['--', shellescape(expand('%:p'))]
         endif
-        call unite#start([['output/shellcmd', join(cmd)]], {'default_action': 'hash_command'})
+        call unite#start([['output/shellcmd', join(cmd)]],
+            \ {'default_action': 'hash_command', 'wrap': 1})
     endfunction
-    nnoremap <silent> gL :<C-u>call <SID>git_lg()<CR>
-    nnoremap <silent> g<Leader>L :<C-u>call <SID>git_lg('file')<CR>
+    nnoremap <silent> g<Leader>G :<C-u>call <SID>git_lg()<CR>
+    nnoremap <silent> gG :<C-u>call <SID>git_lg('file')<CR>
 endfunc " }}}
 " }}}
 
@@ -2314,6 +2315,12 @@ vmap <C-x> <Plug>VisualDecrement
 " Abolish map
 nmap cr <Plug>Coerce
 
+" Fugitive maps
+nnoremap gB         :<C-u>Gblame<CR>
+nnoremap gD         :<C-u>Gdiff<CR>
+nnoremap gL         :<C-u>Glog<CR>
+nnoremap g<Leader>L :<C-u>Glog --<CR>
+nnoremap gS         :<C-u>Gstatus<CR>
 " Reload file with absolute path to create fugitive commands
 nnoremap <Leader>L :<C-u>execute 'file '.fnameescape(resolve(expand('%:p')))<bar>
     \ call fugitive#detect(fnameescape(expand('%:p:h')))<CR>
