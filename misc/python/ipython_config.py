@@ -25,6 +25,7 @@ import ipython_autocd as _; _.register()
 import ipython_config as _; _._install_magics()
 import itertools as it
 import lambda_filter as _; _.register()
+import mathtools as mt
 import matplotlib as mpl
 import matplotlib.cm as cm
 import matplotlib.colors as colors
@@ -48,7 +49,7 @@ except ImportError:  # python2
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import defaultdict, namedtuple
-from path import Path  # python3
+from functools import reduce
 from ipyparallel import Client  # python3
 from ipython_config import *
 from itertools import (chain, count, cycle, dropwhile, groupby, islice,
@@ -62,6 +63,7 @@ from numpy import (arccos as acos, arccosh as acosh, arcsin as asin,
                    arctanh as atanh, rad2deg as deg, deg2rad as rad)
 from numpy.ma import (getdata, getmaskarray, masked_all,
                       masked_array as marray)
+from path import Path  # python3
 from subprocess import PIPE, Popen, call, check_output
 from __builtin__ import abs, all, any, max, min, round, sum  # python2
 from builtins    import abs, all, any, max, min, round, sum  # python3

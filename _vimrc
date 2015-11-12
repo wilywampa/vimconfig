@@ -1809,7 +1809,7 @@ func! s:VimfilerSettings() " {{{
     nnoremap <buffer> gOt :<C-U>call gtfo#open#term(b:vimfiler.current_dir, "win")<CR>
     exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
     exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> N"
-    exe "nunmap <buffer> go" | exe "nunmap <buffer> <Leader>"
+    exe "nunmap <buffer> go" | exe "nunmap <buffer> <Leader>" | exe "nunmap <buffer> gS"
     silent! call fugitive#detect(expand('%:p'))
 endfunc " }}}
 " }}}

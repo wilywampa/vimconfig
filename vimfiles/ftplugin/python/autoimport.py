@@ -104,6 +104,7 @@ aliases = dict(
     mpl='matplotlib',
     linalg='numpy.linalg',
     ma='numpy.ma',
+    mt='mathtools',
     np='numpy',
     op='operator',
     opt='scipy.optimize',
@@ -126,14 +127,16 @@ froms = {
     'IPython.utils.text': ['LSString', 'SList'],
     'bs4': ['BeautifulSoup'],
     'bunch': ['Bunch', 'bunchify', 'unbunchify'],
-    'collections': ['Mapping', 'defaultdict', 'deque', 'namedtuple'],
-    'contextlib': ['contextmanager'],
+    'collections':
+        ['Mapping', 'OrderedDict', 'defaultdict', 'deque', 'namedtuple'],
+    'contextlib': ['closing', 'contextmanager'],
     'copy': ['copy', 'deepcopy'],
     'datetime': ['date', 'datetime', 'timedelta'],
     'ein': ['eijk', 'mtimesm', 'mtimesv'],
     'fractions': ['Fraction', 'gcd'],
     'functools': [
-        'cmp_to_key', 'partial', 'total_ordering', 'update_wrapper', 'wraps'],
+        'cmp_to_key', 'partial', 'reduce', 'total_ordering', 'update_wrapper',
+        'wraps'],
     'itertools': [
         'chain', 'combinations', 'combinations_with_replacement', 'compress',
         'count', 'cycle', 'dropwhile', 'groupby', 'ifilter', 'ifilterfalse',
@@ -185,8 +188,8 @@ froms = {
         'svd', 'tensorinv', 'tensorsolve'],
     'plottools': [
         'azip', 'cl', 'create', 'cursor', 'dict2obj', 'fg', 'fig', 'figdo',
-        'index_all', 'merge_dicts', 'pad', 'picker', 'resize', 'savepdf',
-        'savesvg', 'unique_legend', 'unmask', 'varinfo'],
+        'index_all', 'merge_dicts', 'pad', 'picker', 'resize', 'savehtml',
+        'savepdf', 'savesvg', 'unique_legend', 'unmask', 'varinfo'],
     'pprint': ['pprint'],
     'pyprimes': ['is_prime', 'primes'],
     'pyprimes.factors': ['factorise', 'factors'],
