@@ -197,6 +197,7 @@ endif
 nn <silent> <expr> <C-s> <SID>inCmdWin()? '<CR>' : ':<C-u>update<CR>'
 ino <silent> <expr> <C-s> <SID>inCmdWin()? '<CR>' : '<Esc>:<C-u>update<CR>'
 vn <silent> <C-s> <C-c>:<C-u>update<CR>
+snor <silent> <C-s> <C-c>:<C-u>update<CR>
 
 " Redraw the screen, remove search highlighting, and synchronize syntax
 if v:version > 704 || (v:version == 704 && has('patch79'))
@@ -290,11 +291,11 @@ nn <silent> <expr> ,ws ':keepj keepp sil! %s/\s\+$//'.(&gdefault ? '' : 'g').'<C
 
 " Open tag vertically or below
 nn <silent> <C-w><C-]> :<C-u>execute "normal! :belowright vertical
-    \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
+    \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>zv
 nn <silent> <C-w>] :<C-u>execute "normal! :belowright
-    \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>
-xn <silent> <C-w><C-]> :<C-u>belowright vertical split<CR>gv<C-]>
-xn <silent> <C-w>] :<C-u>belowright split<CR>gv<C-]>
+    \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>zv
+xn <silent> <C-w><C-]> :<C-u>belowright vertical split<CR>gv<C-]>zv
+xn <silent> <C-w>] :<C-u>belowright split<CR>gv<C-]>zv
 
 " Shortcuts for switching tab, including closing command window if it's open
 nn <silent> <expr> <C-Tab>   tabpagenr('$')==1 ?
@@ -1678,7 +1679,6 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         let g:neocomplete#enable_smart_case=1
         let g:neocomplete#max_list=200
         let g:neocomplete#min_keyword_length=4
-        let g:neocomplete#sources#buffer#cache_limit_size=3000000
         let g:tmuxcomplete#trigger=''
         if !exists('g:neocomplete#keyword_patterns')
             let g:neocomplete#keyword_patterns = {}
@@ -2117,9 +2117,11 @@ let g:surround_100 = "['\r']"
 let g:surround_68 = "[\"\r\"]"
 
 " Syntastic settings
-let g:syntastic_filetype_map={'arduino': 'cpp'}
-let g:syntastic_mode_map={'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
-let g:airline#extensions#syntastic#enabled=0
+let g:syntastic_filetype_map = {'arduino': 'cpp'}
+let g:syntastic_mode_map = {'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
+let g:airline#extensions#syntastic#enabled = 0
+let g:airline#extensions#wordcount#enabled = 0
+let g:airline#extensions#virtualenv#enabled = 0
 nnoremap <silent> ,sc :<C-u>execute "SyntasticCheck"<bar>execute "Errors"<bar>silent! lfirst<CR>
 nnoremap <silent> <Leader>sc :<C-u>SyntasticReset<CR>
 
@@ -2282,10 +2284,13 @@ if stridx($VIMBLACKLIST, 'clang_complete') == -1
     let g:clang_complete_auto = 0
     let g:clang_auto_select = 0
     let g:clang_use_library = 1
-    let g:clang_jumpto_declaration_key = '<M-]>'
-    let g:clang_jumpto_declaration_in_preview_key = '<C-w><M-]'
-    let g:clang_jumpto_back_key = 'g<C-t>'
     let g:clang_sort_algo = 'alpha'
+    let g:clang_make_default_keymappings = 0
+    function! s:clang_setup()
+        nnoremap <silent> <buffer> <M-]> :<C-u>call ClangGotoDeclaration()<CR>
+        nnoremap <silent> <buffer> <C-w><M-]> :<C-u>call ClangGotoDeclarationPreview()<CR>
+    endfunction
+    autocmd VimrcAutocmds FileType c,cpp,objc,objcpp call s:clang_setup()
 else
     call add(g:pathogen_disabled, 'clang_complete')
     let g:OmniCpp_LocalSearchDecl = 1
@@ -2317,7 +2322,7 @@ nmap cr <Plug>Coerce
 
 " Fugitive maps
 nnoremap gB         :<C-u>Gblame<CR>
-nnoremap gD         :<C-u>Gdiff<CR>
+nnoremap gC         :<C-u>Gdiff<CR>
 nnoremap gL         :<C-u>Glog<CR>
 nnoremap g<Leader>L :<C-u>Glog --<CR>
 nnoremap gS         :<C-u>Gstatus<CR>
@@ -2380,6 +2385,10 @@ let g:exchange_indent = '=='
 
 " neomru settings
 let g:neomru#file_mru_limit = 2000
+
+" gitgutter maps
+nmap [h <Plug>GitGutterPrevHunk
+nmap ]h <Plug>GitGutterNextHunk
 
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
