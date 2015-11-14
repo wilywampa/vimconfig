@@ -218,9 +218,9 @@ froms_as = dict(
     rad=('numpy', 'deg2rad'),
 )
 
-aliases.update(vim.vars.get('python_autoimport_aliases', {}))
-froms_as.update(vim.vars.get('python_autoimport_froms_as', {}))
-for k, v in vim.vars.get('python_autoimport_froms', {}).items():
+aliases.update(vim.eval('get(g:, "python_autoimport_aliases", {})'))
+froms_as.update(vim.eval('get(g:, "python_autoimport_froms_as", {})'))
+for k, v in vim.eval('get(g:, "python_autoimport_froms", {})').items():
     froms[k] = set(v) | set(froms.get(k, []))
 
 
