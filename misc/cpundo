@@ -17,8 +17,12 @@ remove = os.path.basename(sys.argv[0]) == 'mvundo'
 if args.target:
     sources = args.dest + args.src
     target = args.target
-elif max(map(len, [args.src, args.dest])) > 1:
-    raise SystemExit('Ambiguous destination')
+elif len(args.src) > 1:
+    if len(args.dest) > 1 or not os.path.isdir(args.dest[0]):
+        raise SystemExit('Ambiguous destination')
+    else:
+        sources = args.src
+        target = args.dest[0]
 else:
     sources = args.src
     target = args.dest[0]
