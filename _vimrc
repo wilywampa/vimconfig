@@ -1463,12 +1463,12 @@ augroup VimrcAutocmds " {{{
     " Preserve previous window when preview window opens during completion
     autocmd InsertEnter * let s:pwinid += 1 | call setwinvar(winnr('#'), 'pwin', s:pwinid)
     autocmd InsertLeave * if winnr('$') > 2 && getwinvar(winnr('#'), 'pwin') != s:pwinid |
-        \ call s:RestorePrevWin() | endif
+        \ silent! call s:RestorePrevWin() | endif
 augroup END " }}}
 
 " Restore previous windo after leaving insert mode
 if !exists('s:pwinid') | let s:pwinid = 0 | endif
-func! s:RestorePrevWin() " {{{
+func! s:RestorePrevWin() abort " {{{
     let winnr = winnr()
     wincmd P
     if winnr != winnr() && line('$') < &previewheight
@@ -2007,9 +2007,9 @@ func! s:UniteSetup() " {{{
     endfunction " }}}
     for type in ['split', 'vsplit']
         let replace = {'is_selectable': 1, 'description': type . ' replacing current window'}
-        execute "function! replace.func(candidates)\n" .
-            \   "    call s:action_replace('" . type . "', a:candidates)\n" .
-            \   "endfunction"
+        function! replace.func(candidates)
+            call s:action_replace(self.name, a:candidates)
+        endfunction
         call unite#custom#action('openable', type, replace)
     endfor
 
