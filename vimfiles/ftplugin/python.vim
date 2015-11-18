@@ -290,19 +290,31 @@ EOF
         Python2or3 eval_ipy_input()
       else
         let g:ipy_input = input('>>> ')
+      endif
+      if a:mode != 0
         silent! unlet g:ipy_result
         Python2or3 eval_ipy_input('g:ipy_result')
         if !exists('g:ipy_result')
           return ''
         endif
+        let mark = a:mode == 1 ? "'<" : '.'
+        let after = strchars(getline(mark)[col(mark)-1:])
+        let before = strchars(getline(mark)[:col(mark)-1]) - (after ? 1 : 0)
+        let lines = split(g:ipy_result, '\n')
+        let first = lines[0]
+        call map(lines, '"' . repeat(' ', before) . '" . v:val')
+        let lines[0] = first
+        let g:ipy_result = join(lines, "\n")
+      endif
+      if a:mode == 2
         if g:ipy_result =~ "\<NL>"
           set paste
           set pastetoggle=<F10>
           return "\<C-r>=g:ipy_result\<CR>\<F10>" . (g:ipy_result =~ "\<NL>$" ? "\<BS>" : "")
         endif
         return "\<C-r>=g:ipy_result\<CR>"
-      endif
-      if a:mode == 1
+      elseif a:mode == 1
+        call setreg(v:register, g:ipy_result)
         normal! gvp
       endif
     finally
@@ -339,7 +351,7 @@ EOF
     else
       execute "buffer ".scratch
     endif
-    silent file --Python--
+    silent execute 'file' fnameescape(s:scratch_name)
     set filetype=python
     setlocal buftype=nofile bufhidden=hide noswapfile
     setlocal omnifunc=CompleteIPython
