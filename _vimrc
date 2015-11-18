@@ -2015,7 +2015,6 @@ func! s:UniteSetup() " {{{
 
     let s:backup = {
         \ 'description' : 'backup files',
-        \ 'is_quit' : 0,
         \ 'is_invalidate_cache' : 1,
         \ 'is_selectable' : 1,
         \ }
