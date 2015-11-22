@@ -2260,10 +2260,10 @@ let g:jedi#auto_close_doc = 0
 let g:jedi#show_call_signatures = 2
 let g:jedi#smart_auto_mappings = 0
 let g:jedi#use_tag_stack = 1
-if !exists('g:neocomplete#force_omni_input_patterns')
-    let g:neocomplete#force_omni_input_patterns = {}
+if !exists('g:neocomplete#sources#omni#input_patterns')
+    let g:neocomplete#sources#omni#input_patterns = {}
 endif
-let g:neocomplete#force_omni_input_patterns.python =
+let g:neocomplete#sources#omni#input_patterns.python =
     \ '\%([^(). \t]\.\|^\s*@\|^\s*from\s.\+import \(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*'
 
 " DirDiff settings
@@ -2278,16 +2278,16 @@ vmap <C-^> <Plug>(EasyAlignRepeat)
 " C/C++ completion
 if stridx($VIMBLACKLIST, 'clang_complete') == -1
     call add(g:pathogen_disabled, 'OmniCppComplete')
-    if !exists('g:neocomplete#force_omni_input_patterns')
-        let g:neocomplete#force_omni_input_patterns = {}
+    if !exists('g:neocomplete#sources#omni#input_patterns')
+        let g:neocomplete#sources#omni#input_patterns = {}
     endif
-    let g:neocomplete#force_omni_input_patterns.c =
+    let g:neocomplete#sources#omni#input_patterns.c =
         \ '\([^.[:digit:] *\t]\|\w\d\)\%(\.\|->\)\w*'
-    let g:neocomplete#force_omni_input_patterns.cpp =
+    let g:neocomplete#sources#omni#input_patterns.cpp =
         \ '\([^.[:digit:] *\t]\|\w\d\)\%(\.\|->\)\w*\|\h\w*::\w*'
-    let g:neocomplete#force_omni_input_patterns.objc =
+    let g:neocomplete#sources#omni#input_patterns.objc =
         \ '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)'
-    let g:neocomplete#force_omni_input_patterns.objcpp =
+    let g:neocomplete#sources#omni#input_patterns.objcpp =
         \ '\[\h\w*\s\h\?\|\h\w*\%(\.\|->\)\|\h\w*::\w*'
     let g:clang_complete_auto = 0
     let g:clang_auto_select = 0
@@ -2482,6 +2482,9 @@ silent! call neocomplete#custom#source('include', 'converters',
     \ ['converter_remove_overlap', 'converter_remove_last_paren',
     \  'converter_delimiter', 'converter_case',
     \  'converter_disable_abbr', 'converter_abbr'])
+
+" Don't re-sort omnifunc completions
+silent! call neocomplete#custom#source('omni', 'sorters', [])
 
 " Add ignorecase, eventignore, and IPython history status to status line
 function! s:airline() " {{{
