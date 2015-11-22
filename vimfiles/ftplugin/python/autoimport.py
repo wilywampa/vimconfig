@@ -129,7 +129,7 @@ froms = {
     'bunch': ['Bunch', 'bunchify', 'unbunchify'],
     'collections':
         ['Mapping', 'OrderedDict', 'defaultdict', 'deque', 'namedtuple'],
-    'contextlib': ['closing', 'contextmanager'],
+    'contextlib': ['closing', 'contextmanager', 'suppress'],
     'copy': ['copy', 'deepcopy'],
     'datetime': ['date', 'datetime', 'timedelta'],
     'ein': ['eijk', 'mtimesm', 'mtimesv'],

@@ -49,6 +49,7 @@ except ImportError:  # python2
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import defaultdict, namedtuple
+from contextlib import suppress  # python3
 from functools import reduce
 from ipyparallel import Client  # python3
 from ipython_config import *
