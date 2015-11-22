@@ -706,6 +706,12 @@ _backward-kill-to-slash () {
 }
 zle -N _backward-kill-to-slash; vibindkey '^@' _backward-kill-to-slash
 
+_backward-kill-to-_ () {
+    local WORDCHARS=${WORDCHARS//_/}
+    zle backward-kill-word
+}
+zle -N _backward-kill-to-_; vibindkey '–' _backward-kill-to-_  # <M-->
+
 md() { mkdir -p "$@" && cd "$@" }
 
 rationalise-dot() { [[ $LBUFFER == *.. ]] && LBUFFER+=/.. || LBUFFER+=. }

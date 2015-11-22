@@ -1031,6 +1031,8 @@ func! s:DeleteUntilChar(char) " {{{
 endfunc " }}}
 cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
 inoremap <C-@> <Esc>"_dT/"_s
+cnoremap – <C-\>e<SID>DeleteUntilChar('_')<CR>
+inoremap – <Esc>"_dT_"_s
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
 inoremap <expr> <M-w> getline('.')[:virtcol('.')-1] =~ '^\S*\s*$' ? '<C-u>' :
     \ (virtcol('.') == 0 ? '<BS>' : (getline('.')[virtcol('.')-2] =~ '\s' ?
