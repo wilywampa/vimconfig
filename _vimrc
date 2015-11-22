@@ -914,8 +914,10 @@ func! s:OlderHistory() " {{{
         return "\<BS>\<BS>\<Up>"
     elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[sgv]/\\\%V\\[vV]$'
         return repeat("\<BS>", 5)."\<Up>"
-    elseif s:hasvimtools
-        return getcmdtype() == ':' && getcmdline() == 'h' ? "\<BS>H\<Up>" : "\<Up>"
+    elseif s:hasvimtools && getcmdtype() == ':' && getcmdline() == 'h'
+        return "\<BS>H\<Up>"
+    elseif getcmdline() == ''
+        return "\<S-Up>"
     endif
     return "\<Up>"
 endfunc " }}}
@@ -2047,7 +2049,8 @@ func! s:UniteSetup() " {{{
         \ }
     function! s:jump_open.func(candidate)
         let unite = unite#get_current_unite()
-        call unite#take_action(bufwinnr(unite.bufnr) < 0 ? 'open' : 'persist_open', a:candidate)
+        call unite#take_action(bufwinnr(unite.bufnr) == winnr() ?
+            \ 'persist_open' : 'open', a:candidate)
     endfunction
     call unite#custom#action('jump_list', 'jump_open', s:jump_open)
     call unite#custom#default_action(join(map(filter(keys(unite#get_all_sources()),
