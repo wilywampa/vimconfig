@@ -287,11 +287,12 @@ EOF
       if a:mode != 2
         normal! gvy
         let g:ipy_input = @@
-        Python2or3 eval_ipy_input()
       else
         let g:ipy_input = input('>>> ')
       endif
-      if a:mode != 0
+      if a:mode == 0
+        Python2or3 eval_ipy_input()
+      else
         silent! unlet g:ipy_result
         Python2or3 eval_ipy_input('g:ipy_result')
         if !exists('g:ipy_result')
