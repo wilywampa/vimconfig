@@ -1911,11 +1911,12 @@ func! s:UniteSettings() " {{{
     autocmd WinEnter <buffer> call s:prev_bufnr(+expand('<abuf>'))
 endfunc " }}}
 
-function! s:grep(...) abort " {{{
+function! s:grep(source, ...) abort " {{{
     let path = len(a:000) >= 1 ? a:1 : input('Path: ', '.', 'file')
-    let opts = len(a:000) >= 2 ? a:2 : input('Options: ', get(g:, 'ag_flags', ''))
+    let opts = len(a:000) >= 2 ? a:2 : input(
+        \ 'Options: ', a:source ==# 'grep' ? get(g:, 'ag_flags', '') : '')
     let inp = input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
-    if len(inp) | call histadd('/', inp) | call unite#start([['grep', path, opts, inp]]) | endif
+    if len(inp) | call histadd('/', inp) | call unite#start([[a:source, path, opts, inp]]) | endif
 endfunction
 function! s:grep_options() abort
     for source in unite#get_sources()
@@ -1928,8 +1929,10 @@ function! s:grep_options() abort
         endif
     endfor
 endfunction " }}}
-nn <silent> ,a :<C-u>call <SID>grep('.', get(g:, 'ag_flags', ''))<CR>
-nn <silent> ,A :<C-u>call <SID>grep()<CR>
+nn <silent> ,a         :<C-u>call <SID>grep('grep', '.', get(g:, 'ag_flags', ''))<CR>
+nn <silent> ,A         :<C-u>call <SID>grep('grep')<CR>
+nn <silent> ,<Leader>a :<C-u>call <SID>grep('grep/git', '.', '')<CR>
+nn <silent> ,<Leader>A :<C-u>call <SID>grep('grep/git')<CR>
 
 nn <silent> "" :<C-u>Unite -start-insert history/yank<CR>
 nn <silent> "' :<C-u>Unite -start-insert register<CR>
@@ -2153,6 +2156,7 @@ func! s:AckCurrentSearch(ignorecase, visual, args) " {{{
         call add(args, '-w')
     endif
     if a:visual | call histadd('/', pattern) | endif
+    if a:visual && pattern =~? '[.^$*+?()[{\|]' | call add(args, '-Q') | endif
     if !&ignorecase || !a:ignorecase
         call add(args, '-s')
     elseif index(args, '-s') == -1 && (a:visual || @/ !~ '\u')
