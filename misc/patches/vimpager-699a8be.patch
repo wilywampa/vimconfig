@@ -1,5 +1,5 @@
 diff --git a/vimpager b/vimpager
-index 289d7e9..981a684 100755
+index 289d7e9..71da342 100755
 --- a/vimpager
 +++ b/vimpager
 @@ -154,59 +154,7 @@ main() {
@@ -103,7 +103,7 @@ index 289d7e9..981a684 100755
  			${vim_cmd} -N \
  				-u "${vimrc}" \
 -				--cmd 'let __save_hidden = &hidden | set nohidden' \
-+				--cmd 'set nohidden' \
++				--cmd 'set nohidden nomodeline' \
  				--cmd 'set buftype=nofile modifiable noreadonly' \
 -				--cmd "set rtp^=${tmp}/extra_vim_home" \
  				--cmd 'set bg=dark' \
@@ -119,7 +119,7 @@ index 289d7e9..981a684 100755
  			${vim_cmd} -N \
  				-u "${vimrc}" \
 -				--cmd 'let __save_hidden = &hidden | set nohidden' \
-+				--cmd 'set nohidden' \
++				--cmd 'set nohidden nomodeline' \
  				--cmd 'set buftype=nofile modifiable noreadonly' \
 -				--cmd "set rtp^=${tmp}/extra_vim_home" \
  				--cmd 'let vimpager=1' \
