@@ -335,7 +335,8 @@ EOF
     let right_save = getpos("'>")
     let vimode = visualmode()
     execute "normal! " . get(g:, 'ipython_scratch_motion', 'yap')
-    let g:ipy_input = @@
+    let g:ipy_input = join(map(split(@@, '\n'),
+        \ 'substitute(v:val, "^\\s*\\zs# %", "%", "")'), "\n")
     call RestoreRegs()
     execute "normal! " . vimode . "\<Esc>"
     call setpos("'<", left_save)
