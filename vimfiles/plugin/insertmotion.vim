@@ -2,6 +2,7 @@ if exists("g:loaded_insertmotion") || &compatible
   finish
 endif
 let g:loaded_insertmotion = 1
+let s:killed = ''
 
 function! s:char_class(c, big) abort " {{{
   if a:c =~ '\s'
@@ -16,30 +17,30 @@ endfunction " }}}
 function! s:back_word(big) abort " {{{
   let pos = strchars(getline('.')) - strchars(getline('.')[col('.')-1:]) + 1
   if pos == 1
-    return 0 
+    return 0
   endif
 
   let line = split(getline('.'), '\zs')
   if col('.') > len(line) && line[-1] !~ '[[:print:]]\|\s'
-    let s:killed = line[-1] 
+    let s:killed = line[-1]
     return 1
   endif
   let col = strchars(getline('.')[:col('.')-1]) - 1
 
   " Skip white space before the word
-  while col > 1 && s:char_class(line[col-1], a:big) == 0 
-    let col -= 1 
+  while col > 1 && s:char_class(line[col-1], a:big) == 0
+    let col -= 1
   endwhile
   let cls = s:char_class(line[col-1], a:big)
 
   " Move backward to start of this word
-  while col > 1 && s:char_class(line[col-1], a:big) == cls 
-    let col -= 1 
+  while col > 1 && s:char_class(line[col-1], a:big) == cls
+    let col -= 1
   endwhile
 
   " Check for overshoot
-  if cls != s:char_class(line[col-1], a:big) 
-    let col += 1 
+  if cls != s:char_class(line[col-1], a:big)
+    let col += 1
   endif
 
   let s:killed = join(line[(col - pos):], '')
@@ -49,8 +50,8 @@ endfunction " }}}
 function! s:forward_word(big) abort " {{{
   let pos = strchars(getline('.')) - strchars(getline('.')[col('.')-1:]) + 1
   let end = strchars(getline('.'))
-  if pos > end 
-    return 0 
+  if pos > end
+    return 0
   endif
 
   let line = split(getline('.'), '\zs')
@@ -59,14 +60,14 @@ function! s:forward_word(big) abort " {{{
 
   " Go one char past end of current word
   if cls != 0
-    while col <= end && s:char_class(line[col-1], a:big) == cls 
-      let col += 1 
+    while col <= end && s:char_class(line[col-1], a:big) == cls
+      let col += 1
     endwhile
   endif
 
   " Go to next non-white
-  while col <= end && s:char_class(line[col-1], a:big) == 0 
-    let col += 1 
+  while col <= end && s:char_class(line[col-1], a:big) == 0
+    let col += 1
   endwhile
 
   return col - pos
