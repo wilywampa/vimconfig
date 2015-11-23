@@ -54,6 +54,10 @@ xnoremap <silent> <buffer> ]] m':<C-U>exe "normal! gv"<Bar>call search('^\s*def 
 nnoremap <silent> <buffer> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -no-split -no-resize<CR>
 nnoremap <silent> <buffer> ,H :<C-u>Unite history/ipython:import -max-multi-lines=100 -no-split -no-resize<CR>
 
+" Maps for debugging
+nnoremap <silent> <buffer> <M-b> :<C-u>call VimuxRunCommand("break ".expand('%:p').":".line('.'))<CR>
+nnoremap <silent> <buffer> <M-e> :<C-u>call VimuxRunCommand("clear ".expand('%:p').":".line('.'))<CR>
+
 " Enable omni completion
 setlocal omnifunc=pythoncomplete#Complete
 
@@ -189,6 +193,14 @@ EOF
     let g:ipy_input = @" . a:level
     call RestoreRegs()
     call IPyRunIPyInput()
+  endfunction
+
+  function! s:IPyPPmotion(type)
+    let g:first_op = 0
+    let g:repeat_op = &opfunc
+    let input = vimtools#opfunc(a:type)
+    call VimuxRunCommand('pp ' . input)
+    silent! call repeat#invalidate()
   endfunction
 
   function! s:IPyRunMotion(type)
@@ -383,6 +395,7 @@ xnoremap <silent> <buffer> <Leader>K :<C-u>call <SID>IPyGetHelp('??')<CR>
 xnoremap <silent> <buffer> <M-y>     :<C-u>call <SID>IPyEval(0)<CR>
 xnoremap <silent> <buffer> <M-e>     :<C-u>call <SID>IPyEval(1)<CR>
 inoremap <silent> <expr>   <C-r>? <SID>IPyEval(2)
+nnoremap <silent> <buffer> <Leader>X :<C-u>let g:first_op=1<bar>set opfunc=<SID>IPyPPmotion<CR>g@
 nnoremap <silent> <buffer> <Leader>x :<C-u>let g:first_op=1<bar>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>

@@ -2190,16 +2190,15 @@ for dir in ['Left', 'Down', 'Up', 'Right'] | for mod in ['S-', 'M-']
 endfor | endfor
 
 " Vimux settings
+let g:VimuxResetSequence = "S q C-u"
 nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
 nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
 nnoremap <silent> @\ :<C-u>VimuxRunLastCommand<CR>
 nnoremap <silent> @\| :<C-u>VimuxRunLastCommand<CR>
 nnoremap <silent> g\| :VimuxPromptCommand<CR><C-f>
 nnoremap <silent> g\ :VimuxPromptCommand<CR><C-f>
-nnoremap <silent> <Leader>bb :call
-    \ VimuxRunCommand('break '.expand('%:t').':'.line('.'))<CR>
-nnoremap <silent> <Leader>bc :call
-    \ VimuxRunCommand('clear '.expand('%:t').':'.line('.'))<CR>
+nnoremap <silent> <Leader>bb :call VimuxRunCommand('break '.expand('%:p').':'.line('.'))<CR>
+nnoremap <silent> <Leader>bc :call VimuxRunCommand('clear '.expand('%:p').':'.line('.'))<CR>
 let g:VimuxRunnerType = 'pane'
 command! -nargs=0 VimuxToggleRunnerType let g:VimuxRunnerType =
     \ g:VimuxRunnerType == 'pane' ? 'window' : 'pane' | echo g:VimuxRunnerType
