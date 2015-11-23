@@ -1088,6 +1088,10 @@ VIMOPTIONS=('-u' 'NONE' '-i' 'NONE' '-N' \
 vibindkey '^[[Z' reverse-menu-complete
 bindkey -M menuselect '^[[Z' reverse-menu-complete
 
+# Cycle completions with <C-n>/<C-p>
+bindkey -M menuselect '^N' complete-word
+bindkey -M menuselect '^P' reverse-menu-complete
+
 # Bring up completion menu after pressing tab once
 setopt auto_menu
 
@@ -1183,6 +1187,15 @@ bindkey -M menuselect '^]' complete-word  # cycle through menu with <C-]>
 
 # Don't expand ~ or $param at the start of a word
 zstyle ':completion:*' keep-prefix true
+
+# Load keeper functions
+autoload -U keeper && {
+keeper
+bindkey -M viins '^X^K' insert-kept-result
+bindkey -M viins '^Xk'  expand-kept-result
+bindkey -M menuselect '^K' complete-word
+zstyle ':completion:insert-kept-result:*' insert-kept menu
+}
 
 #[[[1 Prompt stuff
 export _PSVARLEN=0
