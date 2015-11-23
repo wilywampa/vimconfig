@@ -2101,6 +2101,15 @@ func! s:UniteSetup() " {{{
     endfunction
     nnoremap <silent> g<Leader>G :<C-u>call <SID>git_lg()<CR>
     nnoremap <silent> gG :<C-u>call <SID>git_lg('file')<CR>
+
+    " Override open action to avoid BufRead autocommands
+    let s:open = {'description': 'open buffer', 'is_selectable': 1} " {{{
+    function! s:open.func(candidates)
+        for candidate in a:candidates
+            execute 'buffer' candidate.action__buffer_nr
+        endfor
+    endfunction
+    call unite#custom#action('buffer', 'open', s:open) " }}}
 endfunc " }}}
 " }}}
 
