@@ -35,3 +35,4 @@ CtrlAltIsAltGr=no
 Window=max
 Locale=
 CtrlShiftShortcuts=yes
+CopyAsRTF=no
