@@ -60,7 +60,11 @@ function! _PrintBufList()
 endfunction
 
 function! s:get_buflist()
-  let buflist = unite#sources#buffer#get_unite_buffer_list()
+  let times = unite#sources#buffer#variables#get_buffer_list()
+  let buflist = map(unite#get_candidates([['buffer']], {}),
+      \ '{"action__buffer_nr": v:val.action__buffer_nr,
+      \   "source__time": get(times, v:val.action__buffer_nr,
+      \                       {"source__time": 0}).source__time}')
   call sort(buflist, 's:compare')
   return buflist
 endfunction
