@@ -97,6 +97,39 @@ function! s:source.action_table.session.func(candidate)
   let context.source__session = a:candidate.source__session
 endfunction
 
+let s:source.action_table.session_info = {
+    \ 'description' : "print information about a session",
+    \ 'is_quit' : 0,
+    \ }
+function! s:source.action_table.session_info.func(candidate)
+  let store_history = get(g:, 'ipython_store_history', 1)
+  try
+    let g:ipython_store_history = 0
+    let session_info = [
+        \ "from IPython import get_ipython",
+        \ "def _session_info(session=0):",
+        \ "    def date(d):",
+        \ "        return d.strftime('%a %d%b%Y %T')",
+        \ "    session_id, start, end, cmds, remark = " .
+        \ "        get_ipython().history_manager.get_session_info(session)",
+        \ "    val = 'start: {0}'.format(date(start))",
+        \ "    if end:",
+        \ "        val += '; end: {0}; {1} commands'.format(date(end), cmds)",
+        \ "    return val",
+        \ ]
+    let g:ipy_input = join(session_info, "\n")
+    silent call IPyRunIPyInput(1)
+    let g:ipy_input = printf('_session_info(%d)', a:candidate.source__session)
+    silent! unlet g:ipy_result
+    execute ('python' . (has('python3') ? '3' : ''))
+        \ "eval_ipy_input('g:ipy_result')"
+    echomsg printf('session %d: %s',
+        \          a:candidate.source__session, g:ipy_result)
+  finally
+    let g:ipython_store_history = store_history
+  endtry
+endfunction
+
 let s:source.action_table.macro = {
     \ 'description' : 'create IPython macro',
     \ 'is_selectable' : 1,

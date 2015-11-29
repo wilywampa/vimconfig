@@ -114,7 +114,7 @@ command! IPythonConsole execute 'IPython ' . s:pyeval('get_ipython_file()')
 endif
 
 if !exists('*s:IPyRunPrompt') && (has('python') || has('python3'))
-  function! IPyRunIPyInput()
+  function! IPyRunIPyInput(...)
     if exists('b:did_ipython') || get(g:, 'ipython_connected', 0)
       redraw
       " Dedent text in case first non-blank line is indented
@@ -126,7 +126,8 @@ if not isinstance(ipy_input, str):
     ipy_input = str(ipy_input, vim.eval('&encoding') or 'utf-8')
 vim.vars['ipy_input'] = textwrap.dedent(ipy_input).strip()
 EOF
-      Python2or3 run_ipy_input()
+      let silent = a:0 ? 1 : 0
+      Python2or3 run_ipy_input(int(vim.eval('silent')))
       unlet g:ipy_input
     else
       echo 'Not connected to IPython'
