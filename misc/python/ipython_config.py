@@ -41,6 +41,7 @@ import scipy.optimize as opt
 import subprocess
 import sys
 from IPython.core.display import display
+from IPython.lib.pretty import pretty
 from IPython.parallel import Client  # python2
 try:  # python2
     from IPython.external.path import path as Path  # python2

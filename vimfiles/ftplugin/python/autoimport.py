@@ -123,6 +123,7 @@ froms = {
     'IPython': ['get_ipython', 'parallel'],
     'IPython.core.display': ['display'],
     'IPython.external.path': ['Path', 'path'],
+    'IPython.lib.pretty': ['pretty'],
     'IPython.parallel': ['Client', 'Reference', 'interactive'],
     'IPython.utils.text': ['LSString', 'SList'],
     'bs4': ['BeautifulSoup'],
