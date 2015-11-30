@@ -90,6 +90,19 @@ for node in ast.iter_child_nodes(root):
                                       if n.asname), None),
                           lrange=(node.lineno, end)))
 
+if int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
+    add = -1
+    found = False
+    for line in vim.current.buffer[end:]:
+        if re.match(r'^\s*$', line):
+            add += 1
+        elif re.match(r"^(\S+) \= get_ipython\(\).user_ns\['\1'\]$", line):
+            found = True
+            add += 1
+        else:
+            break
+    end += add if found else 0
+
 messages = [(m['lnum'], m['text']) for m in vim.eval('messages')]
 unused = {int(k): v.split("'")[1] for k, v in messages
           if start <= int(k) <= end and 'W0611' in v}
@@ -267,6 +280,7 @@ imports = [i for i in imports if i.asnames and i.alias not in unused.values()]
 
 names = set(itertools.chain(*[i.asnames + [i.alias] for i in imports]))
 missing = list(set(missing) - names)
+not_found = set()
 for miss in set(missing):
     if miss in aliases:
         imports.append(Import(module=[], names=[aliases[miss]],
@@ -295,7 +309,7 @@ for miss in set(missing):
             imports.append(Import(module=[], names=[miss], asnames=[miss],
                                   alias=None, lrange=()))
         except ImportError:
-            pass
+            not_found.add(miss)
 
 
 def duplicates(imports):
@@ -357,6 +371,13 @@ def key(item):
 
 
 lines = sorted(sorted(lines), key=key)
+
+if not_found and int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
+    lines.append([''])
+    lines.extend(
+        [["{0} = get_ipython().user_ns['{0}']".format(m)]
+         for m in sorted(not_found)])
+
 lines = [l for ls in lines for l in ls]
 if start:
     if vim.current.buffer[start - 1:end] != lines:

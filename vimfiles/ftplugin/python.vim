@@ -348,6 +348,9 @@ EOF
     let right_save = getpos("'>")
     let vimode = visualmode()
     execute "normal! " . get(g:, 'ipython_scratch_motion', 'yap')
+    let dir = $HOME . '/.cache/IPython'
+    if !isdirectory(dir) | call mkdir(dir) | endif
+    call writefile(split(@@ . "\n", '\n'), dir . strftime('/%a_%d%b%y.py'), 'a')
     let g:ipy_input = join(map(split(@@, '\n'),
         \ 'substitute(v:val, "^\\s*\\zs# %", "%", "")'), "\n")
     call RestoreRegs()
@@ -366,10 +369,17 @@ EOF
     else
       execute "buffer ".scratch
     endif
+    if line('$') == 1 && getline(1) ==# ''
+      put! = ['# pylama: ignore=E3,E5,E7,W0,W2,W3',
+          \   'from IPython import get_ipython',
+          \   'ip = get_ipython()']
+      keepjumps normal! G
+    endif
     silent execute 'file' fnameescape(s:scratch_name)
-    set filetype=python
+    setfiletype python
     setlocal buftype=nofile bufhidden=hide noswapfile
     setlocal omnifunc=CompleteIPython
+    let b:ipython_user_ns = 1
     nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
     inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
     xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
