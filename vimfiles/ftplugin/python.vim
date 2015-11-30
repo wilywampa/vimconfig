@@ -56,7 +56,27 @@ nnoremap <silent> <buffer> ,H :<C-u>Unite history/ipython:import -max-multi-line
 
 " Maps for debugging
 nnoremap <silent> <buffer> <M-b> :<C-u>call VimuxRunCommand("break ".expand('%:p').":".line('.'))<CR>
+nnoremap <silent> <buffer> <M-B> :<C-u>call VimuxRunCommand("break ".expand('%:p').":".line('.').', '.input('condition: '))<CR>
 nnoremap <silent> <buffer> <M-e> :<C-u>call VimuxRunCommand("clear ".expand('%:p').":".line('.'))<CR>
+nnoremap <silent> <buffer> <Leader>bc :<C-u>call VimuxRunCommand('clear')<bar>call VimuxRunCommand('y')<CR>
+
+function! s:ipdb_commands()
+  let lines = []
+  let c = input('ipdb> commands ')
+  call add(lines, 'commands ' . c)
+  silent call VimuxRunCommand(lines[0])
+  let input = ''
+  while lines[-1] !=# 'end'
+    redraw
+    echo 'ipdb> commands ' . c
+    for line in lines[1:]
+      echo '(com) ' . line
+    endfor
+    call add(lines, input('(com) '))
+    silent call VimuxRunCommand(lines[-1])
+  endwhile
+endfunction
+nnoremap <silent> <buffer> g<M-b> :<C-u>call <SID>ipdb_commands()<CR>
 
 " Enable omni completion
 setlocal omnifunc=pythoncomplete#Complete
@@ -389,6 +409,7 @@ EOF
 endif
 
 nnoremap <silent> <buffer> <Leader>: :<C-u>call <SID>IPyRunPrompt()<CR>
+nnoremap <silent> <buffer> <Leader><Leader>: :<C-u>VimuxPromptCommand<CR>
 nnoremap <silent> <buffer> @\  :<C-u>call <SID>IPyRepeatCommand()<CR>
 nnoremap <silent> <buffer> @\| :<C-u>call <SID>IPyRepeatCommand()<CR>
 nnoremap <silent> <buffer> g\  :<C-u>call <SID>IPyRunPrompt()<CR><C-f>
