@@ -462,7 +462,7 @@ nn <silent> <C-w>g<C-Space> :lopen<CR>
 nn <silent> <C-w>g<C-@> :lopen<CR>
 
 " Make current buffer a scratch buffer
-nn <silent> <Leader>ss :set bt=nofile<CR>
+nn <silent> <Leader>ss :<C-u>set buftype=<C-r>=&buftype ==# 'nofile' ? '' : 'nofile'<CR><CR>
 
 " Echo syntax name under cursor
 nn <silent> <Leader>y :<C-U>exe vimtools#EchoSyntax(v:count)<CR>
@@ -2001,7 +2001,7 @@ func! s:UniteSetup() " {{{
         call unite#custom#profile('source/'.source, 'context', {'start_insert': 0})
     endfor
     function! s:action_replace(action, candidates) " {{{
-        for index in range(0, len(a:candidates) - 1)
+        for index in range(len(a:candidates))
             if index == 1 | silent wincmd o | endif
             if index > 0 || len(a:candidates) == 1
                 call unite#util#command_with_restore_cursor(
@@ -2173,7 +2173,7 @@ func! s:AckCurrentSearch(ignorecase, visual, args) " {{{
     elseif index(args, '-s') == -1 && (a:visual || @/ !~ '\u')
         let pattern = tolower(pattern)
     endif
-    call unite#start([['grep', '.', join(args)]], {'input': pattern, 'auto_resize': 1})
+    call unite#start([['grep', '.', join(args), pattern]], {'auto_resize': 1})
 endfunc " }}}
 nnoremap <silent> ga     :<C-u>call <SID>AckCurrentSearch(1, 0, 0)<CR>
 nnoremap <silent> gA     :<C-u>call <SID>AckCurrentSearch(0, 0, 0)<CR>
@@ -2342,6 +2342,7 @@ nnoremap gC         :<C-u>Gdiff<CR>
 nnoremap gL         :<C-u>Glog<CR>
 nnoremap g<Leader>L :<C-u>Glog --<CR>
 nnoremap gS         :<C-u>Gstatus<CR>
+nnoremap gW         :<C-u>Gwrite<CR>
 " Reload file with absolute path to create fugitive commands
 nnoremap <Leader>L :<C-u>execute 'file '.fnameescape(resolve(expand('%:p')))<bar>
     \ call fugitive#detect(fnameescape(expand('%:p:h')))<CR>
