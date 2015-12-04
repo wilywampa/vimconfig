@@ -1008,6 +1008,9 @@ zle -N _insert-date; bindkey '^X^D' _insert-date
 autoload -Uz zargs
 autoload -Uz zmv
 
+dirdiff() { vim -c "DirDiff $1 $2" }
+compdef '_path_files -/' dirdiff
+
 #[[[1 Focus/cursor handling
 _cursor_block="\033[1 q"
 _cursor_bar="\033[5 q"
