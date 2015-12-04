@@ -187,9 +187,9 @@ class IPythonMonitor(object):
             spaces = ' ' * len(self.prompt.rstrip()) + ' '
             sys.stdout.write('\n')
             self.print_prompt('red')
-        output = msg['content']['data']['text/plain'].rstrip() \
-            .replace('\n', '\n' + spaces)
-        sys.stdout.write(output)
+        output = highlight(msg['content']['data']['text/plain'],
+                           lexer, formatter)
+        sys.stdout.write(output.rstrip().replace('\n', '\n' + spaces))
         self.last_msg_type = msg['msg_type']
 
     def display_data(self, msg):
