@@ -156,7 +156,9 @@ froms = {
         'count', 'cycle', 'dropwhile', 'groupby', 'ifilter', 'ifilterfalse',
         'imap', 'islice', 'izip', 'izip_longest', 'permutations', 'product',
         'repeat', 'starmap', 'takewhile', 'tee'],
-    'ipython_config': ['dump', 'globn', 'load', 'sortn', 'sortnkey'],
+    'ipython_config': [
+        'dump', 'fields_dict', 'globn', 'items_dict', 'load', 'sortn',
+        'sortnkey'],
     'mathtools': ['cat', 'derivative', 'ecat', 'norm0', 'unit'],
     'matplotlib.backends.backend_pdf': ['PdfPages'],
     'matplotlib.pyplot': [

@@ -2,6 +2,7 @@ try:
     import cPickle as pickle
 except ImportError:
     import pickle
+import collections
 import numpy.ma as ma
 import sys
 from IPython.utils.text import SList
@@ -162,9 +163,10 @@ S = SliceIndex
 def items_dict(slist, key=None):
     """Return a list of dictionaries representing the fields of each line."""
     fields = slist.fields()
-    items = [{k: f for k, f in zip(fields[0], item)} for item in fields[1:]]
+    items = [collections.OrderedDict((k, f) for k, f in zip(fields[0], item))
+             for item in fields[1:]]
     if key:
-        return {i[key]: i for i in items}
+        return collections.OrderedDict((i[key], i) for i in items)
     else:
         return items
 
@@ -173,7 +175,7 @@ def fields_dict(slist, type=SList):
     """Return a dictionary with a list of values for each field."""
     fields = slist.fields()
     names = fields.pop(0)
-    out = {}
+    out = collections.OrderedDict()
     for i, name in enumerate(names[:-1]):
         out[name] = type(slist.fields(i)[1:])
     out[names[-1]] = type([' '.join(f[i + 1:]) for f in fields])
@@ -242,3 +244,20 @@ def configure(c):
     ]
     for line in lines:
         add(line)
+
+    ls_sort = ' --sort=none' if sys.platform == 'darwin' else ''
+    c.AliasManager.default_aliases = []
+    c.AliasManager.user_aliases = [
+        ('l', 'ls -h --color=always' + ls_sort),
+        ('ls', 'ls -h --color=always' + ls_sort),
+        ('la', 'ls -hA --color=always' + ls_sort),
+        ('ll', 'ls -lsh --color=always' + ls_sort),
+        ('lls', 'ls -lshrt --color=always'),
+        ('lla', 'ls -lshA --color=always'),
+        ('llas', 'ls -lshrtA --color=always'),
+        ('llsa', 'ls -lshrtA --color=always'),
+        ('lu', 'ls -1U --color=always' + ls_sort),
+        ('llu', 'ls -1lUsh --color=always' + ls_sort),
+        ('llua', 'ls -1lUshA --color=always' + ls_sort),
+        ('llau', 'ls -1lUshA --color=always' + ls_sort),
+    ]
