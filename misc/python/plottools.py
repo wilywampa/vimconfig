@@ -64,13 +64,17 @@ def picker(fig=None, **kwargs):
     return [picker(ax, **kwargs) for ax in plt.gcf().get_axes()]
 
 
-def unique_legend(**kwargs):
+def unique_legend(*axes, **kwargs):
     """Add a legend with each label used only once."""
-    handles, labels = [], []
-    for h, l in zip(*plt.gca().get_legend_handles_labels()):
-        if l not in labels:
-            handles.append(h)
-            labels.append(l)
+    from itertools import chain
+    if not axes:
+        axes = plt.gcf().get_axes()
+    items = []
+    for item in chain.from_iterable(
+            zip(*ax.get_legend_handles_labels()) for ax in axes):
+        if item not in items:
+            items.append(item)
+    handles, labels = zip(*items)
     return plt.legend(handles, labels, **kwargs)
 
 
@@ -170,7 +174,7 @@ def index_all(mapping, ix, copy=False):
     if copy:
         mapping = deepcopy(mapping)
     for key, value in mapping.items():
-        if isinstance(value, ndarray):
+        if isinstance(value, ndarray) and value.base is None:
             mapping[key] = value[ix]
         elif isinstance(value, Mapping):
             index_all(value, ix)
