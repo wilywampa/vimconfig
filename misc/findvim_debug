@@ -1,5 +1,8 @@
 #!/usr/bin/env zsh
-line=$(tmux capture-pane -p -J -S -100 | tac | grep '^> /' | head -n 1)
-if [[ $line =~ '^> (/.*\([0-9]+\))' ]]; then
-  findvim ${match[1]}
-fi
+lines=("${(@f):-$(tmux capture-pane -p -J -S -100)}")
+for line in ${(Oa)lines}; do
+  if [[ $line =~ '^> (/.*\([0-9]+\))| at (/.*:[0-9]+)' ]]; then
+    findvim $match
+    break
+  fi
+done
