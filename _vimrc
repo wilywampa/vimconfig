@@ -1849,6 +1849,8 @@ func! s:UniteSettings() " {{{
         \.'1G0y$Q'.":\<C-u>Unite -buffer-name=buffers/neomru "
         \."-unique buffer neomru/file\<CR>"."\<C-r>\""
     nnor <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
+    inor <buffer> <expr> <C-o>d     unite#do_action('vsplit').':<C-u>call vimtools#ToggleDiff()<CR>'
+    inor <buffer> <expr> <C-o><C-d> unite#do_action('vsplit').':<C-u>call vimtools#ToggleDiff()<CR>'
     inor <buffer> <expr> <C-o>v     unite#do_action('vsplit')
     inor <buffer> <expr> <C-o><C-v> unite#do_action('vsplit')
     inor <buffer> <expr> <C-o>s     unite#do_action('split')
