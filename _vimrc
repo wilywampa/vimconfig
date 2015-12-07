@@ -1977,7 +1977,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name="
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
 nn <silent> <M-p> :<C-u>Unite neomru/directory<CR>
 nn <silent> <C-o> :<C-u>Unite file<CR>
-nn <silent> <M-/> :<C-u>Unite line:forward<CR>
+nn <silent> <M-/> :<C-u>Unite line:all<CR>
 nn <silent> <M-?> :<C-u>Unite line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
@@ -2188,7 +2188,7 @@ func! s:AckCurrentSearch(ignorecase, visual, args) " {{{
     let pattern = @@
     call RestoreRegs() | call winrestview(view)
     let args = split(a:args ? input('Options: ', g:ag_flags) : g:ag_flags)
-    if !a:visual && (@/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$')
+    if (a:visual && pattern ==# expand('<cword>')) || (@/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$')
         call add(args, '-w')
     endif
     if a:visual | call histadd('/', pattern) | endif
