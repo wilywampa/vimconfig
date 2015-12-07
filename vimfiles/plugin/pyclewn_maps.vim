@@ -43,10 +43,10 @@ function! s:PyclewnMaps()
         endfunction
     endif
 
-    nnoremap <M-b> :execute "C break ".expand('%:p').":".line('.')<CR>
+    nnoremap <buffer> <M-b> :execute "C break ".expand('%:p').":".line('.')<CR>
     nnoremap g<M-b> :<C-u>call <SID>ConditionalBreakpoint()<CR>
     nnoremap <buffer> <M-d> :C down<CR>
-    nnoremap <M-e> :execute "C clear ".expand('%:p').":".line('.')<CR>
+    nnoremap <buffer> <M-e> :execute "C clear ".expand('%:p').":".line('.')<CR>
     nnoremap <buffer> <C-n> :C next<CR>
     nnoremap <buffer> <M-p> :execute "C print ".expand('<cword>')<CR>
     nnoremap <buffer> g<M-p> :execute "C call ".expand('<cword>').".print()"<CR>
@@ -55,7 +55,7 @@ function! s:PyclewnMaps()
     nnoremap <buffer> <M-x> :execute "C print *".expand('<cword>')<CR>
     nnoremap <M-z> :C sigint<CR>
     nnoremap <M-A> :C info args<CR>
-    nnoremap <M-B> :C info breakpoints<CR>:Ccwindow<CR>
+    nnoremap <buffer> <M-B> :C info breakpoints<CR>:Ccwindow<CR>
     nnoremap <M-c> :C continue<CR>
     if s:is_pdb
         nnoremap <M-F> :C return<CR>
