@@ -292,12 +292,18 @@ if is-at-least 5.0.8; then
     done
 fi
 
-# Enable built-in run-help functionality
+# Load other zsh functions
 unalias run-help >& /dev/null
 autoload -Uz run-help
 autoload -Uz run-help-git
 autoload -Uz run-help-svn
 bindkey -a '?' run-help
+autoload -Uz replace-string
+zle -N replace-string
+vibindkey '^X^S' replace-string
+autoload -Uz send-invisible
+zle -N send-invisible
+vibindkey '^X ' send-invisible
 
 #[[[1 Abbreviations
 typeset -Ag abbrevs
@@ -509,8 +515,8 @@ magic-abbrev-expand-or-complete-word() {
 zle -N magic-abbrev-expand-or-complete-word
 vibindkey '^I' magic-abbrev-expand-or-complete-word
 
-_accept-line() { magic-abbrev-expand; zle reset-prompt; zle accept-line }
-zle -N _accept-line; vibindkey '^M' _accept-line
+accept-line_() { magic-abbrev-expand; zle reset-prompt; zle accept-line }
+zle -N accept-line_; vibindkey '^M' accept-line_
 zle -N magic-abbrev-expand
 zle -N no-magic-abbrev-expand
 insbindkey " " magic-abbrev-expand
