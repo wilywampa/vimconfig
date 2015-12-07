@@ -959,6 +959,14 @@ command! -nargs=0 SingleFile call s:SingleFile()
 
 " Use 'very magic' regex by default
 func! s:SearchHandleKey(dir) " {{{
+    augroup search_tab_map
+        autocmd!
+        autocmd CursorMoved * execute "silent! cunmap \<Tab>" | autocmd! search_tab_map
+        if exists('#OptionSet')
+            autocmd OptionSet wildcharm execute "silent! cunmap \<Tab>" | autocmd! search_tab_map
+        endif
+    augroup END
+    cnoremap <expr> <Tab> getcmdtype() =~ '[/?]' ? <SID>SearchComplete() : '<Tab>'
     echo a:dir.'\v'
     let c = getchar()
     " CursorHold, FocusLost, FocusGained
@@ -967,6 +975,7 @@ func! s:SearchHandleKey(dir) " {{{
     elseif c == char2nr("\<Esc>")            | return "\<C-l>"
     elseif c == char2nr("\<C-c>")            | return "\<C-l>"
     elseif c == char2nr("\<C-x>")            | return a:dir.'\V'
+    elseif c == char2nr("\<Tab>")            | return a:dir.'\v' . s:SearchComplete('\v', a:dir)
     elseif c == "\<Up>"                      | return a:dir."\<Up>"
     elseif c == char2nr("/") && a:dir == '/' | return '//'
     elseif c == char2nr("\<C-v>")            |
@@ -977,6 +986,20 @@ func! s:SearchHandleKey(dir) " {{{
 endfunc " }}}
 noremap <expr> / <SID>SearchHandleKey('/')
 noremap <expr> ? <SID>SearchHandleKey('?')
+
+" Tab completion for search prompt
+function! s:SearchComplete(...) abort " {{{
+    set wildcharm=<Tab>
+    if a:0
+        let [magic, begin, cmdtype] = [a:1, '', a:2]
+    else
+        let magic = matchstr(getcmdline(), '^\\[vV]')
+        let begin = substitute(getcmdline(), '^\\[vV]', '', '')
+        let cmdtype = getcmdtype()
+    endif
+    let input = input('='.cmdtype.magic, begin, 'customlist,unite#helper#complete_search_history')
+    return input[len(begin):]
+endfunction " }}}
 
 " Paste in visual mode without overwriting clipboard
 func! s:VisualPaste() " {{{
