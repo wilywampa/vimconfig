@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..8c51673 100644
+index b1bc646..b1f8354 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -67,6 +67,7 @@ Notes:
@@ -10,17 +10,19 @@ index b1bc646..8c51673 100644
  import glob
  import inspect
  import itertools
-@@ -74,12 +75,18 @@ import keyword
+@@ -74,21 +75,71 @@ import keyword
  import os
  import re
  import sys
 +import numpy
-+import types
 +import repr as REPR
 +try:
-+    from funcsigs import signature
++    from inspect import signature
 +except ImportError:
-+    from IPython.utils.signatures import signature
++    try:
++        from funcsigs import signature
++    except ImportError:
++        from IPython.utils.signatures import signature
  
  from IPython.config.configurable import Configurable
  from IPython.core.error import TryNext
@@ -29,17 +31,22 @@ index b1bc646..8c51673 100644
 -from IPython.utils import io
  from IPython.utils.dir2 import dir2
  from IPython.utils.process import arg_split
- from IPython.utils.py3compat import builtin_mod, string_types
-@@ -89,6 +96,40 @@ from IPython.utils.traitlets import CBool, Enum
+-from IPython.utils.py3compat import builtin_mod, string_types
++from IPython.utils.py3compat import builtin_mod, safe_unicode, string_types
+ from IPython.utils.traitlets import CBool, Enum
+ 
+ #-----------------------------------------------------------------------------
  # Globals
  #-----------------------------------------------------------------------------
  
 +repr_ = REPR.Repr()
 +repr_.maxother = 50
-+TYPES_LIST = tuple([getattr(types, a)
-+                    for a in dir(types) if isinstance(getattr(types, a), type)])
-+EXCEPTIONS = set(filter(lambda e: type(e) == type and issubclass(e, Exception),
-+                        [getattr(exceptions, e) for e in dir(exceptions)]))
++try:
++    import builtins as exceptions
++except ImportError:
++    import exceptions
++EXCEPTIONS = set([e for e in [getattr(exceptions, e) for e in dir(exceptions)]
++                  if type(e) == type and issubclass(e, Exception)])
 +
 +
 +def _hassource(object):
@@ -56,9 +63,15 @@ index b1bc646..8c51673 100644
 +            return True
 +        return False
 +    if inspect.ismethod(object):
-+        object = object.im_func
++        try:
++            object = object.__func__
++        except AttributeError:
++            object = object.im_func
 +    if inspect.isfunction(object):
-+        object = object.func_code
++        try:
++            object = object.__code__
++        except AttributeError:
++            object = object.func_code
 +    if inspect.istraceback(object):
 +        object = object.tb_frame
 +    if inspect.isframe(object):
@@ -71,7 +84,7 @@ index b1bc646..8c51673 100644
  # Public API
  __all__ = ['Completer','IPCompleter']
  
-@@ -97,6 +138,7 @@ if sys.platform == 'win32':
+@@ -97,6 +148,7 @@ if sys.platform == 'win32':
  else:
      PROTECTABLES = ' ()[]{}?=\\|;:\'#*"^&'
  
@@ -79,7 +92,7 @@ index b1bc646..8c51673 100644
  #-----------------------------------------------------------------------------
  # Main functions and classes
  #-----------------------------------------------------------------------------
-@@ -426,6 +468,64 @@ def get__all__entries(obj):
+@@ -426,6 +478,64 @@ def get__all__entries(obj):
      return [w for w in words if isinstance(w, string_types)]
  
  
@@ -144,7 +157,7 @@ index b1bc646..8c51673 100644
  class IPCompleter(Completer):
      """Extension of the completer class with IPython-specific features"""
  
-@@ -538,6 +638,7 @@ class IPCompleter(Completer):
+@@ -538,6 +648,7 @@ class IPCompleter(Completer):
                           self.file_matches,
                           self.magic_matches,
                           self.python_func_kw_matches,
@@ -152,7 +165,7 @@ index b1bc646..8c51673 100644
                           ]
  
      def all_completions(self, text):
-@@ -804,6 +905,113 @@ class IPCompleter(Completer):
+@@ -804,6 +915,113 @@ class IPCompleter(Completer):
                      argMatches.append("%s=" %namedArg)
          return argMatches
  
@@ -266,7 +279,7 @@ index b1bc646..8c51673 100644
      def dispatch_custom_completer(self, text):
          #io.rprint("Custom! '%s' %s" % (text, self.custom_completers)) # dbg
          line = self.line_buffer
-@@ -901,6 +1109,7 @@ class IPCompleter(Completer):
+@@ -901,6 +1119,7 @@ class IPCompleter(Completer):
  
          # Start with a clean slate of completions
          self.matches[:] = []
@@ -274,7 +287,7 @@ index b1bc646..8c51673 100644
          custom_res = self.dispatch_custom_completer(text)
          if custom_res is not None:
              # did custom completers produce something?
-@@ -918,6 +1127,20 @@ class IPCompleter(Completer):
+@@ -918,6 +1137,20 @@ class IPCompleter(Completer):
                          # Show the ugly traceback if the matcher causes an
                          # exception, but do NOT crash the kernel!
                          sys.excepthook(*sys.exc_info())
@@ -295,10 +308,13 @@ index b1bc646..8c51673 100644
              else:
                  for matcher in self.matchers:
                      self.matches = matcher(text)
-@@ -931,8 +1154,94 @@ class IPCompleter(Completer):
+@@ -931,8 +1164,86 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
++        numpy.set_string_function(
++            lambda obj: 'x'.join(str(s) for s in obj.shape +
++                                 ((0,) if len(obj.shape) == 1 else ())))
 +        matches = []
 +        for i, m in enumerate(self.matches):
 +            try:
@@ -322,40 +338,28 @@ index b1bc646..8c51673 100644
 +                    matches.append(
 +                        m + '\0' + '%s: %s' %
 +                        (type(obj).__name__,
-+                         '.'.join(filter(None, [obj.__module__,
-+                                                obj.__name__]))))
++                         '.'.join(f for f in [obj.__module__,
++                                              obj.__name__] if f)))
 +                except Exception as e:
 +                    if type(e) in EXCEPTIONS - set(
 +                            [AttributeError, KeyError, TypeError]):
 +                        raise
-+                    if isinstance(obj, TYPES_LIST):
-+                        matches.append(
-+                            m + '\0' + '%s: %s' %
-+                            (type(obj).__name__,
-+                             repr_.repr1(obj, 1)[: 50] if isinstance(obj, dict)
-+                             else repr_.repr(obj)[: 50]))
-+                    else:
-+                        try:
-+                            matches.append(
-+                                m + '\0' +
-+                                '.'.join(filter(None, [type(obj).__module__,
-+                                                       type(obj).__name__])))
-+                        except Exception as e:
-+                            if type(e) in EXCEPTIONS - set([AttributeError]):
-+                                raise
-+                            matches.append(m + '\0' + type(obj).__name__)
++                    matches.append(m + '\0' + '%s: %s' % (
++                        type(obj).__name__,
++                        repr_.repr_dict(obj, 1)[: 80] if isinstance(obj, dict)
++                        else repr_.repr(obj)[: 80]))
 +
 +            info = ''
-+            if _hassource(obj):
++            if _hassource(obj) or callable(obj):
 +                try:
-+                    info += obj.__name__ + unicode(signature(obj)) + '\n\n'
++                    info += obj.__name__ + safe_unicode(signature(obj)) + '\n\n'
 +                except Exception as e:
 +                    if type(e) in EXCEPTIONS - set(
 +                        [AttributeError, KeyError, NameError, TypeError,
 +                         ValueError]):
 +                        raise
 +                    try:
-+                        source = inspect.getsource(obj).decode('utf-8')
++                        source = safe_unicode(inspect.getsource(obj))
 +                    except Exception as e:
 +                        if type(e) in EXCEPTIONS - set(
 +                                [AttributeError, IOError, TypeError]):
@@ -368,17 +372,18 @@ index b1bc646..8c51673 100644
 +                        elif def_.startswith('class '):
 +                            info += def_[6:]
 +
-+            try:
-+                info += inspect.getdoc(obj).decode('utf-8')
-+            except Exception as e:
-+                if type(e) in EXCEPTIONS - set([AttributeError, TypeError]):
-+                    raise
-+
-+            matches[i] += 'CALLSIG' + info if info else ''
++            if callable(obj):
++                try:
++                    info += safe_unicode(inspect.getdoc(obj))
++                except Exception as e:
++                    if type(e) in EXCEPTIONS - set([AttributeError, TypeError]):
++                        raise
 +
 +            matches[i] = matches[i].replace(
 +                'builtin_function_or_method',
-+                'builtin')
++                'builtin') + ('CALLSIG' + info if info else '')
++
++        numpy.set_string_function(None)
 +
          #io.rprint('COMP TEXT, MATCHES: %r, %r' % (text, self.matches)) # dbg
 -        return text, self.matches
