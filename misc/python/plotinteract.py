@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import ast
 import matplotlib as mpl
 import numpy as np
 import re
@@ -6,6 +7,8 @@ import scipy.constants as const
 import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
+from collections import OrderedDict
+from copy import copy
 from itertools import cycle, product
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as
@@ -19,6 +22,15 @@ try:
     from PyQt4.QtCore import QString
 except ImportError:
     QString = str
+
+
+PROPERTIES = ('color', 'linestyle', 'linewidth', 'alpha', 'marker',
+              'markersize', 'markerfacecolor', 'markevery', 'antialiased',
+              'dash_capstyle', 'dash_joinstyle', 'drawstyle', 'fillstyle',
+              'markeredgecolor', 'markeredgewidth', 'markerfacecoloralt',
+              'pickradius', 'solid_capstyle', 'solid_joinstyle')
+ALIASES = dict(aa='antialiased', c='color', ec='edgecolor', fc='facecolor',
+               ls='linestyle', lw='linewidth', mew='markeredgewidth')
 
 if sys.platform == 'darwin':
     CONTROL_MODIFIER = QtCore.Qt.MetaModifier
@@ -71,9 +83,12 @@ def _quit(self, event, parent, lineEdit):
 control_actions = {
     QtCore.Qt.Key_A: _select_all,
     QtCore.Qt.Key_D: lambda self, *args: self.emit(SIGNAL('remove()')),
+    QtCore.Qt.Key_E: lambda self, *args: self.emit(SIGNAL('axisequal()')),
     QtCore.Qt.Key_L: lambda self, *args: self.emit(SIGNAL('relabel()')),
     QtCore.Qt.Key_N: lambda self, *args: self.emit(SIGNAL('duplicate()')),
+    QtCore.Qt.Key_P: lambda self, *args: self.emit(SIGNAL('edit_props()')),
     QtCore.Qt.Key_Q: _quit,
+    QtCore.Qt.Key_S: lambda self, *args: self.emit(SIGNAL('synchronize()')),
     QtCore.Qt.Key_T: lambda self, *args: self.emit(SIGNAL('twin()')),
     QtCore.Qt.Key_W: _delete_word,
 }
@@ -95,7 +110,10 @@ def handle_key(self, event, parent, lineEdit):
             elif event.key() == QtCore.Qt.Key_Return:
                 self.emit(SIGNAL('returnPressed()'))
 
-    return parent.event(self, event)
+    try:
+        return parent.event(self, event)
+    except AttributeError:
+        return False
 
 
 def KeyHandler(parent):
@@ -236,6 +254,76 @@ class AutoCompleteComboBox(QtGui.QComboBox):
         self.completer.setModel(self.model())
 
 
+class PropertyEditor(QtGui.QTableWidget):
+
+    def __init__(self, parent, *args, **kwargs):
+        super(PropertyEditor, self).__init__(*args, **kwargs)
+        self.setFixedSize(300, 400)
+        self.setSizePolicy(QtGui.QSizePolicy.Expanding,
+                           QtGui.QSizePolicy.Expanding)
+        self.setColumnCount(2)
+        self.setHorizontalHeaderLabels(['property', 'value'])
+        self.parent = parent
+        self.dataobj = None
+        self.setRowCount(len(PROPERTIES))
+        self.setCurrentCell(0, 1)
+        self.horizontalHeader().setStretchLastSection(True)
+        self.move(0, 0)
+
+    def closeEvent(self, event):
+        self.parent.draw()
+
+    def hideEvent(self, event):
+        self.parent.draw()
+
+    def focusNextPrevChild(self, next):
+        self.setCurrentCell((
+            self.currentRow() + (1 if next else - 1)) % self.rowCount(), 1)
+        return True
+
+    def cycle_editors(self, direction):
+        try:
+            index = (self.parent.datas.index(
+                self.dataobj) + direction) % len(self.parent.datas)
+        except ValueError:
+            index = 0
+        self.parent.datas[index].edit_props()
+
+    control_actions = {
+        QtCore.Qt.Key_J: lambda self: self.focusNextPrevChild(True),
+        QtCore.Qt.Key_K: lambda self: self.focusNextPrevChild(False),
+        QtCore.Qt.Key_N: lambda self: self.cycle_editors(1),
+        QtCore.Qt.Key_P: lambda self: self.cycle_editors(-1),
+        QtCore.Qt.Key_Q: lambda self: self.close(),
+        QtCore.Qt.Key_W: lambda self: self.close(),
+    }
+
+    def event(self, event):
+        if (event.type() == QtCore.QEvent.KeyPress and
+            event.modifiers() & CONTROL_MODIFIER and
+                event.key() in self.control_actions):
+            self.control_actions[event.key()](self)
+            return True
+        elif (event.type() == QtCore.QEvent.KeyPress and
+              self.state() == self.NoState and
+              event.key() in (QtCore.Qt.Key_Delete,
+                              QtCore.Qt.Key_Backspace)):
+            self.setItem(self.currentRow(),
+                         self.currentColumn(),
+                         QtGui.QTableWidgetItem(''))
+            return True
+        elif (event.type() == QtCore.QEvent.KeyPress and
+              self.state() == self.NoState and
+              event.key() in (QtCore.Qt.Key_Enter,
+                              QtCore.Qt.Key_Return)):
+            self.parent.draw()
+            return True
+        try:
+            return super(PropertyEditor, self).event(event)
+        except TypeError:
+            return False
+
+
 class DataObj(object):
 
     def __init__(self, parent, obj, name, **kwargs):
@@ -245,6 +333,7 @@ class DataObj(object):
         self.labels = kwargs.get('labels', name)
         self.widgets = []
         self.twin = False
+        self.props = copy(kwargs.get('props', {}))
         draw = self.parent.draw
         connect = self.parent.connect
 
@@ -255,7 +344,7 @@ class DataObj(object):
         self.obj = flatten(self.obj)
         words = [k for k in self.obj.keys()
                  if isinstance(self.obj[k], np.ndarray)]
-        words.sort(key=lambda w: w.lower())
+        words.sort(key=parent.sortkey)
 
         def new_text_box():
             menu = KeyHandler(AutoCompleteComboBox)(parent=self.parent)
@@ -334,18 +423,34 @@ class DataObj(object):
         self.kwargs = kwargs
         self.process_kwargs()
 
+    def set_xname(self, xname):
+        index = self.menu.findText(xname)
+        if index >= 0:
+            self.xmenu.setCurrentIndex(index)
+        return index >= 0
+
+    def set_xscale(self, xscale):
+        self.xscale_box.setText(text_type(xscale))
+
+    def set_yname(self, yname):
+        index = self.menu.findText(yname)
+        if index >= 0:
+            self.menu.setCurrentIndex(index)
+        return index >= 0
+
+    def set_yscale(self, yscale):
+        self.scale_box.setText(text_type(yscale))
+
     def process_kwargs(self):
-        kwargs = self.kwargs
-        if 'yname' in kwargs:
-            self.menu.setCurrentIndex(self.menu.findText(kwargs['yname']))
-        if 'yscale' in kwargs:
-            self.scale_box.setText(text_type(kwargs['yscale']))
-        if 'xname' in kwargs:
-            self.xmenu.setCurrentIndex(self.menu.findText(kwargs['xname']))
-        if 'xscale' in kwargs:
-            self.xscale_box.setText(text_type(kwargs['xscale']))
+        for k, v in self.kwargs.items():
+            k = ALIASES.get(k, k)
+            if k in PROPERTIES:
+                self.props[k] = v
+            else:
+                getattr(self, 'set_' + k, lambda _: None)(v)
 
     def duplicate(self):
+        self.kwargs['props'] = self.props
         self.parent.add_data(self.obj, self.name, kwargs=self.kwargs)
         data = self.parent.datas[-1]
         data.menu.setCurrentIndex(self.menu.currentIndex())
@@ -360,9 +465,9 @@ class DataObj(object):
         self.parent.remove_data(self)
 
     def change_label(self):
-        text, ok = QtGui.QInputDialog.getText(self.parent,
-                                              'Rename data object',
-                                              'New label:')
+        text, ok = QtGui.QInputDialog.getText(
+            self.parent, 'Rename data object', 'New label:',
+            QtGui.QLineEdit.Normal, getattr(self, 'old_label', self.name))
         if ok:
             self.name = text_type(text)
             self.label.setText(text + ':')
@@ -371,19 +476,63 @@ class DataObj(object):
                 self.labels = self.name
             self.parent.draw()
 
+    def edit_props(self):
+        props_editor = self.parent.props_editor
+        try:
+            props_editor.itemChanged.disconnect()
+        except TypeError:
+            pass
+        props_editor.dataobj = self
+        for i, k in enumerate(PROPERTIES):
+            props_editor.setItem(i, 0, QtGui.QTableWidgetItem(k))
+            props_editor.setItem(i, 1, QtGui.QTableWidgetItem(
+                repr(self.props[k]) if k in self.props else ''))
+        props_editor.setWindowTitle(self.name)
+        props_editor.itemChanged.connect(self.update_props)
+        props_editor.show()
+
+    def update_props(self, item):
+        if self.parent.props_editor.dataobj is not self:
+            return
+        row = item.row()
+        key = text_type(self.parent.props_editor.item(row, 0).text())
+        value = self.parent.props_editor.item(row, 1)
+        if value:
+            try:
+                value = ast.literal_eval(text_type(value.text()))
+            except (SyntaxError, ValueError):
+                value = text_type(value.text())
+            if value == '' and key in self.props:
+                del self.props[key]
+            elif value != '':
+                self.props[key] = value
+
+    def close(self):
+        self.parent.props_editor.close()
+
     def toggle_twin(self):
         self.twin = not self.twin
+        self.parent.draw()
+
+    def synchronize(self, ax):
+        menu, scale = (self.xmenu, self.xscale_box) if ax == 'x' else (
+            self.menu, self.scale_box)
+        for d in self.parent.datas:
+            if getattr(d, 'set_%sname' % ax)(text_type(menu.lineEdit().text())):
+                getattr(d, 'set_%sscale' % ax)(text_type(scale.text()))
         self.parent.draw()
 
 
 class Interact(QtGui.QMainWindow):
 
-    def __init__(self, data, title, parent=None):
+    def __init__(self, data, title=None, sortkey=None, axisequal=False,
+                 parent=None, **kwargs):
         QtGui.QMainWindow.__init__(self, parent)
         if title is not None:
             self.setWindowTitle(title)
         else:
             self.setWindowTitle(', '.join(d[1] for d in data))
+        self.sortkey = kwargs.get('sortkey', lambda x: x.lower())
         self.grid = QtGui.QGridLayout()
 
         self.frame = QtGui.QWidget()
@@ -402,12 +551,15 @@ class Interact(QtGui.QMainWindow):
         self.ylim = None
         self.xlogscale = 'linear'
         self.ylogscale = 'linear'
+        self.axisequal = kwargs.get('axisequal', False)
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
         self.pickers = None
 
         self.vbox = QtGui.QVBoxLayout()
         self.vbox.addWidget(self.mpl_toolbar)
+
+        self.props_editor = PropertyEditor(self)
 
         self.datas = []
         for d in data:
@@ -440,23 +592,33 @@ class Interact(QtGui.QMainWindow):
         self.row = self.grid.rowCount()
         self.column = 0
 
-        def add_widget(w):
+        def axisequal():
+            self.axisequal = not self.axisequal
+            self.draw()
+
+        def add_widget(w, axis=None):
             self.grid.addWidget(w, self.row, self.column)
             data.widgets.append(w)
             self.connect(w, SIGNAL('duplicate()'), data.duplicate)
             self.connect(w, SIGNAL('remove()'), data.remove)
+            self.connect(w, SIGNAL('closed()'), data.close)
+            self.connect(w, SIGNAL('axisequal()'), axisequal)
             self.connect(w, SIGNAL('relabel()'), data.change_label)
+            self.connect(w, SIGNAL('edit_props()'), data.edit_props)
             self.connect(w, SIGNAL('twin()'), data.toggle_twin)
+            if axis:
+                self.connect(w, SIGNAL('synchronize()'),
+                             lambda axis=axis: data.synchronize(axis))
             self.column += 1
 
         add_widget(data.label)
-        add_widget(data.menu)
+        add_widget(data.menu, 'y')
         add_widget(data.scale_label)
-        add_widget(data.scale_box)
+        add_widget(data.scale_box, 'y')
         add_widget(data.xlabel)
-        add_widget(data.xmenu)
+        add_widget(data.xmenu, 'x')
         add_widget(data.xscale_label)
-        add_widget(data.xscale_box)
+        add_widget(data.xscale_box, 'x')
 
     def warn(self, message):
         self.warnings = [message]
@@ -473,6 +635,9 @@ class Interact(QtGui.QMainWindow):
         for widget in data.widgets:
             self.grid.removeWidget(widget)
             widget.deleteLater()
+
+        if self.props_editor.dataobj is data:
+            self.props_editor.close()
 
         self.set_layout()
         self.draw()
@@ -508,12 +673,24 @@ class Interact(QtGui.QMainWindow):
             [p.disable() for p in self.pickers]
             self.pickers = None
 
-    @staticmethod
-    def plot(axes, x, y, label):
+    def plot(self, axes, x, y, data, label):
         try:
-            return len(axes.plot(x, y, label=label))
+            lines = axes.plot(x, y, label=label)
         except ValueError:
-            return len(axes.plot(x, y.T, label=label))
+            lines = axes.plot(x, y.T, label=label)
+
+        for line in lines:
+            if 'color' not in data.props and 'linestyle' not in data.props:
+                style, color = next(self.styles)
+                line.set_color(color)
+                line.set_linestyle(style)
+                self.handles[label] = line
+            else:
+                self.handles[getattr(data, 'old_label', label)] = line
+            for key, value in data.props.items():
+                getattr(line, 'set_' + key, lambda _: None)(value)
+
+        return len(lines)
 
     def draw(self):
         self.mpl_toolbar.home = self.draw
@@ -532,6 +709,8 @@ class Interact(QtGui.QMainWindow):
         xlabel2 = []
         ylabel2 = []
         self.warnings = []
+        self.handles = OrderedDict()
+        self.styles = styles()
         for d in self.datas:
             if d.twin:
                 axes, x, y = self.axes2, xlabel2, ylabel2
@@ -542,12 +721,12 @@ class Interact(QtGui.QMainWindow):
             text = self.get_key(d.menu)
             xtext = self.get_key(d.xmenu)
             if isinstance(d.labels, (list, tuple)):
-                for i, l in enumerate(d.labels):
+                for i, label in enumerate(d.labels):
                     self.plot(axes, d.obj[xtext][..., i] * xscale,
-                              d.obj[text][..., i] * scale, label=l)
+                              d.obj[text][..., i] * scale, d, label=label)
             else:
                 n = self.plot(axes, d.obj[xtext] * xscale, d.obj[text] * scale,
-                              label=d.labels)
+                              d, label=d.labels)
                 if n > 1:
                     d.old_label = d.labels
                     d.labels = ['%s %d' % (d.old_label, i) for i in range(n)]
@@ -555,11 +734,6 @@ class Interact(QtGui.QMainWindow):
             axes.set_xlabel('')
             x.append(xtext + ' (' + d.name + ')')
             y.append(text + ' (' + d.name + ')')
-
-        lines = self.axes.get_lines() + self.axes2.get_lines()
-        for line, (style, color) in zip(lines, styles()):
-            line.set_linestyle(style)
-            line.set_color(color)
 
         self.axes.set_xlabel('\n'.join(xlabel))
         self.axes.set_ylabel('\n'.join(ylabel))
@@ -573,7 +747,9 @@ class Interact(QtGui.QMainWindow):
         self.axes.set_xscale(self.xlogscale)
         self.axes.set_yscale(self.ylogscale)
 
-        legend = self.axes.legend(tuple(lines), (l.get_label() for l in lines))
+        for ax in self.axes, self.axes2:
+            ax.set_aspect('equal' if self.axisequal else 'auto', 'box-forced')
+        legend = self.axes.legend(self.handles.values(), self.handles.keys())
         legend.draggable(True)
         self.pickers = [picker(ax) for ax in [self.axes, self.axes2]]
         self.canvas.draw()
@@ -620,11 +796,11 @@ class Interact(QtGui.QMainWindow):
         self.draw()
 
     control_actions = {
-        QtCore.Qt.Key_M: '_margins',
-        QtCore.Qt.Key_O: '_options',
-        QtCore.Qt.Key_Q: '_close',
-        QtCore.Qt.Key_X: '_resetx',
-        QtCore.Qt.Key_Y: '_resety',
+        QtCore.Qt.Key_M: _margins,
+        QtCore.Qt.Key_O: _options,
+        QtCore.Qt.Key_Q: _close,
+        QtCore.Qt.Key_X: _resetx,
+        QtCore.Qt.Key_Y: _resety,
     }
 
     @staticmethod
@@ -632,13 +808,14 @@ class Interact(QtGui.QMainWindow):
         return dict(xname=text_type(d.xmenu.lineEdit().text()),
                     yname=text_type(d.menu.lineEdit().text()),
                     xscale=text_type(d.xscale_box.text()),
-                    yscale=text_type(d.scale_box.text()))
+                    yscale=text_type(d.scale_box.text()),
+                    props=d.props)
 
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
             event.modifiers() & CONTROL_MODIFIER and
                 event.key() in self.control_actions):
-            getattr(self, self.control_actions[event.key()])()
+            self.control_actions[event.key()](self)
             return True
 
         # Create duplicate of entire GUI with Ctrl+Shift+N
@@ -655,6 +832,7 @@ class Interact(QtGui.QMainWindow):
               event.modifiers() & QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_P):
             print("\n".join(text_type(self.data_dict(d)) for d in self.datas))
+            sys.stdout.flush()
             return True
         return super(Interact, self).event(event)
 
@@ -682,13 +860,23 @@ def merge_dicts(*dicts):
     return merged
 
 
+def dataobj(data, name='',
+            xname=None, xscale=None,
+            yname=None, yscale=None,
+            labels=None, props=None, **kwargs):
+    locals().update(kwargs)
+    return [data, name,
+            {k: v for k, v in locals().items()
+             if k not in ('data', 'name') and v is not None}]
+
+
 def create(*data, **kwargs):
     """
     Create an interactive plot window for the given data.
 
-    >>> create([dict1, 'Title1', 'XaxisKey1',
-                dict(labels=['a', 'b'], xscale='1/degree')],
-               [dict2, 'Title2'])
+    >>> create(dataobj(dict1, 'Title1', 'XaxisKey1',
+    ...        labels=['a', 'b'], xscale='1/degree'),
+    ...        dataobj(dict2, 'Title2'))
 
     The inputs should define data dictionaries to plot as a list
     containing the dictionary itself, a name for the dictionary to use
@@ -722,7 +910,7 @@ def create(*data, **kwargs):
                 d[-1]['xname'] = d[-1].get('xname', d[2])
                 d.pop(2)
 
-    i = Interact(data, kwargs.get('title', None))
+    i = Interact(data, **kwargs)
     app.references.add(i)
     i.show()
     i.raise_()
@@ -732,12 +920,8 @@ def create(*data, **kwargs):
 
 def main():
     time = np.linspace(0, 10)
-    d = {
-        'time': time,
-        'x': np.cos(time),
-        'y': np.sin(time),
-    }
-    create([d, 'data', 'time', {'yname': 'x', 'yscale': 3.0}])
+    d = {'time': time, 'x': np.cos(time), 'y': np.sin(time)}
+    create(dataobj(d, 'data', 'time', yname='x', yscale=3.0))
 
 
 if __name__ == '__main__':
