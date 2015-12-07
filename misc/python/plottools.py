@@ -1,6 +1,6 @@
 from __future__ import division, print_function
 import matplotlib.pyplot as plt
-from plotinteract import create, merge_dicts  # noqa
+from plotinteract import create, dataobj, merge_dicts  # noqa
 
 
 def fg(fig=None):
@@ -66,16 +66,14 @@ def picker(fig=None, **kwargs):
 
 def unique_legend(*axes, **kwargs):
     """Add a legend with each label used only once."""
+    from collections import OrderedDict
     from itertools import chain
     if not axes:
         axes = plt.gcf().get_axes()
-    items = []
-    for item in chain.from_iterable(
-            zip(*ax.get_legend_handles_labels()) for ax in axes):
-        if item not in items:
-            items.append(item)
-    handles, labels = zip(*items)
-    return plt.legend(handles, labels, **kwargs)
+    items = OrderedDict(
+        (label, handle) for handle, label in chain.from_iterable(
+            zip(*ax.get_legend_handles_labels()) for ax in axes))
+    return plt.legend(items.values(), items.keys(), **kwargs)
 
 
 def fig(num=1):
