@@ -390,9 +390,9 @@ EOF
       execute "buffer ".scratch
     endif
     if line('$') == 1 && getline(1) ==# ''
-      put! = ['# pylama: ignore=E3,E5,E7,W0,W2,W3',
-          \   'from IPython import get_ipython',
-          \   'ip = get_ipython()']
+      silent put! = ['# pylama: ignore=C9,E2,E3,E5,E7,W0,W2,W3',
+          \          'from IPython import get_ipython',
+          \          'ip = get_ipython()']
       keepjumps normal! G
     endif
     silent execute 'file' fnameescape(s:scratch_name)
