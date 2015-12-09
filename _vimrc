@@ -961,9 +961,9 @@ command! -nargs=0 SingleFile call s:SingleFile()
 func! s:SearchHandleKey(dir) " {{{
     augroup search_tab_map
         autocmd!
-        autocmd CursorMoved * execute "silent! cunmap \<Tab>" | autocmd! search_tab_map
+        autocmd CursorMoved * execute 'silent! cunmap <Tab>' | autocmd! search_tab_map
         if exists('#OptionSet')
-            autocmd OptionSet wildcharm execute "silent! cunmap \<Tab>" | autocmd! search_tab_map
+            autocmd OptionSet wildcharm execute 'silent! cunmap <Tab>' | autocmd! search_tab_map
         endif
     augroup END
     cnoremap <expr> <Tab> getcmdtype() =~ '[/?]' ? <SID>SearchComplete() : '<Tab>'
@@ -2135,6 +2135,18 @@ func! s:UniteSetup() " {{{
         endfor
     endfunction
     call unite#custom#action('buffer', 'open', s:open) " }}}
+
+    " Use Unite for completion
+    function! s:start_complete()
+        let text = neocomplete#get_cur_text(1)
+        let complete_sources = neocomplete#complete#_set_results_pos(text)
+        return unite#start_complete(['neocomplete'], {
+            \ 'auto_preview' : 1, 'here' : 0, 'resize' : 0, 'split' : 0,
+            \ 'input' : text[neocomplete#complete#_get_complete_pos(complete_sources) :]})
+    endfunction
+    inoremap <silent> <expr> <C-x><Space> <SID>start_complete()
+    inoremap <silent> <expr> <C-x><C-@>   <SID>start_complete()
+    call unite#custom#profile('completion', 'converters', ['converter_abbr_word'])
 endfunc " }}}
 " }}}
 
