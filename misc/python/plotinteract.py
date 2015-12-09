@@ -486,7 +486,7 @@ class DataObj(object):
         for i, k in enumerate(PROPERTIES):
             props_editor.setItem(i, 0, QtGui.QTableWidgetItem(k))
             props_editor.setItem(i, 1, QtGui.QTableWidgetItem(
-                repr(self.props[k]) if k in self.props else ''))
+                repr(str(self.props[k])) if k in self.props else ''))
         props_editor.setWindowTitle(self.name)
         props_editor.itemChanged.connect(self.update_props)
         props_editor.show()
@@ -532,7 +532,7 @@ class Interact(QtGui.QMainWindow):
             self.setWindowTitle(title)
         else:
             self.setWindowTitle(', '.join(d[1] for d in data))
-        self.sortkey = kwargs.get('sortkey', lambda x: x.lower())
+        self.sortkey = sortkey if sortkey else lambda x: x.lower()
         self.grid = QtGui.QGridLayout()
 
         self.frame = QtGui.QWidget()
@@ -551,7 +551,7 @@ class Interact(QtGui.QMainWindow):
         self.ylim = None
         self.xlogscale = 'linear'
         self.ylogscale = 'linear'
-        self.axisequal = kwargs.get('axisequal', False)
+        self.axisequal = axisequal
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
         self.pickers = None
