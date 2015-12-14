@@ -1861,7 +1861,7 @@ call s:CreateAbbrev('u', 'Unite -start-insert', ':')
 augroup VimrcAutocmds
     autocmd VimEnter * if exists(':Unite') | call s:UniteSetup() | endif
     autocmd FileType unite call s:UniteSettings()
-    autocmd CursorHold * silent! call unite#sources#history_yank#_append()
+    autocmd CursorHold * silent! call neoyank#_append()
 augroup END
 
 func! s:UniteSettings() " {{{
@@ -2227,9 +2227,16 @@ for dir in ['Left', 'Down', 'Up', 'Right'] | for mod in ['S-', 'M-']
 endfor | endfor
 
 " Vimux settings
+function! VimuxCompletionPrompt() abort " {{{
+    let command = input('Command? ', '', 'customlist,unite#helper#complete_search_history')
+    if !empty(command)
+        call VimuxRunCommand(command)
+        let g:VimuxLastCommand = command
+    endif
+endfunction " }}}
 let g:VimuxResetSequence = "S q C-u"
+nnoremap <silent> <Leader>: :<C-u>call VimuxCompletionPrompt()<CR>
 nnoremap <Leader>vo :call VimuxOpenRunner()<CR>
-nnoremap <silent> <Leader>: :VimuxPromptCommand<CR>
 nnoremap <silent> @\ :<C-u>VimuxRunLastCommand<CR>
 nnoremap <silent> @\| :<C-u>VimuxRunLastCommand<CR>
 nnoremap <silent> g\| :VimuxPromptCommand<CR><C-f>
@@ -2264,7 +2271,11 @@ command! -nargs=0 NotFollowedBy call vimtools#FollowedBy(1)
 command! -nargs=0 PrecededBy call vimtools#PrecededBy(0)
 command! -nargs=0 NotPrecededBy call vimtools#PrecededBy(1)
 autocmd VimrcAutocmds FileType c,cpp,*sh call vimtools#SectionJumpMaps()
-nnoremap <silent> g= :call vimtools#MakeParagraph()<CR>
+nnoremap <silent> g= :<C-u>call vimtools#MakeParagraph()<CR>
+nmap <silent> <expr> gp (getregtype(v:register) ==# 'V' ? 'pg=' : 'o<Esc>pg=') .
+    \ ':silent! call repeat#set("gp")<CR>'
+nmap <silent> <expr> gP (getregtype(v:register) ==# 'V' ? 'Pg=' : 'O<Esc>pg=') .
+    \ ':silent! call repeat#set("gP")<CR>'
 
 " python-mode settings
 let g:pymode_options = 0
