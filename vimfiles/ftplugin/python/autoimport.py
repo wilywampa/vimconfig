@@ -313,6 +313,15 @@ for miss in set(missing):
         except ImportError:
             not_found.add(miss)
 
+if not_found and int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
+    i = next(iter(i for i in imports if i.module == 'IPython'), None)
+    if i:
+        i.names.append('get_ipython')
+        i.asnames.append('get_ipython')
+    else:
+        imports.append(Import(module='IPython', names=['get_ipython'],
+                              asnames=['get_ipython'], alias=None, lrange=()))
+
 
 def duplicates(imports):
     seen = set()
@@ -377,19 +386,22 @@ lines = sorted(sorted(lines), key=key)
 if not_found and int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
     lines.append([''])
     lines.extend(
-        [["{0} = get_ipython().user_ns['{0}']".format(m)]
-         for m in sorted(not_found)])
+        [["{0} = get_ipython().user_ns['{0}']".format(name)]
+         for name in sorted(not_found)])
 
 lines = [l for ls in lines for l in ls]
-if start:
-    if vim.current.buffer[start - 1:end] != lines:
-        vim.current.buffer[start - 1:end] = lines
-elif lines:
-    if re.match(r'^(@|class\s|def\s)', vim.current.buffer[0]):
-        lines.extend(['', ''])
-    elif re.search(r'\S', vim.current.buffer[0]):
-        lines.append('')
-    vim.current.buffer[:] = lines + vim.current.buffer[:]
+if unused or missing or redefined:
+    if start:
+        if vim.current.buffer[start - 1:end] != lines:
+            if vim.current.buffer[end - 1] == '':
+                end -= 1
+            vim.current.buffer[start - 1:end] = lines
+    elif lines:
+        if re.match(r'^(@|class\s|def\s)', vim.current.buffer[0]):
+            lines.extend(['', ''])
+        elif re.search(r'\S', vim.current.buffer[0]):
+            lines.append('')
+        vim.current.buffer[:] = lines + vim.current.buffer[:]
 if not lines:
     while re.match(r'^\s*$', vim.current.buffer[0]):
         vim.current.buffer[:2] = [vim.current.buffer[1]]
