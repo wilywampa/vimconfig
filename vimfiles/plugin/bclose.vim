@@ -36,6 +36,10 @@ function! s:Bclose(bang, buffer)
     call s:Warn('No write since last change for buffer '.btarget.' (use :Bclose!)')
     return
   endif
+  if empty(a:bang) && !empty(getbufvar(btarget, '&buftype'))
+    call s:Warn('buftype is not empty for buffer '.btarget.' (use :Bclose!)')
+    return
+  endif
   " Numbers of windows that view target buffer which we will delete.
   let wnums = filter(range(1, winnr('$')), 'winbufnr(v:val) == btarget')
   if !g:bclose_multiple && len(wnums) > 1
