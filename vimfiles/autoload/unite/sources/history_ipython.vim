@@ -176,6 +176,7 @@ let s:source.action_table.append = {
     \ }
 function! s:source.action_table.append.func(candidates)
   put = join(map(copy(a:candidates), 'v:val.word'), \"\n\n\")
+  silent! call vimtools#MakeParagraph()
 endfunction
 
 let s:source.action_table.insert = {
@@ -184,6 +185,7 @@ let s:source.action_table.insert = {
     \ }
 function! s:source.action_table.insert.func(candidates)
   put! = join(map(copy(a:candidates), 'v:val.word'), \"\n\n\")
+  silent! call vimtools#MakeParagraph()
 endfunction
 
 let &cpo = s:save_cpo
