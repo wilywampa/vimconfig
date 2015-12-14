@@ -26,6 +26,7 @@ import ipython_autocd as _; _.register()
 import ipython_config as _; _._install_magics()
 import itertools as it
 import lambda_filter as _; _.register()
+import logging
 import mathtools as mt
 import matplotlib as mpl
 import matplotlib.cm as cm
