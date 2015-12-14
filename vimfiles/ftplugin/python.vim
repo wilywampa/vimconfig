@@ -155,7 +155,7 @@ EOF
   endfunction
 
   function! s:IPyRunPrompt()
-    let g:ipy_input = input('IPy: ')
+    let g:ipy_input = input('IPy: ', '', 'customlist,unite#helper#complete_search_history')
     if len(g:ipy_input)
       let g:last_ipy_input = g:ipy_input
       call IPyRunIPyInput()
@@ -229,11 +229,14 @@ EOF
     let g:repeat_op = &opfunc
     let input = vimtools#opfunc(a:type)
     if exists('b:did_ipython')
-      let g:ipy_input = vimtools#opfunc(a:type)
+      let g:ipy_input = input
       if &buftype == ''
         let g:ipy_input = substitute(g:ipy_input,
             \ '\v["'']@<!__file__["'']@!',
             \ "r'".escape(expand('%:p'), "'")."'", 'g')
+      endif
+      if expand('%:t') ==# s:scratch_name
+        let g:ipy_input = s:UncommentMagics(g:ipy_input)
       endif
       call IPyRunIPyInput()
     else
@@ -361,6 +364,11 @@ EOF
     endtry
   endfunction
 
+  function! s:UncommentMagics(input)
+    return join(map(split(a:input, '\n'),
+        \ 'substitute(v:val, "^\\s*\\zs# %", "%", "")'), "\n")
+  endfunction
+
   function! s:IPyRunScratchBuffer()
     let view = winsaveview()
     call SaveRegs()
@@ -371,8 +379,7 @@ EOF
     let dir = $HOME . '/.cache/IPython'
     if !isdirectory(dir) | call mkdir(dir) | endif
     call writefile(split(@@ . "\n", '\n'), dir . strftime('/%a_%d%b%y.py'), 'a')
-    let g:ipy_input = join(map(split(@@, '\n'),
-        \ 'substitute(v:val, "^\\s*\\zs# %", "%", "")'), "\n")
+    let g:ipy_input = s:UncommentMagics(@@)
     call RestoreRegs()
     execute "normal! " . vimode . "\<Esc>"
     call setpos("'<", left_save)
@@ -409,7 +416,7 @@ EOF
 endif
 
 nnoremap <silent> <buffer> <Leader>: :<C-u>call <SID>IPyRunPrompt()<CR>
-nnoremap <silent> <buffer> <Leader><Leader>: :<C-u>VimuxPromptCommand<CR>
+nnoremap <silent> <buffer> <Leader><Leader>: :<C-u>call VimuxCompletionPrompt()<CR>
 nnoremap <silent> <buffer> @\  :<C-u>call <SID>IPyRepeatCommand()<CR>
 nnoremap <silent> <buffer> @\| :<C-u>call <SID>IPyRepeatCommand()<CR>
 nnoremap <silent> <buffer> g\  :<C-u>call <SID>IPyRunPrompt()<CR><C-f>
