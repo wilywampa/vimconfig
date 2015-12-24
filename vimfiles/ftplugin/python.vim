@@ -406,10 +406,12 @@ EOF
     setfiletype python
     setlocal buftype=nofile bufhidden=hide noswapfile
     setlocal omnifunc=CompleteIPython
+    setlocal foldmethod=manual foldexpr=
     let b:ipython_user_ns = 1
     nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
     inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
     xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
+    nnoremap <buffer> <silent> <CR>   vip:<C-u>call <SID>IPyEval(1)<CR>
     map  <buffer> <C-s> <F5>
     map! <buffer> <C-s> <F5>
   endfunction
