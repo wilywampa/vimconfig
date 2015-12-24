@@ -1,3 +1,11 @@
+" Import vital utilities
+if !exists('s:V')
+  let s:V = vital#of('vimtools')
+  let s:Prelude = s:V.import('Prelude')
+  let s:List = s:V.import('Data.List')
+  let s:String = s:V.import('Data.String')
+endif
+
 " From tpope's scriptease: https://github.com/tpope/vim-scriptease
 function! vimtools#SynNames(...) abort " {{{
   if a:0
