@@ -1881,6 +1881,14 @@ augroup VimrcAutocmds
     autocmd CursorHold * silent! call neoyank#_append()
 augroup END
 
+function! s:prev_bufnr(bufnr) abort " {{{
+    silent! let unite = getbufvar(a:bufnr, 'unite')
+    if type(unite) != type({}) || bufwinnr(a:bufnr) < 1 | return | endif
+    let bufnr = winbufnr(winnr('#'))
+    if index(['help', 'quickfix'], getbufvar(bufnr, '&buftype')) == -1
+        let unite.prev_bufnr = bufnr
+    endif
+endfunction " }}}
 func! s:UniteSettings() " {{{
     imap <silent> <buffer> <expr> <C-q> unite#do_action('delete')
         \."\<Plug>(unite_append_enter)"
@@ -1933,6 +1941,7 @@ func! s:UniteSettings() " {{{
         \ getline('.')[virtcol('.')-3:virtcol('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
     inor <buffer> <C-r>% <C-r>#
     inor <buffer> <expr> <C-r>$ expand('#:t')
+    nmap <buffer> a <Plug>(unite_append_enter)
     nmap <buffer> S <Plug>(unite_append_end)<Plug>(unite_delete_backward_line)
     nmap <buffer> s <Plug>(unite_append_enter)<BS>
     nmap <buffer> [u k<CR>
@@ -1944,14 +1953,7 @@ func! s:UniteSettings() " {{{
     for key in ['<Up>', '<Down>', '<Left>', '<Right>'] + split('?Nbet', '\zs')
         execute 'silent! nunmap <buffer> ' . key
     endfor
-    function! s:prev_bufnr(bufnr) abort " {{{
-        silent! let unite = getbufvar(a:bufnr, 'unite')
-        if type(unite) != type({}) || bufwinnr(a:bufnr) < 1 | return | endif
-        let bufnr = winbufnr(winnr('#'))
-        if index(['help', 'quickfix'], getbufvar(bufnr, '&buftype')) == -1
-            let unite.prev_bufnr = bufnr
-        endif
-    endfunction " }}}
+    silent! iunmap <buffer> <Space>
     autocmd WinEnter <buffer> call s:prev_bufnr(+expand('<abuf>'))
 endfunc " }}}
 
