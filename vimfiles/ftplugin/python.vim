@@ -155,7 +155,7 @@ EOF
   endfunction
 
   function! s:IPyRunPrompt()
-    let g:ipy_input = input('IPy: ', '', 'customlist,unite#helper#complete_search_history')
+    let g:ipy_input = input('IPy: ', '', 'customlist,vimtools#CmdlineComplete')
     if len(g:ipy_input)
       let g:last_ipy_input = g:ipy_input
       call IPyRunIPyInput()

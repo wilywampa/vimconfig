@@ -531,4 +531,20 @@ function! vimtools#ToggleDiff() " {{{
   endif
 endfunction " }}}
 
+function! vimtools#CmdlineComplete(arglead, cmdline, cursorpos) " {{{
+  let results = []
+  if &filetype ==# 'python' && exists('*IPythonCmdComplete')
+    try
+      let results = IPythonCmdComplete(a:arglead, a:cmdline, a:cursorpos)
+    catch
+    endtry
+  endif
+  let pattern = '\v\c^(\\[cmv<])*\<?|\\?\>$'
+  let hist = map(range(1, min([+&history, 500])),
+      \ '[substitute(histget("search", -v:val), pattern, "", "g"),
+      \   histget("input", -v:val)]')
+  return s:List.uniq(results + filter(s:List.flatten(hist),
+      \ "stridx(tolower(v:val), tolower(a:arglead)) == 0"))
+endfunction " }}}
+
 " vim:set et ts=2 sts=2 sw=2 fdm=marker:

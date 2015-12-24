@@ -997,7 +997,7 @@ function! s:SearchComplete(...) abort " {{{
         let begin = substitute(getcmdline(), '^\\[vV]', '', '')
         let cmdtype = getcmdtype()
     endif
-    let input = input('='.cmdtype.magic, begin, 'customlist,unite#helper#complete_search_history')
+    let input = input('='.cmdtype.magic, begin, 'customlist,vimtools#CmdlineComplete')
     return input[len(begin):]
 endfunction " }}}
 
@@ -1942,7 +1942,7 @@ function! s:grep(source, ...) abort " {{{
     let path = len(a:000) >= 1 ? a:1 : input('Path: ', '.', 'file')
     let opts = len(a:000) >= 2 ? a:2 : input(
         \ 'Options: ', a:source ==# 'grep' ? get(g:, 'ag_flags', '') : '')
-    let inp = input('Pattern: ', '', 'customlist,unite#helper#complete_search_history')
+    let inp = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
     if len(inp) | call histadd('/', inp) | call unite#start([[a:source, path, opts, inp]]) | endif
 endfunction
 function! s:grep_options() abort
@@ -2228,7 +2228,7 @@ endfor | endfor
 
 " Vimux settings
 function! VimuxCompletionPrompt() abort " {{{
-    let command = input('Command? ', '', 'customlist,unite#helper#complete_search_history')
+    let command = input('Command? ', '', 'customlist,vimtools#CmdlineComplete')
     if !empty(command)
         call VimuxRunCommand(command)
         let g:VimuxLastCommand = command
