@@ -502,10 +502,14 @@ class DataObj(object):
                 value = ast.literal_eval(text_type(value.text()))
             except (SyntaxError, ValueError):
                 value = text_type(value.text())
-            if value == '' and key in self.props:
+            if key in self.props and self.props[key] == value:
+                return
+            elif value == '' and key in self.props:
                 del self.props[key]
             elif value != '':
                 self.props[key] = value
+                self.parent.props_editor.setItem(
+                    row, 1, QtGui.QTableWidgetItem(str(repr(value))))
 
     def close(self):
         self.parent.props_editor.close()
@@ -532,7 +536,10 @@ class Interact(QtGui.QMainWindow):
             self.setWindowTitle(title)
         else:
             self.setWindowTitle(', '.join(d[1] for d in data))
-        self.sortkey = sortkey if sortkey else lambda x: x.lower()
+        if sortkey is not None:
+            self.sortkey = sortkey
+        else:
+            self.sortkey = kwargs.get('key', lambda x: x.lower())
         self.grid = QtGui.QGridLayout()
 
         self.frame = QtGui.QWidget()
@@ -809,7 +816,15 @@ class Interact(QtGui.QMainWindow):
                     yname=text_type(d.menu.lineEdit().text()),
                     xscale=text_type(d.xscale_box.text()),
                     yscale=text_type(d.scale_box.text()),
-                    props=d.props)
+                    props=d.props, name=d.name,
+                    labels=d.old_label if hasattr(d, 'old_label') else d.labels)
+
+    @classmethod
+    def dict_repr(cls, d):
+        if isinstance(d, dict):
+            return 'dict({0})'.format(', '.join(
+                ['{0}={1}'.format(k, cls.dict_repr(v)) for k, v in d.items()]))
+        return repr(d)
 
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
@@ -831,7 +846,8 @@ class Interact(QtGui.QMainWindow):
               event.modifiers() & CONTROL_MODIFIER and
               event.modifiers() & QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_P):
-            print("\n".join(text_type(self.data_dict(d)) for d in self.datas))
+            print("\n".join(text_type(self.dict_repr(self.data_dict(d)))
+                            for d in self.datas))
             sys.stdout.flush()
             return True
         return super(Interact, self).event(event)
@@ -916,6 +932,7 @@ def create(*data, **kwargs):
     i.raise_()
     if app_created:
         app.exec_()
+    return i
 
 
 def main():
