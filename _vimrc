@@ -1757,6 +1757,18 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
                 \ ['vim', 'file', 'words', 'syntax', 'buffer']
             autocmd InsertLeave * if &ft=='vim' | sil! exe 'NeoCompleteVimMakeCache' | en
         augroup END
+
+        function! s:ResetCompletion() abort " {{{
+            let neocomplete = neocomplete#get_current_neocomplete()
+            for source in values(neocomplete.sources)
+                let context = source.neocomplete__context
+                let context.prev_candidates = []
+                let context.prev_complete_pos = -1
+                let context.prev_line = ''
+            endfor
+            return neocomplete#start_manual_complete()
+        endfunction " }}}
+        inoremap <silent> <expr> <C-x><C-x> <SID>ResetCompletion()
     endif
 else
     call add(g:pathogen_disabled, 'neocomplete')
