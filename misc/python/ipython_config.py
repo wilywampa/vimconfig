@@ -139,9 +139,10 @@ class SliceIndex(object):
     """Allow indexing generators with square brackets."""
 
     def __init__(self, iterator):
-        if not hasattr(iterator, '__next__' if PY3 else 'next'):
-            iterator = iterator()
-        self.iterator = iter(iterator)
+        try:
+            self.iterator = iter(iterator)
+        except TypeError:
+            self.iterator = iter(iterator())
 
     def __iter__(self):
         for elt in self.iterator:
@@ -226,8 +227,10 @@ def configure(c):
         if "solarizedlight" in pygments.styles.get_all_styles():
             c.IPythonWidget.syntax_style = "solarizedlight"
 
+    from IPython.lib.pretty import _set_pprinter_factory
     c.PlainTextFormatter.type_printers.update({
         ma.core.MaskedArray: _marray_pprint,
+        set: _set_pprinter_factory('set({', '})', set),
     })
 
     def add(item):
