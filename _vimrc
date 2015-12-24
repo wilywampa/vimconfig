@@ -561,10 +561,6 @@ nn <silent> du :diffupdate<CR>
 ino <expr> ~ getline('.')[virtcol('.')-2] == '$' ? "\<BS>".$HOME : '~'
 cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".$HOME : '~'
 
-" Make @: work immediately after restarting vim
-nn <silent> <expr> @: len(getreg(':')) ? "@:" : ":\<C-u>echo ':'.histget(':', -1)\<bar>
-    \ execute histget(':', -1)\<CR>"
-
 " Discard changes and reload undofile for current file
 nn <silent> <Leader><Leader>r :<C-u>execute "silent later ".&undolevels
     \<bar>while &modified<bar>silent earlier<bar>endwhile
@@ -1286,6 +1282,15 @@ else
     endfunc " }}}
 endif
 
+" Make @: work immediately after restarting vim
+function! s:ex_repeat() " {{{
+    if len(getreg(':')) && @: !~# '^Rem\%[ove]$' | return "@:" | endif
+    let num = -1
+    while histget(':', num) =~# '^Rem\%[ove]$' | let num -= 1 | endwhile
+    echo ':' . histget(':', num)
+    return ":\<C-u>execute histget(':', " . num . ")\<CR>"
+endfunction " }}}
+nnoremap <silent> <expr> @: <SID>ex_repeat()
 " }}}
 
 " {{{ GUI configuration
