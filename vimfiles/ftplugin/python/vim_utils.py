@@ -14,7 +14,14 @@ except NameError:
 
 
 def get_ipython_file():
-    args = ['ps', '-u', getuser(), '-o', 'args']
+    if vim.eval('executable("procps")') == '1':
+        args = ['procps', '--user', getuser(), '-o', 'args']
+    elif vim.eval('has("win16") || has("win32") || '
+                  'has("win64") || has("win32unix")') == '1':
+        return ''
+    else:
+        args = ['ps', '-u', getuser(), '-o', 'args']
+
     try:
         procs = subprocess.getoutput(args)
     except AttributeError:
