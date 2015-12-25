@@ -3,7 +3,7 @@ import os
 import shutil
 import sys
 from argparse import ArgumentParser
-from os.path import exists
+from os.path import exists, isfile
 
 parser = ArgumentParser()
 parser.add_argument('src', nargs='*')
@@ -45,6 +45,9 @@ undos = 0
 def check(path):
     if not exists(path):
         print('"{0}" does not exist'.format(path))
+        return False
+    elif not isfile(path):
+        print('"{0}" is not a file'.format(path))
         return False
     return True
 
