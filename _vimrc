@@ -955,16 +955,18 @@ command! -nargs=0 SingleFile call s:SingleFile()
 
 " Use 'very magic' regex by default
 func! s:SearchHandleKey(dir) " {{{
-    augroup search_tab_map
-        autocmd!
-        autocmd CursorMoved * execute 'silent! cunmap <Tab>' | autocmd! search_tab_map
-        if exists('#OptionSet')
-            autocmd OptionSet wildcharm execute 'silent! cunmap <Tab>' | autocmd! search_tab_map
-        endif
-    augroup END
-    cnoremap <expr> <Tab> getcmdtype() =~ '[/?]' ? <SID>SearchComplete() : '<Tab>'
     echo a:dir.'\v'
     let c = getchar()
+    if c != char2nr("\<C-c>") && c != char2nr("\<Esc>")
+        augroup search_tab_map
+            autocmd!
+            autocmd CursorMoved * execute 'silent! cunmap <Tab>' | autocmd! search_tab_map
+            if exists('#OptionSet')
+                autocmd OptionSet wildcharm execute 'silent! cunmap <Tab>' | autocmd! search_tab_map
+            endif
+        augroup END
+        cnoremap <expr> <Tab> getcmdtype() =~ '[/?]' ? <SID>SearchComplete() : '<Tab>'
+    endif
     " CursorHold, FocusLost, FocusGained
     if c == "\200\375`" || c == "\<F24>" || c == "\<F25>" | let c = '' | endif
     if     c == char2nr("\<CR>")             | return a:dir."\<CR>"
