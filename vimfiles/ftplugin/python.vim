@@ -364,9 +364,22 @@ EOF
     endtry
   endfunction
 
+  function! s:UncommentLine(line)
+    try
+      if a:line !~ '^\s*#'
+        return a:line
+      elseif a:line =~ '\v^\s*#\s+[!%]'
+        return substitute(a:line, '\v^(\s*)# ([%!])', '\1\2', '')
+      elseif a:line =~ '\v^\s*# (\h\w*,?\s*)+\s*\='
+        return substitute(a:line, '\v^(\s*)# ((\h\w*,?\s*)+)\s*\=', '\1\2=', '')
+      endif
+    catch
+    endtry
+    return a:line
+  endfunction
+
   function! s:UncommentMagics(input)
-    return join(map(split(a:input, '\n'),
-        \ 'substitute(v:val, "^\\s*\\zs# %", "%", "")'), "\n")
+    return join(map(split(a:input, '\n'), 's:UncommentLine(v:val)'), "\n")
   endfunction
 
   function! s:IPyRunScratchBuffer()
@@ -522,7 +535,7 @@ augroup python_ftplugin
   autocmd InsertEnter *.py,--Python--
       \ if &omnifunc == 'CompleteIPython' |
       \   let g:neocomplete#sources#omni#input_patterns.python =
-      \     '\%([^(). \t]\(\<self\)\@<!\.\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*\|\[["'']\w*' |
+      \     '\%([^(). \t]\.\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*\|\[["'']\w*' |
       \ else |
       \   let g:neocomplete#sources#omni#input_patterns.python =
       \     '\%([^(). \t]\.\|^\s*@\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*' |
