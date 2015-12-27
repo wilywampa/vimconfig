@@ -1743,8 +1743,11 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             \ "\<Plug>(neosnippet_expand_or_jump)":
             \ (pumvisible() ? neocomplete#close_popup() : "\<C-d>")
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
-        inoremap <silent> <expr> <C-l>      neocomplete#complete_common_string()
+        inoremap <silent> <expr> <C-l>
+            \ pumvisible() && &completefunc ==# 'neocomplete#sources#lines#complete' ?
+            \ "\<C-p>" : neocomplete#complete_common_string()
         inoremap <silent> <expr> <C-x><C-w> neocomplete#sources#words#start()
+        inoremap <silent> <expr> <C-x><C-l> neocomplete#sources#lines#start()
         nnoremap <silent> ,n :<C-u>NeoCompleteToggle<CR>
         " Make <BS> delete letter instead of clearing completion
         inoremap <BS> <BS>
