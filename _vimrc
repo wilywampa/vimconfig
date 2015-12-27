@@ -581,8 +581,9 @@ cno <expr> <C-r># fnameescape(expand('#'))
 cno <expr> <C-r>$ fnameescape(expand('%:t'))
 ino <expr> <C-r>$ expand('%:t')
 
-" Equivalent of 'dgn' for all matches in buffer
+" Equivalent of 'dgn' for all matches in buffer/visual selection
 nn <silent> <Leader>dgn :<C-u>%s///<CR>
+xn <silent> gd :s///<CR>
 
 " Faster repeat of previous shell command
 cno <expr> ! getcmdtype() == ':' && getcmdline() == '!' ? '!<CR>' : '!'
