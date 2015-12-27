@@ -324,7 +324,7 @@ EOF
         normal! gvy
         let g:ipy_input = @@
       else
-        let g:ipy_input = input('>>> ')
+        let g:ipy_input = input('>>> ', '', 'customlist,vimtools#CmdlineComplete')
       endif
       if a:mode == 0
         Python2or3 eval_ipy_input()
