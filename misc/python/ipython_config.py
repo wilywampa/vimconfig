@@ -22,10 +22,7 @@ except ImportError:
 import collections
 import ein
 import ipyparallel as px  # python3
-import ipython_autocd as _; _.register()
-import ipython_config as _; _._install_magics()
 import itertools as it
-import lambda_filter as _; _.register()
 import logging
 import mathtools as mt
 import matplotlib as mpl
@@ -40,6 +37,7 @@ import scipy.constants as sc
 import scipy.interpolate as si
 import scipy.io as sio
 import scipy.optimize as opt
+import six
 import subprocess
 import sys
 from IPython.core.display import display
@@ -184,10 +182,16 @@ def fields_dict(slist, type=SList):
     return out
 
 
-def _install_magics():
+def _install():
     import io
     from IPython import get_ipython
     from IPython.core import magic
+
+    import ipython_autocd
+    ipython_autocd.register()
+
+    import lambda_filter
+    lambda_filter.register()
 
     @magic.register_line_magic
     def run_cython(args):
@@ -238,6 +242,7 @@ def configure(c):
             c.InteractiveShellApp.exec_lines.append(item)
 
     lines = [
+        'import ipython_config as _; _._install()',
         '\n'.join(line for line in _imports.splitlines()
                   if not line.endswith('python2' if PY3 else 'python3')),
         ('def setwidth(): os.environ["COLUMNS"] = '
