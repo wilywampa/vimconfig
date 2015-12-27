@@ -564,6 +564,9 @@ if has('python') || has('python3')
 endif
 
 if (has('python') || has('python3')) && !exists('*FixImports()')
+if !exists('s:module_cache')
+  let s:module_cache = {}
+endif
 function! FixImports()
   let missing = []
   let redefined = []
@@ -593,6 +596,7 @@ EOF
     let unused = s:pyeval('unused')
     let loclist = g:PymodeLocList.current()
     let messages = copy(loclist._loclist)
+    let module_cache = s:module_cache
     if exists('g:python_autoimport_debug_file')
       execute s:pyfile . ' ' . fnameescape(g:python_autoimport_debug_file)
     else

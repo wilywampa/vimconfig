@@ -2,6 +2,7 @@ import ast
 import imp
 import io
 import itertools
+import os
 import re
 import textwrap
 import tokenize
@@ -215,6 +216,10 @@ froms = {
         'mph', 'nautical_mile', 'pound', 'pound_force', 'psi',
         'speed_of_sound'],
     'scipy.integrate': ['cumtrapz', 'quad', 'romb', 'simps'],
+    'six': [
+        'BytesIO', 'PY3', 'StringIO', 'iteritems', 'iterkeys', 'iterlists',
+        'itervalues', 'string_types', 'text_type', 'viewitems', 'viewkeys',
+        'viewvalues'],
     'subprocess': ['PIPE', 'Popen', 'STDOUT', 'call', 'check_output',
                    'list2cmdline'],
     'time': ['time'],
@@ -280,6 +285,23 @@ for i in imports:
 
 imports = [i for i in imports if i.asnames and i.alias not in unused.values()]
 
+
+def check_exists(miss):
+    exists = vim.eval('get(module_cache, "%s", "")' % miss)
+    if exists:
+        return int(exists)
+    try:
+        file_obj, file_path, _ = imp.find_module(miss)
+        name = file_path or file_obj.name
+        assert os.path.basename(name) in os.listdir(os.path.dirname(name))
+        vim.command('let module_cache["%s"] = 1' % miss)
+        return True
+    except (AssertionError, AttributeError, ImportError):
+        not_found.add(miss)
+        vim.command('let module_cache["%s"] = 0' % miss)
+        return False
+
+
 names = set(itertools.chain(*[i.asnames + [i.alias] for i in imports]))
 missing = list(set(missing) - names)
 not_found = set()
@@ -305,13 +327,11 @@ for miss in set(missing):
         else:
             imports.append(Import(module=m, names=[n], asnames=[miss],
                                   alias=None, lrange=()))
+    elif check_exists(miss):
+        imports.append(Import(module=[], names=[miss], asnames=[miss],
+                              alias=None, lrange=()))
     else:
-        try:
-            imp.find_module(miss)
-            imports.append(Import(module=[], names=[miss], asnames=[miss],
-                                  alias=None, lrange=()))
-        except ImportError:
-            not_found.add(miss)
+        not_found.add(miss)
 
 if not_found and int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
     i = next(iter(i for i in imports if i.module == 'IPython'), None)
