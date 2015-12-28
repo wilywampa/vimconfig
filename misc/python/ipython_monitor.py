@@ -11,24 +11,10 @@ try:
 except ImportError:
     from queue import Empty
 from glob import glob
-from pygments import highlight
-from pygments.filter import simplefilter
-from pygments.lexers import PythonLexer
-from pygments.token import Name
-try:
-    from solarized_terminal import (SolarizedTerminalFormatter as
-                                    TerminalFormatter)
-except ImportError:
-    print("Couldn't import solarized terminal formatter")
-    from pygments.formatters import TerminalFormatter
+from highlighter import highlight
 
 colors = {k: i for i, k in enumerate([
     'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'])}
-
-types = set(['basestring', 'bool', 'buffer', 'bytearray', 'bytes', 'chr',
-             'complex', 'dict', 'file', 'float', 'format', 'frozenset', 'help',
-             'int', 'list', 'long', 'object', 'set', 'str', 'super', 'tuple',
-             'type', 'unichr', 'unicode'])
 
 traceback_command = """\
 %xmode Plain
@@ -89,30 +75,9 @@ if len(sys.argv) > 1:
     sys.stdout = term
 
 
-@simplefilter
-def color_types(self, lexer, stream, options):
-    for ttype, value in stream:
-        if ttype is Name.Builtin and value in types:
-            ttype = Name.Exception
-        elif ttype is Name.Builtin.Pseudo and value in (
-                'False', 'True', 'None'):
-            ttype = Name.Constant
-
-        if ttype is Name.Decorator:
-            yield ttype, '@'
-            yield Name.Function, value.split('@')[-1]
-        else:
-            yield ttype, value
-
-
-lexer = PythonLexer()
-lexer.add_filter(color_types())
-formatter = TerminalFormatter()
-
-
 def colorize(string, color, bold=False, bright=False):
-    return ''.join(['\033[', str(colors[color] + (90 if bright else 30)),
-                    ';1' if bold else '', 'm', string, '\033[0m'])
+    return ''.join(('\033[', str(colors[color] + (90 if bright else 30)),
+                    ';1' if bold else '', 'm', string, '\033[0m'))
 
 
 class IPythonMonitor(object):
@@ -171,7 +136,7 @@ class IPythonMonitor(object):
         dots = '.' * len(self.prompt.rstrip()) + ' '
         sys.stdout.write('\r')
         self.print_prompt('green')
-        code = highlight(msg['content']['code'], lexer, formatter)
+        code = highlight(msg['content']['code'])
         output = code.rstrip().replace('\n', '\n' + dots)
         sys.stdout.write(output)
         self.execution_count_id = msg['parent_header']['msg_id']
@@ -187,8 +152,7 @@ class IPythonMonitor(object):
             spaces = ' ' * len(self.prompt.rstrip()) + ' '
             sys.stdout.write('\n')
             self.print_prompt('red')
-        output = highlight(msg['content']['data']['text/plain'],
-                           lexer, formatter)
+        output = msg['content']['data']['text/plain']
         sys.stdout.write(output.rstrip().replace('\n', '\n' + spaces))
         self.last_msg_type = msg['msg_type']
 

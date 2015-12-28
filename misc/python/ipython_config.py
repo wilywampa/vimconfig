@@ -186,6 +186,11 @@ def _install():
     import io
     from IPython import get_ipython
     from IPython.core import magic
+    from highlighter import HighlightTextFormatter
+    ip = get_ipython()
+
+    ip.display_formatter.formatters[
+        'text/plain'] = HighlightTextFormatter(config=ip.config)
 
     import ipython_autocd
     ipython_autocd.register()
