@@ -290,10 +290,9 @@ nn <Leader>go :call setqflist([])<CR>:silent! Bufdo! grepa '' %<C-Left><C-Left><
 nn <silent> <expr> ,ws ':keepj keepp sil! %s/\s\+$//'.(&gdefault ? '' : 'g').'<CR>'
 
 " Open tag vertically or below
-nn <silent> <C-w><C-]> :<C-u>execute "normal! :belowright vertical
-    \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>zv
-nn <silent> <C-w>] :<C-u>execute "normal! :belowright
-    \ split<C-v><CR><C-v><C-]>".(v:count ? v:count."<C-v><C-w>_" : "")<CR>zv
+nn <silent> <C-w><C-]> :<C-u>belowright vertical split<CR><C-]>zv
+nn <silent> <C-w>] :<C-u>belowright split<CR><C-]>zv
+nn <silent> <C-w>g<C-]> :<C-u>tab split<CR><C-]>zv
 xn <silent> <C-w><C-]> :<C-u>belowright vertical split<CR>gv<C-]>zv
 xn <silent> <C-w>] :<C-u>belowright split<CR>gv<C-]>zv
 
@@ -704,15 +703,23 @@ nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
 if mobileSSH | call s:KeyCodes() | endif
 
 func! s:CmdwinMappings() " {{{
-    " Make 'gf' work in command window
-    function! s:cfile_map(map, cmd) abort " {{{
-        return printf('nnoremap <silent> <buffer> %s :let cfile = ' .
-            \ 'expand("<cfile>")<CR>:quit<CR>:execute "%s " . cfile<CR>', a:map, a:cmd)
+    " Make gf/<C-]> work in command window
+    function! s:cmdwinmap(map, exp, cmd) abort " {{{
+        return printf('nnoremap <silent> <buffer> %s :let cword = ' .
+            \ 'expand("<' . a:exp . '>")<CR>:quit<CR>:execute "%s " . cword<CR>zv', a:map, a:cmd)
     endfunction " }}}
-    execute s:cfile_map('gf',         'edit')
-    execute s:cfile_map('<C-w><C-f>', 'belowright vsplit')
-    execute s:cfile_map('<C-w>f',     'belowright split')
-    execute s:cfile_map('<C-w>gf',    'tabedit')
+    execute s:cmdwinmap('gf',           'cfile', 'edit')
+    execute s:cmdwinmap('<C-w><C-f>',   'cfile', 'belowright vsplit')
+    execute s:cmdwinmap('<C-w>f',       'cfile', 'belowright split')
+    execute s:cmdwinmap('<C-w>gf',      'cfile', 'tabedit')
+    execute s:cmdwinmap('<C-]>',        'cword', 'tag')
+    execute s:cmdwinmap('<C-w><C-]>',   'cword', 'belowright vertical stag')
+    execute s:cmdwinmap('<C-w>]',       'cword', 'belowright stag')
+    execute s:cmdwinmap('<C-w>g<C-]>',  'cword', 'tab stag')
+    execute s:cmdwinmap('g<C-]>',       'cword', 'tjump')
+    execute s:cmdwinmap('g<C-w><C-]>',  'cword', 'belowright vertical stjump')
+    execute s:cmdwinmap('g<C-w>]',      'cword', 'belowright stjump')
+    execute s:cmdwinmap('g<C-w>g<C-]>', 'cword', 'tab stjump')
 
     " Delete item under cursor from history
     nnoremap <silent> <buffer> dD :call histdel(g:cmdwinType,'\V\^'.
