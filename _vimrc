@@ -1596,7 +1596,7 @@ func! s:CreateAbbrev(lhs, rhs, cmdtype, ...) " {{{
     endif
 endfunc " }}}
 let ls_sort = has('mac') ? ' --sort=none' : ''
-call s:CreateAbbrev('ve',   'verbose',                         ':'   )
+call s:CreateAbbrev('ve',   'verbose',                         ':>'  )
 call s:CreateAbbrev('so',   'source',                          ':'   )
 call s:CreateAbbrev('ec',   'echo',                            ':@>' )
 call s:CreateAbbrev('es',   'echo string',                     ':@>' )
@@ -1605,7 +1605,7 @@ call s:CreateAbbrev('do',   'diffoff \| set nowrap',           ':'   )
 call s:CreateAbbrev('du',   'diffupdate',                      ':'   )
 call s:CreateAbbrev('vd',   'vertical diffsplit',              ':'   )
 call s:CreateAbbrev('wi',   'Windo',                           ':'   )
-call s:CreateAbbrev('ca',   'call',                            ':'   )
+call s:CreateAbbrev('ca',   'call',                            ':>'  )
 call s:CreateAbbrev('m',    'make',                            ':'   )
 call s:CreateAbbrev('mcl',  'make clean',                      ':'   )
 call s:CreateAbbrev('min',  'make install',                    ':'   )
