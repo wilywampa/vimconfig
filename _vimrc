@@ -1965,7 +1965,9 @@ func! s:UniteSettings() " {{{
 endfunc " }}}
 
 function! s:grep(source, ...) abort " {{{
-    let path = len(a:000) >= 1 ? a:1 : input('Path: ', '.', 'file')
+    let path = len(a:000) >= 1 ? a:1 :
+        \ join(vimtools#flatten(map(split(input('Path: ', '.', 'file')),
+        \                           'vimtools#glob(v:val)')), "\n")
     let opts = len(a:000) >= 2 ? a:2 : input(
         \ 'Options: ', a:source ==# 'grep' ? get(g:, 'ag_flags', '') : '')
     let inp = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')

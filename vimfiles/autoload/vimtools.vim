@@ -6,6 +6,13 @@ if !exists('s:V')
   let s:String = s:V.import('Data.String')
 endif
 
+function! vimtools#flatten(...) abort " {{{
+  return call(s:List.flatten, a:000)
+endfunction " }}}
+function! vimtools#glob(...) abort " {{{
+  return call(s:Prelude.glob, a:000)
+endfunction " }}}
+
 " From tpope's scriptease: https://github.com/tpope/vim-scriptease
 function! vimtools#SynNames(...) abort " {{{
   if a:0
