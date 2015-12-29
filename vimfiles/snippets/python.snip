@@ -1,0 +1,101 @@
+snippet     class
+abbr        class Class(...): ...
+options     head
+	class ${1:#:name}(${2:object}):
+
+		def __init__(self, ${3}):
+			${0:pass}
+
+snippet     classd
+abbr        class Class(...): "..."
+options     head
+	class ${1:#:name}(${2:object}):
+
+		"""${3:#:class documentation}"""
+
+		def __init__(self, ${4}):
+			"""${5:#:__init__ documentation}"""
+			${0:pass}
+
+snippet     ipdb
+abbr        import ipdb..
+    import ipdb; ipdb.set_trace()
+
+snippet     cl
+abbr        plt.close('all')
+options     head
+	plt.close('all')
+
+snippet     f
+abbr        plt.figure()
+	plt.figure(${0})
+
+snippet     p
+abbr        plt.plot()
+	plt.plot(${0})
+
+snippet     l
+abbr        plt.legend()
+	plt.legend(${0})
+
+snippet     plt
+abbr        import pyplot
+options     head
+	import matplotlib.pyplot as plt
+
+snippet     mpl
+abbr        import matplotlib
+options     head
+	import matplotlib as mpl
+
+snippet     np
+abbr        import numpy
+options     head
+	import numpy as np
+
+snippet     sh
+abbr        plt.show()
+options     head
+	plt.show()
+
+snippet     xl
+abbr        plt.xlabel()
+	plt.xlabel('${0}')
+
+snippet     yl
+abbr        plt.ylabel()
+	plt.ylabel('${0}')
+
+snippet     t
+abbr        plt.title()
+	plt.title('${0}')
+
+snippet	    pyx
+abbr        pyximport.install
+	import pyximport
+	pyximport.install(reload_support=True,
+	                  setup_args={'include_dirs': np.get_include()})
+
+snippet     d
+abbr        display
+	display(${0})
+
+snippet     px
+abbr        Client
+	rc = get_ipython().user_ns.get('rc', None)
+	if not hasattr(rc, 'direct_view') or rc._closed:
+	    rc = px.Client()
+	dv = rc.direct_view()
+	lv = rc.load_balanced_view()
+
+snippet     afig
+abbr        assert Figure
+	assert isinstance(${0:f}, plt.matplotlib.figure.Figure)
+
+snippet     aax
+abbr        assert Axes
+	assert isinstance(${0:ax}, plt.matplotlib.axes.Axes)
+
+snippet     aline
+abbr        assert Line
+	assert isinstance(${0:line}, plt.matplotlib.lines.Line2D)

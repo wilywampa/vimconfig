@@ -1,0 +1,35 @@
+snippet     function
+abbr        func endfunc
+alias       func
+options     head
+    function! ${1:#:func_name}(${2}) abort " {{{
+      ${0:TARGET}
+    endfunction " }}}
+
+snippet     command
+abbr        command call function
+options     head
+    com! ${1:#:command_name} call ${2:#:func_name}
+
+snippet     customlist
+abbr        customlist complete function
+options     head
+    func! ${1:#:func_name}(arglead, cmdline, cursorpos) abort " {{{
+      return filter(${2:#:list}, 'stridx(v:val, a:arglead) == 0')
+    endfunc " }}}
+
+snippet bundle_hooks
+abbr neobundle hooks
+    let s:hooks = neobundle#get_hooks('${1}')
+    func! s:hooks.on_source(bundle) abort " {{{
+      ${0}
+    endfunc " }}}
+    unlet s:hooks
+
+snippet     autoload
+abbr        autoload func endfunc
+alias       afunction afunc
+options     head
+    func! `substitute(matchstr(neosnippet#util#expand('%:p:r'), '/autoload/\zs.*$'), '/', '#', 'g')`#${1:#:func_name}(${2:#:args}) abort " {{{
+      ${0}
+    endfunc " }}}

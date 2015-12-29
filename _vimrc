@@ -2488,6 +2488,11 @@ let g:neomru#file_mru_limit = 2000
 nmap [h <Plug>GitGutterPrevHunk
 nmap ]h <Plug>GitGutterNextHunk
 
+" neosnippet configuration
+if !exists('g:neosnippet#snippets_directory')
+    let g:neosnippet#snippets_directory = '$VIMCONFIG/vimfiles/snippets'
+endif
+
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
 if filereadable(expand('$HOME/.plugged'))
@@ -2519,7 +2524,7 @@ Plug 'Shougo/neocomplete.vim'
 Plug 'Shougo/neoinclude.vim'
 Plug 'wilywampa/neomru.vim'
 Plug 'wilywampa/neosnippet.vim'
-Plug 'wilywampa/neosnippet-snippets'
+Plug 'Shougo/neosnippet-snippets'
 Plug 'wilywampa/patchreview-vim', {'on': ['DiffReview', 'PatchReview']}
 Plug 'wilywampa/python-mode', {'branch': 'develop'}
 Plug 'wilywampa/vim-repeat'

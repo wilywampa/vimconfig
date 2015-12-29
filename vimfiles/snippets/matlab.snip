@@ -1,0 +1,56 @@
+snippet     if
+abbr        if end
+options     head
+    if ${1:#:condition}
+      ${0:TARGET}
+    end
+
+snippet     elseif
+options     head
+    elseif ${1:#:condition}
+        ${0:TARGET}
+
+snippet     ifelse
+abbr        if else end
+options     head
+    if ${1:#:condition}
+      ${2:TARGET}
+    else
+      ${3}
+    end
+
+snippet     for
+abbr        for end
+options     head
+    for ${1:#:condition}
+      ${0:TARGET}
+    end
+
+snippet     while
+abbr        while end
+options     head
+    while ${1:#:condition}
+      ${0:TARGET}
+    end
+
+snippet     switch
+abbr        switch case end
+options     head
+    switch ${1:#:condition}
+      case ${2:#:case_expression}
+        ${0:TARGET}
+    end
+
+snippet     switchotherwise
+abbr        switch case otherwise end
+options     head
+    switch ${1:#:condition}
+      case ${2:#:case_expression}
+        ${0:TARGET}
+      otherwise
+        ${3:otherwise}
+    end
+
+snippet     fprintf
+abbr        fprintf
+    fprintf('${1} = %f\n', $1)
