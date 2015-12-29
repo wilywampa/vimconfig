@@ -1170,13 +1170,19 @@ endfunc " }}}
 autocmd VimrcAutocmds CursorMoved $HOME/.histfile call s:EchoHistTime()
 
 " Insert search match (as opposed to <C-r>/)
-func! s:InsertSearchResult() " {{{
+function! s:InsertSearchResult() " {{{
     let view = winsaveview() | call SaveRegs()
-    keepjumps normal! gny
-    execute "normal! gi\<BS>\<C-r>\""
-    call winrestview(view) | call RestoreRegs()
-endfunc " }}}
-inoremap <silent> <C-]> x<Esc>:call <SID>InsertSearchResult()<CR>gi
+    try
+        normal! ggn
+        call winrestview(view)
+        keepjumps normal! gny
+        execute "normal! gi\<C-r>\""
+    catch
+    finally
+        call winrestview(view) | call RestoreRegs()
+    endtry
+endfunction " }}}
+inoremap <silent> <C-]> <Esc>:call <SID>InsertSearchResult()<CR>gi
 
 " Check if location list (rather than quickfix)
 func! s:IsLocationList() " {{{
