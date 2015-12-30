@@ -1968,7 +1968,7 @@ func! s:UniteSettings() " {{{
     nmap <buffer> ]u j<CR>
     nmap <buffer> [U gg<CR>
     nmap <buffer> ]U G<CR>
-    nnor <buffer> <C-g> :<C-u>call <SID>grep_options()<CR>
+    nnor <buffer> <C-g> :<C-u>call <SID>modify_unite_options()<CR>
     xmap <buffer> * <Plug>(unite_toggle_mark_selected_candidates)
     for key in ['<Up>', '<Down>', '<Left>', '<Right>'] + split('?Nbet', '\zs')
         execute 'silent! nunmap <buffer> ' . key
@@ -1986,16 +1986,28 @@ function! s:grep(source, ...) abort " {{{
     let inp = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
     if len(inp) | call histadd('/', inp) | call unite#start([[a:source, path, opts, inp]]) | endif
 endfunction
-function! s:grep_options() abort
-    for source in unite#get_sources()
-        if source.name =~ 'grep'
-            let context = source.unite__context
-            let context.source__extra_opts =
-                \ input('Options: ', join(split(g:ag_flags) +
-                \                         split(context.source__extra_opts)))
-            call unite#force_redraw()
-        endif
-    endfor
+function! s:modify_unite_options() abort " {{{
+    let unite = unite#get_current_unite()
+
+    if index(unite.source_names, 'buffer') != -1
+        let context = unite#get_sources('buffer').unite__context
+        let names = {'!': 'bang', '?': 'question', '+': 'plus', '-': 'minus', 't': 'terminal'}
+        let flags = input('!: all, ?: non-listed, +: modified, -: files, t: terminal: ',
+            \ join(filter(keys(names), 'get(context, "source__is_" . names[v:val], 0)'), ''))
+        for [char, name] in items(names)
+            let context['source__is_' . name] = stridx(flags, char) != -1
+        endfor
+
+    elseif stridx(join(unite.source_names), 'grep') != -1
+        let context = map(filter(copy(unite#get_sources()), 'v:val.name =~ "grep"'),
+            \             'v:val.unite__context')[0]
+        let context.source__extra_opts = input('Options: ',
+            \ join(split(g:ag_flags) + split(context.source__extra_opts)))
+
+    else
+        return
+    endif
+    call unite#force_redraw()
 endfunction " }}}
 nn <silent> ,a         :<C-u>call <SID>grep('grep', '.', get(g:, 'ag_flags', ''))<CR>
 nn <silent> ,A         :<C-u>call <SID>grep('grep')<CR>
