@@ -1789,6 +1789,9 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             return neocomplete#start_manual_complete()
         endfunction " }}}
         inoremap <silent> <expr> <C-x><C-x> <SID>ResetCompletion()
+        inoremap <silent> <expr> _ '_' .
+            \ (&filetype ==# 'python' && &l:omnifunc ==# 'CompleteIPython' &&
+            \  neocomplete#get_cur_text()[-1:] == '.' ? <SID>ResetCompletion() : '')
     endif
 else
     call add(g:pathogen_disabled, 'neocomplete')
@@ -2510,8 +2513,8 @@ let g:exchange_indent = '=='
 let g:neomru#file_mru_limit = 2000
 
 " gitgutter maps
-nmap [h <Plug>GitGutterPrevHunk
-nmap ]h <Plug>GitGutterNextHunk
+nmap [h <Plug>GitGutterPrevHunkzv
+nmap ]h <Plug>GitGutterNextHunkzv
 
 " neosnippet configuration
 if !exists('g:neosnippet#snippets_directory')
