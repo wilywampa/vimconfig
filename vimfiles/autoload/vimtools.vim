@@ -285,10 +285,11 @@ endfunction " }}}
 
 " Search (not) followed/preceded by
 function! vimtools#FollowedBy(not) abort " {{{
-  let s1 = input("Main: ")
+  let s1 = input("Main: ", '', 'customlist,vimtools#CmdlineComplete')
   let s1 = substitute(len(s1) ? s1 : @/,'\m\c^\\v','','')
   let s1 = substitute(s1, '\m\\<\(.*\)\\>', '<\1>', '')
-  let s2 = substitute(input((a:not ? 'Not f' : 'F').'ollowed by: '),'\m\c^\\v','','')
+  let s2 = substitute(input((a:not ? 'Not f' : 'F').'ollowed by: ', '',
+      \ 'customlist,vimtools#CmdlineComplete'),'\m\c^\\v','','')
   let @/ = '\v\zs('.s1.')(.*'.s2.')@'.(a:not ? '!' : '=').'\ze.*$'
   call histadd('/', @/) | normal! nzv
   set nohlsearch | set hlsearch | redraw!
@@ -296,10 +297,11 @@ function! vimtools#FollowedBy(not) abort " {{{
 endfunction " }}}
 
 function! vimtools#PrecededBy(not) abort " {{{
-  let s1 = input("Main: ")
+  let s1 = input("Main: ", '', 'customlist,vimtools#CmdlineComplete')
   let s1 = substitute(len(s1) ? s1 : @/,'\m\c^\\v','','')
   let s1 = substitute(s1, '\m\\<\(.*\)\\>', '<\1>', '')
-  let s2 = substitute(input((a:not ? 'Not p' : 'P').'receded by: '),'\m\c^\\v','','')
+  let s2 = substitute(input((a:not ? 'Not p' : 'P').'receded by: ', '',
+      \ 'customlist,vimtools#CmdlineComplete'),'\m\c^\\v','','')
   let @/ = '\v^.*(('.s2.').*)@<'.(a:not ? '!' : '=').'\zs('.s1.')'
   call histadd('/', @/) | normal! nzv
   set nohlsearch | set hlsearch | redraw!
