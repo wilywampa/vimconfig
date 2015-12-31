@@ -9,6 +9,11 @@ let b:undo_ftplugin = (exists('b:undo_ftplugin') ?
 " Load pymode syntax
 runtime! syntax/python.vim
 
+" numpy types
+syntax keyword pythonBuiltinType complex128 complex256 complex64 float128
+syntax keyword pythonBuiltinType float16 float32 float64 int16 int32 int64
+syntax keyword pythonBuiltinType int8 uint16 uint32 uint64 uint8 void
+
 " Highlight IPython magic syntax
 syntax region pythonMagic
     \ start="^\s*\zs\(#\s\)\?\s*[!%].\+"
