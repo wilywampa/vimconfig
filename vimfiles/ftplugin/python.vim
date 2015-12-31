@@ -42,6 +42,8 @@ nnoremap <silent> <buffer> <S-F5> :up<CR>:!python %<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
 nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
 nnoremap <silent> <buffer> ,pi :<C-u>call FixImports()<CR>
+nnoremap <silent> <buffer> ,ii :<C-u>call <SID>FixImportsInDef(0)<CR>
+xnoremap <silent> <buffer> ,ii :<C-u>call <SID>FixImportsInDef(1)<CR>
 nnoremap          <buffer> ,ip :<C-u>IPythonConsole<CR>
 
 " Move around functions
@@ -606,6 +608,34 @@ EOF
   let g:pymode_lint_checkers = s:checkers
   let g:pymode_lint_select = s:select
   call pymode#lint#check()
+endfunction
+
+function! s:FixImportsInDef(visual) abort
+  let [save, save_type] = [getreg('"', 1), getregtype('"')]
+  try
+    let view = winsaveview()
+    try
+      if !a:visual
+        call pymode#motion#select('^\s*\(class\|def\)\s', 0)
+      endif
+      normal! gv""y
+    finally
+      call winrestview(view)
+    endtry
+    silent execute 'split' tempname()
+    silent put = @@
+    setfiletype python
+    call FixImports()
+    if getline(1) =~ 'import '
+      normal! zRggyipdap%"0p`[>`]
+    endif
+    setlocal formatexpr=PEP8()
+    normal! gggqG
+    set buftype=nofile
+    call pymode#lint#check()
+  finally
+    call setreg('"', save, save_type)
+  endtry
 endfunction
 endif
 
