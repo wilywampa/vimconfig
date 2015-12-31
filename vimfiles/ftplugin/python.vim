@@ -522,6 +522,9 @@ if exists('g:ipython_dictionary_completion')
       \ '"<C-x><C-o><C-p>' : '"'
 endif
 
+" Use whitespace-delimited completion with <C-x><C-g>
+inoremap <buffer> <expr> <C-x><C-g> vimtools#CompleteStart('GreedyCompleteIPython')
+
 if !exists('g:neocomplete#sources#omni#input_patterns')
   let g:neocomplete#sources#omni#input_patterns = {}
 endif

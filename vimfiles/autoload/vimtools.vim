@@ -556,4 +556,19 @@ function! vimtools#CmdlineComplete(arglead, cmdline, cursorpos) " {{{
       \ "stridx(tolower(v:val), tolower(a:arglead)) == 0"))
 endfunction " }}}
 
+" Start completion with a temporary completefunc
+let s:completefuncs = get(s:, 'completefuncs', {}) " {{{
+function! vimtools#CompleteStart(func) abort
+  let s:completefuncs[bufnr('%')] = &l:completefunc
+  let &l:completefunc = a:func
+  augroup vimtools_complete_start
+    autocmd! * <buffer>
+    autocmd InsertEnter,InsertLeave <buffer>
+        \ call setbufvar(+expand('<abuf>'), '&completefunc',
+        \                s:completefuncs[expand('<abuf>')]) |
+        \ autocmd! vimtools_complete_start * <buffer>
+  augroup END
+  return "\<C-x>\<C-u>\<C-p>"
+endfunction " }}}
+
 " vim:set et ts=2 sts=2 sw=2 fdm=marker:
