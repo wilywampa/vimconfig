@@ -23,6 +23,7 @@ function! s:source.hooks.on_syntax(args, context)
     silent! syntax include @Python syntax/python.vim
     syntax region uniteSource__IPythonPython
         \ start=' ' end='$' contains=@Python containedin=uniteSource__IPython
+    let &l:iskeyword = substitute(&l:iskeyword, ',!$\|!,', '', '')
   finally
     let b:current_syntax = save_current_syntax
   endtry

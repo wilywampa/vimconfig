@@ -35,6 +35,9 @@ setlocal define=^\s*\\(def\\\\|class\\)
 " Highlight docstrings as comments
 highlight! def link pythonDocstring Comment
 
+" Highlight embedded sh statements as identifiers
+highlight! def link shStatement Identifier
+
 noremap  <silent> <buffer> <F5> :up<CR>:<C-u>call <SID>RunPython()<CR>
 imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
@@ -370,6 +373,8 @@ EOF
     try
       if a:line !~ '^\s*#'
         return a:line
+      elseif a:line =~ '\v^\s*##%(\s|$)'
+        return substitute(a:line, '\v^\s*\zs##%(\s|$)', '', '')
       elseif a:line =~ '\v^\s*#\s+[!%]'
         return substitute(a:line, '\v^(\s*)# ([%!])', '\1\2', '')
       elseif a:line =~ '\v^\s*# (\h\w*,?\s*)+\s*\='

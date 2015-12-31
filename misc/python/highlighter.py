@@ -72,6 +72,7 @@ class IPythonLexer(RegexLexer):
     ] + tokens['root']
 
     tokens['magic_args'] = [
+        ('\n', Text, '#pop'),
         ('(?:[rR]|[uU][rR]|[rR][uU])"', String, 'dqs'),
         ("(?:[rR]|[uU][rR]|[rR][uU])'", String, 'sqs'),
         ('[^\'"]*', Text, '#pop'),
@@ -158,6 +159,10 @@ class HighlightTextFormatter(formatters.PlainTextFormatter):
         get_ipython().events.register('pre_run_cell', self.enable_color)
 
     def __call__(self, obj):
+        from IPython.core.displaypub import CapturingDisplayPublisher
+        ip = get_ipython()
+        if ip and isinstance(ip.display_pub, CapturingDisplayPublisher):
+            self.color = False
         value = super(HighlightTextFormatter, self).__call__(obj)
         if self.pprint and self.color:
             try:

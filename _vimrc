@@ -1989,7 +1989,7 @@ function! s:grep(source, ...) abort " {{{
     let inp = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
     if len(inp) | call histadd('/', inp) | call unite#start([[a:source, path, opts, inp]]) | endif
 endfunction
-function! s:modify_unite_options() abort " {{{
+function! s:modify_unite_options() abort
     let unite = unite#get_current_unite()
 
     if index(unite.source_names, 'buffer') != -1
@@ -2599,6 +2599,9 @@ Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
 call plug#end()
 endif " }}}
+
+" Shared after directory for syntax overrides
+set runtimepath+=$VIMCONFIG/vimfiles/after
 
 " Disable abbr entries for neocomplete include source
 silent! call neocomplete#custom#source('include', 'converters',
