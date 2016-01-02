@@ -148,9 +148,9 @@ def PEP8():
         options = Options()
         if vim.vars['pep8_indent_only']:
             options.select = ['E1', 'W1']
-        new_lines = autopep8.fix_lines(lines, options)
+        new_lines = autopep8.fix_lines(lines, options).lstrip()
 
-    new_lines = new_lines.lstrip().split('\n')[: None if doc_string else -1]
+    new_lines = new_lines.split('\n')[: None if doc_string else -1]
 
     if new_lines != lines:
         vim.current.buffer[start:end] = new_lines
