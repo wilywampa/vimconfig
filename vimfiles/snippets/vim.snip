@@ -33,3 +33,8 @@ options     head
     func! `substitute(matchstr(neosnippet#util#expand('%:p:r'), '/autoload/\zs.*$'), '/', '#', 'g')`#${1:#:func_name}(${2:#:args}) abort " {{{
       ${0}
     endfunc " }}}
+
+snippet     p
+abbr        debug-echomsg
+options     head
+  echomsg string(${0:TARGET})
