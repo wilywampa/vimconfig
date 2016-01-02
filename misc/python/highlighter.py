@@ -9,8 +9,7 @@ from IPython.core import formatters
 from IPython.core.events import available_events
 from pygments.lexer import RegexLexer, bygroups, using
 from pygments.lexers import (BashLexer, ClassNotFound, CythonLexer,
-                             Python3Lexer, PythonLexer,
-                             get_lexer_by_name)
+                             Python3Lexer, PythonLexer)
 from pygments.token import Keyword, Name, Operator, String, Text
 try:
     from solarized_terminal import (SolarizedTerminalFormatter as
@@ -137,12 +136,25 @@ python_lexer = IPythonLexer()
 formatter = TerminalFormatter()
 
 
-def highlight(text, lexer=python_lexer, formatter=formatter, language=None):
-    if language is not None:
-        try:
-            lexer = get_lexer_by_name(language)
-        except ClassNotFound:
-            pass
+def highlight(text, lexer_or_filename=python_lexer,
+              formatter=formatter, language=None):
+    """
+    Highlight text using IPythonLexer and default formatter.
+
+    If lexer_or_filename is None, guess lexer based on text. If
+    lexer_or_filename is a string, guess lexer based on text and
+    lexer_or_filename as a filename.
+    """
+    lexer = lexer_or_filename
+    try:
+        if lexer is None:
+            lexer = pygments.lexer.guess_lexer(text)
+        elif isinstance(lexer, six.string_types):
+            lexer = pygments.lexers.guess_lexer_for_filename(lexer, text)
+        elif language is not None:
+            lexer = pygments.lexers.get_lexer_by_name(language)
+    except ClassNotFound:
+        pass
     return pygments.highlight(text, lexer, formatter)
 
 
