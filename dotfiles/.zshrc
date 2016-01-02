@@ -392,6 +392,7 @@ abbrevs=(
 'e'     'vim'
 'vno'   'vim $VIMOPTIONS'
 'vp'    'vimpager -f'
+'vs'    'vims'
 'ipy'   'ipython'
 'xt'    'xclip -o >& /dev/null || echo -n "not "; echo connected'
 'vba'   'vim-blacklist-add'
