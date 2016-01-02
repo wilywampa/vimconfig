@@ -2229,6 +2229,8 @@ nmap gss <Plug>Yssurround
 " Make d surround with ['...'] and D with ["..."]
 let g:surround_100 = "['\r']"
 let g:surround_68 = "[\"\r\"]"
+" Make e surround with escaped parentheses
+let g:surround_101 = "\\(\r\\)"
 
 " Syntastic settings
 let g:syntastic_filetype_map = {'arduino': 'cpp'}
