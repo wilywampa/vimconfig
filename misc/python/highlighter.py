@@ -54,7 +54,7 @@ class IPythonLexer(RegexLexer):
     tokens['root'] = [
         (r'(?s)(^\s*)(%%)(cython)([^\n]*\n)(.*)',
          bygroups(Text, Percent, Name.Class, Text, using(CythonLexer))),
-        (r"(\s*)(%%)(\w+)(.*)", bygroups(Text, Percent, Name.Class, Text)),
+        (r"(\s*)(%%)(\w+)", bygroups(Text, Percent, Name.Class), 'magic_args'),
         (r'(?s)(^\s*)(%%)(!)([^\n]*\n)(.*)',
          bygroups(Text, Percent, Bang, Text, using(BashLexer))),
         (r"(%%?)(\w+)(\?\??)$", bygroups(Percent, Name.Class, Operator)),
@@ -63,18 +63,17 @@ class IPythonLexer(RegexLexer):
          bygroups(Percent, Name.Class, None), 'backquotes'),
         (r'(%)(sx|sc|system)(.*)(\n)',
          bygroups(Percent, Name.Class, using(BashLexer), Text)),
-        (r'(%)(\w+)(?=.*\n)', bygroups(Percent, Name.Class, None),
-         'magic_args'),
+        (r'(%)(\w+\s+)', bygroups(Percent, Name.Class), 'magic_args'),
         (r'^(!!)(.+)(\n)', bygroups(Bang, using(BashLexer), Text)),
         (r'(!)(?!=)(.+)(\n)', bygroups(Bang, using(BashLexer), Text)),
         (r'^(\s*)(\?\??)(\s*%{0,2}[\w\.\*]*)', bygroups(Text, Percent, Text)),
     ] + tokens['root']
 
     tokens['magic_args'] = [
-        ('\n', Text, '#pop'),
+        (r'\s*\n', Text, '#pop'),
         ('(?:[rR]|[uU][rR]|[rR][uU])"', String, 'dqs'),
         ("(?:[rR]|[uU][rR]|[rR][uU])'", String, 'sqs'),
-        ('[^\'"]*', Text, '#pop'),
+        (r'[^\'"\n]*', Text, '#pop'),
     ]
 
     # Highlight Python code between `...` in IPython magics
