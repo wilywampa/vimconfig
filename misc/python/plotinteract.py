@@ -8,7 +8,6 @@ import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
 from collections import OrderedDict
-from copy import copy
 from itertools import cycle, product
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as
@@ -31,17 +30,13 @@ PROPERTIES = ('color', 'linestyle', 'linewidth', 'alpha', 'marker',
               'pickradius', 'solid_capstyle', 'solid_joinstyle')
 ALIASES = dict(aa='antialiased', c='color', ec='edgecolor', fc='facecolor',
                ls='linestyle', lw='linewidth', mew='markeredgewidth')
+color_cycle = mpl.rcParams['axes.color_cycle']
+linestyle_cycle = '-', '--', '-.', ':'
 
 if sys.platform == 'darwin':
     CONTROL_MODIFIER = QtCore.Qt.MetaModifier
 else:
     CONTROL_MODIFIER = QtCore.Qt.ControlModifier
-
-
-def styles():
-    """Return a cycle of 2-tuples of line style and color."""
-    return cycle(product(['-', '--', '-.', ':'],
-                         mpl.rcParams['axes.color_cycle']))
 
 
 def flatten(d, prefix=''):
@@ -63,6 +58,12 @@ def flatten(d, prefix=''):
                     out.update(new)
                     queue.extend(q for q in new.keys() if new[q].ndim > 2)
     return out
+
+
+def props_repr(value):
+    if isinstance(value, text_type) and not isinstance(value, str):
+        value = str(value)
+    return repr(value)
 
 
 def _delete_word(self, event, parent, lineEdit):
@@ -100,6 +101,10 @@ def handle_key(self, event, parent, lineEdit):
                 event.key() in control_actions):
             control_actions[event.key()](self, event, parent, lineEdit)
             return True
+        elif (event.modifiers() & CONTROL_MODIFIER and
+              event.modifiers() & QtCore.Qt.ShiftModifier and
+              event.key() == QtCore.Qt.Key_S):
+            self.emit(SIGNAL('sync_axis()'))
         elif self.completer.popup().viewport().isVisible():
             if event.key() == QtCore.Qt.Key_Tab:
                 self.emit(SIGNAL('tabPressed(int)'), 1)
@@ -267,6 +272,7 @@ class PropertyEditor(QtGui.QTableWidget):
         self.dataobj = None
         self.setRowCount(len(PROPERTIES))
         self.setCurrentCell(0, 1)
+        self.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
         self.horizontalHeader().setStretchLastSection(True)
         self.move(0, 0)
 
@@ -333,7 +339,8 @@ class DataObj(object):
         self.labels = kwargs.get('labels', name)
         self.widgets = []
         self.twin = False
-        self.props = copy(kwargs.get('props', {}))
+        self.props = kwargs.get('props', {}).copy()
+
         draw = self.parent.draw
         connect = self.parent.connect
 
@@ -449,9 +456,25 @@ class DataObj(object):
             else:
                 getattr(self, 'set_' + k, lambda _: None)(v)
 
+        if 'cdata' in self.kwargs:
+            self.cdata = np.squeeze(self.kwargs['cdata'])
+            self.norm = self.kwargs.get(
+                'norm', mpl.colors.Normalize(self.cdata.min(),
+                                             self.cdata.max()))
+            if not isinstance(self.norm, mpl.colors.Normalize):
+                self.norm = mpl.colors.Normalize(*self.norm)
+            self.cmap = mpl.cm.get_cmap(self.kwargs.get('cmap', 'rainbow'))
+
     def duplicate(self):
-        self.kwargs['props'] = self.props
-        self.parent.add_data(self.obj, self.name, kwargs=self.kwargs)
+        kwargs = self.kwargs.copy()
+        kwargs['props'] = self.props.copy()
+        if kwargs['props'].get('linestyle', None) in linestyle_cycle:
+            kwargs['props']['linestyle'] = (2 * linestyle_cycle)[
+                linestyle_cycle.index(kwargs['props']['linestyle']) + 1]
+        elif kwargs['props'].get('color', None) in color_cycle:
+            kwargs['props']['color'] = (2 * color_cycle)[
+                color_cycle.index(kwargs['props']['color']) + 1]
+        self.parent.add_data(self.obj, self.name, kwargs=kwargs)
         data = self.parent.datas[-1]
         data.menu.setCurrentIndex(self.menu.currentIndex())
         data.scale_box.setText(self.scale_box.text())
@@ -486,7 +509,7 @@ class DataObj(object):
         for i, k in enumerate(PROPERTIES):
             props_editor.setItem(i, 0, QtGui.QTableWidgetItem(k))
             props_editor.setItem(i, 1, QtGui.QTableWidgetItem(
-                repr(str(self.props[k])) if k in self.props else ''))
+                props_repr(self.props[k]) if k in self.props else ''))
         props_editor.setWindowTitle(self.name)
         props_editor.itemChanged.connect(self.update_props)
         props_editor.show()
@@ -509,7 +532,7 @@ class DataObj(object):
             elif value != '':
                 self.props[key] = value
                 self.parent.props_editor.setItem(
-                    row, 1, QtGui.QTableWidgetItem(str(repr(value))))
+                    row, 1, QtGui.QTableWidgetItem(props_repr(value)))
 
     def close(self):
         self.parent.props_editor.close()
@@ -518,12 +541,17 @@ class DataObj(object):
         self.twin = not self.twin
         self.parent.draw()
 
-    def synchronize(self, ax):
-        menu, scale = (self.xmenu, self.xscale_box) if ax == 'x' else (
-            self.menu, self.scale_box)
-        for d in self.parent.datas:
-            if getattr(d, 'set_%sname' % ax)(text_type(menu.lineEdit().text())):
-                getattr(d, 'set_%sscale' % ax)(text_type(scale.text()))
+    def synchronize(self, axes='xy'):
+        for completer in (self.completer, self.xcompleter,
+                          self.scale_compl, self.xscale_compl):
+            completer.close_popup()
+        for ax in axes:
+            menu, scale = (self.xmenu, self.xscale_box) if ax == 'x' else (
+                self.menu, self.scale_box)
+            for d in self.parent.datas:
+                if getattr(d, 'set_%sname' % ax)(
+                        text_type(menu.lineEdit().text())):
+                    getattr(d, 'set_%sscale' % ax)(text_type(scale.text()))
         self.parent.draw()
 
 
@@ -545,7 +573,7 @@ class Interact(QtGui.QMainWindow):
         self.frame = QtGui.QWidget()
         self.dpi = 100
 
-        self.fig = Figure()
+        self.fig = Figure(tight_layout=True)
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self.frame)
         self.canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
@@ -613,9 +641,10 @@ class Interact(QtGui.QMainWindow):
             self.connect(w, SIGNAL('relabel()'), data.change_label)
             self.connect(w, SIGNAL('edit_props()'), data.edit_props)
             self.connect(w, SIGNAL('twin()'), data.toggle_twin)
+            self.connect(w, SIGNAL('synchronize()'), data.synchronize)
             if axis:
-                self.connect(w, SIGNAL('synchronize()'),
-                             lambda axis=axis: data.synchronize(axis))
+                self.connect(w, SIGNAL('sync_axis()'),
+                             lambda axes=[axis]: data.synchronize(axes))
             self.column += 1
 
         add_widget(data.label)
@@ -680,20 +709,30 @@ class Interact(QtGui.QMainWindow):
             [p.disable() for p in self.pickers]
             self.pickers = None
 
-    def plot(self, axes, x, y, data, label):
+    def plot(self, axes, x, y, i, data, label):
         try:
             lines = axes.plot(x, y, label=label)
         except ValueError:
             lines = axes.plot(x, y.T, label=label)
 
         for line in lines:
-            if 'color' not in data.props and 'linestyle' not in data.props:
+            if hasattr(data, 'cdata'):
+                line.set_color(data.cmap(data.norm(data.cdata[i])))
+                self.handles[(getattr(data, 'old_label', label),)] = line
+            elif 'color' not in data.props and 'linestyle' not in data.props:
                 style, color = next(self.styles)
                 line.set_color(color)
                 line.set_linestyle(style)
-                self.handles[label] = line
+                self.handles[(label, color, style)] = line
+            elif 'color' not in data.props:
+                line.set_color(color_cycle[i % len(color_cycle)])
+                self.handles[
+                    (label, line.get_color(), data.props['linestyle'])] = line
             else:
-                self.handles[getattr(data, 'old_label', label)] = line
+                self.handles[
+                    (getattr(data, 'old_label', label),
+                     data.props.get('color', line.get_color()),
+                     data.props.get('linestyle', line.get_linestyle()))] = line
             for key, value in data.props.items():
                 getattr(line, 'set_' + key, lambda _: None)(value)
 
@@ -701,15 +740,20 @@ class Interact(QtGui.QMainWindow):
 
     def draw(self):
         self.mpl_toolbar.home = self.draw
-        twin = any(map(lambda x: x.twin, self.datas))
-        if twin and len(self.fig.axes) < 2:
-            self.fig.add_axes(self.axes2)
-        elif not twin and len(self.fig.axes) >= 2:
-            self.fig.delaxes(self.axes2)
-
+        twin = any(d.twin for d in self.datas)
         self.clear_pickers()
-        self.cla(self.axes)
-        self.cla(self.axes2)
+        self.fig.clear()
+        self.axes = self.fig.add_subplot(111)
+
+        color_data = next((d for d in self.datas if hasattr(d, 'cdata')), None)
+        if color_data and not twin:
+            self.mappable = mpl.cm.ScalarMappable(norm=color_data.norm,
+                                                  cmap=color_data.cmap)
+            self.mappable.set_array(color_data.cdata)
+            self.colorbar = self.fig.colorbar(
+                self.mappable, ax=self.axes, fraction=0.1, pad=0.02)
+        elif twin:
+            self.axes2 = self.axes.twinx()
 
         xlabel = []
         ylabel = []
@@ -717,7 +761,7 @@ class Interact(QtGui.QMainWindow):
         ylabel2 = []
         self.warnings = []
         self.handles = OrderedDict()
-        self.styles = styles()
+        self.styles = cycle(product(linestyle_cycle, color_cycle))
         for d in self.datas:
             if d.twin:
                 axes, x, y = self.axes2, xlabel2, ylabel2
@@ -730,10 +774,10 @@ class Interact(QtGui.QMainWindow):
             if isinstance(d.labels, (list, tuple)):
                 for i, label in enumerate(d.labels):
                     self.plot(axes, d.obj[xtext][..., i] * xscale,
-                              d.obj[text][..., i] * scale, d, label=label)
+                              d.obj[text][..., i] * scale, i, d, label=label)
             else:
                 n = self.plot(axes, d.obj[xtext] * xscale, d.obj[text] * scale,
-                              d, label=d.labels)
+                              0, d, label=d.labels)
                 if n > 1:
                     d.old_label = d.labels
                     d.labels = ['%s %d' % (d.old_label, i) for i in range(n)]
@@ -756,9 +800,11 @@ class Interact(QtGui.QMainWindow):
 
         for ax in self.axes, self.axes2:
             ax.set_aspect('equal' if self.axisequal else 'auto', 'box-forced')
-        legend = self.axes.legend(self.handles.values(), self.handles.keys())
+        legend = self.axes.legend(self.handles.values(),
+                                  [k[0] for k in self.handles.keys()])
         legend.draggable(True)
         self.pickers = [picker(ax) for ax in [self.axes, self.axes2]]
+
         self.canvas.draw()
 
     def draw_warnings(self):
@@ -879,7 +925,8 @@ def merge_dicts(*dicts):
 def dataobj(data, name='',
             xname=None, xscale=None,
             yname=None, yscale=None,
-            labels=None, props=None, **kwargs):
+            labels=None, props=None,
+            cdata=None, cmap=None, norm=None, **kwargs):
     locals().update(kwargs)
     return [data, name,
             {k: v for k, v in locals().items()
@@ -926,7 +973,12 @@ def create(*data, **kwargs):
                 d[-1]['xname'] = d[-1].get('xname', d[2])
                 d.pop(2)
 
-    i = Interact(data, **kwargs)
+    interactive = mpl.is_interactive()
+    try:
+        mpl.interactive(False)
+        i = Interact(data, **kwargs)
+    finally:
+        mpl.interactive(interactive)
     app.references.add(i)
     i.show()
     i.raise_()
