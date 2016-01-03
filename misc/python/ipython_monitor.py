@@ -19,10 +19,12 @@ colors = {k: i for i, k in enumerate([
 traceback_command = """\
 %xmode Plain
 %colors NoColor
+_tb = '\\n'.join(get_ipython().InteractiveTB.structured_traceback(
+    *get_ipython()._get_exc_info()))
+if not isinstance(_tb, str):
+    _tb = _tb.encode('utf-8')
 with open('{name}', 'w') as _f:
-    _f.writelines(get_ipython().
-                  InteractiveTB.structured_traceback(
-                      *get_ipython()._get_exc_info()))
+    _f.write(_tb)
 %xmode Context
 %colors Linux
 """.format(name=os.path.expanduser('~/.pyerr'))
