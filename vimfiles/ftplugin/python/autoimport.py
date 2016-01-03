@@ -294,8 +294,9 @@ def check_exists(miss):
         return int(exists)
     try:
         file_obj, file_path, _ = imp.find_module(miss)
-        name = file_path or file_obj.name
-        assert os.path.basename(name) in os.listdir(os.path.dirname(name))
+        if file_obj:
+            name = file_path or file_obj.name
+            assert os.path.basename(name) in os.listdir(os.path.dirname(name))
         vim.command('let module_cache["%s"] = 1' % miss)
         return True
     except (AssertionError, AttributeError, ImportError):

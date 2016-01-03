@@ -44,6 +44,7 @@ nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
 nnoremap <silent> <buffer> <S-F5> :up<CR>:!python %<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
 nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
+nnoremap <silent> <buffer> ,pm :<C-u>call FixMagicSyntax()<CR>
 nnoremap <silent> <buffer> ,pi :<C-u>call FixImports()<CR>
 nnoremap <silent> <buffer> ,ii :<C-u>call <SID>FixImportsInDef(0)<CR>
 xnoremap <silent> <buffer> ,ii :<C-u>call <SID>FixImportsInDef(1)<CR>
@@ -587,6 +588,7 @@ function! FixImports()
     let g:pymode_lint_select = 'E0602,W0404'
     let l:count = 0
     while 1
+      call g:PymodeLocList.current().clear()
       PymodePython code_check()
       Python2or3 << EOF
 messages = [(m['lnum'], m['text']) for m in
@@ -646,6 +648,35 @@ function! s:FixImportsInDef(visual) abort
     call pymode#lint#check()
   finally
     call setreg('"', save, save_type)
+  endtry
+endfunction
+
+function! FixMagicSyntax() abort
+  let view = winsaveview()
+  let fixed = 0
+  try
+    while 1
+      let f = fixed
+      call g:PymodeLocList.current().clear()
+      PymodePython code_check()
+      let loclist = g:PymodeLocList.current()._loclist
+      if len(loclist) == 1 && loclist[0].text =~ 'invalid syntax'
+        let [lnum, col] = [loclist[0].lnum, loclist[0].col]
+        if stridx(join(map(synstack(lnum, col),
+            \ 'tolower(synIDattr(v:val, "name"))')), 'magic') != -1
+          call setline(lnum, substitute(getline(lnum),
+              \ '\v(^\s*)(.*$)', '\1## \2', ''))
+          let fixed += 1
+        endif
+        let line = getline(lnum)
+      endif
+      if f == fixed
+        break
+      endif
+    endwhile
+  finally
+    call winrestview(view)
+    echomsg printf('Fixed %d magic lines', fixed)
   endtry
 endfunction
 endif
