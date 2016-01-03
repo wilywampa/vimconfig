@@ -217,7 +217,7 @@ EOF
   function! s:IPyGetHelp(level)
     call SaveRegs()
     normal! gvy
-    let g:ipy_input = @" . a:level
+    let g:ipy_input = substitute(@" . a:level, '^\s*##\?\s*', '', '')
     call RestoreRegs()
     call IPyRunIPyInput()
   endfunction
