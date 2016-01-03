@@ -582,39 +582,42 @@ function! FixImports()
   let redefined = []
   let s:checkers = g:pymode_lint_checkers
   let s:select = g:pymode_lint_select
-  let g:pymode_lint_checkers = ['pyflakes']
-  let g:pymode_lint_select = 'E0602,W0404'
-  let l:count = 0
-  while 1
-    PymodePython code_check()
-    Python2or3 << EOF
+  try
+    let g:pymode_lint_checkers = ['pyflakes']
+    let g:pymode_lint_select = 'E0602,W0404'
+    let l:count = 0
+    while 1
+      PymodePython code_check()
+      Python2or3 << EOF
 messages = [(m['lnum'], m['text']) for m in
             vim.eval('copy(g:PymodeLocList.current()._loclist)')]
 missing = sorted([m.split("'")[1] for _, m in messages if 'E0602' in m])
 redefined = sorted([m.split("'")[1] for _, m in messages if 'W0404' in m])
 unused = sorted([m.split("'")[1] for _, m in messages if 'W0611' in m])
 EOF
-    if l:count > 10 || (l:count > 0 &&
-        \ s:pyeval('redefined') == redefined &&
-        \ s:pyeval('missing') == missing &&
-        \ s:pyeval('unused') == unused)
-      break
-    endif
-    let l:count += 1
-    let missing = s:pyeval('missing')
-    let redefined = s:pyeval('redefined')
-    let unused = s:pyeval('unused')
-    let loclist = g:PymodeLocList.current()
-    let messages = copy(loclist._loclist)
-    let module_cache = s:module_cache
-    if exists('g:python_autoimport_debug_file')
-      execute s:pyfile . ' ' . fnameescape(g:python_autoimport_debug_file)
-    else
-      execute s:pyfile . ' ' . fnameescape(s:python_script_dir . '/autoimport.py')
-    endif
-  endwhile
-  let g:pymode_lint_checkers = s:checkers
-  let g:pymode_lint_select = s:select
+      if l:count > 10 || (l:count > 0 &&
+          \ s:pyeval('redefined') == redefined &&
+          \ s:pyeval('missing') == missing &&
+          \ s:pyeval('unused') == unused)
+        break
+      endif
+      let l:count += 1
+      let missing = s:pyeval('missing')
+      let redefined = s:pyeval('redefined')
+      let unused = s:pyeval('unused')
+      let loclist = g:PymodeLocList.current()
+      let messages = copy(loclist._loclist)
+      let module_cache = s:module_cache
+      if exists('g:python_autoimport_debug_file')
+        execute s:pyfile . ' ' . fnameescape(g:python_autoimport_debug_file)
+      else
+        execute s:pyfile . ' ' . fnameescape(s:python_script_dir . '/autoimport.py')
+      endif
+    endwhile
+  finally
+    let g:pymode_lint_checkers = s:checkers
+    let g:pymode_lint_select = s:select
+  endtry
   call pymode#lint#check()
 endfunction
 
