@@ -399,7 +399,8 @@ EOF
     execute "normal! " . get(g:, 'ipython_scratch_motion', 'yap')
     let dir = $HOME . '/.cache/IPython'
     if !isdirectory(dir) | call mkdir(dir) | endif
-    call writefile(split(@@ . "\n", '\n'), dir . strftime('/%a_%d%b%y.py'), 'a')
+    call writefile(split(@@ . "\n", '\n'), dir .
+        \ strftime('/scratch_%Y_%m_%d.py'), 'a')
     let g:ipy_input = s:UncommentMagics(@@)
     call RestoreRegs()
     execute "normal! " . vimode . "\<Esc>"

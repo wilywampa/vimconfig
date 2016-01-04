@@ -2108,7 +2108,7 @@ func! s:UniteSetup() " {{{
         \ }
     function! s:backup.func(candidates) " {{{
         for candidate in a:candidates
-            let time = strftime('%a_%d%b%y_%H%M')
+            let time = strftime('%Y_%m_%d_%H%M%Z')
             let filename = candidate.action__path . '.' . time
 
             call unite#sources#file#copy_files(filename, [candidate])
