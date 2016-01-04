@@ -120,7 +120,7 @@ class IPythonLexer(RegexLexer):
             0, (words(TYPES, prefix=r'(?<!\.)', suffix=r'\b'), Name.Constant))
     except ImportError:
         tokens['builtins'].insert(
-            0, (r'(?<!\.)' + '|'.join(TYPES) + r'\b', Name.Constant))
+            0, (r'(?<!\.)(' + '|'.join(TYPES) + r')\b', Name.Constant))
     index = next(i for i, t in enumerate(tokens['builtins'])
                  if isinstance(t, tuple) and t[-1] == Name.Builtin.Pseudo)
     tokens['builtins'][index] = (r'(?<!\.)(self|Ellipsis|NotImplemented)\b',
