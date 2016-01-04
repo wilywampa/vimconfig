@@ -1,6 +1,11 @@
 from __future__ import division, print_function
 import matplotlib.pyplot as plt
-from plotinteract import create, dataobj, merge_dicts  # noqa
+from plotinteract import create, dataobj, merge_dicts
+
+__all__ = ['azip', 'cl', 'create', 'cursor', 'dataobj', 'dict2obj', 'fg',
+           'fig', 'figdo', 'index_all', 'merge_dicts', 'pad', 'picker',
+           'resize', 'savehtml', 'savepdf', 'savesvg', 'styles',
+           'unique_legend', 'unmask', 'varinfo']
 
 
 def fg(fig=None):
