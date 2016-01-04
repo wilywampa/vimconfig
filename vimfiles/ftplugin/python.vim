@@ -337,7 +337,7 @@ EOF
       else
         silent! unlet g:ipy_result
         Python2or3 eval_ipy_input('g:ipy_result')
-        if !exists('g:ipy_result')
+        if !exists('g:ipy_result') || empty(g:ipy_result)
           return ''
         endif
         let mark = a:mode == 1 ? "'<" : '.'
