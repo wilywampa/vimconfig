@@ -15,7 +15,7 @@ endif
 syntax region pythonMagic keepend
     \ start="^\s*\%(##\?\s\)\?%%\?\h\w*"
     \ start="^\s*'''[^']*'''\s*%%\?\h\w*"
-    \ end=+\s['"`0-9]\@=\|%\h\w*\s\|$+ oneline display
+    \ end=+\s['"`0-9]\@=\|%\h\w*\s\|$+ transparent oneline display
 
 syntax region pythonMagicCell
     \ start="^\s*\%(##\?\s\)\?%%\h\w*"
@@ -59,6 +59,7 @@ highlight def link shellMagicPct    Define
 highlight def link shellMagicSx     Type
 
 silent! unlet b:current_syntax
+let g:sh_noisk = 1
 syntax include @Sh syntax/sh.vim
 let b:current_syntax = 'pymode'
 
