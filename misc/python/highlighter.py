@@ -54,35 +54,37 @@ class IPythonLexer(RegexLexer):
     tokens['root'] = [
         (r'(?s)(^\s*)(%%)(cython)([^\n]*\n)(.*)',
          bygroups(Text, Percent, Name.Class, Text, using(CythonLexer))),
-        (r"(\s*)(%%)(\w+)", bygroups(Text, Percent, Name.Class), 'magic_args'),
-        (r'(?s)(^\s*)(%%)(!)([^\n]*\n)(.*)',
-         bygroups(Text, Percent, Bang, Text, using(BashLexer))),
         (r"(%%?)(\w+)(\?\??)$", bygroups(Percent, Name.Class, Operator)),
+        (r"(\s*%%)(!)", bygroups(Percent, Bang), ('shell_magic', 'magic_args')),
+        (r"(\s*%%)((sx|sc|system|script[ \t]+\w*sh)\b)",
+         bygroups(Percent, Name.Class), ('shell_magic', 'magic_args')),
+        (r"(\s*%%)(\w+[ \t]*)", bygroups(Percent, Name.Class), 'magic_args'),
         (r"\b(\?\??)(\s*)$", bygroups(Operator, Text)),
-        (r'(%?)(\w+\s+)(?=.*`.*`.*\n)',
-         bygroups(Percent, Name.Class, None), 'backquotes'),
         (r'(%)(sx|sc|system)(.*)(\n)',
          bygroups(Percent, Name.Class, using(BashLexer), Text)),
-        (r'(%)(\w+\s+)', bygroups(Percent, Name.Class), 'magic_args'),
+        (r'(%)(\w+[ \t]*)', bygroups(Percent, Name.Class), 'magic_args'),
         (r'^(!!)(.+)(\n)', bygroups(Bang, using(BashLexer), Text)),
         (r'(!)(?!=)(.+)(\n)', bygroups(Bang, using(BashLexer), Text)),
         (r'^(\s*)(\?\??)(\s*%{0,2}[\w\.\*]*)', bygroups(Text, Percent, Text)),
     ] + tokens['root']
 
     tokens['magic_args'] = [
-        (r'\s*\n', Text, '#pop'),
-        ('(?:[rR]|[uU][rR]|[rR][uU])"', String, 'dqs'),
-        ("(?:[rR]|[uU][rR]|[rR][uU])'", String, 'sqs'),
-        (r'[^\'"\n]*', Text, '#pop'),
+        (r'[ \t]*\n', Text, '#pop'),
+        (r'[ \t]+', Text),
+        (r'`', String.Escape, 'backquotes'),
+        ('(?:[rR]|[uU][rR]|[rR][uU])?"', String, 'dqs'),
+        ("(?:[rR]|[uU][rR]|[rR][uU])?'", String, 'sqs'),
+        (r'.', Text),
+    ]
+
+    tokens['shell_magic'] = [
+        (r'(?s).*', using(BashLexer), '#pop'),
     ]
 
     # Highlight Python code between `...` in IPython magics
     tokens['backquotes'] = [
-        (r'(\s*`)([^`]+)(`\s*)',
-         bygroups(String.Escape, using(PyLexer), String.Escape)),
-        (r'\n', Text, '#pop'),
-        (r'\s', Text),
-        (r'\S+', using(PyLexer)),
+        (r'[^`\n]*?\n', Text, '#pop'),
+        (r'([^`]*)(`)', bygroups(using(PyLexer), String.Escape), '#pop'),
     ]
 
     # Color preferences

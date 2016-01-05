@@ -43,15 +43,15 @@ highlight def link pythonMagicQuote Special
 
 " IPython shell magics (!, !!, %%!, %sx, %%sx, %system, %%system)
 syntax region shellMagic keepend
-    \ start="^\s*\%(##\?\s\)\?\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?\%(%%\?\%(!\|sx\>\|system\>\)\|!!\?\)"
-    \ start="^\s*'''[^']*'''\s*\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?\%(%%\?\%(!\|sx\>\|system\>\)\|!!\?\)"
+    \ start="^\s*\%(##\?\s\)\?\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?\%(%%\?\%(!\|sx\>\|system\>\|script \w*sh\>\)\|!!\?\)"
+    \ start="^\s*'''[^']*'''\s*\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?\%(%%\?\%(!\|sx\>\|system\>\|script \w*sh\>\)\|!!\?\)"
     \ end="$" oneline
 
 syntax match  shellMagicInit "^\s*'''[^']*'''\s*" contained containedin=shellMagic display
 syntax match  shellMagicInit "\%(^\s*\)\@<=##\?\%(\s\|$\)" conceal contained containedin=shellMagic nextgroup=shellMagicPct,shellMagicBang skipwhite display
-syntax match  shellMagicEq   "=\s*\%(%\%(sx\|system\)\s\|!!\?\)\@=" contained containedin=shellMagic display
+syntax match  shellMagicEq   "=\s*\%(%\%(sx\|system\|script \w*sh\)\s\|!!\?\)\@=" contained containedin=shellMagic display
 syntax match  shellMagicPct  "%%\?\s*" contained containedin=shellMagic nextgroup=shellMagicSx,shellMagicBang display
-syntax match  shellMagicSx   "\%(sx\|system\)\>" contained containedin=shellMagic display
+syntax match  shellMagicSx   "\%(sx\|system\|script \w*sh\)\>" contained containedin=shellMagic display
 syntax match  shellMagicBang "!!\?" contained containedin=shellMagic nextgroup=shellMagicLine display
 
 highlight def link shellMagicBang   Special
@@ -67,17 +67,17 @@ syntax include @Sh syntax/sh.vim
 let b:current_syntax = 'pymode'
 
 syntax region shellMagicLine keepend
-    \ start="\%(\%('''\|##\?\s\|^\).\{-}=\?\s*\%(%\%(sx\|system\)\s\|!!\?\)\)\@<=."
+    \ start="\%(\%('''\|##\?\s\|^\).\{-}=\?\s*\%(%\%(sx\|system\|script \w*sh\)\s\|!!\?\)\)\@<=."
     \ end="$" contains=@Sh contained containedin=shellMagic oneline display
 
 syntax region shellMagicCell keepend
-    \ start="^\s*\%(##\?\s\)\?%%\%(\%(sx\|system\)\|!\)"
+    \ start="^\s*\%(##\?\s\)\?%%\%(\%(sx\|system\|script \w*sh\)\|!\)"
     \ end="^\s*$\|.*\%(\n\s*'''\)\@=" contains=@Sh,shellMagic
 syntax match  shellMagicInit "\%(^\s*\)\@<=##\?\%(\s\|$\)" conceal contained containedin=shellMagicCell nextgroup=shellMagicPct skipwhite display
-syntax match  shellMagicPct  "%%\%(\%(sx\|system\)\>\|!\)\@=" contained containedin=shellMagicCell nextgroup=shellMagicSx,shellMagicBang display
-syntax match  shellMagicSx   "\%(sx\|system\)\>" contained containedin=shellMagicCell nextgroup=shellMagicOpts display
+syntax match  shellMagicPct  "%%\%(\%(sx\|system\|script \w*sh\)\>\|!\)\@=" contained containedin=shellMagicCell nextgroup=shellMagicSx,shellMagicBang display
+syntax match  shellMagicSx   "\%(sx\|system\|script \w*sh\)\>" contained containedin=shellMagicCell nextgroup=shellMagicOpts display
 syntax match  shellMagicBang "!!\?" contained containedin=shellMagicCell nextgroup=shellMagicOpts display
-syntax match  shellMagicOpts "\%(%%\%(\%(sx\|system\)\|!\)\%(\s.*\)\?\)\@<=.*$" contained containedin=shellMagicCell display
+syntax match  shellMagicOpts "\%(%%\%(\%(sx\|system\|script \w*sh\)\|!\)\%(\s.*\)\?\)\@<=.*$" contained containedin=shellMagicCell display
 
 if &syntax !=# 'python'
   finish
