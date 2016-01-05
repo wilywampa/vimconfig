@@ -589,7 +589,6 @@ function! FixImports()
     let g:pymode_lint_select = 'E0602,W0404'
     let l:count = 0
     while 1
-      call g:PymodeLocList.current().clear()
       PymodePython code_check()
       Python2or3 << EOF
 messages = [(m['lnum'], m['text']) for m in
