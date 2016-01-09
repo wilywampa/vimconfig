@@ -22,7 +22,10 @@ remote() {
     line=$match
     [[ "$1" =~ '^(.*)\(' ]] && file="$match"
   fi
-  if [[ -n $line ]]; then
+  if [[ -d $file ]]; then
+    vim --servername ${VIMSERVER:-VIM} --remote-send \
+      '<C-\><C-n>:edit '"${(q)file:A}"'<CR>'
+  elif [[ -n $line ]]; then
     vim --servername ${VIMSERVER:-VIM} --remote +"${line}|sil! foldo!" "$file"
   else
     vim --servername ${VIMSERVER:-VIM} --remote "$file"
