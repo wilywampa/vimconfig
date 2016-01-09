@@ -14,7 +14,7 @@ endif
 " IPython magics (%name, %%name)
 syntax region pythonMagic keepend
     \ start="^\s*\%(##\s\)\?\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?%%\?\h\w*"
-    \ end=+\s['"`0-9]\@=\|%\h\w*\s\|$+ transparent oneline display
+    \ end=+\s['"`0-9]\@=\|%\h\w*\s\|$+ transparent oneline display contains=pythonMagicPct
 
 syntax region pythonMagic keepend
     \ start="^\s*'''[^']*'''\s*\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?%%\?\h\w*"
