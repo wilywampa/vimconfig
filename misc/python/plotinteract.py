@@ -39,16 +39,20 @@ else:
     CONTROL_MODIFIER = QtCore.Qt.ControlModifier
 
 
-def flatten(d, prefix=''):
+def flatten(d, ndim=None, prefix=''):
     """Join nested keys with '.' and unstack arrays."""
+    if ndim is None:
+        ndim = next(iter(sorted(
+            v.ndim for v in d.values()
+            if isinstance(v, np.ndarray))), None)
     out = {}
     for key, value in d.items():
         key = (prefix + '.' if prefix else '') + key
         if isinstance(value, dict):
-            out.update(flatten(value, key))
+            out.update(flatten(value, ndim=ndim, prefix=key))
         else:
             out[key] = value
-            if isinstance(value, np.ndarray) and value.ndim > 2:
+            if isinstance(value, np.ndarray) and value.ndim > ndim:
                 queue = [key]
                 while queue:
                     key = queue.pop()
@@ -56,7 +60,7 @@ def flatten(d, prefix=''):
                     new = {key + '[%d]' % i: a
                            for i, a in enumerate(array)}
                     out.update(new)
-                    queue.extend(q for q in new.keys() if new[q].ndim > 2)
+                    queue.extend(q for q in new.keys() if new[q].ndim > ndim)
     return out
 
 
@@ -334,12 +338,13 @@ class DataObj(object):
 
     def __init__(self, parent, obj, name, **kwargs):
         self.parent = parent
-        self.obj = obj
         self.name = name
         self.labels = kwargs.get('labels', name)
         self.widgets = []
         self.twin = False
         self.props = kwargs.get('props', {}).copy()
+        self.obj = flatten(obj, ndim=obj[kwargs['xname']].ndim
+                           if 'xname' in kwargs else None)
 
         draw = self.parent.draw
         connect = self.parent.connect
@@ -348,7 +353,6 @@ class DataObj(object):
         self.scale_label = QtGui.QLabel('scale:', parent=self.parent)
         self.xscale_label = QtGui.QLabel('scale:', parent=self.parent)
 
-        self.obj = flatten(self.obj)
         words = [k for k in self.obj.keys()
                  if isinstance(self.obj[k], np.ndarray)]
         words.sort(key=parent.sortkey)
@@ -587,6 +591,7 @@ class Interact(QtGui.QMainWindow):
         self.xlogscale = 'linear'
         self.ylogscale = 'linear'
         self.axisequal = axisequal
+        self.margins = 0
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
         self.pickers = None
@@ -755,6 +760,10 @@ class Interact(QtGui.QMainWindow):
         elif twin:
             self.axes2 = self.axes.twinx()
 
+        for ax in self.axes, self.axes2:
+            ax._tight = bool(self.margins)
+            ax.margins(self.margins)
+
         xlabel = []
         ylabel = []
         xlabel2 = []
@@ -826,12 +835,7 @@ class Interact(QtGui.QMainWindow):
         self.ylogscale = self.axes.get_yscale()
 
     def _margins(self):
-        self.axes._tight = not self.axes._tight
-        for ax in [self.axes, self.axes2]:
-            if self.axes._tight:
-                ax.margins(0.05)
-            else:
-                ax._xmargin = ax._ymargin = 0
+        self.margins = 0 if self.margins else 0.05
         self.draw()
 
     def _options(self):
