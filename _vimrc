@@ -2523,6 +2523,8 @@ nmap ]h <Plug>GitGutterNextHunkzv
 if !exists('g:neosnippet#snippets_directory')
     let g:neosnippet#snippets_directory = '$VIMCONFIG/vimfiles/snippets'
 endif
+xmap <C-t> <Plug>(neosnippet_expand_target)
+imap <C-x><C-t> <Plug>(neosnippet_start_unite_snippet)
 
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
