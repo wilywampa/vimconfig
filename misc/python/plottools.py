@@ -153,9 +153,17 @@ def savehtml(file_or_name, html_attrs=None, header=None, footer=None,
 def varinfo(var):
     """Pretty print information about a variable."""
     import numpy
-    from IPython.core.display import display
+    from IPython.lib.pretty import pretty
+    from highlighter import highlight
+    try:
+        s = pretty(var, max_seq_length=20)
+    except TypeError:
+        s = pretty(var)
+    lines = s.splitlines()
+    if len(lines) > 20:
+        s = '\n'.join(lines[:10] + ['...'] + lines[-10:])
+    print(highlight(s).strip())
     print(type(var))
-    display(var)
     if isinstance(var, numpy.ndarray):
         print(var.shape)
 
