@@ -99,3 +99,10 @@ abbr        assert Axes
 snippet     aline
 abbr        assert Line
 	assert isinstance(${0:line}, plt.matplotlib.lines.Line2D)
+
+snippet     fax
+abbr        plt.subplots()
+        ${1:f}, ${2:ax} = plt.subplots()
+	assert isinstance($1, plt.matplotlib.figure.Figure)
+	assert isinstance($2, plt.matplotlib.axes.Axes)
+	${0}
