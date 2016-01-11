@@ -966,14 +966,13 @@ func! s:SearchHandleKey(dir) " {{{
     echo a:dir.'\v'
     let c = getchar()
     if c != char2nr("\<C-c>") && c != char2nr("\<Esc>")
+        set wildcharm=<C-t>
         augroup search_tab_map
             autocmd!
             autocmd CursorMoved * execute 'silent! cunmap <Tab>' | autocmd! search_tab_map
-            if exists('#OptionSet')
-                autocmd OptionSet wildcharm execute 'silent! cunmap <Tab>' | autocmd! search_tab_map
-            endif
         augroup END
-        cnoremap <expr> <Tab> getcmdtype() =~ '[/?]' ? <SID>SearchComplete() : '<Tab>'
+        cnoremap <expr> <Tab> getcmdtype() =~ '[/?]' ?
+            \ '<C-\>e<SID>SearchComplete()<CR><C-t>' : '<Tab>'
     endif
     " CursorHold, FocusLost, FocusGained
     if c == "\200\375`" || c == "\<F24>" || c == "\<F25>" | let c = '' | endif
@@ -981,30 +980,29 @@ func! s:SearchHandleKey(dir) " {{{
     elseif c == char2nr("\<Esc>")            | return "\<C-l>"
     elseif c == char2nr("\<C-c>")            | return "\<C-l>"
     elseif c == char2nr("\<C-x>")            | return a:dir.'\V'
-    elseif c == char2nr("\<Tab>")            | return a:dir.'\v' . s:SearchComplete('\v', a:dir)
     elseif c == "\<Up>"                      | return a:dir."\<Up>"
     elseif c == char2nr("/") && a:dir == '/' | return '//'
-    elseif c == char2nr("\<C-v>")            |
-        \ return a:dir."\\v\<C-r>=substitute(@+, '\\n', '', 'g')\<CR>"
+    elseif c == char2nr("\<C-v>")
+        return a:dir."\\v\<C-r>=substitute(@+, '\\n', '', 'g')\<CR>"
+    elseif c == char2nr("\<Tab>")
+        return a:dir."\\v\<C-\>e" . maparg('<SID>', 'n') .
+            \ "SearchComplete('\\v', '" . a:dir . "')\<CR>\<C-t>"
     else
         return a:dir.'\v'.(type(c) == type("") ? c : nr2char(c))
     endif
 endfunc " }}}
+nnoremap <SID> <SID>
 noremap <expr> / <SID>SearchHandleKey('/')
 noremap <expr> ? <SID>SearchHandleKey('?')
 
 " Tab completion for search prompt
 function! s:SearchComplete(...) abort " {{{
-    set wildcharm=<Tab>
-    if a:0
-        let [magic, begin, cmdtype] = [a:1, '', a:2]
-    else
-        let magic = matchstr(getcmdline(), '^\\[vV]')
-        let begin = substitute(getcmdline(), '^\\[vV]', '', '')
-        let cmdtype = getcmdtype()
-    endif
+    silent! cunmap <Tab>
+    let magic = matchstr(getcmdline(), '^\\[vV]')
+    let begin = substitute(getcmdline(), '^\\[vV]', '', '')
+    let cmdtype = getcmdtype()
     let input = input('='.cmdtype.magic, begin, 'customlist,vimtools#CmdlineComplete')
-    return input[len(begin):]
+    return magic.input
 endfunction " }}}
 
 " Paste in visual mode without overwriting clipboard
