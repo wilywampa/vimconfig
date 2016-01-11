@@ -519,16 +519,6 @@ function! s:ToggleOmnifunc()
   endif
 endfunction
 
-" Use dictionary completion automatically
-if exists('g:ipython_dictionary_completion')
-  inoremap <buffer> <expr> '
-      \ &omnifunc == 'CompleteIPython' && getline('.')[col('.')-2] == '[' ?
-      \ "'".'<C-x><C-o><C-p>' : "'"
-  inoremap <buffer> <expr> "
-      \ &omnifunc == 'CompleteIPython' && getline('.')[col('.')-2] == '[' ?
-      \ '"<C-x><C-o><C-p>' : '"'
-endif
-
 " Use whitespace-delimited completion with <C-x><C-g>
 inoremap <buffer> <expr> <C-x><C-g> vimtools#CompleteStart('GreedyCompleteIPython')
 
