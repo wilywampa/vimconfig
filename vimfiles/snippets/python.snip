@@ -90,19 +90,18 @@ abbr        Client
 
 snippet     afig
 abbr        assert Figure
-	assert isinstance(${0:f}, plt.matplotlib.figure.Figure)
+	assert isinstance(${0:f}, plt.Figure)
 
 snippet     aax
 abbr        assert Axes
-	assert isinstance(${0:ax}, plt.matplotlib.axes.Axes)
+	assert isinstance(${0:ax}, plt.Axes)
 
 snippet     aline
 abbr        assert Line
-	assert isinstance(${0:line}, plt.matplotlib.lines.Line2D)
+	assert isinstance(${0:line}, plt.Line2D)
 
 snippet     fax
 abbr        plt.subplots()
         ${1:f}, ${2:ax} = plt.subplots()
-	assert isinstance($1, plt.matplotlib.figure.Figure)
-	assert isinstance($2, plt.matplotlib.axes.Axes)
+	assert isinstance($1, plt.Figure) and isinstance($2, plt.Axes)
 	${0}
