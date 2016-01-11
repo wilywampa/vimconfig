@@ -553,7 +553,7 @@ function! vimtools#CmdlineComplete(arglead, cmdline, cursorpos) " {{{
       \ '[substitute(histget("search", -v:val), pattern, "", "g"),
       \   histget("input", -v:val)]')
   return s:List.uniq(results + filter(s:List.flatten(hist),
-      \ "stridx(tolower(v:val), tolower(a:arglead)) == 0"))
+      \ "v:val =~ '\\S' && stridx(tolower(v:val), tolower(a:arglead)) == 0"))
 endfunction " }}}
 
 " Start completion with a temporary completefunc
