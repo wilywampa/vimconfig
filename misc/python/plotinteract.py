@@ -626,7 +626,9 @@ class Interact(QtGui.QMainWindow):
         self.draw()
 
     def add_data(self, obj, name, kwargs=None):
-        self.datas.append(DataObj(self, obj, name, **(kwargs or {})))
+        kwargs = kwargs or {}
+        kwargs['name'] = kwargs.get('name', name)
+        self.datas.append(DataObj(self, obj, **kwargs))
         data = self.datas[-1]
 
         self.row = self.grid.rowCount()
