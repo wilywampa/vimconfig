@@ -324,6 +324,7 @@ EOF
     " mode 0 = copy to clipboard
     " mode 1 = replace visual selection
     " mode 2 = expression register-like
+    " mode 3 = paste below visual selection
     call SaveRegs()
     try
       if a:mode != 2
@@ -340,7 +341,7 @@ EOF
         if !exists('g:ipy_result') || empty(g:ipy_result)
           return ''
         endif
-        let mark = a:mode == 1 ? "'<" : '.'
+        let mark = a:mode != 2 ? '.' : "'<"
         let after = strchars(getline(mark)[col(mark)-1:])
         let before = strchars(getline(mark)[:col(mark)-1]) - (after ? 1 : 0)
         let lines = split(g:ipy_result, '\n')
@@ -359,6 +360,9 @@ EOF
       elseif a:mode == 1
         call setreg(v:register, g:ipy_result)
         normal! gvp
+      elseif a:mode == 3
+        normal! `>
+        put = g:ipy_result
       endif
     finally
       if a:mode != 0
@@ -433,7 +437,7 @@ EOF
     nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
     inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
     xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
-    nnoremap <buffer> <silent> <CR>   vip:<C-u>call <SID>IPyEval(1)<CR>
+    nnoremap <buffer> <silent> <CR>   vip:<C-u>call <SID>IPyEval(3)<CR>
     map  <buffer> <C-s> <F5>
     map! <buffer> <C-s> <F5>
   endfunction
