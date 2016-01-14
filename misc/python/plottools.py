@@ -179,26 +179,29 @@ def pad(array, length, filler=float('nan')):
 
 def index_all(mapping, ix, copy=False):
     """Index all ndarrays in a nested Mapping with the slice object ix."""
-    import numpy.ma as ma
     from collections import Mapping
     from copy import deepcopy
     from numpy import ndarray
 
-    def base(array):
-        base = ma.getdata(array)
-        while base.base is not None:
-            base = base.base
-        return base
+    class Indexer(object):
 
-    if copy:
-        mapping = deepcopy(mapping)
-    for key, value in mapping.items():
-        if isinstance(value, ndarray) and (
-                value.base is None or value.shape == base(value).shape):
-            mapping[key] = value[ix]
-        elif isinstance(value, Mapping):
-            mapping[key] = index_all(value, ix, copy)
-    return mapping
+        def __init__(self):
+            self.visited = set()
+
+        def visit(self, mapping):
+            if copy:
+                mapping = deepcopy(mapping)
+            for key, value in mapping.items():
+                if id(value) in self.visited:
+                    continue
+                self.visited.add(id(value))
+                if isinstance(value, ndarray):
+                    mapping[key] = value[ix]
+                elif isinstance(value, Mapping):
+                    mapping[key] = self.visit(value)
+            return mapping
+
+    return Indexer().visit(mapping)
 
 
 def azip(*iterables, **kwargs):
