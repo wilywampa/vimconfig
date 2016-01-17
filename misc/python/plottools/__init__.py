@@ -1,11 +1,13 @@
 from __future__ import division, print_function
 import matplotlib.pyplot as plt
+from .angle2dcm import angle2dcm
+from .dcm2angle import dcm2angle
 from plotinteract import create, dataobj, merge_dicts
 
-__all__ = ['azip', 'cl', 'create', 'cursor', 'dataobj', 'dict2obj', 'fg',
-           'fig', 'figdo', 'index_all', 'merge_dicts', 'pad', 'picker',
-           'resize', 'savehtml', 'savepdf', 'savesvg', 'styles',
-           'unique_legend', 'unmask', 'varinfo']
+__all__ = ['angle2dcm', 'azip', 'cl', 'create', 'cursor', 'dataobj',
+           'dcm2angle', 'dict2obj', 'fg', 'fig', 'figdo', 'index_all',
+           'merge_dicts', 'pad', 'picker', 'resize', 'savehtml', 'savepdf',
+           'savesvg', 'styles', 'unique_legend', 'unmask', 'varinfo']
 
 
 def fg(fig=None):

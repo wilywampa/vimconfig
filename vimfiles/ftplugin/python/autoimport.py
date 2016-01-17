@@ -206,9 +206,10 @@ froms = {
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'norm', 'lstsq', 'solve',
         'svd', 'tensorinv', 'tensorsolve'],
     'plottools': [
-        'azip', 'cl', 'create', 'cursor', 'dataobj', 'dict2obj', 'fg', 'fig',
-        'figdo', 'index_all', 'merge_dicts', 'pad', 'picker', 'resize',
-        'savehtml', 'savepdf', 'savesvg', 'unique_legend', 'unmask', 'varinfo'],
+        'angle2dcm', 'azip', 'cl', 'create', 'cursor', 'dataobj', 'dict2obj',
+        'dcm2angle', 'fg', 'fig', 'figdo', 'index_all', 'merge_dicts', 'pad',
+        'picker', 'resize', 'savehtml', 'savepdf', 'savesvg', 'unique_legend',
+        'unmask', 'varinfo'],
     'pprint': ['pprint'],
     'pyprimes': ['is_prime', 'primes'],
     'pyprimes.factors': ['factorise', 'factors'],
