@@ -244,9 +244,7 @@ EOF
             \ '\v["'']@<!__file__["'']@!',
             \ "r'".escape(expand('%:p'), "'")."'", 'g')
       endif
-      if expand('%:t') ==# s:scratch_name
-        let g:ipy_input = s:UncommentMagics(g:ipy_input)
-      endif
+      let g:ipy_input = s:UncommentMagics(g:ipy_input)
       call IPyRunIPyInput()
     else
       let zoomed = _VimuxTmuxWindowZoomed()
@@ -443,6 +441,10 @@ EOF
     nnoremap <buffer> <silent> <CR>   vip:<C-u>call <SID>IPyEval(3)<CR>
     map  <buffer> <C-s> <F5>
     map! <buffer> <C-s> <F5>
+    augroup python_ftplugin_scratch
+      autocmd!
+      autocmd TextChangedI <buffer> call s:CommentMagic()
+    augroup END
   endfunction
 endif
 
@@ -528,6 +530,23 @@ endfunction
 
 " Use whitespace-delimited completion with <C-x><C-g>
 inoremap <buffer> <expr> <C-x><C-g> vimtools#CompleteStart('GreedyCompleteIPython')
+
+" Add '## ' escape to magic lines automatically
+function! s:CommentMagic() abort
+  if getline('.') =~ '\v^\s*(# )?##'
+    return
+  elseif stridx(join(map(synstack(line('.'), 1),
+      \ 'tolower(synIDattr(v:val, "name"))')), 'magic') == -1
+    return
+  endif
+  let pos = getpos('.')
+  try
+    call setline(line('.'), substitute(getline('.'), '\v(^\s*)(.*$)', '\1## \2', ''))
+    let pos[2] += 3
+  finally
+    call setpos('.', pos)
+  endtry
+endfunction
 
 if !exists('g:neocomplete#sources#omni#input_patterns')
   let g:neocomplete#sources#omni#input_patterns = {}
