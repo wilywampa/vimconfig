@@ -544,8 +544,8 @@ nn _ -
 nn <silent> g. m':silent! execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR>
 
 " Delete swap file and reload file
-nn <silent> <Leader>ds :<C-u>call SaveRegs()<CR>:Redir swapname<CR>:call
-    \ system("rm <C-r>"<BS>p")<CR>:e<CR>:call RestoreRegs()<CR>
+nn <silent> <Leader>ds :<C-u>if delete(b:swapname) == 0<bar>set noreadonly<bar>else<bar>
+    \ echoerr 'failed to delete swapfile'<bar>endif<CR>
 
 " Until opening pair, comma, or semicolon
 ono . :<C-u>call    search('[[({<,;]')\|echo<CR>
@@ -554,7 +554,7 @@ ono g] vg_
 xno g] g_h
 
 " Update diff
-nn <silent> du :diffupdate<CR>
+nn <silent> du :<C-u>diffupdate<CR>
 
 " Insert home directory after typing $~
 ino <expr> ~ getline('.')[virtcol('.')-2] == '$' ? "\<BS>".$HOME : '~'
@@ -1053,7 +1053,7 @@ func! s:DeleteUntilChar(char) " {{{
     let cmdstart = substitute(cmdstart, '\V'.escape(a:char, '\').'\*\$', '', '')
     let newcmdstart = strpart(cmdstart, 0, strridx(cmdstart, a:char) + 1)
     let end = strpart(getcmdline(), getcmdpos() - 1)
-    call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart) - (len(end) ? 1 : 0))
+    call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart))
     return newcmdstart.end
 endfunc " }}}
 cnoremap <C-@> <C-\>e<SID>DeleteUntilChar('/')<CR>
@@ -1501,7 +1501,7 @@ augroup VimrcAutocmds " {{{
         \ .line('.').(<SID>IsLocationList() ? "ll" : "cc")<CR>zv
 
     " Open files as read-only automatically
-    autocmd SwapExists * let v:swapchoice = 'o'
+    autocmd SwapExists * let v:swapchoice = 'o' | let b:swapname = v:swapname
 
     " Remove quit command from history
     autocmd VimEnter * call histdel(':', '^w\?q\%[all]!\?$')
