@@ -864,18 +864,38 @@ class Interact(QtGui.QMainWindow):
 
     @staticmethod
     def data_dict(d):
-        return dict(xname=text_type(d.xmenu.lineEdit().text()),
-                    yname=text_type(d.menu.lineEdit().text()),
-                    xscale=text_type(d.xscale_box.text()),
-                    yscale=text_type(d.scale_box.text()),
-                    props=d.props, name=d.name,
-                    labels=d.old_label if hasattr(d, 'old_label') else d.labels)
+        kwargs = OrderedDict((
+            ('name', d.name),
+            ('xname', text_type(d.xmenu.lineEdit().text())),
+            ('xscale', text_type(d.xscale_box.text())),
+            ('yname', text_type(d.menu.lineEdit().text())),
+            ('yscale', text_type(d.scale_box.text())),
+            ('props', d.props),
+            ('labels', d.old_label if hasattr(d, 'old_label') else d.labels),
+        ))
+        for key in 'xscale', 'yscale':
+            try:
+                kwargs[key] = ast.literal_eval(kwargs[key])
+            except ValueError:
+                pass
+            else:
+                if float(kwargs[key]) == 1.0:
+                    del kwargs[key]
+        if not kwargs['props']:
+            del kwargs['props']
+        return kwargs
+
+    def data_dicts(self):
+        return "\n".join(text_type(self.dict_repr(self.data_dict(d)))
+                         for d in self.datas)
 
     @classmethod
     def dict_repr(cls, d):
         if isinstance(d, dict):
             return 'dict({0})'.format(', '.join(
                 ['{0}={1}'.format(k, cls.dict_repr(v)) for k, v in d.items()]))
+        elif isinstance(d, string_types):
+            return repr(str(d))
         return repr(d)
 
     def event(self, event):
@@ -898,8 +918,7 @@ class Interact(QtGui.QMainWindow):
               event.modifiers() & CONTROL_MODIFIER and
               event.modifiers() & QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_P):
-            print("\n".join(text_type(self.dict_repr(self.data_dict(d)))
-                            for d in self.datas))
+            print(self.data_dicts())
             sys.stdout.flush()
             return True
         return super(Interact, self).event(event)
