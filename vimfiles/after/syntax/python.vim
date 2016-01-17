@@ -20,11 +20,10 @@ syntax region pythonMagic keepend
     \ start="^\s*'''[^']*'''\s*\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?%%\?\h\w*"
     \ end=+\s['"`0-9]\@=\|%\h\w*\s\|$+ oneline display
 
-execute 'syntax region pythonMagicCell '.
-    \ 'start="^\s*\%(##\s\)\?%%\h\w*" '.
-    \ 'start="^\s*''''''[^'']*''''''\s*%%\h\w*" '.
-    \ 'end="^\s*$\|.*\%(.*\n\s*''''''\)\@="'.
-    \ (&syntax ==# 'python' ? ' transparent' : '')
+syntax region pythonMagicCell
+    \ start="^\s*\%(##\s\)\?%%\h\w*"
+    \ start="^\s*'''[^'']*'''\s*%%\h\w*"
+    \ end="^\s*$\|.*\%(.*\n\s*'''\)\@=" transparent
 
 syntax match  pythonMagicInit  "\%(^\s*\)\@<=##\%(\s\|$\)" conceal contained containedin=pythonMagic,pythonMagicCell nextgroup=pythonMagicPct skipwhite display
 syntax match  pythonMagicInit  "^\s*'''[^']\{-}'''\s*" contained containedin=pythonMagic,pythonMagicCell display
