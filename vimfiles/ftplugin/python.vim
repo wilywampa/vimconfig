@@ -211,7 +211,10 @@ EOF
       call RestoreRegs()
     endif
     let g:ipy_input = 'from plottools import varinfo; varinfo('.input.')'
+    let history = get(g:, 'ipython_store_history', 1)
+    let g:ipython_store_history = 0
     call IPyRunIPyInput()
+    let g:ipython_store_history = history
   endfunction
 
   function! s:IPyGetHelp(level)
