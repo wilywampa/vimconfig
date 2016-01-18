@@ -1006,11 +1006,22 @@ badundo() {
     qall!'
 }
 
-_insert-date() {
-    zle split-undo
-    LBUFFER=${LBUFFER}${${$(date +$DATEFMT)[(w)2]}#0##}
+now() {
+    printf '%s' $(date +'%Y_%m_%d_%H%M%Z')
 }
-zle -N _insert-date; bindkey '^X^D' _insert-date
+_insert-now() {
+    zle split-undo
+    LBUFFER=${LBUFFER}'$(now)'
+}
+zle -N _insert-now; bindkey '^Xd' _insert-now
+today() {
+    printf '%s' ${${$(date +$DATEFMT)[(w)2]}#0##}
+}
+_insert-today() {
+    zle split-undo
+    LBUFFER=${LBUFFER}'$(today)'
+}
+zle -N _insert-today; bindkey '^X^D' _insert-today
 
 autoload -Uz zargs
 autoload -Uz zmv
