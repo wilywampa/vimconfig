@@ -166,6 +166,8 @@ class IPythonMonitor(object):
         for line in msg['content']['traceback']:
             sys.stdout.write('\n' + line)
         send(traceback_command, silent=True)
+        if self.last_msg_type not in ('execute_input', 'pyin'):
+            self.print_prompt('green')
         self.last_msg_type = msg['msg_type']
 
     def stream(self, msg):
