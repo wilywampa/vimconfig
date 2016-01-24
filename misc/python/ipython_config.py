@@ -87,10 +87,12 @@ def _marray_pprint(a, p, cycle):
         if a.dtype.names:
             if n <= 1:
                 p.text(_print_templates['short_flx'] % parameters)
-            p.text(_print_templates['long_flx'] % parameters)
+            else:
+                p.text(_print_templates['long_flx'] % parameters)
         elif n <= 1:
             p.text(_print_templates['short_std'] % parameters)
-        p.text(_print_templates['long_std'] % parameters)
+        else:
+            p.text(_print_templates['long_std'] % parameters)
     except Exception:
         p.text(repr(a))
 
@@ -185,6 +187,7 @@ def fields_dict(slist, type=SList):
 
 def _install():
     import io
+    import numpy as np
     from IPython import get_ipython
     from IPython.core import magic
     from highlighter import HighlightTextFormatter
@@ -211,6 +214,15 @@ def _install():
         with io.open(filename, 'r', encoding='utf-8') as f:
             ip.run_cell_magic('cython', ' '.join(args), f.read())
     del run_cython
+
+    def arraystr(a, max_line_width=None, precision=None, suppress_small=None):
+        """Separate values with a comma in array2string."""
+        return np.array2string(a, max_line_width,
+                               precision, suppress_small,
+                               separator=', ', prefix="", style=str)
+
+    np.set_string_function(arraystr, repr=False)
+    np.ma.masked_print_option.set_display("masked")
 
 
 def configure(c):
