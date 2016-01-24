@@ -106,6 +106,8 @@ endif
 
 " Enable matchit plugin
 runtime! macros/matchit.vim
+execute 'onoremap <silent> V%'  substitute(maparg('%',  'o'), '^v', 'V', '')
+execute 'onoremap <silent> Vg%' substitute(maparg('g%', 'o'), '^v', 'V', '')
 
 " {{{ Switch to last active tab/window
 let g:lastTab=1
@@ -1171,16 +1173,17 @@ autocmd VimrcAutocmds CursorMoved $HOME/.histfile call s:EchoHistTime()
 function! s:InsertSearchResult() " {{{
     let view = winsaveview() | call SaveRegs()
     try
-        normal! ggn
+        silent normal! ggn
         call winrestview(view)
         keepjumps normal! gny
-        execute "normal! gi\<C-r>\""
+        return @@
     catch
+        return ''
     finally
         call winrestview(view) | call RestoreRegs()
     endtry
 endfunction " }}}
-inoremap <silent> <C-]> <Esc>:call <SID>InsertSearchResult()<CR>gi
+inoremap <silent> <C-]> <C-r><C-r>=<SID>InsertSearchResult()<CR>
 
 " Check if location list (rather than quickfix)
 func! s:IsLocationList() " {{{
