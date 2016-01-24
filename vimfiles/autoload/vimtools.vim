@@ -455,7 +455,7 @@ function! vimtools#SourceMotion(type) " {{{
   if exists('*scriptease#scriptid')
     let sid = scriptease#scriptid('%')
     if sid
-      let pat = '\v\C<s:\h(\w*#)*\w*\ze\('
+      let pat = '\v(<s:|\<SID\>)\h(\w*#)*\w*\ze\('
       for line in filter(copy(lines), 'v:val =~ pat')
         let name = matchstr(line, pat)[2:]
         call map(lines,
