@@ -43,11 +43,11 @@ def angle2dcm(r1, r2=None, r3=None, rotation_sequence='zyx'):
     $Revision: 1.1.6.5 $  $Date: 2007/08/15 17:16:07 $
     """
     if r2 is not None:
-        r1, r2, r3 = [np.asanyarray(r) for r in [r1, r2, r3]]
+        r1, r2, r3 = [np.asanyarray(r) for r in (r1, r2, r3)]
     else:
         r1, r2, r3 = np.asanyarray(r1)
     if r1.shape:
-        angles = np.vstack([r1, r2, r3])
+        angles = np.concatenate([r[np.newaxis] for r in (r1, r2, r3)])
     else:
         angles = np.array([r1, r2, r3])
     dcm = np.zeros((3,) + angles.shape)

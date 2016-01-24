@@ -206,7 +206,7 @@ class _dcm2angle(object):
             r1[ix] = np.arctan2(r11a[ix], r12a[ix])
             r2[ix] = np.arcsin(r21[ix])
             r3[ix] = 0
-        return np.vstack([r1, r2, r3])
+        return np.concatenate([r[np.newaxis] for r in (r1, r2, r3)])
 
     def twoaxisrot(self, r11, r12, r21, r31, r32, r11a, r12a):
         r1 = np.arctan2(r11, r12)
@@ -217,4 +217,4 @@ class _dcm2angle(object):
             r1[ix] = np.arctan2(r11a[ix], r12a[ix])
             r2[ix] = np.arccos(r21[ix])
             r3[ix] = 0
-        return np.vstack([r1, r2, r3])
+        return np.concatenate([r[np.newaxis] for r in (r1, r2, r3)])
