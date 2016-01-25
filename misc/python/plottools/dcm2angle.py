@@ -73,13 +73,14 @@ def dcm2angle(dcm, rotation_sequence='zyx', zeroR3=False):
     degrees, and R1 and R3 angles that lie between +/- 180 degrees.
     However, when R2 is 0 or +/- 180 degrees, R3 is set to 0 degrees.
     """
-    return _dcm2angle(rotation_sequence, zeroR3).rot(dcm)
+    return _dcm2angle(rotation_sequence, zeroR3, dcm).rot(dcm)
 
 
 class _dcm2angle(object):
 
-    def __init__(self, rotation_sequence, zeroR3):
+    def __init__(self, rotation_sequence, zeroR3, dcm):
         self.zeroR3 = zeroR3
+        self.np = np.ma if isinstance(dcm, np.ma.MaskedArray) else np
         try:
             self.rot = getattr(self, str(rotation_sequence).lower().
                                replace('1', 'x').
@@ -198,6 +199,7 @@ class _dcm2angle(object):
 
     def threeaxisrot(self, r11, r12, r21, r31, r32, r11a, r12a):
         # find angles for rotations about X, Y, and Z axes
+        np = self.np
         r1 = np.arctan2(r11, r12)
         r2 = np.arcsin(r21)
         r3 = np.arctan2(r31, r32)
@@ -206,9 +208,10 @@ class _dcm2angle(object):
             r1[ix] = np.arctan2(r11a[ix], r12a[ix])
             r2[ix] = np.arcsin(r21[ix])
             r3[ix] = 0
-        return np.concatenate([r[np.newaxis] for r in (r1, r2, r3)])
+        return np.concatenate([r[None] for r in (r1, r2, r3)])
 
     def twoaxisrot(self, r11, r12, r21, r31, r32, r11a, r12a):
+        np = self.np
         r1 = np.arctan2(r11, r12)
         r2 = np.arccos(r21)
         r3 = np.arctan2(r31, r32)
@@ -217,4 +220,4 @@ class _dcm2angle(object):
             r1[ix] = np.arctan2(r11a[ix], r12a[ix])
             r2[ix] = np.arccos(r21[ix])
             r3[ix] = 0
-        return np.concatenate([r[np.newaxis] for r in (r1, r2, r3)])
+        return np.concatenate([r[None] for r in (r1, r2, r3)])

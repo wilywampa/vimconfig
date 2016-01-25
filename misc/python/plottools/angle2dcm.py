@@ -42,19 +42,21 @@ def angle2dcm(r1, r2=None, r3=None, rotation_sequence='zyx'):
     Copyright 2000-2007 The MathWorks, Inc.
     $Revision: 1.1.6.5 $  $Date: 2007/08/15 17:16:07 $
     """
+    if any(isinstance(x, np.ma.MaskedArray) for x in (r1, r2, r3)):
+        numpy = np.ma
+    else:
+        numpy = np
     if r2 is not None:
-        r1, r2, r3 = [np.asanyarray(r) for r in (r1, r2, r3)]
+        r1, r2, r3 = [numpy.asanyarray(r) for r in (r1, r2, r3)]
     else:
-        r1, r2, r3 = np.asanyarray(r1)
+        r1, r2, r3 = numpy.asanyarray(r1)
     if r1.shape:
-        angles = np.concatenate([r[np.newaxis] for r in (r1, r2, r3)])
+        angles = numpy.concatenate([r[np.newaxis] for r in (r1, r2, r3)])
     else:
-        angles = np.array([r1, r2, r3])
-    dcm = np.zeros((3,) + angles.shape)
-    if isinstance(r1, np.ma.MaskedArray):
-        dcm = np.ma.masked_array(dcm, mask=True, fill_value=r1.fill_value)
+        angles = numpy.array([r1, r2, r3])
+    dcm = numpy.zeros((3,) + angles.shape)
     return _angle2dcm(rotation_sequence).rot(
-        dcm, np.cos(angles), np.sin(angles))
+        dcm, numpy.cos(angles), numpy.sin(angles))
 
 
 class _angle2dcm(object):
