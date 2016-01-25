@@ -70,8 +70,10 @@ class IPythonLexer(RegexLexer):
 
     tokens['magic_args'] = [
         (r'[ \t]*\n', Text, '#pop'),
+        (r'[ \t]+{(?=.*}[ \n\t])', Percent, 'brackets'),
         (r'[ \t]+', Text),
-        (r'`', String.Escape, 'backquotes'),
+        (r'`', Percent, 'backquotes'),
+        (r'{', Percent, 'brackets'),
         ('(?:[rR]|[uU][rR]|[rR][uU])?"', String, 'dqs'),
         ("(?:[rR]|[uU][rR]|[rR][uU])?'", String, 'sqs'),
         (r'.', Text),
@@ -84,7 +86,13 @@ class IPythonLexer(RegexLexer):
     # Highlight Python code between `...` in IPython magics
     tokens['backquotes'] = [
         (r'[^`\n]*?\n', Text, '#pop'),
-        (r'([^`]*)(`)', bygroups(using(PyLexer), String.Escape), '#pop'),
+        (r'([^`]*)(`)', bygroups(using(PyLexer), Percent), '#pop'),
+    ]
+    tokens['brackets'] = [
+        (r'}[ \t]+', Percent, '#pop'),
+        (r'}\n', Percent, '#pop:2'),
+        (r'(.*?)(}[ \n\t])+', bygroups(using(PyLexer), Percent), '#pop'),
+        (r'.', Text),
     ]
 
     # Color preferences

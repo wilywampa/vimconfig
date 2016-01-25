@@ -14,11 +14,11 @@ endif
 " IPython magics (%name, %%name)
 syntax region pythonMagic keepend
     \ start="^\s*\%(##\s\)\?\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?%%\?\h\w*"
-    \ end=+\s['"`0-9]\@=\|%\h\w*\s\|$+ transparent oneline display contains=pythonMagicPct
+    \ end=+\s\S\@=\|%\h\w*\s\|$+ transparent oneline display contains=pythonMagicPct
 
 syntax region pythonMagic keepend
     \ start="^\s*'''[^']*'''\s*\%(\%(\h\w*\%(,\s*\|\s\+\)\)*=\s*\)\?%%\?\h\w*"
-    \ end=+\s['"`0-9]\@=\|%\h\w*\s\|$+ oneline display
+    \ end=+\s\S\@=\|%\h\w*\s\|$+ oneline display
 
 syntax region pythonMagicCell
     \ start="^\s*\%(##\s\)\?%%\h\w*"
@@ -33,14 +33,14 @@ syntax match  pythonMagicPct   "%%\?\%(\h\w*\)\@=" contained containedin=pythonM
 syntax match  pythonMagicPct   "^\s*%%" contained containedin=pythonMagicCell nextgroup=pythonMagicName display
 syntax match  pythonMagicName  "%\@<=\h\w*" contained containedin=pythonMagic,pythonMagicCell display
 syntax match  pythonMagicName  "\%(%%\)\@<=\h\w*" contained containedin=pythonMagicCell display
-syntax match  pythonMagicQuote "\%(^\s*'''[^']\{-}'''\s*%.*\)\@<=`" display
-syntax match  pythonMagicQuote "\%(^\s*\%(##\s\)\?%.*\)\@<=`" display
+syntax match  pythonMagicQuote "\%(^\s*'''[^']\{-}'''\s*%.*\)\@<=\%(`\|\s\@<={\|}\%(\s\|$\)\)" display
+syntax match  pythonMagicQuote "\%(^\s*\%(##\s\)\?%.*\)\@<=\%(`\|\s\@<={\|}\%(\s\|$\)\)" display
 
 highlight def link pythonMagicBang  Special
 highlight def link pythonMagicInit  Comment
 highlight def link pythonMagicName  Type
 highlight def link pythonMagicPct   Define
-highlight def link pythonMagicQuote Special
+highlight def link pythonMagicQuote Define
 
 " IPython shell magics (!, !!, %%!, %sx, %%sx, %system, %%system)
 syntax region shellMagic keepend
