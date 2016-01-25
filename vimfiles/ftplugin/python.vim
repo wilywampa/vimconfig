@@ -533,10 +533,11 @@ inoremap <buffer> <expr> <C-x><C-g> vimtools#CompleteStart('GreedyCompleteIPytho
 
 " Add '## ' escape to magic lines automatically
 function! s:CommentMagic() abort
-  if getline('.') =~ '\v^\s*(# )?##'
+  if getline('.') =~ '\v^\s*(# )?##|^\s*$'
     return
-  elseif stridx(join(map(synstack(line('.'), 1),
-      \ 'tolower(synIDattr(v:val, "name"))')), 'magic') == -1
+  elseif string(map(synstack(line('.'),
+      \ strlen(substitute(getline('.'), '\v^.{-}[!%]\zs.*$', '', ''))),
+      \ 'synIDattr(v:val, "name")')) !~? '\vmagic(bang|pct)|cythonMagic|shellMagic'
     return
   endif
   let pos = getpos('.')
