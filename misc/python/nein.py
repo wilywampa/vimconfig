@@ -1,40 +1,21 @@
 import numpy as _np
-import string as _str
-
-eijk = _np.zeros((3, 3, 3), dtype='d')
-eijk[0, 1, 2] = eijk[1, 2, 0] = eijk[2, 0, 1] = 1
-eijk[0, 2, 1] = eijk[2, 1, 0] = eijk[1, 0, 2] = -1
-eijk.flags.writeable = False
-
-eij = _np.array([[0, 1], [-1, 0]], dtype='d')
-eij.flags.writeable = False
-
-_LS = _str.ascii_lowercase
-_LS = _LS[_LS.index('m'):]
 
 
-def _ein(a, b, stra, strb, strc):
-    subscripts = '{a}, {b} -> {c}'.format(a=stra, b=strb, c=strc)
-    return _np.einsum(subscripts, a, b)
-
-
-def _normalize_indices(a, b, axisa, axisb):
-    if axisa < 0:
-        axisa += len(a.shape)
-    if axisb < 0:
-        axisb += len(b.shape)
-    return axisa, axisb
-
-
-def dot(a, b, axisa=0, axisb=0):
+def dot(a, b, axisa=0, axisb=0, c=None):
     """Vector dot product along specified axes of ndarrays."""
-    axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     if a.shape[axisa] != b.shape[axisb]:
         raise ValueError(_error(a, b, axisa, axisb))
-    stra = '%si%s' % (_LS[:axisa], _LS[axisa:len(a.shape) - 1])
-    strb = '%si%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
-    series = ''.join(sorted(x for x in _LS if x in stra or x in strb))
-    return _ein(a, b, stra, strb, series)
+    if axisa:
+        a = _np.rollaxis(a, axisa)
+    if axisb:
+        b = _np.rollaxis(b, axisb)
+    if c is None:
+        c = _empty(a, b, max((a.shape, b.shape), key=len)[1:], zero=True)
+    else:
+        c[:] = 0
+    for a, b in zip(a, b):
+        c += a * b
+    return c
 
 
 def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
@@ -43,15 +24,16 @@ def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
     n = a.shape[axisa]
     if n != a.shape[axisa + 1] or n != b.shape[axisb]:
         raise ValueError(_error(a, b, axisa, axisb))
-    transposea = kwargs.get('ta', transposea)
-    stra = '%s%s%s' % (_LS[:axisa], 'ji' if transposea else 'ij',
-                       _LS[axisa:len(a.shape) - 2])
-    strb = '%sj%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
-    series = ''.join(sorted(x for x in _LS if x in stra or x in strb))
-    if axisc < 0:
-        axisc += len(series) + 1
-    strc = '%si%s' % (series[:axisc], series[axisc:])
-    return _ein(a, b, stra, strb, strc)
+    a = _rollaxis_matrix(a, axisa)
+    if axisb:
+        b = _np.rollaxis(b, axisb)
+    if kwargs.get('ta', transposea):
+        a = a.swapaxes(0, 1)
+    c = kwargs.get(
+        'c', _empty(a, b, (3,) + max((a.shape[2:], b.shape[1:]), key=len)))
+    for col, row in enumerate(a):
+        c[col] = dot(row, b, c=c[col])
+    return _np.rollaxis(c, 0, axisc + 1)
 
 
 def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
@@ -61,19 +43,18 @@ def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
     n = a.shape[axisa]
     if not (n == a.shape[axisa + 1] == b.shape[axisb] == b.shape[axisb + 1]):
         raise ValueError(_error(a, b, axisa, axisb))
-    transposea = kwargs.get('ta', transposea)
-    transposeb = kwargs.get('tb', transposeb)
-    transposec = kwargs.get('tc', transposec)
-    stra = '%s%s%s' % (_LS[:axisa], 'ji' if transposea else 'ij',
-                       _LS[axisa:len(a.shape) - 2])
-    strb = '%s%s%s' % (_LS[:axisb], 'kj' if transposeb else 'jk',
-                       _LS[axisb:len(b.shape) - 2])
-    series = ''.join(sorted(x for x in _LS if x in stra or x in strb))
-    if axisc < 0:
-        axisc += len(series) + 2
-    strc = '%s%s%s' % (series[:axisc], 'ki' if transposec else 'ik',
-                       series[axisc:])
-    return _ein(a, b, stra, strb, strc)
+    a = _rollaxis_matrix(a, axisa)
+    b = _rollaxis_matrix(b, axisb)
+    if kwargs.get('ta', transposea):
+        a = a.swapaxes(0, 1)
+    if kwargs.get('tb', transposea):
+        b = b.swapaxes(0, 1)
+    c = _empty(a, b, max((a.shape, b.shape), key=len))
+    for col, row in enumerate(b.swapaxes(0, 1)):
+        c[col] = mtimesv(a, row, c=c[col])
+    if kwargs.get('tc', transposec):
+        return c
+    return c.swapaxes(0, 1)
 
 
 def cross(a, b, axisa=0, axisb=0, axisc=0):
@@ -89,31 +70,45 @@ def cross(a, b, axisa=0, axisb=0, axisc=0):
             "Only 2D and 3D cross products are implemented")
     if n != b.shape[axisb]:
         raise ValueError(_error(a, b, axisa, axisb))
+    if axisa:
+        a = _np.rollaxis(a, axisa)
+    if axisb:
+        b = _np.rollaxis(b, axisb)
     if n == 2:
-        return _cross2d(a, b, axisa, axisb, axisc)
-    strb = '%sj%s' % (_LS[:axisa], _LS[axisa:len(a.shape) - 1])
-    strc = 'ik%s' % strb.replace('j', '')
-    a = _ein(eijk, a, 'ijk', strb, strc)
-    stra = strc
-    strb = '%sk%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
-    series = ''.join(sorted(x for x in _LS if x in stra or x in strb))
-    if axisc < 0:
-        axisc += len(series) + 1
-    strc = '%si%s' % (series[:axisc], series[axisc:])
-    return _ein(a, b, stra, strb, strc)
+        c = a[0] * b[1] - a[1] * b[0]
+    else:
+        concatenate = _np.concatenate
+        if any(isinstance(x, np.ma.MaskedArray) for x in (a, b)):
+            concatenate = _np.ma.concatenate
+        c = concatenate([x[_np.newaxis] for x in (
+            a[1] * b[2] - a[2] * b[1],
+            a[2] * b[0] - a[0] * b[2],
+            a[0] * b[1] - a[1] * b[0],
+        )])
+    return _np.rollaxis(c, 0, axisc + 1)
 
 
-def _cross2d(a, b, axisa, axisb, axisc):
-    strb = '%si%s' % (_LS[:axisa], _LS[axisa:len(a.shape) - 1])
-    strc = 'j%s' % strb.replace('i', '')
-    a = _ein(eij, a, 'ij', strb, strc)
-    stra = strc
-    strb = '%sj%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
-    series = ''.join(sorted(x for x in _LS if x in stra or x in strb))
-    if axisc < 0:
-        axisc += len(series) + 1
-    strc = '%s%s' % (series[:axisc], series[axisc:])
-    return _ein(a, b, stra, strb, strc)
+def _empty(a, b, shape, zero=False):
+    usemask = any(isinstance(x, _np.ma.MaskedArray) for x in (a, b))
+    if zero:
+        func = _np.ma.zeros if usemask else _np.zeros
+    else:
+        func = _np.ma.empty if usemask else _np.empty
+    return func(shape)
+
+
+def _normalize_indices(a, b, axisa, axisb):
+    if axisa < 0:
+        axisa += len(a.shape)
+    if axisb < 0:
+        axisb += len(b.shape)
+    return axisa, axisb
+
+
+def _rollaxis_matrix(a, axis):
+    if not axis:
+        return a
+    return _np.rollaxis(_np.rollaxis(a, axis), axis + 1, 1)
 
 
 def _error(a, b, axisa, axisb):
@@ -124,9 +119,6 @@ def _error(a, b, axisa, axisb):
     return 'Shapes of a ({a}) and b ({b}) do not match'.format(
         a=shape(a, axisa), b=shape(b, axisb))
 
-
-if not hasattr(_np, 'einsum'):
-    from nein import cross, dot, mtimesm, mtimesv  # noqa
 
 if __name__ == '__main__':
     import numpy as np
