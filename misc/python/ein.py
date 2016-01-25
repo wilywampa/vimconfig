@@ -13,19 +13,6 @@ _LS = _str.ascii_lowercase
 _LS = _LS[_LS.index('m'):]
 
 
-def _ein(a, b, stra, strb, strc):
-    subscripts = '{a}, {b} -> {c}'.format(a=stra, b=strb, c=strc)
-    return _np.einsum(subscripts, a, b)
-
-
-def _normalize_indices(a, b, axisa, axisb):
-    if axisa < 0:
-        axisa += len(a.shape)
-    if axisb < 0:
-        axisb += len(b.shape)
-    return axisa, axisb
-
-
 def dot(a, b, axisa=0, axisb=0):
     """Vector dot product along specified axes of ndarrays."""
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
@@ -34,7 +21,9 @@ def dot(a, b, axisa=0, axisb=0):
     stra = '%si%s' % (_LS[:axisa], _LS[axisa:len(a.shape) - 1])
     strb = '%si%s' % (_LS[:axisb], _LS[axisb:len(b.shape) - 1])
     series = ''.join(sorted(x for x in _LS if x in stra or x in strb))
-    return _ein(a, b, stra, strb, series)
+    mask = _collapse_mask(_np.rollaxis(a, axisa),
+                          _collapse_mask(_np.rollaxis(b, axisb)))
+    return _ein(a, b, stra, strb, series, mask=mask)
 
 
 def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
@@ -51,7 +40,12 @@ def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
     if axisc < 0:
         axisc += len(series) + 1
     strc = '%si%s' % (series[:axisc], series[axisc:])
-    return _ein(a, b, stra, strb, strc)
+    mask = _collapse_mask(_np.rollaxis(b, axisb))
+    if a.ndim > 2 and isinstance(a, _np.ma.MaskedArray):
+        x = _np.rollaxis(_np.rollaxis(a, axisa), axisa + 1, 1)
+        for row in x:
+            mask = _collapse_mask(row, mask)
+    return _ein(a, b, stra, strb, strc, mask=mask, mask_axes=(axisc,))
 
 
 def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
@@ -73,7 +67,13 @@ def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
         axisc += len(series) + 2
     strc = '%s%s%s' % (series[:axisc], 'ki' if transposec else 'ik',
                        series[axisc:])
-    return _ein(a, b, stra, strb, strc)
+    mask = None
+    for x, ax in (a, axisa), (b, axisb):
+        if x.ndim > 2 and isinstance(x, _np.ma.MaskedArray):
+            x = _np.rollaxis(_np.rollaxis(a, ax), ax + 1, 1)
+            for row in x:
+                mask = _collapse_mask(row, mask)
+    return _ein(a, b, stra, strb, strc, mask=mask, mask_axes=(axisc, axisc + 1))
 
 
 def cross(a, b, axisa=0, axisb=0, axisc=0):
@@ -100,7 +100,45 @@ def cross(a, b, axisa=0, axisb=0, axisc=0):
     if axisc < 0:
         axisc += len(series) + 1
     strc = '%si%s' % (series[:axisc], series[axisc:])
-    return _ein(a, b, stra, strb, strc)
+    mask = _collapse_mask(_np.rollaxis(a, axisa),
+                          _collapse_mask(_np.rollaxis(b, axisb)))
+    return _ein(a, b, stra, strb, strc, mask=mask, mask_axes=(axisc,))
+
+
+def _ein(a, b, stra, strb, strc, mask=None, mask_axes=()):
+    subscripts = '{a}, {b} -> {c}'.format(a=stra, b=strb, c=strc)
+    out = _np.einsum(subscripts, a, b)
+    if mask is not None:
+        if mask_axes:
+            out = _np.ma.masked_array(out, mask=False)
+            axes = mask_axes + tuple(x for x in range(out.ndim)
+                                     if x not in mask_axes)
+            out = _np.transpose(out, axes)
+            out[..., mask] = _np.ma.masked
+            out = _np.transpose(out, _np.argsort(axes))
+        else:
+            out = _np.ma.masked_array(out, mask=mask)
+    return out
+
+
+def _normalize_indices(a, b, axisa, axisb):
+    """Make indices positive."""
+    if axisa < 0:
+        axisa += len(a.shape)
+    if axisb < 0:
+        axisb += len(b.shape)
+    return axisa, axisb
+
+
+def _collapse_mask(a, mask=None):
+    """Combine masks along the first axis of `a`."""
+    if a.ndim <= 1 or not isinstance(a, _np.ma.MaskedArray):
+        return mask
+    if mask is None:
+        mask = _np.zeros(a.shape[1:], dtype=bool)
+    for m in a.mask:
+        mask |= m
+    return mask
 
 
 def _cross2d(a, b, axisa, axisb, axisc):
@@ -113,7 +151,9 @@ def _cross2d(a, b, axisa, axisb, axisc):
     if axisc < 0:
         axisc += len(series) + 1
     strc = '%s%s' % (series[:axisc], series[axisc:])
-    return _ein(a, b, stra, strb, strc)
+    mask = _collapse_mask(_np.rollaxis(a, axisa),
+                          _collapse_mask(_np.rollaxis(b, axisb)))
+    return _ein(a, b, stra, strb, strc, mask=mask)
 
 
 def _error(a, b, axisa, axisb):

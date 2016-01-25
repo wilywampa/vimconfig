@@ -98,6 +98,7 @@ def _empty(a, b, shape, zero=False):
 
 
 def _normalize_indices(a, b, axisa, axisb):
+    """Make indices positive."""
     if axisa < 0:
         axisa += len(a.shape)
     if axisb < 0:
@@ -106,6 +107,7 @@ def _normalize_indices(a, b, axisa, axisb):
 
 
 def _rollaxis_matrix(a, axis):
+    """Roll `axis` and `axis + 1` to the front of `a`."""
     if not axis:
         return a
     return _np.rollaxis(_np.rollaxis(a, axis), axis + 1, 1)
