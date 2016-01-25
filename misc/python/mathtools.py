@@ -6,7 +6,7 @@ __all__ = ['cat', 'derivative', 'ecat', 'norm0', 'unit']
 
 def cat(*arrays):
     """Concatenate arrays along a new prepended axis."""
-    return concatenate([a[newaxis, ...] for a in arrays])
+    return concatenate([a[newaxis] for a in arrays])
 
 
 def derivative(t):
@@ -35,9 +35,17 @@ def ecat(*arrays):
     return concatenate([a[..., newaxis] for a in arrays], axis=-1)
 
 
+def norm(array, axis=0):
+    """Norm of `array` along `axis`."""
+    try:
+        return np.linalg.norm(array, axis=axis)
+    except TypeError:
+        return np.sqrt(sum(a ** 2 for a in np.rollaxis(array, axis)))
+
+
 def norm0(array):
     """Compute the norm of an array along the first axis."""
-    return np.linalg.norm(array, axis=0)
+    return norm(array, axis=0)
 
 
 def unit(array):
