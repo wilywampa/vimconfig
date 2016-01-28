@@ -88,14 +88,14 @@ class IPythonMonitor(object):
         self.clients = set()
         self.execution_count_id = None
         self.last_msg_type = None  # Only set when text written to stdout
-        self.last_execution_count = None
+        self.last_execution_count = 0
 
-    def print_prompt(self, color):
-        l = self.prompt.index('[')
-        r = self.prompt.index(']')
-        sys.stdout.write(colorize(self.prompt[:l + 1], color))
-        sys.stdout.write(colorize(self.prompt[l + 1:r], color, bold=True))
-        sys.stdout.write(colorize(self.prompt[r:], color))
+    def print_prompt(self, start='In', color='green', count_offset=0):
+        count = str(self.last_execution_count + count_offset)
+        sys.stdout.write(colorize(start.rstrip() + ' [', color))
+        sys.stdout.write(colorize(count, color, bold=True))
+        sys.stdout.write(colorize(']: ', color))
+        return '%s [%s]: ' % (start.strip(), count)
 
     def get_msgs(self):
         try:
@@ -125,19 +125,13 @@ class IPythonMonitor(object):
                 if client not in self.clients:
                     continue
 
-                try:
-                    getattr(self, msg_type)(msg)
-                except AttributeError:
-                    self.other(msg)
-
+                getattr(self, msg_type, self.other)(msg)
                 sys.stdout.flush()
 
     def pyin(self, msg):
-        self.prompt = ''.join('In [%d]: ' % msg['content']['execution_count'])
         self.last_execution_count = msg['content']['execution_count']
-        dots = '.' * len(self.prompt.rstrip()) + ' '
         sys.stdout.write('\r')
-        self.print_prompt('green')
+        dots = '.' * len(self.print_prompt().rstrip()) + ' '
         code = highlight(msg['content']['code'])
         output = code.rstrip().replace('\n', '\n' + dots)
         sys.stdout.write(output)
@@ -149,11 +143,8 @@ class IPythonMonitor(object):
             self.last_execution_count = msg['content']['execution_count']
             self.execution_count_id = msg['parent_header']['msg_id']
         if prompt:
-            self.prompt = ''.join('Out [%d]: ' %
-                                  msg['content']['execution_count'])
-            spaces = ' ' * len(self.prompt.rstrip()) + ' '
             sys.stdout.write('\n')
-            self.print_prompt('red')
+            spaces = ' ' * len(self.print_prompt('Out', 'red').rstrip()) + ' '
         output = msg['content']['data']['text/plain']
         sys.stdout.write(output.rstrip().replace('\n', '\n' + spaces))
         self.last_msg_type = msg['msg_type']
@@ -167,7 +158,7 @@ class IPythonMonitor(object):
             sys.stdout.write('\n' + line)
         send(traceback_command, silent=True)
         if self.last_msg_type not in ('execute_input', 'pyin'):
-            self.print_prompt('green')
+            self.print_prompt('\nIn')
         self.last_msg_type = msg['msg_type']
 
     def stream(self, msg):
@@ -183,9 +174,7 @@ class IPythonMonitor(object):
     def status(self, msg):
         if (msg['content']['execution_state'] == 'idle' and
                 msg['parent_header']['msg_id'] == self.execution_count_id):
-            self.prompt = '\n' + ''.join('In [%d]: ' % (
-                self.last_execution_count + 1))
-            self.print_prompt('green')
+            self.print_prompt('\nIn', count_offset=1)
             self.execution_count_id = None
 
     def clear_output(self, msg):
