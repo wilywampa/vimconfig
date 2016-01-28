@@ -11,8 +11,10 @@ def dot(a, b, axisa=0, axisb=0, c=None):
         b = _np.rollaxis(b, axisb)
     if c is None:
         c = _empty(a, b, max((a.shape, b.shape), key=len)[1:], zero=True)
-    else:
+    elif c.shape:
         c[:] = 0
+    else:
+        c = 0
     for a, b in zip(a, b):
         c += a * b
     return c
@@ -78,7 +80,7 @@ def cross(a, b, axisa=0, axisb=0, axisc=0):
         c = a[0] * b[1] - a[1] * b[0]
     else:
         concatenate = _np.concatenate
-        if any(isinstance(x, np.ma.MaskedArray) for x in (a, b)):
+        if any(isinstance(x, _np.ma.MaskedArray) for x in (a, b)):
             concatenate = _np.ma.concatenate
         c = concatenate([x[_np.newaxis] for x in (
             a[1] * b[2] - a[2] * b[1],
@@ -120,43 +122,3 @@ def _error(a, b, axisa, axisb):
 
     return 'Shapes of a ({a}) and b ({b}) do not match'.format(
         a=shape(a, axisa), b=shape(b, axisb))
-
-
-if __name__ == '__main__':
-    import numpy as np
-    from numpy.testing.utils import assert_allclose
-    x = np.random.uniform(size=(100, 3, 200))
-    y = np.random.uniform(size=(100, 200, 3))
-    m = np.random.uniform(size=(3, 3, 100, 200))
-    n = np.random.uniform(size=(100, 3, 3, 200))
-    z = dot(x, y, axisa=1, axisb=2)
-    assert_allclose(z[50, 75], np.dot(x[50, :, 75], y[50, 75, :]))
-    z = dot(x, y, axisa=1, axisb=-1)
-    assert_allclose(z[50, 75], np.dot(x[50, :, 75], y[50, 75, :]))
-    a = mtimesv(m, y, axisa=0, axisb=2, axisc=2)
-    assert_allclose(a[50, 75, :], np.dot(m[:, :, 50, 75], y[50, 75, :]))
-    a = mtimesv(m, y, axisa=0, axisb=2, axisc=2, transposea=True)
-    assert_allclose(a[50, 75, :], np.dot(m[:, :, 50, 75].T, y[50, 75, :]))
-    z = np.random.uniform(size=(3,))
-    assert_allclose(mtimesv(m, z)[:, 10, 20], np.dot(m[:, :, 10, 20], z))
-    b = mtimesm(m, n, axisa=0, axisb=1)
-    assert_allclose(b[:, :, 50, 75], np.dot(m[:, :, 50, 75], n[50, :, :, 75]))
-    b = mtimesm(m, n, axisa=0, axisb=-3)
-    assert_allclose(b[:, :, 50, 75], np.dot(m[:, :, 50, 75], n[50, :, :, 75]))
-    c = np.random.uniform(size=(3, 3))
-    d = mtimesm(m, c, axisa=0, axisb=0, transposec=True)
-    assert_allclose(d[:, :, 50, 75], np.dot(m[:, :, 50, 75], c).T)
-    d = mtimesm(c, m, axisa=0, axisb=0)
-    assert_allclose(d[:, :, 50, 75], np.dot(c, m[:, :, 50, 75]))
-    e = cross(x, y, axisa=1, axisb=2)
-    assert_allclose(e[:, 75, 50], np.cross(x[75, :, 50], y[75, 50, :]))
-    f = np.random.uniform(size=(3))
-    g = cross(f, y, axisb=2)
-    assert_allclose(g[:, 50, 75], np.cross(f, y[50, 75, :]))
-    h = np.random.uniform(size=(20, 30, 2))
-    i = np.random.uniform(size=(20, 2, 30))
-    j = cross(h, i, axisa=-1, axisb=1)
-    assert_allclose(j[10, 15], np.cross(h[10, 15, :], i[10, :, 15]))
-    y = np.random.uniform(size=(3, 200))
-    assert_allclose(cross(x, y, axisa=1)[:, 10, 20],
-                    np.cross(x[10, :, 20], y[:, 20]))

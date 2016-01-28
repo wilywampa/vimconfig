@@ -1,3 +1,4 @@
+# pylama: ignore=W0404
 import numpy as _np
 import string as _str
 
@@ -41,10 +42,15 @@ def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
         axisc += len(series) + 1
     strc = '%si%s' % (series[:axisc], series[axisc:])
     mask = _collapse_mask(_np.rollaxis(b, axisb))
-    if a.ndim > 2 and isinstance(a, _np.ma.MaskedArray):
-        x = _np.rollaxis(_np.rollaxis(a, axisa), axisa + 1, 1)
-        for row in x:
-            mask = _collapse_mask(row, mask)
+    if isinstance(a, _np.ma.MaskedArray):
+        if a.ndim > 2:
+            x = _np.rollaxis(_np.rollaxis(a, axisa), axisa + 1, 1)
+            for row in x:
+                mask = _collapse_mask(row, mask)
+        elif a.mask.any():
+            mask = True
+        elif mask is None:
+            mask = False
     return _ein(a, b, stra, strb, strc, mask=mask, mask_axes=(axisc,))
 
 
@@ -69,10 +75,15 @@ def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
                        series[axisc:])
     mask = None
     for x, ax in (a, axisa), (b, axisb):
-        if x.ndim > 2 and isinstance(x, _np.ma.MaskedArray):
-            x = _np.rollaxis(_np.rollaxis(a, ax), ax + 1, 1)
-            for row in x:
-                mask = _collapse_mask(row, mask)
+        if isinstance(x, _np.ma.MaskedArray):
+            if x.ndim > 2:
+                x = _np.rollaxis(_np.rollaxis(a, ax), ax + 1, 1)
+                for row in x:
+                    mask = _collapse_mask(row, mask)
+            elif x.mask.any():
+                mask = True
+            elif mask is None:
+                mask = False
     return _ein(a, b, stra, strb, strc, mask=mask, mask_axes=(axisc, axisc + 1))
 
 
@@ -109,7 +120,7 @@ def _ein(a, b, stra, strb, strc, mask=None, mask_axes=()):
     subscripts = '{a}, {b} -> {c}'.format(a=stra, b=strb, c=strc)
     out = _np.einsum(subscripts, a, b)
     if mask is not None:
-        if mask_axes:
+        if mask_axes and getattr(mask, 'shape', None):
             out = _np.ma.masked_array(out, mask=False)
             axes = mask_axes + tuple(x for x in range(out.ndim)
                                      if x not in mask_axes)
@@ -132,12 +143,15 @@ def _normalize_indices(a, b, axisa, axisb):
 
 def _collapse_mask(a, mask=None):
     """Combine masks along the first axis of `a`."""
-    if a.ndim <= 1 or not isinstance(a, _np.ma.MaskedArray):
+    if not isinstance(a, _np.ma.MaskedArray):
         return mask
     if mask is None:
         mask = _np.zeros(a.shape[1:], dtype=bool)
-    for m in a.mask:
-        mask |= m
+    if a.mask.shape:
+        for m in a.mask:
+            mask |= m
+    else:
+        mask |= a.mask
     return mask
 
 
@@ -166,43 +180,80 @@ def _error(a, b, axisa, axisb):
 
 
 if not hasattr(_np, 'einsum'):
-    from nein import cross, dot, mtimesm, mtimesv  # noqa
+    from nein import cross, dot, mtimesm, mtimesv
 
 if __name__ == '__main__':
-    import numpy as np
-    from numpy.testing.utils import assert_allclose
-    x = np.random.uniform(size=(100, 3, 200))
-    y = np.random.uniform(size=(100, 200, 3))
-    m = np.random.uniform(size=(3, 3, 100, 200))
-    n = np.random.uniform(size=(100, 3, 3, 200))
-    z = dot(x, y, axisa=1, axisb=2)
-    assert_allclose(z[50, 75], np.dot(x[50, :, 75], y[50, 75, :]))
-    z = dot(x, y, axisa=1, axisb=-1)
-    assert_allclose(z[50, 75], np.dot(x[50, :, 75], y[50, 75, :]))
-    a = mtimesv(m, y, axisa=0, axisb=2, axisc=2)
-    assert_allclose(a[50, 75, :], np.dot(m[:, :, 50, 75], y[50, 75, :]))
-    a = mtimesv(m, y, axisa=0, axisb=2, axisc=2, transposea=True)
-    assert_allclose(a[50, 75, :], np.dot(m[:, :, 50, 75].T, y[50, 75, :]))
-    z = np.random.uniform(size=(3,))
-    assert_allclose(mtimesv(m, z)[:, 10, 20], np.dot(m[:, :, 10, 20], z))
-    b = mtimesm(m, n, axisa=0, axisb=1)
-    assert_allclose(b[:, :, 50, 75], np.dot(m[:, :, 50, 75], n[50, :, :, 75]))
-    b = mtimesm(m, n, axisa=0, axisb=-3)
-    assert_allclose(b[:, :, 50, 75], np.dot(m[:, :, 50, 75], n[50, :, :, 75]))
-    c = np.random.uniform(size=(3, 3))
-    d = mtimesm(m, c, axisa=0, axisb=0, transposec=True)
-    assert_allclose(d[:, :, 50, 75], np.dot(m[:, :, 50, 75], c).T)
-    d = mtimesm(c, m, axisa=0, axisb=0)
-    assert_allclose(d[:, :, 50, 75], np.dot(c, m[:, :, 50, 75]))
-    e = cross(x, y, axisa=1, axisb=2)
-    assert_allclose(e[:, 75, 50], np.cross(x[75, :, 50], y[75, 50, :]))
-    f = np.random.uniform(size=(3))
-    g = cross(f, y, axisb=2)
-    assert_allclose(g[:, 50, 75], np.cross(f, y[50, 75, :]))
-    h = np.random.uniform(size=(20, 30, 2))
-    i = np.random.uniform(size=(20, 2, 30))
-    j = cross(h, i, axisa=-1, axisb=1)
-    assert_allclose(j[10, 15], np.cross(h[10, 15, :], i[10, :, 15]))
-    y = np.random.uniform(size=(3, 200))
-    assert_allclose(cross(x, y, axisa=1)[:, 10, 20],
-                    np.cross(x[10, :, 20], y[:, 20]))
+
+    def test():
+        import numpy as np
+        from numpy.random import randn
+        from numpy.testing.utils import assert_allclose
+        x = np.random.uniform(size=(100, 3, 200))
+        y = np.random.uniform(size=(100, 200, 3))
+        m = np.random.uniform(size=(3, 3, 100, 200))
+        n = np.random.uniform(size=(100, 3, 3, 200))
+        z = dot(x, y, axisa=1, axisb=2)
+        assert_allclose(z[50, 75], np.dot(x[50, :, 75], y[50, 75, :]))
+        z = dot(x, y, axisa=1, axisb=-1)
+        assert_allclose(z[50, 75], np.dot(x[50, :, 75], y[50, 75, :]))
+        a = mtimesv(m, y, axisa=0, axisb=2, axisc=2)
+        assert_allclose(a[50, 75, :], np.dot(m[..., 50, 75], y[50, 75, :]))
+        a = mtimesv(m, y, axisa=0, axisb=2, axisc=2, transposea=True)
+        assert_allclose(a[50, 75, :], np.dot(m[..., 50, 75].T, y[50, 75, :]))
+        z = np.random.uniform(size=(3,))
+        assert_allclose(mtimesv(m, z)[:, 10, 20], np.dot(m[..., 10, 20], z))
+        b = mtimesm(m, n, axisa=0, axisb=1)
+        assert_allclose(b[..., 50, 75], np.dot(m[..., 50, 75], n[50, ..., 75]))
+        b = mtimesm(m, n, axisa=0, axisb=-3)
+        assert_allclose(b[..., 50, 75], np.dot(m[..., 50, 75], n[50, ..., 75]))
+        c = np.random.uniform(size=(3, 3))
+        d = mtimesm(m, c, axisa=0, axisb=0, transposec=True)
+        assert_allclose(d[..., 50, 75], np.dot(m[..., 50, 75], c).T)
+        d = mtimesm(c, m, axisa=0, axisb=0)
+        assert_allclose(d[..., 50, 75], np.dot(c, m[..., 50, 75]))
+        e = cross(x, y, axisa=1, axisb=2)
+        assert_allclose(e[:, 75, 50], np.cross(x[75, :, 50], y[75, 50, :]))
+        f = np.random.uniform(size=(3))
+        g = cross(f, y, axisb=2)
+        assert_allclose(g[:, 50, 75], np.cross(f, y[50, 75, :]))
+        h = np.random.uniform(size=(20, 30, 2))
+        i = np.random.uniform(size=(20, 2, 30))
+        j = cross(h, i, axisa=-1, axisb=1)
+        assert_allclose(j[10, 15], np.cross(h[10, 15, :], i[10, :, 15]))
+        y = np.random.uniform(size=(3, 200))
+        assert_allclose(cross(x, y, axisa=1)[:, 10, 20],
+                        np.cross(x[10, :, 20], y[:, 20]))
+        mtimesv(np.ma.masked_array(randn(3, 3), mask=True),
+                np.ma.masked_array(randn(3, 3, 1000)))
+        x = mtimesv(np.ma.masked_array(randn(3, 3), mask=True),
+                    randn(3, 3, 1000))
+        assert x.mask.all()
+        x = dot(np.ma.masked_array(randn(3)), randn(3, 10))
+        assert isinstance(x, np.ma.MaskedArray)
+        x = dot(randn(3, 10), np.ma.masked_array(randn(3), mask=False))
+        assert not x.mask.any()
+        x = dot(randn(3, 10), np.ma.masked_array(randn(3), mask=True))
+        assert x.mask.all()
+        x = dot(np.ma.masked_array(randn(3, 10), mask=True), randn(3))
+        assert x.mask.all()
+        x = mtimesv(randn(3, 3), np.ma.masked_array(randn(3), mask=True))
+        assert x.mask.all()
+        x = mtimesv(randn(3, 3), np.ma.masked_array(randn(3), mask=False))
+        assert not x.mask.any()
+        x = mtimesv(np.ma.masked_array(randn(3, 3), mask=True), randn(3))
+        assert x.mask.all()
+        x = mtimesv(np.ma.masked_array(randn(3, 3), mask=False), randn(3))
+        assert not x.mask.any()
+        x = mtimesm(randn(3, 3), np.ma.masked_array(randn(3, 3), mask=True))
+        assert x.mask.all()
+        x = mtimesm(np.ma.masked_array(randn(3, 3), mask=True), randn(3, 3))
+        assert x.mask.all()
+        x = mtimesm(randn(3, 3), np.ma.masked_array(randn(3, 3), mask=False))
+        assert not x.mask.any()
+        x = mtimesm(np.ma.masked_array(randn(3, 3), mask=False), randn(3, 3))
+        assert not x.mask.any()
+
+    assert hasattr(_np, 'einsum')
+    test()
+    from nein import cross, dot, mtimesm, mtimesv
+    test()
