@@ -219,9 +219,12 @@ def _install():
         """Separate values with a comma in array2string."""
         return np.array2string(a, max_line_width,
                                precision, suppress_small,
-                               separator=', ', prefix="", style=str)
+                               separator=', ', prefix="", style=str)\
+            .replace('..., ', '..., ' if PY3 else 'Ellipsis, ')
 
     np.set_string_function(arraystr, repr=False)
+    if not PY3:
+        np.set_string_function(arraystr)
     np.ma.masked_print_option.set_display("masked")
 
 
