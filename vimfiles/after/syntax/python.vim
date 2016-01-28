@@ -92,7 +92,7 @@ if &syntax !=# 'python'
 endif
 
 silent! unlet b:current_syntax
-syntax include @Cython syntax/cython.vim
+silent! syntax include @Cython syntax/cython.vim
 let b:current_syntax = 'pymode'
 
 syntax region cythonMagic
