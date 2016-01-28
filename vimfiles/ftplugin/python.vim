@@ -362,6 +362,7 @@ EOF
         call setreg(v:register, g:ipy_result)
         normal! gvp
       elseif a:mode == 3
+        call s:WriteScratch(g:ipy_input)
         normal! `>
         put = g:ipy_result
       endif
@@ -383,7 +384,7 @@ EOF
         return substitute(a:line, '\v^\s*\zs##%(\s|$)', '', '')
       elseif a:line =~ '\v^\s*#\s+[!%]'
         return substitute(a:line, '\v^(\s*)# ([%!])', '\1\2', '')
-      elseif a:line =~ '\v^\s*# (\h\w*,?\s*)+\s*\='
+      elseif a:line =~ '\v^\s*# (\h\w*,?\s*)+\s*\=\s*[!%]'
         return substitute(a:line, '\v^(\s*)# ((\h\w*,?\s*)+)\s*\=', '\1\2=', '')
       endif
     catch
@@ -395,6 +396,13 @@ EOF
     return join(map(split(a:input, '\n'), 's:UncommentLine(v:val)'), "\n")
   endfunction
 
+  function! s:WriteScratch(text) abort " {{{
+    let dir = $HOME . '/.cache/IPython'
+    if !isdirectory(dir) | call mkdir(dir) | endif
+    call writefile(split(a:text . "\n", '\n'), dir .
+        \ strftime('/scratch_%Y_%m_%d.py'), 'a')
+  endfunction " }}}
+
   function! s:IPyRunScratchBuffer()
     let view = winsaveview()
     call SaveRegs()
@@ -402,10 +410,7 @@ EOF
     let right_save = getpos("'>")
     let vimode = visualmode()
     execute "normal! " . get(g:, 'ipython_scratch_motion', 'yap')
-    let dir = $HOME . '/.cache/IPython'
-    if !isdirectory(dir) | call mkdir(dir) | endif
-    call writefile(split(@@ . "\n", '\n'), dir .
-        \ strftime('/scratch_%Y_%m_%d.py'), 'a')
+    call s:WriteScratch(@@)
     let g:ipy_input = s:UncommentMagics(@@)
     call RestoreRegs()
     execute "normal! " . vimode . "\<Esc>"
