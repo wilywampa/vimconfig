@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """ Bunch is a subclass of dict with attribute-style access.
 
     >>> b = Bunch()
@@ -23,12 +21,13 @@
     converted via Bunch.to/fromDict().
 """
 
-__version__ = '1.0.1'
+__version__ = '2.0.4'
 VERSION = tuple(map(int, __version__.split('.')))
 
-__all__ = ('Bunch', 'bunchify','unbunchify',)
+__all__ = ('Bunch', 'bunchify', 'unbunchify')
 
-from .python3_compat import *
+from .python3_compat import *  # noqa
+
 
 class Bunch(dict):
     """ A dictionary that provides attribute-style access.
@@ -55,12 +54,12 @@ class Bunch(dict):
 
         >>> b.update({ 'ponies': 'are pretty!' }, hello=42)
         >>> print (repr(b))
-        Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+        Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
 
         As well as iteration...
 
-        >>> [ (k,b[k]) for k in b ]
-        [('ponies', 'are pretty!'), ('foo', Bunch(lol=True)), ('hello', 42)]
+        >>> sorted([ (k,b[k]) for k in b ])
+        [('foo', Bunch({'lol': True})), ('hello', 42), ('ponies', 'are pretty!')]
 
         And "splats".
 
@@ -69,30 +68,6 @@ class Bunch(dict):
 
         See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict for notes about conversion.
     """
-
-    def __contains__(self, k):
-        """ >>> b = Bunch(ponies='are pretty!')
-            >>> 'ponies' in b
-            True
-            >>> 'foo' in b
-            False
-            >>> b['foo'] = 42
-            >>> 'foo' in b
-            True
-            >>> b.hello = 'hai'
-            >>> 'hello' in b
-            True
-            >>> b[None] = 123
-            >>> None in b
-            True
-            >>> b[False] = 456
-            >>> False in b
-            True
-        """
-        try:
-            return dict.__contains__(self, k) or hasattr(self, k)
-        except:
-            return False
 
     # only called if k not found in normal places
     def __getattr__(self, k):
@@ -133,8 +108,8 @@ class Bunch(dict):
             propagate as an AttributeError instead.
 
             >>> b = Bunch(foo='bar', this_is='useful when subclassing')
-            >>> b.values                            #doctest: +ELLIPSIS
-            <built-in method values of Bunch object at 0x...>
+            >>> hasattr(b.values, '__call__')
+            True
             >>> b.values = 'uh oh'
             >>> b.values
             'uh oh'
@@ -160,10 +135,6 @@ class Bunch(dict):
             propagate as an AttributeError instead.
 
             >>> b = Bunch(lol=42)
-            >>> del b.values
-            Traceback (most recent call last):
-                ...
-            AttributeError: 'Bunch' object attribute 'values' is read-only
             >>> del b.lol
             >>> b.lol
             Traceback (most recent call last):
@@ -185,8 +156,8 @@ class Bunch(dict):
         """ Recursively converts a bunch back into a dictionary.
 
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            >>> b.toDict()
-            {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+            >>> sorted(b.toDict().items())
+            [('foo', {'lol': True}), ('hello', 42), ('ponies', 'are pretty!')]
 
             See unbunchify for more info.
         """
@@ -197,31 +168,35 @@ class Bunch(dict):
 
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
             >>> print (repr(b))
-            Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
             >>> eval(repr(b))
-            Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
+
+            >>> with_spaces = Bunch({1: 2, 'a b': 9, 'c': Bunch({'simple': 5})})
+            >>> print (repr(with_spaces))
+            Bunch({'a b': 9, 1: 2, 'c': Bunch({'simple': 5})})
+            >>> eval(repr(with_spaces))
+            Bunch({'a b': 9, 1: 2, 'c': Bunch({'simple': 5})})
 
             (*) Invertible so long as collection contents are each repr-invertible.
         """
-        keys = list(iterkeys(self))
-        keys.sort()
-        args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
-        return '%s(%s)' % (self.__class__.__name__, args)
-
+        return '%s(%s)' % (self.__class__.__name__, dict.__repr__(self))
 
     def __dir__(self):
         return list(iterkeys(self))
 
+    __members__ = __dir__  # for python2.x compatibility
+
     def _repr_pretty_(self, p, cycle):
-        start = 'Bunch('
-        end = ')'
+        start = 'Bunch({'
+        end = '})'
         if cycle:
             return p.text('{start}...{end}'.format(start=start, end=end))
         p.begin_group(len(start), start)
         keys = self.keys()
         try:
             keys.sort()
-        except Exception as e:
+        except Exception:
             # Sometimes the keys don't sort.
             pass
         for idx, key in p._enumerate(keys):
@@ -232,8 +207,6 @@ class Bunch(dict):
             p.text(': ')
             p.pretty(self[key])
         p.end_group(len(end), end)
-
-    __members__ = __dir__ # for python2.x compatibility
 
     @staticmethod
     def fromDict(d):
@@ -246,7 +219,6 @@ class Bunch(dict):
             See bunchify for more info.
         """
         return bunchify(d)
-
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
@@ -276,39 +248,39 @@ def bunchify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return Bunch( (k, bunchify(v)) for k,v in iteritems(x) )
+        return Bunch((k, bunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)( bunchify(v) for v in x )
+        return type(x)(bunchify(v) for v in x)
     else:
         return x
+
 
 def unbunchify(x):
     """ Recursively converts a Bunch into a dictionary.
 
         >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-        >>> unbunchify(b)
-        {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+        >>> sorted(unbunchify(b).items())
+        [('foo', {'lol': True}), ('hello', 42), ('ponies', 'are pretty!')]
 
         unbunchify will handle intermediary dicts, lists and tuples (as well as
         their subclasses), but ymmv on custom datatypes.
 
         >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42,
         ...         ponies=('are pretty!', Bunch(lies='are trouble!')))
-        >>> unbunchify(b) #doctest: +NORMALIZE_WHITESPACE
-        {'ponies': ('are pretty!', {'lies': 'are trouble!'}),
-         'foo': ['bar', {'lol': True}], 'hello': 42}
+        >>> sorted(unbunchify(b).items()) #doctest: +NORMALIZE_WHITESPACE
+        [('foo', ['bar', {'lol': True}]), ('hello', 42), ('ponies', ('are pretty!', {'lies': 'are trouble!'}))]
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return dict( (k, unbunchify(v)) for k,v in iteritems(x) )
+        return dict((k, unbunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)( unbunchify(v) for v in x )
+        return type(x)(unbunchify(v) for v in x)
     else:
         return x
 
 
-### Serialization
+# Serialization
 
 try:
     try:
@@ -320,10 +292,8 @@ try:
         """ Serializes this Bunch to JSON. Accepts the same keyword options as `json.dumps()`.
 
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            >>> json.dumps(b)
-            '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
-            >>> b.toJSON()
-            '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
+            >>> json.dumps(b) == b.toJSON()
+            True
         """
         return json.dumps(self, **options)
 
@@ -331,8 +301,6 @@ try:
 
 except ImportError:
     pass
-
-
 
 
 try:
@@ -363,7 +331,6 @@ try:
         value = loader.construct_mapping(node)
         data.update(value)
 
-
     def to_yaml_safe(dumper, data):
         """ Converts Bunch to a normal mapping node, making it appear as a
             dict in the YAML output.
@@ -385,7 +352,6 @@ try:
         """
         return dumper.represent_mapping(u('!bunch.Bunch'), data)
 
-
     yaml.add_constructor(u('!bunch'), from_yaml)
     yaml.add_constructor(u('!bunch.Bunch'), from_yaml)
 
@@ -394,7 +360,6 @@ try:
 
     Representer.add_representer(Bunch, to_yaml)
     Representer.add_multi_representer(Bunch, to_yaml)
-
 
     # Instance methods for YAML conversion
     def toYAML(self, **options):
@@ -411,6 +376,7 @@ try:
             '!bunch.Bunch {foo: [bar, !bunch.Bunch {lol: true}], hello: 42}\\n'
             >>> b.toYAML(Dumper=yaml.Dumper, default_flow_style=True)
             '!bunch.Bunch {foo: [bar, !bunch.Bunch {lol: true}], hello: 42}\\n'
+
         """
         opts = dict(indent=4, default_flow_style=False)
         opts.update(options)
@@ -420,16 +386,10 @@ try:
             return yaml.dump(self, **opts)
 
     def fromYAML(*args, **kwargs):
-        return bunchify( yaml.load(*args, **kwargs) )
+        return bunchify(yaml.load(*args, **kwargs))
 
     Bunch.toYAML = toYAML
     Bunch.fromYAML = staticmethod(fromYAML)
 
 except ImportError:
     pass
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
-
