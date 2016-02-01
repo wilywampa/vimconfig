@@ -3,6 +3,7 @@ import numpy as _np
 
 def dot(a, b, axisa=0, axisb=0, c=None):
     """Vector dot product along specified axes of ndarrays."""
+    a, b = _asarray(a, b)
     if a.shape[axisa] != b.shape[axisb]:
         raise ValueError(_error(a, b, axisa, axisb))
     if axisa:
@@ -22,6 +23,7 @@ def dot(a, b, axisa=0, axisb=0, c=None):
 
 def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
     """Matrix/vector multiplication along specified axes of ndarrays."""
+    a, b = _asarray(a, b)
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     n = a.shape[axisa]
     if n != a.shape[axisa + 1] or n != b.shape[axisb]:
@@ -41,6 +43,7 @@ def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
 def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
             transposea=False, transposeb=False, transposec=False, **kwargs):
     """Matrix/matrix multiplication along specified axes of ndarrays."""
+    a, b = _asarray(a, b)
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     n = a.shape[axisa]
     if not (n == a.shape[axisa + 1] == b.shape[axisb] == b.shape[axisb + 1]):
@@ -61,6 +64,7 @@ def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
 
 def cross(a, b, axisa=0, axisb=0, axisc=0):
     """Vector cross product along specified axes of ndarrays."""
+    a, b = _asarray(a, b)
     if (a.ndim != b.ndim and
             a.shape not in [(2,), (3,)] and
             b.shape not in [(2,), (3,)]):
@@ -122,3 +126,7 @@ def _error(a, b, axisa, axisb):
 
     return 'Shapes of a ({a}) and b ({b}) do not match'.format(
         a=shape(a, axisa), b=shape(b, axisb))
+
+
+def _asarray(*arrays):
+    return tuple(_np.asanyarray(a) for a in arrays)
