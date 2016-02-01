@@ -19,13 +19,13 @@ except ImportError:
     from pygments.formatters import TerminalFormatter
 
 default_fmt = "[%(name)s] %(levelname)s | %(asctime)s | %(message)s"
-TYPES = set(('False', 'None', 'True', 'basestring', 'bool', 'buffer',
-             'bytearray', 'bytes', 'chr', 'complex', 'complex128', 'complex256',
-             'complex64', 'dict', 'file', 'float', 'float128', 'float16',
-             'float32', 'float64', 'format', 'frozenset', 'help', 'int',
-             'int16', 'int32', 'int64', 'int8', 'list', 'long', 'object',
-             'set', 'str', 'super', 'tuple', 'type', 'uint16', 'uint32',
-             'uint64', 'uint8', 'unichr', 'unicode', 'void'))
+TYPES = set(('Ellipsis', 'False', 'None', 'True', 'basestring', 'bool',
+             'buffer', 'bytearray', 'bytes', 'chr', 'complex', 'complex128',
+             'complex256', 'complex64', 'dict', 'file', 'float', 'float128',
+             'float16', 'float32', 'float64', 'format', 'frozenset', 'help',
+             'int', 'int16', 'int32', 'int64', 'int8', 'list', 'long',
+             'object', 'set', 'str', 'super', 'tuple', 'type', 'uint16',
+             'uint32', 'uint64', 'uint8', 'unichr', 'unicode', 'void'))
 PyLexer = Python3Lexer if six.PY3 else PythonLexer
 
 
@@ -133,7 +133,7 @@ class IPythonLexer(RegexLexer):
             0, (r'(?<!\.)(' + '|'.join(TYPES) + r')\b', Name.Constant))
     index = next(i for i, t in enumerate(tokens['builtins'])
                  if isinstance(t, tuple) and t[-1] == Name.Builtin.Pseudo)
-    tokens['builtins'][index] = (r'(?<!\.)(self|Ellipsis|NotImplemented)\b',
+    tokens['builtins'][index] = (r'(?<!\.)(self|NotImplemented)\b',
                                  Name.Builtin.Pseudo)
     tokens['name'] = [
         (r'(@)([\w.]+)', bygroups(Name.Decorator, Name.Function)),
