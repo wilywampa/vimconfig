@@ -1,12 +1,11 @@
 import numpy as np
-from numpy import concatenate, newaxis, rollaxis, squeeze
 
-__all__ = ['cat', 'derivative', 'ecat', 'norm0', 'unit']
+__all__ = ['cat', 'derivative', 'ecat', 'norm', 'norm0', 'unit']
 
 
 def cat(*arrays):
     """Concatenate arrays along a new prepended axis."""
-    return concatenate([a[newaxis] for a in arrays])
+    return np.concatenate([a[np.newaxis] for a in arrays])
 
 
 def derivative(t):
@@ -15,8 +14,8 @@ def derivative(t):
         try:
             dt = np.gradient(t)[0]
         except ValueError:
-            dt = np.gradient(squeeze(t))[..., newaxis]
-        dt = rollaxis(dt, -1, 0)
+            dt = np.gradient(np.squeeze(t))[..., np.newaxis]
+        dt = np.rollaxis(dt, -1, 0)
     else:
         dt = np.gradient(t)
 
@@ -25,14 +24,14 @@ def derivative(t):
             return np.gradient(array, dt)
         else:
             return ecat(*[np.gradient(x, dx)
-                          for x, dx in zip(rollaxis(array, -1, 0), dt)])
+                          for x, dx in zip(np.rollaxis(array, -1, 0), dt)])
 
     return gradient
 
 
 def ecat(*arrays):
     """Concatenate arrays along a new appended axis."""
-    return concatenate([a[..., newaxis] for a in arrays], axis=-1)
+    return np.concatenate([a[..., np.newaxis] for a in arrays], axis=-1)
 
 
 def norm(array, axis=0):
