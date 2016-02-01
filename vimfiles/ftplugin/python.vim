@@ -46,8 +46,8 @@ imap     <silent> <buffer> <S-F5> <Esc><S-F5>
 nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
 nnoremap <silent> <buffer> ,pm :<C-u>call FixMagicSyntax()<CR>
 nnoremap <silent> <buffer> ,pi :<C-u>call FixImports()<CR>
-nnoremap <silent> <buffer> ,ii :<C-u>call <SID>FixImportsInDef(0)<CR>
-xnoremap <silent> <buffer> ,ii :<C-u>call <SID>FixImportsInDef(1)<CR>
+nnoremap <silent> <buffer> ,ii v0:<C-u>call pymode#motion#select('^\s*\(class\<bar>def\)\s', 0)<CR>:<C-u>call <SID>FixImportsInDef()<CR>
+xnoremap <silent> <buffer> ,ii :<C-u>call <SID>FixImportsInDef()<CR>
 nnoremap          <buffer> ,ip :<C-u>IPythonConsole<CR>
 
 " Move around functions
@@ -645,14 +645,11 @@ EOF
   call pymode#lint#check()
 endfunction
 
-function! s:FixImportsInDef(visual) abort
+function! s:FixImportsInDef() abort
   let [save, save_type] = [getreg('"', 1), getregtype('"')]
   try
     let view = winsaveview()
     try
-      if !a:visual
-        call pymode#motion#select('^\s*\(class\|def\)\s', 0)
-      endif
       normal! gv""y
     finally
       call winrestview(view)
