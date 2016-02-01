@@ -3,7 +3,7 @@ syntax keyword pythonBuiltinType complex128 complex256 complex64 float128
 syntax keyword pythonBuiltinType float16 float32 float64 int16 int32 int64
 syntax keyword pythonBuiltinType int8 uint16 uint32 uint64 uint8 void
 
-if !get(g:, 'highlight_ipython_magics', 1)
+if !get(g:, 'highlight_ipython_magics', 1) || bufname('%') ==# '[Command Line]'
   finish
 endif
 
