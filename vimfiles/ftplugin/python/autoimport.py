@@ -182,7 +182,8 @@ froms = {
     'mpl_toolkits.mplot3d': ['Axes3D'],
     'numpy': [
         'allclose', 'alltrue', 'arange', 'arccos', 'arccosh', 'arcsin',
-        'arcsinh', 'arctan', 'arctan2', 'arctanh', 'array', 'array_equal',
+        'arcsinh', 'arctan', 'arctan2', 'arctanh', 'argmax', 'argmin',
+        'argpartition', 'argsort', 'argwhere', 'array', 'array_equal',
         'asarray', 'average', 'c_', 'column_stack', 'complex128', 'complex256',
         'complex64', 'concatenate', 'cos', 'cosh', 'cross', 'cumprod',
         'cumproduct', 'cumsum', 'deg2rad', 'degrees', 'diff', 'dot', 'dstack',
