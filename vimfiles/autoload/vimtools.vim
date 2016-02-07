@@ -252,10 +252,15 @@ function! vimtools#MakeParagraph() " {{{
   let l2 = prevnonblank(line("']"))
   let lines = l2 - l1 + 1
   let l3 = nextnonblank(l2 + 1)
+  if l3 == 0
+    let l3 = line('$')
+  endif
 
   if l3 > l2
     silent execute "keeppatterns ".l2.",".l3."g/^\\s*$/d"
-    call append(l2, [""])
+    if l2 != line('$')
+      call append(l2, [""])
+    endif
   else
     silent execute "keeppatterns ".line("']").",".line('$')."g/^\\s*$/d"
   endif
