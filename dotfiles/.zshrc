@@ -1014,6 +1014,7 @@ _insert-now() {
     LBUFFER=${LBUFFER}'$(now)'
 }
 zle -N _insert-now; bindkey '^Xd' _insert-now
+zle -N _insert-now; bindkey '^XD' _insert-now
 today() {
     printf '%s' ${${$(date +$DATEFMT)[(w)2]}#0##}
 }
