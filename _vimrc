@@ -2169,7 +2169,8 @@ func! s:UniteSetup() " {{{
     function! s:git_lg(...) abort
         call fugitive#detect(fnameescape(expand('%:p:h')))
         if !exists('b:git_dir') | return | endif
-        let cmd = ['git', '--git-dir=' . shellescape(b:git_dir), '--no-pager', 'lg']
+        let g:git_lg_args = get(g:, 'git_lg_args', [])
+        let cmd = ['git', '--git-dir=' . shellescape(b:git_dir), '--no-pager', 'lg'] + g:git_lg_args
         if a:0
             let root = expand('%:p:h')
             while len(root) > 1 && !isdirectory(root . '/.git') && !filereadable(root . '/.git')
@@ -2517,9 +2518,26 @@ let g:exchange_indent = '=='
 " neomru settings
 let g:neomru#file_mru_limit = 2000
 
-" gitgutter maps
-nmap [h <Plug>GitGutterPrevHunkzv
-nmap ]h <Plug>GitGutterNextHunkzv
+" gitgutter maps " {{{
+function! s:hunk(mode, sign, ...) abort
+    if gitgutter#utility#is_active()
+        let hunks = filter(copy(gitgutter#hunk#hunks()), 'v:val[2]' . a:sign . 'line(".")')
+        if empty(hunks) | return | endif
+        let l:count = a:0 ? get(g:, 'gitgutter_max_signs', 500) : v:count1
+        if a:sign == '<'
+            let hunk = get(hunks, -l:count, hunks[0])
+        else
+            let hunk = get(hunks, l:count - 1, hunks[-1])
+        endif
+        execute 'normal! ' . (a:mode == 'n' ? '' : 'V') . max([1, hunk[2]]) . 'G'
+    endif
+endfunction
+for mode in ['n', 'x', 'o']
+    execute mode.'noremap [h :<C-u>call <SID>hunk("'.mode.'", "<")<CR>'
+    execute mode.'noremap ]h :<C-u>call <SID>hunk("'.mode.'", ">")<CR>'
+    execute mode.'noremap [H :<C-u>call <SID>hunk("'.mode.'", "<", 1)<CR>'
+    execute mode.'noremap ]H :<C-u>call <SID>hunk("'.mode.'", ">", 1)<CR>'
+endfor " }}}
 
 " neosnippet configuration
 if !exists('g:neosnippet#snippets_directory')
