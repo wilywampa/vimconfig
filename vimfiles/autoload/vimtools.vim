@@ -371,9 +371,44 @@ function! vimtools#GetViminfoSubsPat() " {{{
   endtry
 endfunction " }}}
 
+function! s:PatternCmdComplete() abort " {{{
+  set wildcharm=<Tab>
+  silent! cunmap <Tab>
+  silent! nunmap :
+  if getcmdline() !~# '\vKeepPatterns|^[gsv]//?'
+    return getcmdline()
+  endif
+  let line = getcmdline()
+  let magic = matchstr(line, '\v(^[^/]*[sgv]/)\zs%(\\\%V)?\\[vV]')
+  let start = matchstr(line, '\v^.*\\@<!/.*\\@<!/')
+  if empty(start)
+    let start = printf('=%s/%s', substitute(line, '/.*$', '', ''), magic)
+  else
+    let start = printf('=%s', start)
+  endif
+  cnoremap <buffer> <expr> / getcmdline()[-1] == '\' ? '/' :
+      \ '<CR><C-\>evimtools#KeepPatternsSubstitute()<CR><Left><C-]><Right>'
+  try
+    let input = input(start, line[strchars(start) - 1:],
+        \ 'customlist,vimtools#CmdlineComplete')
+  finally
+    silent! cunmap <buffer> /
+  endtry
+  call setcmdpos(len(start.input))
+  return start[1:].input
+endfunction " }}}
+
 let s:range_pattern = '((\d+|\.|\$|''\a)(,(\d+|\.|\$|''\a))?)'
 function! vimtools#KeepPatternsSubstitute() " {{{
   let cmdline = getcmdline()
+  cnoremap <Tab> <C-\>e<SID>PatternCmdComplete()<CR><Tab>
+  nnoremap : :<C-u>doautocmd command_tab_map CursorMoved<CR>:
+  augroup command_tab_map
+    autocmd!
+    autocmd CursorMoved * execute 'silent! cunmap <Tab>' |
+        \                 execute 'silent! nunmap :' |
+        \                 autocmd! command_tab_map
+  augroup END
   if getcmdtype() == ':'
     let cmd = cmdline[match(cmdline,'\a')]
     if     cmdline =~# '\v^[sgv]$'       | return "KeepPatterns ".cmd."/\\v"
