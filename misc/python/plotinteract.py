@@ -93,7 +93,8 @@ control_actions = {
     QtCore.Qt.Key_N: lambda self, *args: self.emit(SIGNAL('duplicate()')),
     QtCore.Qt.Key_P: lambda self, *args: self.emit(SIGNAL('edit_props()')),
     QtCore.Qt.Key_Q: _quit,
-    QtCore.Qt.Key_S: lambda self, *args: self.emit(SIGNAL('synchronize()')),
+    QtCore.Qt.Key_Return: lambda self, *args: self.emit(SIGNAL('sync()')),
+    QtCore.Qt.Key_S: lambda self, *args: self.emit(SIGNAL('sync()')),
     QtCore.Qt.Key_T: lambda self, *args: self.emit(SIGNAL('twin()')),
     QtCore.Qt.Key_W: _delete_word,
 }
@@ -545,7 +546,7 @@ class DataObj(object):
         self.twin = not self.twin
         self.parent.draw()
 
-    def synchronize(self, axes='xy'):
+    def sync(self, axes='xy'):
         for completer in (self.completer, self.xcompleter,
                           self.scale_compl, self.xscale_compl):
             completer.close_popup()
@@ -648,10 +649,10 @@ class Interact(QtGui.QMainWindow):
             self.connect(w, SIGNAL('relabel()'), data.change_label)
             self.connect(w, SIGNAL('edit_props()'), data.edit_props)
             self.connect(w, SIGNAL('twin()'), data.toggle_twin)
-            self.connect(w, SIGNAL('synchronize()'), data.synchronize)
+            self.connect(w, SIGNAL('sync()'), data.sync)
             if axis:
                 self.connect(w, SIGNAL('sync_axis()'),
-                             lambda axes=[axis]: data.synchronize(axes))
+                             lambda axes=[axis]: data.sync(axes))
             self.column += 1
 
         add_widget(data.label)
