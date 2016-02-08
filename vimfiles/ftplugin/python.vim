@@ -8,6 +8,10 @@ endif
 
 let b:did_ftplugin = 1
 
+let g:ipython_store_history = get(g:, 'ipython_store_history', 1)
+let g:ipython_scratch_motion = get(g:, 'ipython_scratch_motion', 'yap')
+let g:ipython_write_all = get(g:, 'ipython_write_all', 0)
+
 " Detect Cython syntax
 if index(['pxd', 'pxi', 'pyx', 'pyxbld'], expand('%:e')) != -1
   augroup cython_syntax
@@ -153,6 +157,9 @@ if not isinstance(ipy_input, str):
 vim.vars['ipy_input'] = textwrap.dedent(ipy_input).strip()
 EOF
       let silent = a:0 ? 1 : 0
+      if g:ipython_write_all || bufnr('%') == bufnr(s:scratch_name)
+        call s:WriteScratch(g:ipy_input)
+      endif
       Python2or3 run_ipy_input(int(vim.eval('silent')))
       unlet g:ipy_input
     else
@@ -211,7 +218,7 @@ EOF
       call RestoreRegs()
     endif
     let g:ipy_input = 'from plottools import varinfo; varinfo('.input.')'
-    let history = get(g:, 'ipython_store_history', 1)
+    let history = g:ipython_store_history
     let g:ipython_store_history = 0
     call IPyRunIPyInput()
     let g:ipython_store_history = history
@@ -362,7 +369,6 @@ EOF
         call setreg(v:register, g:ipy_result)
         normal! gvp
       elseif a:mode == 3
-        call s:WriteScratch(g:ipy_input)
         normal! `>
         put = g:ipy_result
       endif
@@ -409,8 +415,7 @@ EOF
     let left_save = getpos("'<")
     let right_save = getpos("'>")
     let vimode = visualmode()
-    execute "normal! " . get(g:, 'ipython_scratch_motion', 'yap')
-    call s:WriteScratch(@@)
+    execute "normal! " . g:ipython_scratch_motion
     let g:ipy_input = s:UncommentMagics(@@)
     call RestoreRegs()
     execute "normal! " . vimode . "\<Esc>"
