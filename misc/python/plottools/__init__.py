@@ -1,13 +1,9 @@
 from __future__ import division, print_function
 import matplotlib.pyplot as plt
-from .angle2dcm import angle2dcm
-from .dcm2angle import dcm2angle
 from plotinteract import create, dataobj, merge_dicts
-
-__all__ = ['angle2dcm', 'azip', 'cl', 'create', 'cursor', 'dataobj',
-           'dcm2angle', 'dict2obj', 'fg', 'fig', 'figdo', 'index_all',
-           'merge_dicts', 'pad', 'picker', 'resize', 'savehtml', 'savepdf',
-           'savesvg', 'styles', 'unique_legend', 'unmask', 'varinfo']
+from plottools.angle2dcm import angle2dcm
+from plottools.dcm2angle import dcm2angle
+from plottools.indexing import ArrayBunch, array_bunchify, index_all, map_dict
 
 
 def fg(fig=None):
@@ -179,33 +175,6 @@ def pad(array, length, filler=float('nan')):
                      mode='constant', constant_values=(filler,))
 
 
-def index_all(mapping, ix, copy=False):
-    """Index all ndarrays in a nested Mapping with the slice object ix."""
-    from collections import Mapping
-    from copy import deepcopy
-    from numpy import ndarray
-
-    class Indexer(object):
-
-        def __init__(self):
-            self.visited = set()
-
-        def visit(self, mapping):
-            if copy:
-                mapping = deepcopy(mapping)
-            for key, value in mapping.items():
-                if id(value) in self.visited:
-                    continue
-                self.visited.add(id(value))
-                if isinstance(value, ndarray):
-                    mapping[key] = value[ix]
-                elif isinstance(value, Mapping):
-                    mapping[key] = self.visit(value)
-            return mapping
-
-    return Indexer().visit(mapping)
-
-
 def azip(*iterables, **kwargs):
     """Move `axis` (default -1) to the front of ndarrays in `iterables`."""
     import numpy as np
@@ -269,3 +238,32 @@ except ImportError:
         from attrdict import AttrDict as dict2obj
     except ImportError:
         dict2obj = _dict2obj
+
+__all__ = [
+    'ArrayBunch',
+    'angle2dcm',
+    'array_bunchify',
+    'azip',
+    'cl',
+    'create',
+    'cursor',
+    'dataobj',
+    'dcm2angle',
+    'dict2obj',
+    'fg',
+    'fig',
+    'figdo',
+    'index_all',
+    'map_dict',
+    'merge_dicts',
+    'pad',
+    'picker',
+    'resize',
+    'savehtml',
+    'savepdf',
+    'savesvg',
+    'styles',
+    'unique_legend',
+    'unmask',
+    'varinfo',
+]
