@@ -344,8 +344,7 @@ class DataObj(object):
         self.widgets = []
         self.twin = False
         self.props = kwargs.get('props', {}).copy()
-        self.obj = flatten(obj, ndim=obj[kwargs['xname']].ndim
-                           if 'xname' in kwargs else None)
+        self.obj = flatten(obj, ndim=self.guess_ndim(obj, kwargs))
 
         draw = self.parent.draw
         connect = self.parent.connect
@@ -434,6 +433,18 @@ class DataObj(object):
 
         self.kwargs = kwargs
         self.process_kwargs()
+
+    def guess_ndim(self, obj, kwargs):
+        try:
+            return min(v.ndim for v in obj.values()
+                       if isinstance(v, np.ndarray))
+        except ValueError:
+            pass
+        for key in 'xname', 'yname':
+            try:
+                return obj[kwargs[key]].ndim
+            except (AttributeError, IndexError):
+                return None
 
     def set_xname(self, xname):
         index = self.menu.findText(xname)
@@ -765,7 +776,8 @@ class Interact(QtGui.QMainWindow):
 
         for ax in self.axes, self.axes2:
             ax._tight = bool(self.margins)
-            ax.margins(self.margins)
+            if self.margins:
+                ax.margins(self.margins)
 
         xlabel = []
         ylabel = []
