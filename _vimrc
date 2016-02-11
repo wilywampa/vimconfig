@@ -1000,8 +1000,8 @@ noremap <expr> ? <SID>SearchHandleKey('?')
 " Tab completion for search prompt
 function! s:SearchComplete(...) abort " {{{
     silent! cunmap <Tab>
-    let magic = matchstr(getcmdline(), '^\\[vV]')
-    let begin = substitute(getcmdline(), '^\\[vV]', '', '')
+    let magic = matchstr(getcmdline(), '\v^(\\v|\\V\\|\\)\<?')
+    let begin = substitute(getcmdline(), '\v^(\\v|\\V\\|\\)\<?', '', '')
     let cmdtype = getcmdtype()
     let input = input('='.cmdtype.magic, begin, 'customlist,vimtools#CmdlineComplete')
     return magic.input
@@ -1921,16 +1921,21 @@ func! s:UniteSettings() " {{{
         \.'1G0y$Q'.":\<C-u>Unite -buffer-name=buffers/neomru "
         \."-unique buffer neomru/file\<CR>"."\<C-r>\""
     nnor <buffer> <expr> yy unite#do_action('yank').'<Plug>(unite_exit)'
-    inor <buffer> <expr> <C-o>d     unite#do_action('vsplit').':<C-u>call vimtools#ToggleDiff()<CR>'
-    inor <buffer> <expr> <C-o><C-d> unite#do_action('vsplit').':<C-u>call vimtools#ToggleDiff()<CR>'
-    inor <buffer> <expr> <C-o>v     unite#do_action('vsplit')
-    inor <buffer> <expr> <C-o><C-v> unite#do_action('vsplit')
-    inor <buffer> <expr> <C-o>s     unite#do_action('split')
-    inor <buffer> <expr> <C-o><C-s> unite#do_action('split')
-    inor <buffer> <expr> <C-o>t     unite#do_action('tabopen')
-    inor <buffer> <expr> <C-o><C-t> unite#do_action('tabopen')
-    nnor <buffer> <expr> <C-^>      unite#do_action('persist_open')
-    inor <buffer> <expr> <C-^>      unite#do_action('persist_open')
+
+    function! s:ni_map(key1, key2, action, ...) abort
+        for mode in ['n', 'i']
+            for key in [a:key1, a:key2]
+                execute printf("%snoremap <buffer> <expr> %s unite#do_action('%s')%s",
+                    \ mode, key, a:action, a:0 ? ('.''' . a:1 . '''') : '')
+            endfor
+        endfor
+    endfunction
+    call s:ni_map('<C-o><C-d>', '<C-o>d', 'vsplit', ':<C-u>call vimtools#ToggleDiff()<CR>')
+    call s:ni_map('<C-o><C-v>', '<C-o>v', 'vsplit')
+    call s:ni_map('<C-o><C-s>', '<C-o>s', 'split')
+    call s:ni_map('<C-o><C-t>', '<C-o>t', 'tabopen')
+    call s:ni_map('<C-^>',      '<C-^>',  'persist_open')
+
     nmap <buffer> <expr> <silent> ` stridx(join(b:unite.source_names), 'grep') == -1
         \ ? '<Plug>(unite_exit)'
         \ : ':call <SID>LastActiveWindow()<CR>'
@@ -2235,6 +2240,8 @@ let g:surround_68 = "[\"\r\"]"
 " Make e surround with \%(...\) and E with \(...\)
 let g:surround_69 = "\\(\r\\)"
 let g:surround_101 = "\\%(\r\\)"
+" Single-element tuple with t
+let g:surround_116 = "(\r,)"
 
 " Syntastic settings
 let g:syntastic_filetype_map = {'arduino': 'cpp'}
@@ -2533,10 +2540,10 @@ function! s:hunk(mode, sign, ...) abort
     endif
 endfunction
 for mode in ['n', 'x', 'o']
-    execute mode.'noremap [h :<C-u>call <SID>hunk("'.mode.'", "<")<CR>'
-    execute mode.'noremap ]h :<C-u>call <SID>hunk("'.mode.'", ">")<CR>'
-    execute mode.'noremap [H :<C-u>call <SID>hunk("'.mode.'", "<", 1)<CR>'
-    execute mode.'noremap ]H :<C-u>call <SID>hunk("'.mode.'", ">", 1)<CR>'
+    execute mode.'noremap <silent> [h :<C-u>call <SID>hunk("'.mode.'", "<")<CR>'
+    execute mode.'noremap <silent> ]h :<C-u>call <SID>hunk("'.mode.'", ">")<CR>'
+    execute mode.'noremap <silent> [H :<C-u>call <SID>hunk("'.mode.'", "<", 1)<CR>'
+    execute mode.'noremap <silent> ]H :<C-u>call <SID>hunk("'.mode.'", ">", 1)<CR>'
 endfor " }}}
 
 " neosnippet configuration
