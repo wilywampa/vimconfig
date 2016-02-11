@@ -6,7 +6,10 @@ try:
 except ImportError:
     Bunch = None
 
-no_index = object()
+
+class no_index(object):
+    __repr__ = __str__ = lambda self: type(self).__name__
+no_index = no_index()
 
 
 def map_dict(func, mapping, copy=copy.copy, types=object, ignore=()):
@@ -15,13 +18,17 @@ def map_dict(func, mapping, copy=copy.copy, types=object, ignore=()):
                     types=types, ignore=ignore).visit(mapping)
 
 
-def index_all(mapping, ix=no_index, types=np.ndarray, **kwargs):
+def index_all(mapping, ix=no_index, copy=copy.copy, types=np.ndarray,
+              ignore=(), callback=None):
     """Index all ndarrays in a nested Mapping with the index object ix."""
 
     class Indexer(object):
 
         def __getitem__(self, index):
-            return map_dict(lambda x: x[index], mapping, types=types, **kwargs)
+            return map_dict(
+                lambda x, keys:
+                    callback(x, index, keys) if callback else x[index],
+                mapping, copy=copy, types=types, ignore=ignore)
 
     return Indexer() if ix is no_index else Indexer()[ix]
 
@@ -30,18 +37,28 @@ class ArrayBunch(Bunch):
 
     """Like Bunch but support indexing via index_all."""
 
+    def __init__(self, *args, **kwargs):
+        for attr, default in (('types', np.ndarray),
+                              ('copy', copy.copy),
+                              ('ignore', ()),
+                              ('callback', None)):
+            setattr(self, '_' + attr, kwargs.pop(attr, default))
+        super(ArrayBunch, self).__init__(*args, **kwargs)
+
     def __getitem__(self, key):
         if isinstance(key, six.string_types):
             return super(ArrayBunch, self).__getitem__(key)
-        return index_all(self)[key]
+        return index_all(self, copy=self._copy, ignore=self._ignore,
+                         types=self._types, callback=self._callback)[key]
 
 
-def array_bunchify(mapping):
+def array_bunchify(mapping, copy=copy.copy, types=np.ndarray, ignore=()):
     """Recursively transform mappings into ArrayBunch."""
     from collections import Mapping
     if isinstance(mapping, Mapping):
-        return ArrayBunch((k, array_bunchify(v))
-                          for k, v in six.iteritems(mapping))
+        return ArrayBunch(((k, array_bunchify(v))
+                           for k, v in six.iteritems(mapping)),
+                          copy=copy, types=types, ignore=ignore)
     elif isinstance(mapping, (list, tuple)):
         return type(mapping)(array_bunchify(v) for v in mapping)
     else:

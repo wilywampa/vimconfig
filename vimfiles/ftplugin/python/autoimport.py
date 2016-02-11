@@ -208,9 +208,10 @@ froms = {
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'norm', 'lstsq', 'solve',
         'svd', 'tensorinv', 'tensorsolve'],
     'plottools': [
-        'angle2dcm', 'azip', 'cl', 'create', 'cursor', 'dataobj', 'dict2obj',
-        'dcm2angle', 'fg', 'fig', 'figdo', 'index_all', 'merge_dicts', 'pad',
-        'picker', 'resize', 'savehtml', 'savepdf', 'savesvg', 'unique_legend',
+        'ArrayBunch', 'angle2dcm', 'array_bunchify', 'azip', 'cl', 'create',
+        'cursor', 'dataobj', 'dcm2angle', 'dict2obj', 'fg', 'fig', 'figdo',
+        'index_all', 'map_dict', 'merge_dicts', 'pad', 'picker', 'resize',
+        'savehtml', 'savepdf', 'savesvg', 'styles', 'unique_legend',
         'unmask', 'varinfo'],
     'pprint': ['pprint'],
     'pyprimes': ['is_prime', 'primes'],
