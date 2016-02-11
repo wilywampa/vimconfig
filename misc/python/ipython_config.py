@@ -20,6 +20,7 @@ try:
 except ImportError:
     import pickle
 import collections
+import copy
 import ein
 import ipyparallel as px  # python3
 import itertools as it
