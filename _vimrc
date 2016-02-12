@@ -916,9 +916,9 @@ func! s:OlderHistory() " {{{
     augroup END
     if getcmdtype() =~ '[/?]' && getcmdline() ==? '\v'
         return "\<C-u>\<Up>"
-    elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[sgv]/\\[vV]$'
+    elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[Ssgv]/\\[vV]$'
         return "\<BS>\<BS>\<Up>"
-    elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[sgv]/\\\%V\\[vV]$'
+    elseif getcmdtype() == ':' && getcmdline() =~# '\v^.*[Ssgv]/\\\%V\\[vV]$'
         return repeat("\<BS>", 5)."\<Up>"
     elseif s:hasvimtools && getcmdtype() == ':' && getcmdline() == 'h'
         return "\<BS>H\<Up>"

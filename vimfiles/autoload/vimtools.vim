@@ -315,26 +315,31 @@ endfunction " }}}
 
 " Don't overwrite pattern with substitute command
 function! vimtools#KeepPatterns(line1, line2, cmd) " {{{
+  let cmd = a:cmd
+  let split = split(a:cmd, '\v\\@<!/')
+  if split[0] =~# '\v^S%[ubvert]$' && len(split) == 3 && split[2][-1:] != '/'
+    let cmd = a:cmd . '/'
+  endif
   let pat = @/
   try
     let s:last_pat = vimtools#GetViminfoSubsPat()
-    if (a:cmd[0] == 'g' || a:cmd[0] == 'v') && a:line1 == a:line2
-      execute a:cmd
+    if (cmd[0] == 'g' || cmd[0] == 'v') && a:line1 == a:line2
+      execute cmd
     else
-      execute a:line1.','.a:line2.a:cmd
+      execute a:line1.','.a:line2.cmd
     endif
     let g:lsub_pat = @/
     let b = '((\\)@<!\\)' " Unescaped backslash
     let l:subs_pat = '\v\C^s%[ubstitute]/([^/]|'.b.'@<=/)*'.b.'@<!/'
-    if a:cmd =~ '\v\C^s%[ubstitute]/([^/]|'.b.'@<=/)[^/]*('.b.'@<!\/)?$'
+    if cmd =~ '\v\C^s%[ubstitute]/([^/]|'.b.'@<=/)[^/]*('.b.'@<!\/)?$'
       " Command has form %s/pat or %s/pat/
       let g:lsub_rep = ''
     else
-      let g:lsub_rep=substitute(a:cmd,l:subs_pat.'\v\ze([^/]|'.b.'@<=/)*','','')
+      let g:lsub_rep=substitute(cmd,l:subs_pat.'\v\ze([^/]|'.b.'@<=/)*','','')
       let g:lsub_rep=substitute(g:lsub_rep,'\v([^/]|'.b.'@<=/)*\zs'.b.'@<!/.{-}$','','')
     endif
-    if a:cmd =~ '\v'.b.'@<!/.*'.b.'@<!/.*'.b.'@<!/'
-      let g:lsub_flags=substitute(a:cmd,'\v^.*\\@<!/\ze.{-}$','','')
+    if cmd =~ '\v'.b.'@<!/.*'.b.'@<!/.*'.b.'@<!/'
+      let g:lsub_flags=substitute(cmd,'\v^.*\\@<!/\ze.{-}$','','')
     else
       let g:lsub_flags=''
     endif
@@ -379,7 +384,7 @@ function! s:PatternCmdComplete() abort " {{{
     return getcmdline()
   endif
   let line = getcmdline()
-  let magic = matchstr(line, '\v(^[^/]*[sgv]/)\zs%(\\\%V)?\\[vV]')
+  let magic = matchstr(line, '\v(^[^/]*[Ssgv]/)\zs%(\\\%V)?\\[vV]')
   let start = matchstr(line, '\v^.*\\@<!/.*\\@<!/')
   if empty(start)
     let start = printf('=%s/%s', substitute(line, '/.*$', '', ''), magic)
@@ -411,15 +416,17 @@ function! vimtools#KeepPatternsSubstitute() " {{{
   augroup END
   if getcmdtype() == ':'
     let cmd = cmdline[match(cmdline,'\a')]
-    if     cmdline =~# '\v^[sgv]$'       | return "KeepPatterns ".cmd."/\\v"
-    elseif cmdline =~# '\v^\%[sgv]$'     | return "%KeepPatterns ".cmd."/\\v"
-    elseif cmdline =~# "\\m^'<,'>[sgv]$" | return "'<,'>KeepPatterns ".cmd."/\\%V\\v"
-    elseif cmdline =~# '\v^.*[sgv]/%(\\\%V)?\\v$'
-      let cmd = substitute(cmdline, '\v(^.*[sgv]/)%(\\\%V)?\\v', '\1/', '')
-      let cmd = substitute(cmd, 'KeepPatterns \([sgv]//\)', '\1', '')
+    let m = cmd =~# '^S' ? '' : '\v'
+    if     cmdline =~# '\v^[Ssgv]$'       | return "KeepPatterns ".cmd.'/'.m
+    elseif cmdline =~# '\v^\%[Ssgv]$'     | return "%KeepPatterns ".cmd.'/'.m
+    elseif cmdline =~# "\\m^'<,'>[Ssgv]$"
+      return "'<,'>KeepPatterns ".cmd.'/'.(cmd =~# '^S' ? '' : '\%V\v')
+    elseif cmdline =~# '\v^.*[Ssgv]/%(\\\%V)?\\v$'
+      let cmd = substitute(cmdline, '\v(^.*[Ssgv]/)%(\\\%V)?\\v', '\1/', '')
+      let cmd = substitute(cmd, 'KeepPatterns \([Ssgv]//\)', '\1', '')
       return cmd
-    elseif cmdline =~# '\v^'.s:range_pattern.'[sgv]$'
-      return matchstr(cmdline, '\v^'.s:range_pattern)."KeepPatterns ".cmd."/\\v"
+    elseif cmdline =~# '\v^'.s:range_pattern.'[Ssgv]$'
+      return matchstr(cmdline, '\v^'.s:range_pattern)."KeepPatterns ".cmd.'/'.m
     endif
   endif
   let cmdstart = strpart(cmdline, 0, getcmdpos() - 1)
