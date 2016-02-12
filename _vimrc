@@ -407,12 +407,12 @@ vn < <gv
 vn > >gv
 
 " Copy WORD/word above/below cursor with (<C-y>/<C-f>)/(<M-y>/<M-f>)
-ino <expr> <C-f> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
-ino <expr> <C-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
-ino <expr> <M-f> matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\k\+\\|\W\)')
-ino <expr> <M-y> matchstr(getline(line('.')-1),'\%'.virtcol('.').'v\%(\k\+\\|\W\)')
-ino <M-F> <C-e>
-ino <M-Y> <C-y>
+ino <silent> <C-f> <C-r>=matchstr(getline(line('.') + 1), '\v%'.virtcol('.').'v%(\S+\|\s*)')<CR>
+ino <silent> <C-y> <C-r>=matchstr(getline(line('.') - 1), '\v%'.virtcol('.').'v%(\S+\|\s*)')<CR>
+ino <silent> <M-f> <C-r>=matchstr(getline(line('.') + 1), '\v%'.virtcol('.').'v%(\k+\|\W)')<CR>
+ino <silent> <M-y> <C-r>=matchstr(getline(line('.') - 1), '\v%'.virtcol('.').'v%(\k+\|\W)')<CR>
+ino <M-f> <C-e>
+ino <M-y> <C-y>
 
 " Make j/k work as expected on wrapped lines
 no <expr> j &wrap && strdisplaywidth(getline('.')) > (winwidth(0) -
@@ -2346,10 +2346,10 @@ command! -nargs=0 PrecededBy call vimtools#PrecededBy(0)
 command! -nargs=0 NotPrecededBy call vimtools#PrecededBy(1)
 autocmd VimrcAutocmds FileType c,cpp,*sh call vimtools#SectionJumpMaps()
 nnoremap <silent> g= :<C-u>call vimtools#MakeParagraph()<CR>
-nmap <silent> <expr> gp (getregtype(v:register) ==# 'V' ? 'pg=' : 'o<Esc>pg=') .
-    \ ':silent! call repeat#set("gp")<CR>'
-nmap <silent> <expr> gP (getregtype(v:register) ==# 'V' ? 'Pg=' : 'O<Esc>pg=') .
-    \ ':silent! call repeat#set("gP")<CR>'
+nnoremap <silent> <expr> gp (getregtype(v:register) ==# 'V' ? '' : 'o<Esc>') .
+    \ 'p:<C-u>call vimtools#MakeParagraph()<CR>:silent! call repeat#set("gp")<CR>'
+nnoremap <silent> <expr> gP (getregtype(v:register) ==# 'V' ? '' : 'O<Esc>') .
+    \ 'p:<C-u>call vimtools#MakeParagraph()<CR>:silent! call repeat#set("gP")<CR>'
 
 " python-mode settings
 let g:pymode_options = 0
@@ -2529,6 +2529,7 @@ let g:neomru#file_mru_limit = 2000
 function! s:hunk(mode, sign, ...) abort
     if gitgutter#utility#is_active()
         let hunks = filter(copy(gitgutter#hunk#hunks()), 'v:val[2]' . a:sign . 'line(".")')
+        if empty(hunks) | let hunks = gitgutter#hunk#hunks() | endif
         if empty(hunks) | return | endif
         let l:count = a:0 ? get(g:, 'gitgutter_max_signs', 500) : v:count1
         if a:sign == '<'
@@ -2540,10 +2541,10 @@ function! s:hunk(mode, sign, ...) abort
     endif
 endfunction
 for mode in ['n', 'x', 'o']
-    execute mode.'noremap <silent> [h :<C-u>call <SID>hunk("'.mode.'", "<")<CR>'
-    execute mode.'noremap <silent> ]h :<C-u>call <SID>hunk("'.mode.'", ">")<CR>'
-    execute mode.'noremap <silent> [H :<C-u>call <SID>hunk("'.mode.'", "<", 1)<CR>'
-    execute mode.'noremap <silent> ]H :<C-u>call <SID>hunk("'.mode.'", ">", 1)<CR>'
+    execute mode.'noremap <silent> [h :<C-u>call <SID>hunk("'.mode.'", "<")<CR>zv'
+    execute mode.'noremap <silent> ]h :<C-u>call <SID>hunk("'.mode.'", ">")<CR>zv'
+    execute mode.'noremap <silent> [H :<C-u>call <SID>hunk("'.mode.'", "<", 1)<CR>zv'
+    execute mode.'noremap <silent> ]H :<C-u>call <SID>hunk("'.mode.'", ">", 1)<CR>zv'
 endfor " }}}
 
 " neosnippet configuration
