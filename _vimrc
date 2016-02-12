@@ -2394,7 +2394,7 @@ if !exists('g:neocomplete#sources#omni#input_patterns')
     let g:neocomplete#sources#omni#input_patterns = {}
 endif
 let g:neocomplete#sources#omni#input_patterns.python =
-    \ '\%([^(). \t]\.\|^\s*@\|^\s*from\s.\+import \(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*'
+    \ '\%([^[(). \t]\.\|^\s*@\|^\s*from\s.\+import \(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*'
 
 " DirDiff settings
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore

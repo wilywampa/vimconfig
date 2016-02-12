@@ -574,10 +574,10 @@ augroup python_ftplugin
   autocmd InsertEnter *.py,--Python--
       \ if &omnifunc == 'CompleteIPython' |
       \   let g:neocomplete#sources#omni#input_patterns.python =
-      \     '\%([^(). \t]\.\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*\|\[["'']\w*' |
+      \     '\%([^[(). \t]\.\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*\|\[["'']\w*' |
       \ else |
       \   let g:neocomplete#sources#omni#input_patterns.python =
-      \     '\%([^(). \t]\.\|^\s*@\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*' |
+      \     '\%([^[(). \t]\.\|^\s*@\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*' |
       \ endif
   autocmd InsertEnter *.pxd,*.pxi,*.pyx,*.pyxbld
       \ if &omnifunc ==# 'jedi#completions' |
