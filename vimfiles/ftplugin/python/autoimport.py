@@ -202,7 +202,7 @@ froms = {
         'uint16', 'uint32', 'uint64', 'uint8', 'vectorize', 'void', 'vstack',
         'where', 'zeros'],
     'numpy.core.records': ['fromarrays'],
-    'numpy.ma': ['getdata', 'getmaskarray', 'masked_all'],
+    'numpy.ma': ['getdata', 'getmaskarray', 'masked_all', 'masked_array'],
     'numpy.random': ['rand', 'randint', 'randn'],
     'numpy.linalg': [
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'norm', 'lstsq', 'solve',
