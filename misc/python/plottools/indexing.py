@@ -42,7 +42,8 @@ class ArrayBunch(Bunch):
                               ('copy', copy.copy),
                               ('ignore', ()),
                               ('callback', None)):
-            setattr(self, '_' + attr, kwargs.pop(attr, default))
+            super(Bunch, self).__setattr__(
+                '_' + attr, kwargs.pop(attr, default))
         super(ArrayBunch, self).__init__(*args, **kwargs)
 
     def __getitem__(self, key):
