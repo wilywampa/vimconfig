@@ -411,8 +411,8 @@ ino <silent> <C-f> <C-r>=matchstr(getline(line('.') + 1), '\v%'.virtcol('.').'v%
 ino <silent> <C-y> <C-r>=matchstr(getline(line('.') - 1), '\v%'.virtcol('.').'v%(\S+\|\s*)')<CR>
 ino <silent> <M-f> <C-r>=matchstr(getline(line('.') + 1), '\v%'.virtcol('.').'v%(\k+\|\W)')<CR>
 ino <silent> <M-y> <C-r>=matchstr(getline(line('.') - 1), '\v%'.virtcol('.').'v%(\k+\|\W)')<CR>
-ino <M-f> <C-e>
-ino <M-y> <C-y>
+ino <M-F> <C-e>
+ino <M-Y> <C-y>
 
 " Make j/k work as expected on wrapped lines
 no <expr> j &wrap && strdisplaywidth(getline('.')) > (winwidth(0) -
@@ -981,6 +981,7 @@ func! s:SearchHandleKey(dir) " {{{
     if     c == char2nr("\<CR>")             | return a:dir."\<CR>"
     elseif c == char2nr("\<Esc>")            | return "\<C-l>"
     elseif c == char2nr("\<C-c>")            | return "\<C-l>"
+    elseif c == char2nr("\<C-^>")            | return "\<C-l>"
     elseif c == char2nr("\<C-x>")            | return a:dir.'\V'
     elseif c == "\<Up>"                      | return a:dir."\<Up>"
     elseif c == char2nr("/") && a:dir == '/' | return '//'
@@ -2657,7 +2658,24 @@ function! s:airline() " {{{
     let g:airline_section_c = airline#section#create(['ignorecase', 'eventignore', 'history', '%<',
         \ 'file', g:airline_symbols.space, 'readonly'])
 endfunction " }}}
-autocmd VimrcAutocmds VimEnter * silent! call s:airline()
+silent! call s:airline()
+
+" Text object for a line and inner (exclude leading space) line
+silent! call textobj#user#plugin('line', { '-': {
+    \     'select-a-function': 'CurrentLineA', 'select-a': 'al',
+    \     'select-i-function': 'CurrentLineI', 'select-i': 'il',
+    \ }})
+function! CurrentLineA()
+    let [bufnr, lnum, _, offset] = getpos('.')
+    return ['v', [bufnr, lnum, 1, offset], [bufnr, lnum, col('$') - 1, offset]]
+endfunction
+function! CurrentLineI()
+    normal! ^
+    let head_pos = getpos('.')
+    normal! g_
+    return getline('.') =~ '\S' ? ['v', head_pos, getpos('.')] : 0
+endfunction
+silent! TextobjLineDefaultKeyMappings!
 
 " Solarized settings
 if mobileSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif

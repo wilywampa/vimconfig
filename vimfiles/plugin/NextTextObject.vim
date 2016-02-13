@@ -37,15 +37,15 @@ endif
 
 let NextTextObjectLoaded=1
 
-onoremap <silent> an :<c-u>call <SID>NextTextObject('a', '/')<cr>
-xnoremap <silent> an :<c-u>call <SID>NextTextObject('a', '/')<cr>
-onoremap <silent> in :<c-u>call <SID>NextTextObject('i', '/')<cr>
-xnoremap <silent> in :<c-u>call <SID>NextTextObject('i', '/')<cr>
+onoremap <silent> aN :<c-u>call <SID>NextTextObject('a', '/')<cr>
+xnoremap <silent> aN :<c-u>call <SID>NextTextObject('a', '/')<cr>
+onoremap <silent> iN :<c-u>call <SID>NextTextObject('i', '/')<cr>
+xnoremap <silent> iN :<c-u>call <SID>NextTextObject('i', '/')<cr>
 
-onoremap <silent> al :<c-u>call <SID>NextTextObject('a', '?')<cr>
-xnoremap <silent> al :<c-u>call <SID>NextTextObject('a', '?')<cr>
-onoremap <silent> il :<c-u>call <SID>NextTextObject('i', '?')<cr>
-xnoremap <silent> il :<c-u>call <SID>NextTextObject('i', '?')<cr>
+onoremap <silent> aL :<c-u>call <SID>NextTextObject('a', '?')<cr>
+xnoremap <silent> aL :<c-u>call <SID>NextTextObject('a', '?')<cr>
+onoremap <silent> iL :<c-u>call <SID>NextTextObject('i', '?')<cr>
+xnoremap <silent> iL :<c-u>call <SID>NextTextObject('i', '?')<cr>
 
 function! s:NextTextObject(motion, dir)
     let c = nr2char(getchar())
