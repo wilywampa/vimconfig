@@ -2,7 +2,18 @@
 lines=("${(@f):-$(tmux capture-pane -p -J -S -1000)}")
 for line in ${(Oa)lines}; do
   if [[ $line =~ '^> (/.*\([0-9]+\))| at (/.*:[0-9]+)' ]]; then
-    findvim $match
-    break
+    # ipdb or cgdb/gdb absolute path match
+    exit $(findvim $match)
+  elif [[ $line =~ 'Breakpoint .* at \s*(.*):([0-9]+)' ]]; then
+    # cgdb relative path match
+    filename=$match[1]
+    lnum=$match[2]
+    for line in ${(Oa)lines}; do
+      if [[ $line =~ '^\s*(/[^[:space:]]+)' && $line == *${filename}\ * ]]; then
+        if [[ -f $match[1] ]]; then
+          exit $(findvim ${match[1]}:${lnum})
+        fi
+      fi
+    done
   fi
 done
