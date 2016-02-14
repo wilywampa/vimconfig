@@ -6,7 +6,6 @@ import collections
 import numpy.ma as ma
 import sys
 from IPython.utils.text import SList
-_print_templates = ma.core._print_templates
 PY3 = sys.version_info[0] == 3
 
 __all__ = ['S', 'SliceIndex', 'dump', 'fields_dict', 'globn', 'items_dict',
@@ -76,14 +75,27 @@ from builtins    import abs, all, any, max, min, round, sum  # python3
 
 def _marray_pprint(a, p, cycle):
     """Print mask as 'False' if mask is all False."""
+    import re
+    _print_templates = ma.core._print_templates
     try:
         n = len(a.shape)
+        if len(a.dtype) > 1:
+            n += 1
+        data = str(a)
+        if isinstance(a, ma.mrecords.MaskedRecords):
+            data = re.sub(r',(?=\S)', ', ', data)
+            data = re.sub(r'\),\s*\(', '),\n  (', data)
         name = 'array'
 
         parameters = dict(name=name, nlen=" " * len(name),
-                          data=str(a), mask=str(a._mask),
+                          data=data, mask=str(a._mask),
                           fill=str(a.fill_value), dtype=str(a.dtype))
-        if not ma.getmaskarray(a).any():
+        mask = ma.getmaskarray(a)
+        try:
+            mask = mask.any()
+        except TypeError:
+            mask = any(any(m) for m in mask)
+        if not mask:
             parameters['mask'] = 'False'
         if a.dtype.names:
             if n <= 1:
