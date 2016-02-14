@@ -160,18 +160,31 @@ EOF
       if g:ipython_write_all || bufnr('%') == bufnr(s:scratch_name)
         call s:WriteScratch(g:ipy_input)
       endif
-      Python2or3 run_ipy_input(int(vim.eval('silent')))
+Python2or3 << EOF
+import ast
+try:
+    kwargs = ast.literal_eval(vim.eval('a:1'))
+except (ValueError, vim.error):
+    kwargs = {}
+run_ipy_input(**kwargs)
+EOF
       unlet g:ipy_input
     else
       echo 'Not connected to IPython'
     endif
   endfunction
 
-  function! s:IPyRunPrompt()
+  function! s:IPyRunPrompt(store_history)
     let g:ipy_input = input('IPy: ', '', 'customlist,vimtools#CmdlineComplete')
     if len(g:ipy_input)
       let g:last_ipy_input = g:ipy_input
-      call IPyRunIPyInput()
+      let history = g:ipython_store_history
+      try
+        let g:ipython_store_history = a:store_history
+        call IPyRunIPyInput()
+      finally
+        let g:ipython_store_history = history
+      endtry
     else
       unlet g:ipy_input
     endif
@@ -227,7 +240,8 @@ EOF
   function! s:IPyGetHelp(level)
     call SaveRegs()
     normal! gvy
-    let g:ipy_input = substitute(@" . a:level, '^\s*##\?\s*', '', '')
+    let g:ipy_input = substitute(matchstr(@", '^\s*#*\s*\zs.*\ze'),
+        \ "\n*$", '', '') . a:level
     call RestoreRegs()
     call IPyRunIPyInput()
   endfunction
@@ -241,6 +255,9 @@ EOF
   endfunction
 
   function! s:IPyRunMotion(type)
+    if &omnifunc !=# 'CompleteIPython'
+      return s:IPyPPmotion(a:type)
+    endif
     let g:first_op = 0
     let g:repeat_op = &opfunc
     let input = vimtools#opfunc(a:type)
@@ -340,6 +357,9 @@ EOF
         let g:ipy_input = @@
       else
         let g:ipy_input = input('>>> ', '', 'customlist,vimtools#CmdlineComplete')
+      endif
+      if g:ipython_write_all || bufnr('%') == bufnr(s:scratch_name)
+        call s:WriteScratch(g:ipy_input)
       endif
       if a:mode == 0
         Python2or3 eval_ipy_input()
@@ -458,8 +478,8 @@ EOF
   endfunction
 endif
 
-nnoremap <silent> <buffer> <Leader>: :<C-u>call <SID>IPyRunPrompt()<CR>
-nnoremap <silent> <buffer> <Leader><Leader>: :<C-u>call VimuxCompletionPrompt()<CR>
+nnoremap <silent> <buffer> <Leader>: :<C-u>call <SID>IPyRunPrompt(1)<CR>
+nnoremap <silent> <buffer> <Leader><Leader>: :<C-u>call <SID>IPyRunPrompt(0)<CR>
 nnoremap <silent> <buffer> @\  :<C-u>call <SID>IPyRepeatCommand()<CR>
 nnoremap <silent> <buffer> @\| :<C-u>call <SID>IPyRepeatCommand()<CR>
 nnoremap <silent> <buffer> g\  :<C-u>call <SID>IPyRunPrompt()<CR><C-f>
