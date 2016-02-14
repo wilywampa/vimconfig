@@ -2401,6 +2401,13 @@ if !exists('g:neocomplete#sources#omni#input_patterns')
 endif
 let g:neocomplete#sources#omni#input_patterns.python =
     \ '\%([^[(). \t]\.\|^\s*@\|^\s*from\s.\+import \(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*'
+if !exists('g:neocomplete#force_omni_input_patterns')
+    let g:neocomplete#force_omni_input_patterns = {}
+endif
+let g:neocomplete#force_omni_input_patterns.python =
+    \ '\v<(cm|collections|colors|copy|ein|inspect|it|itertools|logging|ma|mathtools|matplotlib|'.
+    \ 'mpl|mt|np|numpy|op|operator|opt|os|pickle|plottools|plt|pt|px|re|sc|scipy|si|sio|six|'.
+    \ 'subprocess|sys)(\.\h\w*)*\.(\h\w*)?'
 
 " DirDiff settings
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
