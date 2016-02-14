@@ -9,7 +9,6 @@ endif
 let b:did_ftplugin = 1
 
 let g:ipython_store_history = get(g:, 'ipython_store_history', 1)
-let g:ipython_scratch_motion = get(g:, 'ipython_scratch_motion', 'yap')
 let g:ipython_write_all = get(g:, 'ipython_write_all', 0)
 
 " Detect Cython syntax
@@ -90,13 +89,6 @@ nnoremap <silent> <buffer> g<M-b> :<C-u>call <SID>ipdb_commands()<CR>
 
 " Enable omni completion
 setlocal omnifunc=pythoncomplete#Complete
-
-" Use pymode's fold expression
-augroup py_ftplugin
-  autocmd!
-  autocmd SessionLoadPost <buffer> setlocal foldmethod=expr
-      \ foldexpr=pymode#folding#expr(v:lnum) foldtext=pymode#folding#text()
-augroup END
 
 inoremap <expr> <buffer> @
     \ getline('.')[:col('.')-1] =~ '^\s*$' ? '@' :
@@ -268,7 +260,7 @@ EOF
             \ '\v["'']@<!__file__["'']@!',
             \ "r'".escape(expand('%:p'), "'")."'", 'g')
       endif
-      let g:ipy_input = s:UncommentMagics(g:ipy_input)
+      let g:ipy_input = UncommentMagics(g:ipy_input)
       call IPyRunIPyInput()
     else
       let zoomed = _VimuxTmuxWindowZoomed()
@@ -345,7 +337,7 @@ EOF
     endif
   endfunction
 
-  function! s:IPyEval(mode)
+  function! IPyEval(mode)
     " mode 0 = copy to clipboard
     " mode 1 = replace visual selection
     " mode 2 = expression register-like
@@ -402,79 +394,12 @@ EOF
     endtry
   endfunction
 
-  function! s:UncommentLine(line)
-    try
-      if a:line !~ '^\s*#'
-        return a:line
-      elseif a:line =~ '\v^\s*##%(\s|$)'
-        return substitute(a:line, '\v^\s*\zs##%(\s|$)', '', '')
-      elseif a:line =~ '\v^\s*#\s+[!%]'
-        return substitute(a:line, '\v^(\s*)# ([%!])', '\1\2', '')
-      elseif a:line =~ '\v^\s*# (\h\w*,?\s*)+\s*\=\s*[!%]'
-        return substitute(a:line, '\v^(\s*)# ((\h\w*,?\s*)+)\s*\=', '\1\2=', '')
-      endif
-    catch
-    endtry
-    return a:line
-  endfunction
-
-  function! s:UncommentMagics(input)
-    return join(map(split(a:input, '\n'), 's:UncommentLine(v:val)'), "\n")
-  endfunction
-
-  function! s:WriteScratch(text) abort " {{{
-    let dir = $HOME . '/.cache/IPython'
+  function! s:WriteScratch(text) abort
+    let sep = !exists('+shellslash') || &shellslash ? '/' : '\\'
+    let dir = substitute($HOME . '/.cache/IPython/', '/', sep, 'g')
     if !isdirectory(dir) | call mkdir(dir) | endif
-    call writefile(split(a:text . "\n", '\n'), dir .
-        \ strftime('/scratch_%Y_%m_%d.py'), 'a')
-  endfunction " }}}
-
-  function! s:IPyRunScratchBuffer()
-    let view = winsaveview()
-    call SaveRegs()
-    let left_save = getpos("'<")
-    let right_save = getpos("'>")
-    let vimode = visualmode()
-    execute "normal! " . g:ipython_scratch_motion
-    let g:ipy_input = s:UncommentMagics(@@)
-    call RestoreRegs()
-    execute "normal! " . vimode . "\<Esc>"
-    call setpos("'<", left_save)
-    call setpos("'>", right_save)
-    call winrestview(view)
-    call IPyRunIPyInput()
-  endfunction
-
-  function! s:IPyScratchBuffer()
-    let scratch = bufnr(s:scratch_name)
-    if scratch == -1
-      enew
-      IPythonConsole
-    else
-      execute "buffer ".scratch
-    endif
-    if line('$') == 1 && getline(1) ==# ''
-      silent put! = ['# pylama: ignore=C9,E2,E3,E5,E7,W0,W2,W3',
-          \          'from IPython import get_ipython',
-          \          'ip = get_ipython()']
-      keepjumps normal! G
-    endif
-    silent execute 'file' fnameescape(s:scratch_name)
-    setfiletype python
-    setlocal buftype=nofile bufhidden=hide noswapfile
-    setlocal omnifunc=CompleteIPython
-    setlocal foldmethod=manual foldexpr=
-    let b:ipython_user_ns = 1
-    nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
-    inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
-    xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
-    nnoremap <buffer> <silent> <CR>   vip:<C-u>call <SID>IPyEval(3)<CR>
-    map  <buffer> <C-s> <F5>
-    map! <buffer> <C-s> <F5>
-    augroup python_ftplugin_scratch
-      autocmd!
-      autocmd TextChangedI <buffer> call s:CommentMagic()
-    augroup END
+    call writefile(split('test' . "\n\n", '\n'), dir .
+        \ strftime('scratch_%Y_%m_%d.py'), 'a')
   endfunction
 endif
 
@@ -494,15 +419,14 @@ xnoremap <silent> <buffer> <M-s>     :<C-u>call <SID>IPyVarInfo()<CR>
 nnoremap <silent> <buffer> <M-P>     :<C-u>call <SID>IPyVarInfo(1)<CR>
 xnoremap <silent> <buffer> K         :<C-u>call <SID>IPyGetHelp('?')<CR>
 xnoremap <silent> <buffer> <Leader>K :<C-u>call <SID>IPyGetHelp('??')<CR>
-xnoremap <silent> <buffer> <M-y>     :<C-u>call <SID>IPyEval(0)<CR>
-xnoremap <silent> <buffer> <M-e>     :<C-u>call <SID>IPyEval(1)<CR>
-inoremap <silent> <expr>   <C-r>? <SID>IPyEval(2)
+xnoremap <silent> <buffer> <M-y>     :<C-u>call IPyEval(0)<CR>
+xnoremap <silent> <buffer> <M-e>     :<C-u>call IPyEval(1)<CR>
+inoremap <silent> <expr>   <C-r>? IPyEval(2)
 nnoremap <silent> <buffer> <Leader>X :<C-u>let g:first_op=1<bar>set opfunc=<SID>IPyPPmotion<CR>g@
 nnoremap <silent> <buffer> <Leader>x :<C-u>let g:first_op=1<bar>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>IPyRunMotion('visual')<CR>
-nnoremap <silent>          ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
 nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
 nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>:autocmd! pymode CursorMoved<CR>:lclose<CR>
 nnoremap <buffer> <expr>   <Leader>po <SID>ToggleOmnifunc()
@@ -560,24 +484,6 @@ endfunction
 
 " Use whitespace-delimited completion with <C-x><C-g>
 inoremap <buffer> <expr> <C-x><C-g> vimtools#CompleteStart('GreedyCompleteIPython')
-
-" Add '## ' escape to magic lines automatically
-function! s:CommentMagic() abort
-  if getline('.') =~ '\v^\s*(# )?##|^\s*$'
-    return
-  elseif string(map(synstack(line('.'),
-      \ strlen(substitute(getline('.'), '\v^.{-}[!%]\zs.*$', '', ''))),
-      \ 'synIDattr(v:val, "name")')) !~? '\vmagic(bang|pct)|cythonMagic|shellMagic'
-    return
-  endif
-  let pos = getpos('.')
-  try
-    call setline(line('.'), substitute(getline('.'), '\v(^\s*)(.*$)', '\1## \2', ''))
-    let pos[2] += 3
-  finally
-    call setpos('.', pos)
-  endtry
-endfunction
 
 if !exists('g:neocomplete#sources#omni#input_patterns')
   let g:neocomplete#sources#omni#input_patterns = {}
