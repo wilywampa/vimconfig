@@ -2203,15 +2203,15 @@ func! s:UniteSetup() " {{{
     call unite#custom#action('buffer', 'open', s:open) " }}}
 
     " Use Unite for completion
-    function! s:start_complete()
+    function! s:start_complete() " {{{
         let text = neocomplete#get_cur_text(1)
         let sources = neocomplete#complete#_set_results_pos(text)
         return (get(s:, 'omni', 1) ? s:ResetCompletion() : '') .
             \ unite#start_complete(['neocomplete'], {
-            \ 'auto_preview' : 1, 'here' : 0, 'resize' : 0, 'split' : 0,
-            \ 'input' : '\V' . text[neocomplete#complete#_get_complete_pos(sources): ] . ' '})
+            \ 'auto_preview' : 1, 'here' : 0, 'resize' : 0, 'split' : 0, 'input' : escape(
+            \ tolower(text[neocomplete#complete#_get_complete_pos(sources): ]), '~\.^$[]*') . ' '})
     endfunction
-    function! s:set_omni() " {{{
+    function! s:set_omni()
         let s:omni = 1 | return "\<C-x>\<C-o>"
     endfunction " }}}
     inoremap <expr> <C-x><C-o> <SID>set_omni()
