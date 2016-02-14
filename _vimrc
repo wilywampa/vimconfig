@@ -2086,7 +2086,7 @@ func! s:UniteSetup() " {{{
     call unite#filters#matcher_default#use(['matcher_regexp'])
     call unite#custom#default_action('directory', 'cd')
     call unite#custom#profile('default', 'context',
-        \ {'start_insert': 1, 'direction': 'dynamicbottom', 'prompt_direction': 'top'})
+        \ {'start_insert': 1, 'direction': 'botright', 'prompt_direction': 'top'})
     call unite#custom#profile('all_files', 'matchers', ['matcher_default'])
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
