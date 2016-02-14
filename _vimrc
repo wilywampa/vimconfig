@@ -628,7 +628,9 @@ nn <silent> ,ih :<C-u>let g:ipython_store_history = !get(g:, 'ipython_store_hist
 
 " Insert date
 ino <silent> <expr> <C-x><C-d> substitute(strftime('%d%b%Y'), '^0*', '', '')
-cno <expr> <C-x><C-d> substitute(strftime('%d%b%Y'), '^0*', '', '')
+cno          <expr> <C-x><C-d> substitute(strftime('%d%b%Y'), '^0*', '', '')
+ino <silent> <expr> <C-x>d strftime('%Y_%m_%d_%H%M%Z')
+cno          <expr> <C-x>d strftime('%Y_%m_%d_%H%M%Z')
 " }}}
 
 " {{{ Abbreviations to open help
