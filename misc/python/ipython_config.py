@@ -21,6 +21,7 @@ except ImportError:
 import collections
 import copy
 import ein
+import inspect
 import ipyparallel as px  # python3
 import itertools as it
 import logging
@@ -64,7 +65,7 @@ from plottools import *
 from numpy import (arccos as acos, arccosh as acosh, arcsin as asin,
                    arcsinh as asinh, arctan as atan, arctan2 as atan2,
                    arctanh as atanh, rad2deg as deg, deg2rad as rad)
-from numpy.ma import (getdata, getmaskarray, masked_all,
+from numpy.ma import (getdata, getmaskarray, masked, masked_all,
                       masked_array as marray)
 from path import Path  # python3
 from subprocess import PIPE, Popen, call, check_output

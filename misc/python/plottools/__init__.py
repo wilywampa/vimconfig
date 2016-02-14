@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import matplotlib.pyplot as plt
+import numpy as np
 from plotinteract import create, dataobj, merge_dicts
 from plottools.angle2dcm import angle2dcm
 from plottools.dcm2angle import dcm2angle
@@ -17,7 +18,6 @@ def fg(fig=None):
 
 
 def _snap(**kwargs):
-    import numpy as np
     event = kwargs['event']
     try:
         xdata, ydata = event.artist.get_xdata(), event.artist.get_ydata()
@@ -177,7 +177,6 @@ def pad(array, length, filler=float('nan')):
 
 def azip(*iterables, **kwargs):
     """Move `axis` (default -1) to the front of ndarrays in `iterables`."""
-    import numpy as np
     from six.moves import map as imap, zip as izip
     return izip(*(
         imap(kwargs.get('func', unmask),
@@ -187,7 +186,6 @@ def azip(*iterables, **kwargs):
 
 def unmask(arr):
     """Return a view of the unmasked portion of an array."""
-    import numpy as np
     import numpy.ma as ma
     if not isinstance(arr, ma.MaskedArray):
         return arr
@@ -203,6 +201,37 @@ def styles(order=('-', '--', '-.', ':')):
     from matplotlib import rcParams
     from numpy import repeat
     return cycle(repeat(order, len(rcParams['axes.color_cycle'])))
+
+
+def product_items(params, names, enum=True, dtypes=None):
+    """Make a masked record array representing variables in a Cartesian
+    product."""
+    import itertools as it
+    from numpy.ma.mrecords import mrecarray
+    items = list(it.product(*params))
+    if enum:
+        items = [(i,) + item for i, item in enumerate(items, enum)]
+        names = ('enum',) + names
+        dtype = 'int32',
+    else:
+        dtype = ()
+    if dtypes is None:
+        dtypes = it.chain(dtype, it.repeat(float))
+    elif not isinstance(dtypes, (list, tuple, np.ndarray)):
+        dtypes = it.chain(dtype, it.repeat(dtypes))
+    elif enum:
+        dtypes = dtype + dtypes
+    return np.ma.array(
+        items, dtype=[(name, dtype) for name, dtype in
+                      zip(names, dtypes)]).view(mrecarray)
+
+
+def fix_angles(angles, pi=np.pi, axis=0):
+    """Limit angle changes to within +/- pi to remove discontinuities."""
+    start = np.take(angles, [0], axis=axis)
+    delta = np.unwrap(np.diff(angles, axis=axis), discont=pi, axis=axis)
+    return start + np.concatenate((np.zeros(start.shape),
+                                   np.cumsum(delta, axis=axis)))
 
 
 class _dict2obj(dict):
@@ -253,11 +282,13 @@ __all__ = [
     'fg',
     'fig',
     'figdo',
+    'fix_angles',
     'index_all',
     'map_dict',
     'merge_dicts',
     'pad',
     'picker',
+    'product_items',
     'resize',
     'savehtml',
     'savepdf',
