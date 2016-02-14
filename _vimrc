@@ -1876,11 +1876,14 @@ func! s:VimfilerSettings() " {{{
     nmap <buffer> S     <Plug>(vimfiler_select_sort_type)
     nmap <buffer> <Tab> <Plug>(vimfiler_choose_action)
     nmap <buffer> gN    <Plug>(vimfiler_new_file)
+    xmap <buffer> *     <Plug>(vimfiler_toggle_mark_selected_lines)
+    xmap <expr> <buffer> q "\<Esc>\<Plug>(vimfiler_hide)"
+    xmap <expr> <buffer> Q "\<Esc>\<Plug>(vimfiler_exit)"
     nnoremap <buffer> got :<C-U>call gtfo#open#term(b:vimfiler.current_dir, "")<CR>
     nnoremap <buffer> gOt :<C-U>call gtfo#open#term(b:vimfiler.current_dir, "win")<CR>
-    exe "nunmap <buffer> <Space>" | exe "nunmap <buffer> L" | exe "nunmap <buffer> M"
-    exe "nunmap <buffer> H" | exe "nunmap <buffer> <S-Space>" | exe "nunmap <buffer> N"
-    exe "nunmap <buffer> go" | exe "nunmap <buffer> <Leader>" | exe "nunmap <buffer> gS"
+    for map in ['<Space>', 'L', 'M', 'H', '<S-Space>', 'N', 'go', '<Leader>', 'gS', 'gv']
+        execute 'silent! nunmap <buffer>' map
+    endfor
     silent! call fugitive#detect(expand('%:p'))
 endfunc " }}}
 " }}}
