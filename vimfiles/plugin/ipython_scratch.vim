@@ -79,7 +79,7 @@ function! s:CommentMagic() abort
   endif
   let pos = getpos('.')
   try
-    call setline(line('.'), substitute(getline('.'), '\v(^\s*)(.*$)', '\1## \2', ''))
+    call setline(line('.'), '## ' . getline('.'))
     let pos[2] += 3
   finally
     call setpos('.', pos)
