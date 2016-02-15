@@ -399,6 +399,7 @@ abbrevs=(
 'vbr'   'vim-blacklist-remove'
 'k'     'kill'
 'o'     'open'
+'pp'    'python *.py(om[1])'
 'py'    'python'
 'ex'    'export'
 'ip'    'python $VIMCONFIG/misc/python/ipython_monitor.py &; ipython console'
