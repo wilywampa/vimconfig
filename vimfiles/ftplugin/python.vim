@@ -166,6 +166,11 @@ EOF
     endif
   endfunction
 
+  function! IPyRunSilent(text)
+    let g:ipy_input = a:text
+    return IPyRunIPyInput('{"store_history": False}')
+  endfunction
+
   function! s:IPyRunPrompt(store_history)
     let g:ipy_input = input('IPy: ', '', 'customlist,vimtools#CmdlineComplete')
     if len(g:ipy_input)
