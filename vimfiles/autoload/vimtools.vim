@@ -380,7 +380,7 @@ function! s:PatternCmdComplete() abort " {{{
   set wildcharm=<Tab>
   silent! cunmap <Tab>
   silent! nunmap :
-  if getcmdline() !~# '\vKeepPatterns|^[gsv]//?'
+  if getcmdline() !~# '\vKeepPatterns|^(\%|''\<,''\>)?[gsv]//?'
     return getcmdline()
   endif
   let line = getcmdline()
