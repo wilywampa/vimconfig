@@ -429,7 +429,7 @@ inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Ba
 xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>IPyRunMotion('visual')<CR>
 nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
 nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>:autocmd! pymode CursorMoved<CR>:lclose<CR>
-nnoremap <buffer> <expr>   <Leader>po <SID>ToggleOmnifunc()
+nnoremap <silent> <buffer> <Leader>po :<C-u>call <SID>ToggleOmnifunc()<CR>
 nnoremap <buffer>          <Leader>pf :<C-u>set foldmethod=expr
     \ foldexpr=pymode#folding#expr(v:lnum) <Bar> silent! FastFoldUpdate<CR>
 
@@ -488,6 +488,9 @@ inoremap <buffer> <expr> <C-x><C-g> vimtools#CompleteStart('GreedyCompleteIPytho
 if !exists('g:neocomplete#sources#omni#input_patterns')
   let g:neocomplete#sources#omni#input_patterns = {}
 endif
+if !exists('g:neocomplete#force_omni_input_patterns')
+  let g:neocomplete#force_omni_input_patterns = {}
+endif
 
 augroup python_ftplugin
   autocmd!
@@ -498,18 +501,21 @@ augroup python_ftplugin
       \   execute "nnoremap <buffer> S ^C" |
       \ endif
   autocmd InsertEnter *.py,--Python--
+      \ let s:omni_patterns = get(g:, 'python_force_omni', 0) ?
+      \     g:neocomplete#force_omni_input_patterns :
+      \     g:neocomplete#sources#omni#input_patterns |
       \ if &omnifunc == 'CompleteIPython' |
-      \   let g:neocomplete#sources#omni#input_patterns.python =
+      \   let s:omni_patterns.python =
       \     '\%([^[(). \t]\.\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*\|\[["'']\w*' |
       \ else |
-      \   let g:neocomplete#sources#omni#input_patterns.python =
+      \   let s:omni_patterns.python =
       \     '\%([^[(). \t]\.\|^\s*@\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*' |
       \ endif
   autocmd InsertEnter *.pxd,*.pxi,*.pyx,*.pyxbld
       \ if &omnifunc ==# 'jedi#completions' |
       \   setlocal omnifunc= |
       \ endif |
-      \ let g:neocomplete#sources#omni#input_patterns.python = ''
+      \ let s:omni_patterns.python = ''
 augroup END
 
 if (has('python') || has('python3')) && !exists('*PEP8()')
