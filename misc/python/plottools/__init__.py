@@ -234,6 +234,20 @@ def fix_angles(angles, pi=np.pi, axis=0):
                                    np.cumsum(delta, axis=axis)))
 
 
+class Conversion(float):
+
+    """Callable unit conversion."""
+
+    def __call__(self, other):
+        if isinstance(other, (list, tuple)):
+            return type(other)(self * v for v in other)
+        return self * other
+
+
+r2d = Conversion(np.rad2deg(1.0))
+d2r = Conversion(np.deg2rad(1.0))
+
+
 class _dict2obj(dict):
 
     """Add attribute-style access to a dictionary."""
@@ -270,12 +284,14 @@ except ImportError:
 
 __all__ = [
     'ArrayBunch',
+    'Conversion',
     'angle2dcm',
     'array_bunchify',
     'azip',
     'cl',
     'create',
     'cursor',
+    'd2r',
     'dataobj',
     'dcm2angle',
     'dict2obj',
@@ -289,6 +305,7 @@ __all__ = [
     'pad',
     'picker',
     'product_items',
+    'r2d',
     'resize',
     'savehtml',
     'savepdf',
