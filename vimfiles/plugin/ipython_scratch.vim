@@ -26,30 +26,55 @@ function! UncommentMagics(input)
   return join(map(split(a:input, '\n'), 's:UncommentLine(v:val)'), "\n")
 endfunction
 
-function! s:BackupScratchBuffer() abort
+function! s:BackupScratchBuffer(...) abort
   let scratch = bufnr(s:scratch_name)
   if scratch == -1 | return | endif
   execute "buffer ".scratch
   let dir = $HOME . '/.cache/IPython/buffer/'
   if !isdirectory(dir) | call mkdir(dir) | endif
   let fname = dir . strftime('%Y_%m_%d_%H00%Z.py')
+  if get(s:, 'changedtick', 0) == b:changedtick
+    if !a:0
+      echomsg 'No changes - skipping'
+    endif
+    return
+  endif
+  if filereadable(fname)
+    if a:0
+      while filereadable(fname)
+        let fname = dir . strftime('%Y_%m_%d_%H%M%S%Z.py')
+      endwhile
+    elseif input(printf('Overwrite "%s"? [yes/no]: ', fname)) !~? '^y\%[es]$'
+      return
+    endif
+  endif
   call writefile(getbufline(scratch, 1, line('$')), fname)
+  let s:changedtick = b:changedtick == -1 ? 0 : b:changedtick
   execute 'wundo' undofile(fname)
-  echomsg 'Wrote to ' . fname
+  redraw | echomsg printf('"%s" written', fname)
 endfunction
 
-function! s:RestoreScratchBuffer(...) abort
+function! s:RestoreScratchBuffer(count) abort
   call s:IPyScratchBuffer()
   let sep = !exists('+shellslash') || &shellslash ? '/' : '\\'
   let dir = substitute($HOME . '/.cache/IPython/buffer/', '/', sep, 'g')
-  let fname = a:0 ? a:1 :
-      \ filter(split(glob(dir . '*.py'), "\n"),
-      \       'filereadable(undofile(v:val))')[-v:count1]
+  let names = filter(split(glob(dir . '*.py'), "\n"), 'filereadable(undofile(v:val))')
+  if empty(names)
+    echomsg 'No scratch buffers found'
+    return
+  endif
+  let fname = get(names, -a:count, names[-1])
+  if line('$') > 5 && input('Clear buffer? [yes/no]: ') !~? '^y\%[es]$'
+    return
+  endif
   normal! gg"_dG
   put = readfile(fname)
   normal! gg"_dd
-  silent execute 'rundo' undofile(fname)
-  execute "normal! u\<C-r>"
+  if filereadable(undofile(fname))
+    silent execute 'rundo' undofile(fname)
+    execute "normal! u\<C-r>"
+  endif
+  let s:changedtick = b:changedtick
 endfunction
 
 function! s:IPyRunScratchBuffer()
@@ -79,7 +104,7 @@ function! s:CommentMagic() abort
   endif
   let pos = getpos('.')
   try
-    call setline(line('.'), '## ' . getline('.'))
+    call setline(line('.'), substitute(getline('.'), '\v(^\s*)(.*$)', '\1## \2', ''))
     let pos[2] += 3
   finally
     call setpos('.', pos)
@@ -113,20 +138,21 @@ function! s:IPyScratchBuffer()
   inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   nnoremap <buffer> <silent> <CR>   vip:<C-u>call IPyEval(3)<CR>
-  nnoremap <buffer> <silent> ,S        :<C-u>call <SID>BackupScratchBuffer()<CR>
-  nnoremap <buffer> <silent> ,R        :<C-u>call <SID>RestoreScratchBuffer()<CR>
+  command!          -buffer Save    call s:BackupScratchBuffer()
+  command! -count=1 -buffer Load    call s:RestoreScratchBuffer(<count>)
+  command! -count=1 -buffer Restore call s:RestoreScratchBuffer(<count>)
   map  <buffer> <C-s> <F5>
   map! <buffer> <C-s> <F5>
   augroup ipython_scratch_buffer
     autocmd!
     autocmd TextChangedI <buffer> call s:CommentMagic()
-    autocmd VimLeavePre * silent call s:BackupScratchBuffer()
+    autocmd VimLeavePre * silent call s:BackupScratchBuffer(1)
   augroup END
 endfunction
 
 augroup ipython_scratch_bufread
   autocmd!
-  execute 'autocmd BufReadCmd ' . s:scratch_name . ' call s:RestoreScratchBuffer()'
+  execute 'autocmd BufReadCmd ' . s:scratch_name . ' call s:RestoreScratchBuffer(1)'
 augroup END
 
 nnoremap <silent> ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
