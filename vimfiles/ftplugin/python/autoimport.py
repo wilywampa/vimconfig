@@ -183,7 +183,7 @@ froms = {
     'numpy': [
         'allclose', 'alltrue', 'arange', 'arccos', 'arccosh', 'arcsin',
         'arcsinh', 'arctan', 'arctan2', 'arctanh', 'argmax', 'argmin',
-        'argpartition', 'argsort', 'argwhere', 'array', 'array_equal',
+        'argpartition', 'argsort', 'argwhere', 'around', 'array', 'array_equal',
         'asarray', 'average', 'c_', 'column_stack', 'complex128', 'complex256',
         'complex64', 'concatenate', 'cos', 'cosh', 'cross', 'cumprod',
         'cumproduct', 'cumsum', 'deg2rad', 'degrees', 'diff', 'dot', 'dstack',
