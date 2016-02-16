@@ -403,7 +403,7 @@ EOF
     let sep = !exists('+shellslash') || &shellslash ? '/' : '\\'
     let dir = substitute($HOME . '/.cache/IPython/', '/', sep, 'g')
     if !isdirectory(dir) | call mkdir(dir) | endif
-    call writefile(split('test' . "\n\n", '\n'), dir .
+    call writefile(split(a:text. "\n\n", '\n'), dir .
         \ strftime('scratch_%Y_%m_%d.py'), 'a')
   endfunction
 endif
