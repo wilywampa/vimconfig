@@ -203,13 +203,13 @@ def styles(order=('-', '--', '-.', ':')):
     return cycle(repeat(order, len(rcParams['axes.color_cycle'])))
 
 
-def product_items(params, names, enum=True, dtypes=None):
+def product_items(params, names, enum=1, dtypes=None):
     """Make a masked record array representing variables in a Cartesian
     product."""
     import itertools as it
     from numpy.ma.mrecords import mrecarray
     items = list(it.product(*params))
-    if enum:
+    if enum is not None:
         items = [(i,) + item for i, item in enumerate(items, enum)]
         names = ('enum',) + names
         dtype = 'int32',
@@ -219,7 +219,7 @@ def product_items(params, names, enum=True, dtypes=None):
         dtypes = it.chain(dtype, it.repeat(float))
     elif not isinstance(dtypes, (list, tuple, np.ndarray)):
         dtypes = it.chain(dtype, it.repeat(dtypes))
-    elif enum:
+    elif enum is not None:
         dtypes = dtype + dtypes
     return np.ma.array(
         items, dtype=[(name, dtype) for name, dtype in
