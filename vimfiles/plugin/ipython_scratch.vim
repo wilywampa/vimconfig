@@ -114,7 +114,7 @@ endfunction
 function! s:IPyScratchBuffer()
   let scratch = bufnr(s:scratch_name)
   if scratch == -1
-    enew
+    silent execute 'edit' fnameescape(s:scratch_name)
   else
     execute "buffer ".scratch
   endif
@@ -128,7 +128,6 @@ function! s:IPyScratchBuffer()
         \          'ip = get_ipython()']
     keepjumps normal! G
   endif
-  silent execute 'file' fnameescape(s:scratch_name)
   setfiletype python
   setlocal buftype=nowrite bufhidden=hide noswapfile
   setlocal omnifunc=CompleteIPython
@@ -138,6 +137,7 @@ function! s:IPyScratchBuffer()
   inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   nnoremap <buffer> <silent> <CR>   vip:<C-u>call IPyEval(3)<CR>
+  command!          -buffer Backup  call s:BackupScratchBuffer()
   command!          -buffer Save    call s:BackupScratchBuffer()
   command! -count=1 -buffer Load    call s:RestoreScratchBuffer(<count>)
   command! -count=1 -buffer Restore call s:RestoreScratchBuffer(<count>)
