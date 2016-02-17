@@ -51,7 +51,7 @@ nnoremap <silent> <buffer> ,pm :<C-u>call FixMagicSyntax()<CR>
 nnoremap <silent> <buffer> ,pi :<C-u>call FixImports()<CR>
 nnoremap <silent> <buffer> ,ii v0:<C-u>call pymode#motion#select('^\s*\(class\<bar>def\)\s', 0)<CR>:<C-u>call <SID>FixImportsInDef()<CR>
 xnoremap <silent> <buffer> ,ii :<C-u>call <SID>FixImportsInDef()<CR>
-nnoremap          <buffer> ,ip :<C-u>IPythonConsole<CR>
+nnoremap          <buffer> ,ip :<C-u>IPythonConsole!<CR>
 
 " Move around functions
 nnoremap <silent> <buffer> [[ m':call search('^\s*def ', "bW")<CR>
@@ -132,7 +132,13 @@ if SCRIPT_DIR not in sys.path:
 
 from vim_utils import Options, PEP8, get_ipython_file, select_docstring
 EOF
-command! IPythonConsole execute 'IPython ' . s:pyeval('get_ipython_file()')
+function! s:IPythonConsole(bang) abort " {{{
+  let ipython_file = s:pyeval('get_ipython_file()')
+  if a:bang || !empty(ipython_file)
+    execute 'IPython' fnameescape(ipython_file)
+  endif
+endfunction " }}}
+command! -bang IPythonConsole call s:IPythonConsole(<bang>0)
 endif
 
 if !exists('*s:IPyRunPrompt') && (has('python') || has('python3'))
