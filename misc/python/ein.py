@@ -16,6 +16,9 @@ _LS = _LS[_LS.index('m'):]
 
 def dot(a, b, axisa=0, axisb=0):
     """Vector dot product along specified axes of ndarrays."""
+    if not hasattr(_np, 'einsum'):
+        import nein
+        return nein.dot(a, b, axisa, axisb)
     a, b = _asarray(a, b)
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     if a.shape[axisa] != b.shape[axisb]:
@@ -30,6 +33,9 @@ def dot(a, b, axisa=0, axisb=0):
 
 def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
     """Matrix/vector multiplication along specified axes of ndarrays."""
+    if not hasattr(_np, 'einsum'):
+        import nein
+        return nein.mtimesm(a, b, axisa, axisb, axisc, transposea, **kwargs)
     a, b = _asarray(a, b)
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     n = a.shape[axisa]
@@ -59,6 +65,10 @@ def mtimesv(a, b, axisa=0, axisb=0, axisc=0, transposea=False, **kwargs):
 def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
             transposea=False, transposeb=False, transposec=False, **kwargs):
     """Matrix/matrix multiplication along specified axes of ndarrays."""
+    if not hasattr(_np, 'einsum'):
+        import nein
+        return nein.mtimesm(a, b, axisa, axisb, axisc,
+                            transposea, transposeb, transposec, **kwargs)
     a, b = _asarray(a, b)
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
     n = a.shape[axisa]
@@ -92,6 +102,9 @@ def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
 
 def cross(a, b, axisa=0, axisb=0, axisc=0):
     """Vector cross product along specified axes of ndarrays."""
+    if not hasattr(_np, 'einsum'):
+        import nein
+        return nein.cross(a, b, axisa, axisb, axisc)
     a, b = _asarray(a, b)
     if (a.ndim != b.ndim and
             a.shape not in [(2,), (3,)] and
@@ -186,9 +199,6 @@ def _error(a, b, axisa, axisb):
 def _asarray(*arrays):
     return tuple(_np.asanyarray(a) for a in arrays)
 
-
-if not hasattr(_np, 'einsum'):
-    from nein import cross, dot, mtimesm, mtimesv
 
 if __name__ == '__main__':
 
