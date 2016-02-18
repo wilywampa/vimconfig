@@ -30,6 +30,10 @@ PROPERTIES = ('color', 'linestyle', 'linewidth', 'alpha', 'marker',
               'pickradius', 'solid_capstyle', 'solid_joinstyle')
 ALIASES = dict(aa='antialiased', c='color', ec='edgecolor', fc='facecolor',
                ls='linestyle', lw='linewidth', mew='markeredgewidth')
+CONSTANTS = dict(d2r=const.degree,
+                 nmi=const.nautical_mile,
+                 r2d=1.0 / const.degree,
+                 psf=const.pound_force / (const.foot ** 2))
 color_cycle = mpl.rcParams['axes.color_cycle']
 linestyle_cycle = '-', '--', '-.', ':'
 
@@ -378,6 +382,7 @@ class DataObj(object):
         self.xlabel = QtGui.QLabel('x axis:', parent=self.parent)
 
         words = [c for c in dir(const) if isinstance(getattr(const, c), float)]
+        words.extend(CONSTANTS.keys())
         words.sort(key=lambda w: w.lower())
 
         def new_scale_box():
@@ -703,7 +708,7 @@ class Interact(QtGui.QMainWindow):
         completer.close_popup()
         text = text_type(textbox.text())
         try:
-            return eval(text, const.__dict__, {})
+            return eval(text, const.__dict__, CONSTANTS)
         except Exception as e:
             self.warnings.append('Error setting scale: ' + text_type(e))
             return 1.0
