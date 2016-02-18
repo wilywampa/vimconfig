@@ -4,12 +4,14 @@ import io
 import itertools
 import os
 import re
+import sys
 import textwrap
 import tokenize
 import vim
 from collections import namedtuple
 from functools import reduce
 
+PY3 = sys.version_info[0] == 3
 Import = namedtuple('Import',
                     ['module', 'names', 'asnames', 'alias', 'lrange'])
 
@@ -278,6 +280,10 @@ def remove_unused(i):
             remove(i, asname)
 
 
+def decode(line):
+    return line if PY3 else line.decode('utf-8')
+
+
 for lnum, r in redefined.items():
     for i in imports:
         if r in i.asnames:
@@ -285,7 +291,7 @@ for lnum, r in redefined.items():
 
 tokens = set()
 code = io.StringIO(u'\n'.join(
-    line for line in vim.current.buffer[end:] if line.strip() != ''))
+    decode(line) for line in vim.current.buffer[end:] if line.strip()))
 for ttype, token, _, _, _ in tokenize.generate_tokens(code.readline):
     if ttype == tokenize.NAME:
         tokens.add(token)
