@@ -2344,10 +2344,12 @@ let g:targets_aiAI = 'ai  '
 let g:targets_nlNL = '    '
 let g:targets_pairs = ''
 let g:targets_quotes = ''
-let g:targets_argTrigger = 'A'
 let g:targets_argOpening = '[([{"]'
 let g:targets_argClosing = '[])}"]'
 let g:targets_separators = ', . : + - = ~ _ * # / \ | & $ %'
+let g:targets_argTrigger = 'A'
+onoremap <silent> iA :<C-u>call targets#o('RcI', v:count1)<CR>
+xnoremap <silent> iA :<C-u>call targets#x('RcI', v:count1)<CR>
 
 " fuzzyfinder settings
 nnoremap <silent> <M-f> :FZF<CR>
