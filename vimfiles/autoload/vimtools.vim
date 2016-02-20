@@ -317,7 +317,7 @@ endfunction " }}}
 function! vimtools#KeepPatterns(line1, line2, cmd) " {{{
   let cmd = a:cmd
   let split = split(a:cmd, '\v\\@<!/')
-  if split[0] =~# '\v^S%[ubvert]$' && len(split) == 3 && split[2][-1:] != '/'
+  if split[0] =~# '\v^S%[ubvert]$' && len(split) == 3 && a:cmd[-1:] != '/'
     let cmd = a:cmd . '/'
   endif
   let pat = @/
