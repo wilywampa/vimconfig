@@ -64,10 +64,10 @@ nnoremap <silent> <buffer> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -
 nnoremap <silent> <buffer> ,H :<C-u>Unite history/ipython:import -max-multi-lines=100 -no-split -no-resize<CR>
 
 " Maps for debugging
-nnoremap <silent> <buffer> <M-b> :<C-u>call VimuxRunCommand("break ".expand('%:p').":".line('.'))<CR>
-nnoremap <silent> <buffer> <M-B> :<C-u>call VimuxRunCommand("break ".expand('%:p').":".line('.').', '.input('condition: '))<CR>
-nnoremap <silent> <buffer> <M-e> :<C-u>call VimuxRunCommand("clear ".expand('%:p').":".line('.'))<CR>
-nnoremap <silent> <buffer> <Leader>bc :<C-u>call VimuxRunCommand('clear')<bar>call VimuxRunCommand('y')<CR>
+nnoremap <silent> <buffer> <Leader>bb         :<C-u>call VimuxRunCommand("break ".expand('%:p').":".line('.'))<CR>
+nnoremap <silent> <buffer> <Leader><Leader>bb :<C-u>call VimuxRunCommand("break ".expand('%:p').":".line('.').', '.input('condition: '))<CR>
+nnoremap <silent> <buffer> <M-e>              :<C-u>call VimuxRunCommand("clear ".expand('%:p').":".line('.'))<CR>
+nnoremap <silent> <buffer> <Leader>bc         :<C-u>call VimuxRunCommand('clear')<bar>call VimuxRunCommand('y')<CR>
 
 function! s:ipdb_commands()
   let lines = []
