@@ -2020,14 +2020,16 @@ function! s:modify_unite_options() abort
             \ join(split(g:ag_flags) + split(context.source__extra_opts)))
 
     elseif index(unite.source_names, 'history/ipython') != -1
-        let [ g:ipython_history_timeout,
-            \ g:ipython_history_len,
-            \ g:ipython_history_raw,
-            \ g:ipython_history_unique] = map(split(input('timeout, length, raw, unique = ',
-            \ printf('%s %s %s %s', get(g:, 'ipython_history_timeout', 2),
-            \                       get(g:, 'ipython_history_len', 100),
-            \                       get(g:, 'ipython_history_raw', 1),
-            \                       get(g:, 'ipython_history_unique', 1))), '\s\+'), '+v:val')
+        try
+            let [ g:ipython_history_timeout,
+                \ g:ipython_history_len,
+                \ g:ipython_history_raw,
+                \ g:ipython_history_unique] = map(split(input('timeout, length, raw, unique = ',
+                \ printf('%s %s %s %s', get(g:, 'ipython_history_timeout', 2),
+                \                       get(g:, 'ipython_history_len', 100),
+                \                       get(g:, 'ipython_history_raw', 1),
+                \                       get(g:, 'ipython_history_unique', 1))), '\s\+'), '+v:val')
+        endtry
 
     else
         return
