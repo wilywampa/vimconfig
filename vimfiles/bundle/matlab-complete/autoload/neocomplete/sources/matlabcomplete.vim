@@ -7,7 +7,7 @@ let s:source = {
     \ 'mark'      : '[MATLAB]',
     \ 'rank'      :  200,
     \ 'sorters'   : 'sorter_alpha',
-    \ 'filenames' : {'matlab': 1},
+    \ 'filetypes' : {'matlab': 1},
     \ }
 
 function! s:source.gather_candidates(context)
