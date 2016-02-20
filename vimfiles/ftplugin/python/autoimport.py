@@ -208,7 +208,7 @@ froms = {
     'numpy.ma': [
         'getdata', 'getmaskarray', 'masked', 'masked_all', 'masked_array'],
     'numpy.ma.mrecords': ['mrecarray'],
-    'numpy.random': ['rand', 'randint', 'randn'],
+    'numpy.random': ['rand', 'randint', 'randn', 'uniform'],
     'numpy.linalg': [
         'eig', 'eigh', 'eigvals', 'eigvalsh', 'inv', 'norm', 'lstsq', 'solve',
         'svd', 'tensorinv', 'tensorsolve'],
