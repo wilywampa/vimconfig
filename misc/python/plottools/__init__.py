@@ -164,6 +164,8 @@ def varinfo(var):
     print(type(var))
     if isinstance(var, numpy.ndarray):
         print(var.shape)
+    elif isinstance(var, (dict, list, tuple, set)):
+        print('n = %d' % len(var))
 
 
 def pad(array, length, filler=float('nan')):
@@ -238,10 +240,40 @@ class Conversion(float):
 
     """Callable unit conversion."""
 
-    def __call__(self, other):
+    def __call__(self, other, **kwargs):
+        if callable(other):
+            return self.func(other, **kwargs)
+        elif kwargs:
+            raise TypeError("Unexpected keyword arguments")
         if isinstance(other, (list, tuple)):
             return type(other)(self * v for v in other)
         return self * other
+
+    def func(self, f, **kwargs):
+        """Modify the units of a function's inputs and/or outputs."""
+        input = kwargs.get('input',
+                           False if kwargs.get('output', None) else True)
+        output = kwargs.get('output', False if input else True)
+        if input in (True, False):
+            input = Ellipsis if input else ()
+        if output in (True, False):
+            output = Ellipsis if output else ()
+
+        def g(*args, **kwargs):
+            dtype = None if np.issubdtype(
+                np.asanyarray(args[0]).dtype, float) else np.float64
+            args = np.asanyarray(args, dtype=dtype)
+            if input:
+                args[input] /= self
+            result = np.asanyarray(f(*args.tolist(), **kwargs))
+            if output:
+                try:
+                    result[output] *= self
+                except IndexError:
+                    result *= self
+            return result
+
+        return g
 
 
 r2d = Conversion(np.rad2deg(1.0))
