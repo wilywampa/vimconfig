@@ -502,11 +502,12 @@ function! vimtools#SourceMotion(type) " {{{
   if exists('*scriptease#scriptid')
     let sid = scriptease#scriptid('%')
     if sid
-      let pat = '\v(<s:|\<SID\>)\h(\w*#)*\w*\ze\('
+      let pat = '\v(<s:|\<%(SID|sid)\>)\h(\w*#)*\w*\ze\('
       for line in filter(copy(lines), 'v:val =~ pat')
-        let name = matchstr(line, pat)[2:]
+        let name = substitute(matchstr(line, pat),
+            \ '^\%(s:\|<\%(SID\|sid\)>\)', '', '')
         call map(lines,
-            \ "substitute(v:val, '\\V\\C\\(s:\\|<SID>\\)'.name,
+            \ "substitute(v:val, '\\V\\C\\(s:\\|<\\%(SID\\|sid\\)>\\)'.name,
             \             '<SNR>'.sid.'_'.name, 'g')")
       endfor
     endif
