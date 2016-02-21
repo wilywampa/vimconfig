@@ -394,7 +394,7 @@ class DataObj(object):
             scale_box.setText('1.0')
             scale_compl.set_textbox(scale_box)
 
-            def text_changed(text):
+            def text_edited(text):
                 scale_compl.skip_text = None
                 if scale_compl.skip:
                     scale_compl.skip = False
@@ -427,7 +427,7 @@ class DataObj(object):
                 scale_compl.skip_text = text
 
             connect(scale_box, SIGNAL('editingFinished()'), draw)
-            connect(scale_box, SIGNAL('textChanged(QString)'), text_changed)
+            connect(scale_box, SIGNAL('textEdited(QString)'), text_edited)
             connect(scale_compl, SIGNAL('activated(QString)'), complete_text)
             connect(scale_compl, SIGNAL('highlighted(QString)'), highlight)
 
