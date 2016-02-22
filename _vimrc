@@ -1761,6 +1761,8 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             \ "\<Plug>(neosnippet_expand_or_jump)":
             \ (pumvisible() ? neocomplete#close_popup() : "\<C-d>")
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
+        imap <C-x><C-h> <Plug>(complete_ipython_history)
+        imap <C-h> <Plug>(insert_ipython_history)
         inoremap <silent> <expr> <C-l>
             \ pumvisible() && &completefunc ==# 'neocomplete#sources#lines#complete' ?
             \ "\<C-p>" : neocomplete#complete_common_string()
