@@ -629,7 +629,7 @@ function! FixMagicSyntax() abort
       call g:PymodeLocList.current().clear()
       PymodePython code_check()
       let loclist = g:PymodeLocList.current()._loclist
-      if len(loclist) == 1 && loclist[0].text =~ 'invalid syntax'
+      if len(loclist) == 1 && loclist[0].text =~ 'invalid syntax\|unexpected indent'
         let [lnum, col] = [loclist[0].lnum, loclist[0].col]
         if stridx(join(map(synstack(lnum, col),
             \ 'tolower(synIDattr(v:val, "name"))')), 'magic') != -1
