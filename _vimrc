@@ -2061,7 +2061,8 @@ nn <silent> <M-/> :<C-u>Unite line:all<CR>
 nn <silent> <M-?> :<C-u>Unite line:backward<CR>
 nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
-nn <silent> <Leader>o :<C-u>Unite -vertical -winwidth=60 outline<CR>
+nn <silent> <expr> <Leader>o ':<C-u>Unite -direction=' .
+    \ (winnr() == 1 ? 'topleft' : 'botright') . ' -vertical -winwidth=60 outline<CR>'
 nn <silent> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -no-split -no-resize<CR>
 nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
@@ -2553,10 +2554,11 @@ let g:exchange_indent = '=='
 let g:neomru#file_mru_limit = 2000
 
 " gitgutter maps " {{{
+nnoremap <silent> ,gg :<C-u>GitGutter<CR>
 function! s:hunk(mode, sign, ...) abort
     if gitgutter#utility#is_active()
         let hunks = filter(copy(gitgutter#hunk#hunks()), 'v:val[2]' . a:sign . 'line(".")')
-        if empty(hunks) | let hunks = gitgutter#hunk#hunks() | endif
+        if empty(hunks) && a:0 | let hunks = gitgutter#hunk#hunks() | endif
         if empty(hunks) | return | endif
         let l:count = a:0 ? get(g:, 'gitgutter_max_signs', 500) : v:count1
         if a:sign == '<'
