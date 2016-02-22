@@ -236,6 +236,20 @@ def fix_angles(angles, pi=np.pi, axis=0):
                                    np.cumsum(delta, axis=axis)))
 
 
+def axis_equal_3d(axes=None):
+    """Adjust axis limits for equal scaling in Axes3D instance `ax`."""
+    if axes is None:
+        axes = plt.gca()
+    for ax in np.atleast_1d(axes).ravel():
+        radius = max(np.abs(lim - lim.mean()).max()
+                     for lim in (getattr(ax, 'get_%slim3d' % axis)()
+                                 for axis in 'xyz'))
+        for axis in 'xyz':
+            getattr(ax, 'set_%slim3d' % axis)(
+                np.array([-radius, radius]) +
+                getattr(ax, 'get_%slim3d' % axis)().mean())
+
+
 class Conversion(float):
 
     """Callable unit conversion."""
@@ -319,6 +333,7 @@ __all__ = [
     'Conversion',
     'angle2dcm',
     'array_bunchify',
+    'axis_equal_3d',
     'azip',
     'cl',
     'create',
