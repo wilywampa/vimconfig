@@ -141,7 +141,7 @@ endfunction " }}}
 command! -bang IPythonConsole call s:IPythonConsole(<bang>0)
 endif
 
-if !exists('*s:IPyRunPrompt') && (has('python') || has('python3'))
+if !exists('*IPyRunPrompt') && (has('python') || has('python3'))
   function! IPyRunIPyInput(...)
     if exists('b:did_ipython') || get(g:, 'ipython_connected', 0)
       redraw
@@ -154,7 +154,6 @@ if not isinstance(ipy_input, str):
     ipy_input = str(ipy_input, vim.eval('&encoding') or 'utf-8')
 vim.vars['ipy_input'] = textwrap.dedent(ipy_input).strip()
 EOF
-      let silent = a:0 ? 1 : 0
       if g:ipython_write_all || bufnr('%') == bufnr(s:scratch_name)
         call s:WriteScratch(g:ipy_input)
       endif
@@ -177,17 +176,11 @@ EOF
     return IPyRunIPyInput('{"store_history": False}')
   endfunction
 
-  function! s:IPyRunPrompt(store_history)
+  function! IPyRunPrompt(store_history)
     let g:ipy_input = input('IPy: ', '', 'customlist,vimtools#CmdlineComplete')
     if len(g:ipy_input)
-      let g:last_ipy_input = g:ipy_input
-      let history = g:ipython_store_history
-      try
-        let g:ipython_store_history = a:store_history
-        call IPyRunIPyInput()
-      finally
-        let g:ipython_store_history = history
-      endtry
+      let g:last_ipy_input = [g:ipy_input, a:store_history]
+      call s:IPyRepeatCommand()
     else
       unlet g:ipy_input
     endif
@@ -195,25 +188,13 @@ EOF
 
   function! s:IPyRepeatCommand()
     if exists('g:last_ipy_input')
-      let g:ipy_input = g:last_ipy_input
-      call IPyRunIPyInput()
+      let [g:ipy_input, store_history] = g:last_ipy_input
+      if store_history
+        call IPyRunIPyInput()
+      else
+        call IPyRunSilent(g:ipy_input)
+      endif
     endif
-  endfunction
-
-  function! s:IPyClearWorkspace()
-    let g:ipy_input = 'plt.close("all")'."\n".'%reset -s -f'
-    let g:ipy_input .= "\n".'from PyQt4 import QtCore; QtCore.QCoreApplication.instance().closeAllWindows()'
-    call IPyRunIPyInput()
-  endfunction
-
-  function! s:IPyCloseWindows()
-    let g:ipy_input = 'from PyQt4 import QtCore; QtCore.QCoreApplication.instance().closeAllWindows()'
-    call IPyRunIPyInput()
-  endfunction
-
-  function! s:IPyCloseFigures()
-    let g:ipy_input = 'plt.close("all")'
-    call IPyRunIPyInput()
   endfunction
 
   function! s:IPyPrintVar()
@@ -221,7 +202,7 @@ EOF
     normal! gvy
     let g:ipy_input = @"
     call RestoreRegs()
-    call IPyRunIPyInput()
+    call IPyRunSilent(g:ipy_input)
   endfunction
 
   function! s:IPyVarInfo(...)
@@ -234,10 +215,7 @@ EOF
       call RestoreRegs()
     endif
     let g:ipy_input = 'from plottools import varinfo; varinfo('.input.')'
-    let history = g:ipython_store_history
-    let g:ipython_store_history = 0
-    call IPyRunIPyInput()
-    let g:ipython_store_history = history
+    call IPyRunSilent(g:ipy_input)
   endfunction
 
   function! s:IPyGetHelp(level)
@@ -414,17 +392,20 @@ EOF
   endfunction
 endif
 
-nnoremap <silent> <buffer> <Leader>: :<C-u>call <SID>IPyRunPrompt(1)<CR>
-nnoremap <silent> <buffer> <Leader><Leader>: :<C-u>call <SID>IPyRunPrompt(0)<CR>
-nnoremap <silent> <buffer> @\  :<C-u>call <SID>IPyRepeatCommand()<CR>
-nnoremap <silent> <buffer> @\| :<C-u>call <SID>IPyRepeatCommand()<CR>
-nnoremap <silent> <buffer> g\  :<C-u>call <SID>IPyRunPrompt(1)<CR><C-f>
-nnoremap <silent> <buffer> g\| :<C-u>call <SID>IPyRunPrompt(1)<CR><C-f>
+function! s:unique_map(mode, map) abort
+  execute           a:mode . 'noremap <silent> <buffer>' a:map
+  execute 'silent!' a:mode . 'noremap <silent> <unique>' a:map
+endfunction
+
+call s:unique_map('n', '<Leader>: :<C-u>call IPyRunPrompt(1)<CR>')
+call s:unique_map('n', '<Leader><Leader>: :<C-u>call IPyRunPrompt(0)<CR>')
+call s:unique_map('n', '@\  :<C-u>call <SID>IPyRepeatCommand()<CR>')
+call s:unique_map('n', '@\| :<C-u>call <SID>IPyRepeatCommand()<CR>')
+call s:unique_map('n', 'g\  :<C-u>call IPyRunPrompt(1)<CR><C-f>')
+call s:unique_map('n', 'g\| :<C-u>call IPyRunPrompt(1)<CR><C-f>')
+call s:unique_map('n', '<Leader>e :<C-u>call <SID>IPyQuickFix()<CR>')
+call s:unique_map('n', '<Leader>e :<C-u>call <SID>IPyQuickFix()<CR>')
 cnoremap <silent> <buffer> <expr> <C-^> getcmdtype() == '@' ? '<C-e>()<CR>' : QuitSearch()
-nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>IPyClearWorkspace()<CR>
-nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>IPyCloseWindows()<CR>
-nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>IPyCloseFigures()<CR>
-nnoremap <silent> <buffer> <Leader><Leader>cl :<C-u>call <SID>IPyCloseWindows()<CR>
 xnoremap <silent> <buffer> <C-p>     :<C-u>call <SID>IPyPrintVar()<CR>
 xnoremap <silent> <buffer> <M-s>     :<C-u>call <SID>IPyVarInfo()<CR>
 nnoremap <silent> <buffer> <M-P>     :<C-u>call <SID>IPyVarInfo(1)<CR>
@@ -438,7 +419,6 @@ nnoremap <silent> <buffer> <Leader>x :<C-u>let g:first_op=1<bar>set opfunc=<SID>
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 inoremap <silent> <buffer> <Leader>x  <Esc>:<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
 xnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>IPyRunMotion('visual')<CR>
-nnoremap <silent> <buffer> <Leader>e :<C-u>call <SID>IPyQuickFix()<CR>
 nnoremap <silent>          <Leader>pl :<C-u>sign unplace *<CR>:autocmd! pymode CursorMoved<CR>:lclose<CR>
 nnoremap <silent> <buffer> <Leader>po :<C-u>call <SID>ToggleOmnifunc()<CR>
 nnoremap <buffer>          <Leader>pf :<C-u>set foldmethod=expr
