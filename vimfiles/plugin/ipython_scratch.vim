@@ -27,8 +27,8 @@ function! UncommentMagics(input)
 endfunction
 
 function! s:BackupScratchBuffer(...) abort
-  let scratch = bufnr(s:scratch_name)
-  if scratch == -1 | return | endif
+  let scratch = s:bufnr()
+  if scratch == -1 || v:dying | return | endif
   execute "buffer ".scratch
   let dir = $HOME . '/.cache/IPython/buffer/'
   if !isdirectory(dir) | call mkdir(dir) | endif
@@ -111,8 +111,15 @@ function! s:CommentMagic() abort
   endtry
 endfunction
 
+function! s:bufnr() abort
+  let scratch = filter(map(range(1, bufnr('$')), '[v:val, bufname(v:val)]'),
+      \                'v:val[1] =~# "' . s:scratch_name . '$"')
+  return empty(scratch) ? (-1) : scratch[0][0]
+endfunction
+
 function! s:IPyScratchBuffer()
-  let scratch = bufnr(s:scratch_name)
+  silent! autocmd! ipython_scratch_bufread
+  let scratch = s:bufnr()
   if scratch == -1
     silent execute 'edit' fnameescape(s:scratch_name)
   else
@@ -123,7 +130,7 @@ function! s:IPyScratchBuffer()
     IPythonConsole
   endif
   if line('$') == 1 && getline(1) ==# ''
-    silent put! = ['# pylama: ignore=C9,E2,E3,E5,E7,W0,W2,W3',
+    silent put! = ['# pylama: ignore=C9,E1,E2,E3,E401,E5,E7,W0,W2,W3',
         \          'from IPython import get_ipython',
         \          'ip = get_ipython()']
     keepjumps normal! G
@@ -137,6 +144,7 @@ function! s:IPyScratchBuffer()
   inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   nnoremap <buffer> <silent> <CR>   vip:<C-u>call IPyEval(3)<CR>
+  nnoremap          <silent> ,ps       :<C-u>call <SID>IPyScratchBuffer()<CR>
   command!          -buffer Backup  call s:BackupScratchBuffer()
   command!          -buffer Save    call s:BackupScratchBuffer()
   command! -count=1 -buffer Load    call s:RestoreScratchBuffer(<count>)
@@ -155,6 +163,6 @@ augroup ipython_scratch_bufread
   execute 'autocmd BufReadCmd ' . s:scratch_name . ' call s:RestoreScratchBuffer(1)'
 augroup END
 
-nnoremap <silent> ,ps :<C-u>call <SID>IPyScratchBuffer()<CR>
+nnoremap <silent> ,ps :<C-u>call <SID>RestoreScratchBuffer(1)<CR>
 
 " vim:set et ts=2 sts=2 sw=2:
