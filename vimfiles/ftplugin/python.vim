@@ -603,11 +603,13 @@ function! s:FixImportsInDef() abort
       call winrestview(view)
     endtry
     silent execute 'split' tempname()
+    let def = split(@@, '\n')[0] =~ '^\s*\%(class\|def\) '
     silent put = @@
     setfiletype python
     call FixImports()
-    if getline(1) =~ 'import '
-      normal! zRggyipdap%"0p`[>`]
+    normal! zR
+    if def && getline(1) =~ 'import '
+      normal! ggdap%p`[>`]
     endif
     setlocal formatexpr=PEP8()
     normal! gggqG
