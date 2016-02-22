@@ -4,7 +4,7 @@ for line in ${(Oa)lines}; do
   if [[ $line =~ '^> (/.*\([0-9]+\))| at (/.*:[0-9]+)' ]]; then
     # ipdb or cgdb/gdb absolute path match
     exit $(findvim $match)
-  elif [[ $line =~ 'Breakpoint .* at \s*(.*):([0-9]+)' ]]; then
+  elif [[ $line =~ 'at \s*(.*):([0-9]+)$' ]]; then
     # cgdb relative path match
     filename=$match[1]
     lnum=$match[2]
