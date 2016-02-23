@@ -52,10 +52,12 @@ def cursor(fig=None, **kwargs):
     """Add mpldatacursor to a figure."""
     from mpldatacursor import datacursor
     plt.figure((fig or plt.gcf()).number)
+    kw = dict(formatter=_fmt, props_override=_snap)
+    kw.update(kwargs)
     cursors = []
-    for ax in plt.gcf().get_axes():
-        cursors.append(datacursor(axes=ax, formatter=_fmt,
-                                  props_override=_snap, **kwargs))
+    axes = kwargs.get('axes', plt.gcf().get_axes())
+    for ax in axes:
+        cursors.append(datacursor(axes=ax, **kw))
         [a.draggable() for a in cursors[-1].annotations.values()]
     return cursors
 
