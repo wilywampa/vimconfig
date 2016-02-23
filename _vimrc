@@ -2351,8 +2351,8 @@ let g:targets_argOpening = '[([{"]'
 let g:targets_argClosing = '[])}"]'
 let g:targets_separators = ', . : + - = ~ _ * # / \ | & $ %'
 let g:targets_argTrigger = 'A'
-onoremap <silent> iA :<C-u>call targets#o('RcI', v:count1)<CR>
-xnoremap <silent> iA :<C-u>call targets#x('RcI', v:count1)<CR>
+onoremap <silent> iA :<C-u>call targets#o('AcI', v:count1)<CR>
+xnoremap <silent> iA :<C-u>call targets#x('AcI', v:count1)<CR>
 
 " fuzzyfinder settings
 nnoremap <silent> <M-f> :FZF<CR>
