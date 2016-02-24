@@ -486,14 +486,12 @@ no <expr> <C-d> (v:count ? "" : (winheight('.')) / 3 + 1)."\<C-d>"
 no <expr> <C-u> (v:count ? "" : (winheight('.')) / 3 + 1)."\<C-u>"
 
 " Highlight word without moving cursor
-nn <silent> <Leader>* :let @/='\<'.expand('<cword>').'\>'<CR>
-    \:call histadd('/', @/)<CR>:set hls<CR>
-nn <silent> <Leader>8 :let @/='\<'.expand('<cword>').'\>'<CR>
-    \:call histadd('/', @/)<CR>:set hls<CR>
-nn <silent> <Leader>g* :let @/=expand('<cword>')<CR>
-    \:call histadd('/', @/)<CR>:set hls<CR>
-nn <silent> <Leader>g8 :let @/=expand('<cword>')<CR>
-    \:call histadd('/', @/)<CR>:set hls<CR>
+nn <Leader>* :<C-u>let @/ = '\<' . expand('<cword>') . '\>'<bar>
+    \ call histadd('/', @/)<bar>set hlsearch<bar>echo '/' . @/<CR>zv
+nmap <Leader>8 <Leader>*
+nn <Leader>g* :<C-u>let @/ = expand('<cword>')<bar>
+    \ call histadd('/', @/)<bar>set hlsearch<bar>echo '/' . @/<cr>zv
+nmap <Leader>g8 <Leader>g*
 
 " Move current line to 1/5 down from top or up from bottom
 nn <expr> zh "zt".(winheight('.')/5)."\<C-y>"
@@ -617,10 +615,10 @@ ino <expr> <CR> (getline('.')[:virtcol('.')-2] =~ '\(\S\\|^\)\s\+$' ?
 ino \<CR> \<CR>
 
 " Make * and # use 'smartcase'
-nn * :<C-u>let @/ = '\<' . expand('<cword>') . '\>'<bar>call histadd('/', @/)<CR>/<CR>zv
-nn # :<C-u>let @/ = '\<' . expand('<cword>') . '\>'<bar>call histadd('/', @/)<CR>?<CR>zv
-nn g* :<C-u>let @/ = expand('<cword>')<bar>call histadd('/', @/)<CR>/<CR>zv
-nn g# :<C-u>let @/ = expand('<cword>')<bar>call histadd('/', @/)<CR>?<CR>zv
+nn * /\<<C-r>=expand('<cword>')<CR>\><CR>zv
+nn # ?\<<C-r>=expand('<cword>')<CR>\><CR>zv
+nn g* /<C-r>=expand('<cword>')<CR><CR>zv
+nn g# ?<C-r>=expand('<cword>')<CR><CR>zv
 
 " Toggle IPython history storage
 nn <silent> ,ih :<C-u>let g:ipython_store_history = !get(g:, 'ipython_store_history', 1)<CR>
