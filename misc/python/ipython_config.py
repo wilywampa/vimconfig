@@ -77,13 +77,14 @@ from builtins    import abs, all, any, max, min, round, sum  # python3
 def _marray_pprint(a, p, cycle):
     """Print mask as 'False' if mask is all False."""
     import re
+    from numpy.ma.mrecords import MaskedRecords
     _print_templates = ma.core._print_templates
     try:
         n = len(a.shape)
         if len(a.dtype) > 1:
             n += 1
         data = str(a)
-        if isinstance(a, ma.mrecords.MaskedRecords):
+        if isinstance(a, MaskedRecords):
             data = re.sub(r',(?=\S)', ', ', data)
             data = re.sub(r'\),\s*\(', '),\n  (', data)
         name = 'array'
