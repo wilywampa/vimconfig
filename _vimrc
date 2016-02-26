@@ -469,7 +469,8 @@ nn <silent> <Leader>ss :<C-u>set buftype=<C-r>=&buftype ==# 'nofile' ? '' : 'nof
 nn <silent> <Leader>y :<C-U>exe vimtools#EchoSyntax(v:count)<CR>
 
 " Change directory
-nn <silent> <Leader>cd :execute "Windo cd ".fnameescape(expand('%:p:h'))<CR>:echo getcwd()<CR>
+nn <silent> <Leader>cd :execute "Windo cd ".fnameescape(
+    \ &filetype ==# 'vimfiler' ? b:vimfiler.current_dir : expand('%:p:h'))<CR>:echo getcwd()<CR>
 nn <silent> ,cd :lcd %:p:h<CR>:pwd<CR>
 nn <silent> <Leader>.. :execute "Windo cd ".fnameescape(fnamemodify(getcwd(),':h'))<bar>pwd
     \ <bar>silent! call repeat#set("\<Leader>..")<CR>
@@ -2370,7 +2371,19 @@ nnoremap <silent> g= :<C-u>call vimtools#MakeParagraph()<CR>
 nnoremap <silent> <expr> gp (getregtype(v:register) ==# 'V' ? '' : 'o<Esc>') .
     \ 'p:<C-u>call vimtools#MakeParagraph()<CR>:silent! call repeat#set("gp")<CR>'
 nnoremap <silent> <expr> gP (getregtype(v:register) ==# 'V' ? '' : 'O<Esc>') .
-    \ 'p:<C-u>call vimtools#MakeParagraph()<CR>:silent! call repeat#set("gP")<CR>'
+    \ 'P:<C-u>call vimtools#MakeParagraph()<CR>:silent! call repeat#set("gP")<CR>'
+function! s:IndentMakeParagraph(how) abort " {{{
+    execute "normal" a:how
+    call vimtools#MakeParagraph()
+endfunction
+function! s:IndentMakeParagraphMap(map) abort
+    execute 'nnoremap <silent>' a:map
+        \ ':<C-u>call <SID>IndentMakeParagraph("' . a:map[0] . a:map[2] . '")<CR>' .
+        \ ':silent! call repeat#set("' . a:map . '")<CR>'
+endfunction " }}}
+for map in ['>gp', '>gP', '<gp', '<gP', '=gp', '=gP']
+    call s:IndentMakeParagraphMap(map)
+endfor
 
 " python-mode settings
 let g:pymode_options = 0
