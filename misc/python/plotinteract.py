@@ -344,16 +344,16 @@ class DataObj(object):
     def __init__(self, parent, obj, name, **kwargs):
         self.parent = parent
         self.name = name
-        self.labels = kwargs.get('labels', name)
         self.widgets = []
         self.twin = False
         self.props = kwargs.get('props', {}).copy()
         self.obj = flatten(obj, ndim=self.guess_ndim(obj, kwargs))
+        self.choose_label()
+        self.labels = kwargs.get('labels', text_type(self.label.text()))
 
         draw = self.parent.draw
         connect = self.parent.connect
 
-        self.label = QtGui.QLabel(name + ':', parent=self.parent)
         self.scale_label = QtGui.QLabel('scale:', parent=self.parent)
         self.xscale_label = QtGui.QLabel('scale:', parent=self.parent)
 
@@ -439,6 +439,19 @@ class DataObj(object):
         self.kwargs = kwargs
         self.process_kwargs()
 
+    def choose_label(self):
+        names = [d.name for d in self.parent.datas]
+        if self.name in names:
+            labels = [text_type(d.label.text()) for d in self.parent.datas]
+            i = -1
+            label = self.name
+            while label in labels:
+                i += 1
+                label = '{0} ({1}):'.format(self.name, i)
+        else:
+            label = self.name + ':'
+        self.label = QtGui.QLabel(label, parent=self.parent)
+
     def guess_ndim(self, obj, kwargs):
         try:
             return min(v.ndim for v in obj.values()
@@ -476,6 +489,13 @@ class DataObj(object):
                 self.props[k] = v
             else:
                 getattr(self, 'set_' + k, lambda _: None)(v)
+
+        for alias, prop in ALIASES.items():
+            if alias in self.props:
+                self.props[prop] = self.props.get(prop, self.props.pop(alias))
+
+        for k in 'c', 'color', 'linestyle', 'ls':
+            self.kwargs.pop(k, None)
 
         if 'cdata' in self.kwargs:
             self.cdata = np.squeeze(self.kwargs['cdata'])
@@ -531,7 +551,7 @@ class DataObj(object):
             props_editor.setItem(i, 0, QtGui.QTableWidgetItem(k))
             props_editor.setItem(i, 1, QtGui.QTableWidgetItem(
                 props_repr(self.props[k]) if k in self.props else ''))
-        props_editor.setWindowTitle(self.name)
+        props_editor.setWindowTitle(text_type(self.label.text()))
         props_editor.itemChanged.connect(self.update_props)
         props_editor.show()
 
