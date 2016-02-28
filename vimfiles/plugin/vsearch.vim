@@ -18,7 +18,7 @@ function! s:VSetSearch(cmd)
   if @@ =~? '^[0-9a-z,_]*$' || @@ =~? '^[0-9a-z ,_]*$' && g:VeryLiteral
     let @/ = @@
   else
-    let pat = escape(@@, '~\.^$[]*')
+    let pat = escape(@@, a:cmd . '~\.^$[]*')
     if g:VeryLiteral
       let pat = substitute(pat, '\n', '\\n', 'g')
     else
