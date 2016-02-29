@@ -349,7 +349,7 @@ class DataObj(object):
         self.props = kwargs.get('props', {}).copy()
         self.obj = flatten(obj, ndim=self.guess_ndim(obj, kwargs))
         self.choose_label()
-        self.labels = kwargs.get('labels', text_type(self.label.text()))
+        self.labels = kwargs.get('labels', text_type(self.label.text()[:-1]))
 
         draw = self.parent.draw
         connect = self.parent.connect
