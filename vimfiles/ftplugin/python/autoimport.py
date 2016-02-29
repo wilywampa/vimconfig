@@ -161,8 +161,8 @@ froms = {
         'imap', 'islice', 'izip', 'izip_longest', 'permutations', 'product',
         'repeat', 'starmap', 'takewhile', 'tee'],
     'ipython_config': [
-        'dump', 'fields_dict', 'globn', 'items_dict', 'load', 'sortn',
-        'sortnkey'],
+        'SliceIndex', 'dump', 'fields_dict', 'globn', 'items_dict', 'load',
+        'sortn', 'sortnkey'],
     'mathtools': ['cat', 'derivative', 'ecat', 'norm0', 'unit'],
     'matplotlib.backends.backend_pdf': ['PdfPages'],
     'matplotlib.pyplot': [
@@ -181,6 +181,7 @@ froms = {
         'tricontour', 'tricontourf', 'triplot', 'twinx', 'twiny',
         'violinplot', 'vlines', 'xlabel', 'xlim', 'xscale', 'xticks',
         'ylabel', 'ylim', 'yscale', 'yticks'],
+    'mpl_toolkits': ['basemap', 'mplot3d'],
     'mpl_toolkits.mplot3d': ['Axes3D'],
     'numpy': [
         'allclose', 'alltrue', 'arange', 'arccos', 'arccosh', 'arcsin',
