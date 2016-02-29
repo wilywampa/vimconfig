@@ -1692,12 +1692,11 @@ if s:readonly
 endif
 
 " Airline configuration
-let g:airline_theme='solarized'
-au VimrcAutocmds TabEnter,FocusGained *
-    \ silent! call airline#highlighter#highlight(['normal',&mod?'modified':''])
-nnoremap <silent> <M-w> :AirlineToggleWhitespace<CR>:AirlineRefresh<CR>
-let g:airline#extensions#whitespace#show_message=0
-let g:airline_section_y='%{FFinfo()}'
+let g:airline_theme = 'solarized'
+nnoremap <silent> <M-w> :<C-u>AirlineToggleWhitespace<bar>AirlineRefresh<CR>
+let g:airline#extensions#whitespace#show_message = 0
+let g:airline_section_y = '%{FFinfo()}'
+let g:airline_exclude_preview = 1
 
 " Use powerline font unless in Mac SSH session or in old Vim
 if mobileSSH || v:version < 703
@@ -1878,6 +1877,7 @@ func! s:VimfilerSettings() " {{{
     nmap <buffer> <Tab> <Plug>(vimfiler_choose_action)
     nmap <buffer> gN    <Plug>(vimfiler_new_file)
     xmap <buffer> *     <Plug>(vimfiler_toggle_mark_selected_lines)
+    nmap <buffer> g/    <Plug>(vimfiler_set_current_mask)
     xmap <expr> <buffer> q "\<Esc>\<Plug>(vimfiler_hide)"
     xmap <expr> <buffer> Q "\<Esc>\<Plug>(vimfiler_exit)"
     nnoremap <buffer> got :<C-U>call gtfo#open#term(b:vimfiler.current_dir, "")<CR>
@@ -2065,6 +2065,9 @@ nn <silent> <F1> :<C-u>Unite mapping<CR>
 nn <silent> <expr> <Leader>o ':<C-u>Unite -direction=' .
     \ (winnr() == 1 ? 'topleft' : 'botright') . ' -vertical -winwidth=60 outline<CR>'
 nn <silent> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -no-split -no-resize<CR>
+xn <silent> ,h :<C-u>call SaveRegs()<CR>gvy:call unite#start([['history/ipython']], {
+    \ 'input': @@, 'split': 0, 'auto_resize': 0, 'max_multi_lines': 100})<CR>
+    \ <Esc>:call RestoreRegs()<CR>i
 nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
 nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>
