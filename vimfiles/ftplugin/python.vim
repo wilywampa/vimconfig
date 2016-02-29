@@ -282,7 +282,7 @@ EOF
         let pyerr = join(filter(readfile(errorfile), 'v:val !~ "^\s*$"'), "\n")
         if pyerr =~ 'ipython-input'
           let pyerr = substitute(pyerr, '\v\cFile "\<ipython-input\S*\>", '.
-              \ 'line \zs\d+', '\=submatch(0) + line("''[") - 1', 'g')
+              \ 'line \zs\d+', '\=submatch(0) + nextnonblank("''[") - 1', 'g')
           let pyerr = substitute(pyerr, '\v\cFile "\zs\<ipython-input\S*\>\ze",',
               \ expand('%:p'), 'g')
         endif
