@@ -1,5 +1,5 @@
 diff --git a/core/completer.py b/core/completer.py
-index b1bc646..b1f8354 100644
+index b1bc646..bac343e 100644
 --- a/core/completer.py
 +++ b/core/completer.py
 @@ -67,6 +67,7 @@ Notes:
@@ -10,7 +10,7 @@ index b1bc646..b1f8354 100644
  import glob
  import inspect
  import itertools
-@@ -74,21 +75,71 @@ import keyword
+@@ -74,21 +75,79 @@ import keyword
  import os
  import re
  import sys
@@ -81,10 +81,18 @@ index b1bc646..b1f8354 100644
 +    return False
 +
 +
++def arraystr(a, max_line_width=None, precision=None, suppress_small=None):
++    """Separate values with a comma in array2string."""
++    return numpy.array2string(a, max_line_width,
++                              precision, suppress_small,
++                               separator=', ', prefix="", style=str)\
++            .replace('..., ', 'Ellipsis, ')
++
++
  # Public API
  __all__ = ['Completer','IPCompleter']
  
-@@ -97,6 +148,7 @@ if sys.platform == 'win32':
+@@ -97,6 +156,7 @@ if sys.platform == 'win32':
  else:
      PROTECTABLES = ' ()[]{}?=\\|;:\'#*"^&'
  
@@ -92,7 +100,7 @@ index b1bc646..b1f8354 100644
  #-----------------------------------------------------------------------------
  # Main functions and classes
  #-----------------------------------------------------------------------------
-@@ -426,6 +478,64 @@ def get__all__entries(obj):
+@@ -426,6 +486,64 @@ def get__all__entries(obj):
      return [w for w in words if isinstance(w, string_types)]
  
  
@@ -157,7 +165,7 @@ index b1bc646..b1f8354 100644
  class IPCompleter(Completer):
      """Extension of the completer class with IPython-specific features"""
  
-@@ -538,6 +648,7 @@ class IPCompleter(Completer):
+@@ -538,6 +656,7 @@ class IPCompleter(Completer):
                           self.file_matches,
                           self.magic_matches,
                           self.python_func_kw_matches,
@@ -165,7 +173,7 @@ index b1bc646..b1f8354 100644
                           ]
  
      def all_completions(self, text):
-@@ -804,6 +915,113 @@ class IPCompleter(Completer):
+@@ -804,6 +923,113 @@ class IPCompleter(Completer):
                      argMatches.append("%s=" %namedArg)
          return argMatches
  
@@ -279,7 +287,7 @@ index b1bc646..b1f8354 100644
      def dispatch_custom_completer(self, text):
          #io.rprint("Custom! '%s' %s" % (text, self.custom_completers)) # dbg
          line = self.line_buffer
-@@ -901,6 +1119,7 @@ class IPCompleter(Completer):
+@@ -901,6 +1127,7 @@ class IPCompleter(Completer):
  
          # Start with a clean slate of completions
          self.matches[:] = []
@@ -287,7 +295,7 @@ index b1bc646..b1f8354 100644
          custom_res = self.dispatch_custom_completer(text)
          if custom_res is not None:
              # did custom completers produce something?
-@@ -918,6 +1137,20 @@ class IPCompleter(Completer):
+@@ -918,6 +1145,20 @@ class IPCompleter(Completer):
                          # Show the ugly traceback if the matcher causes an
                          # exception, but do NOT crash the kernel!
                          sys.excepthook(*sys.exc_info())
@@ -308,13 +316,21 @@ index b1bc646..b1f8354 100644
              else:
                  for matcher in self.matchers:
                      self.matches = matcher(text)
-@@ -931,8 +1164,86 @@ class IPCompleter(Completer):
+@@ -931,8 +1172,101 @@ class IPCompleter(Completer):
          # use penalize_magics_key to put magics after variables with same name
          self.matches = sorted(set(self.matches), key=penalize_magics_key)
  
-+        numpy.set_string_function(
-+            lambda obj: 'x'.join(str(s) for s in obj.shape +
-+                                 ((0,) if len(obj.shape) == 1 else ())))
++        def arepr(obj):
++            if not obj.shape:
++                return repr(obj.tolist())
++            return 'x'.join(str(s) for s in obj.shape +
++                            ((0,) if len(obj.shape) == 1 else ()))
++        numpy.set_string_function(arepr)
++        numpy.set_string_function(arepr, repr=False)
++        templates = numpy.ma.core._print_templates
++        numpy.ma.core._print_templates = {k: '%(data)s' for k in templates}
++        numpy.ma.masked_print_option.enable(False)
++
 +        matches = []
 +        for i, m in enumerate(self.matches):
 +            try:
@@ -328,8 +344,12 @@ index b1bc646..b1f8354 100644
 +
 +            try:
 +                assert(isinstance(obj, numpy.ndarray))
-+                matches.append(m + '\0ndarray: %s %s' % (str(obj.shape),
-+                                                         str(obj.dtype)))
++                if obj.shape:
++                    matches.append(m + '\0ndarray: %s %s' % (str(obj.shape),
++                                                             str(obj.dtype)))
++                else:
++                    matches.append(m + '\0ndarray: %s (%s)' % (str(obj),
++                                                               str(obj.dtype)))
 +            except Exception as e:
 +                if type(e) in EXCEPTIONS - set(
 +                        [AssertionError, AttributeError, NameError]):
@@ -384,6 +404,9 @@ index b1bc646..b1f8354 100644
 +                'builtin') + ('CALLSIG' + info if info else '')
 +
 +        numpy.set_string_function(None)
++        numpy.set_string_function(arraystr, repr=False)
++        numpy.ma.core._print_templates = templates
++        numpy.ma.masked_print_option.enable()
 +
          #io.rprint('COMP TEXT, MATCHES: %r, %r' % (text, self.matches)) # dbg
 -        return text, self.matches
@@ -397,7 +420,7 @@ index b1bc646..b1f8354 100644
      def rlcomplete(self, text, state):
          """Return the state-th possible completion for 'text'.
 diff --git a/utils/dir2.py b/utils/dir2.py
-index dd508b4..55d2a3c 100644
+index dd508b4..7d02b38 100644
 --- a/utils/dir2.py
 +++ b/utils/dir2.py
 @@ -13,6 +13,7 @@
@@ -422,14 +445,38 @@ index dd508b4..55d2a3c 100644
  def dir2(obj):
      """dir2(obj) -> list of strings
  
-@@ -70,6 +78,10 @@ def dir2(obj):
+@@ -70,6 +78,13 @@ def dir2(obj):
          #words.add('__class__')
          words |= set(get_class_members(obj.__class__))
  
 +    if _safe_isinstance(obj, 'bunch', 'Bunch') or\
 +            _safe_isinstance(obj, 'attrdict', 'AttrDict'):
 +        words = set(obj.keys())
++    elif _safe_isinstance(obj, 'numpy.rec', 'recarray') or\
++            _safe_isinstance(obj, 'numpy.ma.mrecords', 'mrecarray'):
++        words |= set(obj.dtype.names)
 +
  
      # for objects with Enthought's traits, add trait_names() list
      # for PyCrust-style, add _getAttributeNames() magic method list
+diff --git a/kernel/zmq/ipkernel.py b/kernel/zmq/ipkernel.py
+index f76d506..58c8209 100644
+--- a/kernel/zmq/ipkernel.py
++++ b/kernel/zmq/ipkernel.py
+@@ -477,8 +477,16 @@ class Kernel(Configurable):
+ 
+     def complete_request(self, stream, ident, parent):
+         txt, matches = self._complete(parent)
++        metadata = []
++        for i, m in enumerate(matches):
++            if '\0' in m:
++                metadata.append(m.partition('\0')[-1])
++                matches[i] = m.partition('\0')[0]
++            else:
++                metadata.append('')
+         matches = {'matches' : matches,
+                    'matched_text' : txt,
++                   'metadata' : metadata,
+                    'status' : 'ok'}
+         matches = json_clean(matches)
+         completion_msg = self.session.send(stream, 'complete_reply',
