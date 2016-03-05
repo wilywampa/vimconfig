@@ -66,6 +66,9 @@ silent! unlet b:current_syntax
 let g:sh_noisk = 1
 syntax include @Sh syntax/sh.vim
 let b:current_syntax = 'pymode'
+if has("patch-7.4.1141")
+  execute 'syntax iskeyword' &l:iskeyword
+endif
 
 syntax region shellMagicLine keepend
     \ start="\%(\%('''\|##\s\|^\).\{-}=\?\s*\%(%\%(sx\|system\)\s\|!!\?\)\)\@<=."
