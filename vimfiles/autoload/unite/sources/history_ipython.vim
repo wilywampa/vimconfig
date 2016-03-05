@@ -43,11 +43,15 @@ function! s:source.hooks.on_init(args, context)
   endif
   let a:context.source__input = a:context.input
   if a:context.source__input == '' || a:context.unite__is_restart
+    let force_save = get(g:, 'force_ipython_complete', 0)
     try
+      let g:force_ipython_complete = 1
       let a:context.source__input = unite#util#input('Pattern: ',
           \ a:context.source__input,
           \ 'customlist,vimtools#CmdlineComplete')
     catch /^Vim:Interrupt$/
+    finally
+      let g:force_ipython_complete = force_save
     endtry
   endif
 
@@ -92,9 +96,15 @@ let s:source.action_table.session = {
     \ }
 function! s:source.action_table.session.func(candidate)
   let context = a:candidate.source__context
-  let context.source__input = unite#util#input('Pattern: ',
-      \ context.source__input,
-      \ 'customlist,vimtools#CmdlineComplete')
+  let force_save = get(g:, 'force_ipython_complete', 0)
+  try
+    let g:force_ipython_complete = 1
+    let context.source__input = unite#util#input('Pattern: ',
+        \ context.source__input,
+        \ 'customlist,vimtools#CmdlineComplete')
+  finally
+    let g:force_ipython_complete = force_save
+  endtry
   let context.source__session = a:candidate.source__session
 endfunction
 

@@ -176,8 +176,18 @@ EOF
     return IPyRunIPyInput('{"store_history": False}')
   endfunction
 
+  function! s:input(prompt)
+    let force_save = get(g:, 'force_ipython_complete', 0)
+    try
+      let g:force_ipython_complete = 1
+      return input(a:prompt, '', 'customlist,vimtools#CmdlineComplete')
+    finally
+      let g:force_ipython_complete = force_save
+    endtry
+  endfunction
+
   function! IPyRunPrompt(store_history)
-    let g:ipy_input = input('IPy: ', '', 'customlist,vimtools#CmdlineComplete')
+    let g:ipy_input = s:input('IPy: ')
     if len(g:ipy_input)
       let g:last_ipy_input = [g:ipy_input, a:store_history]
       call s:IPyRepeatCommand()
@@ -337,7 +347,7 @@ EOF
         normal! gvy
         let g:ipy_input = @@
       else
-        let g:ipy_input = input('>>> ', '', 'customlist,vimtools#CmdlineComplete')
+        let g:ipy_input = s:input('>>> ')
       endif
       if g:ipython_write_all || bufnr('%') == bufnr(s:scratch_name)
         call s:WriteScratch(g:ipy_input)

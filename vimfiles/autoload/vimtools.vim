@@ -590,7 +590,8 @@ endfunction " }}}
 
 function! vimtools#CmdlineComplete(arglead, cmdline, cursorpos) " {{{
   let results = []
-  if &filetype ==# 'python' && exists('*IPythonCmdComplete')
+  if (&filetype ==# 'python' || get(g:, 'force_ipython_complete', 0))
+      \ && exists('*IPythonCmdComplete')
     try
       let results = IPythonCmdComplete(a:arglead, a:cmdline, a:cursorpos)
     catch
