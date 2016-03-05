@@ -2256,6 +2256,7 @@ endif
 xmap <expr> S (mode() == 'v' && virtcol('.') == virtcol('$') ? "h" : "")."\<Plug>VSurround"
 nmap gs <Plug>Ysurround
 nmap gss <Plug>Yssurround
+imap <C-g><C-s> <Plug>Isurround
 let g:surround_input_complete = 'vimtools#CmdlineComplete'
 " Make d surround with ['...'] and D with ["..."]
 let g:surround_100 = "['\r']"
