@@ -18,6 +18,7 @@ let s:wsEnabledPrev = 0
 let s:hunksPrev = [0, 0, 0]
 
 function! s:WhitespaceSame()
+  if !exists('*airline#extensions#whitespace#get_enabled') | return 1 | endif
   return (airline#extensions#whitespace#get_enabled()
       \ && !exists('b:airline_whitespace_check')) ||
       \ (exists('b:airline_whitespace_check')
