@@ -26,10 +26,6 @@
 	path = vimfiles/bundle/ack
 	url = https://github.com/mileszs/ack.vim.git
 	branch = master
-[submodule "vimfiles/bundle/airline"]
-	path = vimfiles/bundle/airline
-	url = https://github.com/wilywampa/vim-airline.git
-	branch = master
 [submodule "vimfiles/bundle/clang_complete"]
 	path = vimfiles/bundle/clang_complete
 	url = https://github.com/wilywampa/clang_complete.git
@@ -251,3 +247,6 @@
 [submodule "vimfiles/bundle/gitgutter"]
 	path = vimfiles/bundle/gitgutter
 	url = https://github.com/airblade/vim-gitgutter.git
+[submodule "vimfiles/bundle/lightline"]
+	path = vimfiles/bundle/lightline
+	url = https://github.com/wilywampa/lightline.vim.git

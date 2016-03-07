@@ -1487,11 +1487,8 @@ augroup VimrcAutocmds " {{{
     autocmd VimEnter * set showcmd
 
     " Set global variable on FocusLost
-    autocmd FocusLost * let g:focuslost = 1 | silent! AirlineRefresh
-    autocmd FocusGained,CursorMoved,CursorMovedI *
-        \ if exists('g:focuslost') |
-        \     unlet g:focuslost | silent! execute "AirlineRefresh" |
-        \ endif
+    autocmd FocusLost * silent! call lightline#update()
+    autocmd FocusGained * silent! unlet g:focuslost | silent! call lightline#update()
 
     " Save position of last text change
     if v:version >= 704 || (v:version == 703 && has('patch867'))
@@ -1691,21 +1688,9 @@ if s:readonly
     call add(g:pathogen_disabled, 'vimfiler')
 endif
 
-" Airline configuration
-let g:airline_theme = 'solarized'
-nnoremap <silent> <M-w> :<C-u>AirlineToggleWhitespace<bar>AirlineRefresh<CR>
-let g:airline#extensions#whitespace#show_message = 0
-let g:airline_section_y = '%{FFinfo()}'
-let g:airline_exclude_preview = 1
-
-" Use powerline font unless in Mac SSH session or in old Vim
-if mobileSSH || v:version < 703
-    let g:airline_powerline_fonts=0
-    let g:airline_left_sep=''
-    let g:airline_right_sep=''
-else
-    let g:airline_powerline_fonts=1
-endif
+" lightline configuration
+let g:lightline_powerline_fonts = !mobileSSH && v:version >= 703
+runtime! plugin/lightline_config.vim
 
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
@@ -1862,6 +1847,7 @@ let g:vimfiler_ignore_pattern = '^\.\|.*\.'.
     \ '\(DS_Store\|a\|bak\|d\|dll\|exe\|hi\|info\|lib\|o\|obj\|pyc\|so\|spi\|swp\)$'
 let g:vimfiler_restore_alternate_file=0
 let g:vimfiler_time_format='%a %d%b%Y %H:%M'
+let g:vimfiler_force_overwrite_statusline=0
 autocmd VimrcAutocmds FileType vimfiler call s:VimfilerSettings()
 func! s:VimfilerSettings() " {{{
     nmap <buffer> m     <Plug>(vimfiler_toggle_mark_current_line)
@@ -1904,6 +1890,7 @@ endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_registers=['"', '+', '*']
 let g:unite_kind_cdable_cd_command='Windo cd'
+let g:unite_force_overwrite_statusline=0
 call s:CreateAbbrev('U', 'Unite -start-insert', ':')
 call s:CreateAbbrev('u', 'Unite -start-insert', ':')
 augroup VimrcAutocmds
@@ -2270,9 +2257,6 @@ let g:surround_116 = "(\r,)"
 " Syntastic settings
 let g:syntastic_filetype_map = {'arduino': 'cpp'}
 let g:syntastic_mode_map = {'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
-let g:airline#extensions#syntastic#enabled = 0
-let g:airline#extensions#wordcount#enabled = 0
-let g:airline#extensions#virtualenv#enabled = 0
 nnoremap <silent> ,sc :<C-u>execute "SyntasticCheck"<bar>execute "Errors"<bar>silent! lfirst<CR>
 nnoremap <silent> <Leader>sc :<C-u>SyntasticReset<CR>
 
@@ -2612,7 +2596,7 @@ Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': ['plaintext', 'context', 'tex']}
 Plug 'vim-scripts/OmniCppComplete'
 Plug 'tpope/vim-abolish', {'on': ['S', '<Plug>Coerce']}
 Plug 'mileszs/ack.vim', {'on': 'Ack'}
-Plug 'wilywampa/vim-airline'
+Plug 'wilywampa/lightline.vim'
 Plug 'wilywampa/clang_complete'
 Plug 'wilywampa/vim-commentary'
 Plug 'wilywampa/vim-dispatch'
@@ -2690,20 +2674,6 @@ silent! call neocomplete#custom#source('include', 'converters',
 
 " Don't re-sort omnifunc completions
 silent! call neocomplete#custom#source('omni', 'sorters', [])
-
-" Add ignorecase, eventignore, and IPython history status to status line
-function! s:airline() " {{{
-    call airline#parts#define('ignorecase',
-        \ {'condition': '!&ignorecase', 'text': '↑', 'accent': 'red'})
-    call airline#parts#define('eventignore',
-        \ {'condition': '&eventignore != ""', 'text': '!', 'accent': 'red'})
-    call airline#parts#define('history',
-        \ {'condition': '!get(g:, "ipython_store_history", 1)', 'text': '☢', 'accent': 'red'})
-    let g:airline_section_b = airline#section#create(['%{ShortCWD()}'])
-    let g:airline_section_c = airline#section#create(['ignorecase', 'eventignore', 'history', '%<',
-        \ 'file', g:airline_symbols.space, 'readonly'])
-endfunction " }}}
-silent! call s:airline()
 
 " Text object for a line and inner (exclude leading space) line
 silent! call textobj#user#plugin('line', { '-': {

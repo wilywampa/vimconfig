@@ -18,12 +18,12 @@ let s:wsEnabledPrev = 0
 let s:hunksPrev = [0, 0, 0]
 
 function! s:WhitespaceSame()
-  if !exists('*airline#extensions#whitespace#get_enabled') | return 1 | endif
-  return (airline#extensions#whitespace#get_enabled()
-      \ && !exists('b:airline_whitespace_check')) ||
-      \ (exists('b:airline_whitespace_check')
-      \ && b:airline_whitespace_check == s:wsPrev
-      \ && airline#extensions#whitespace#get_enabled() == s:wsEnabledPrev)
+  if !exists('*whitespace#get_enabled') | return 1 | endif
+  return (whitespace#get_enabled()
+      \ && !exists('b:whitespace_check')) ||
+      \ (exists('b:whitespace_check')
+      \ && b:whitespace_check == s:wsPrev
+      \ && whitespace#get_enabled() == s:wsEnabledPrev)
 endfunction
 
 function! s:HunksSame()
@@ -31,7 +31,16 @@ function! s:HunksSame()
       \ GitGutterGetHunkSummary() == s:hunksPrev
 endfunction
 
+function! s:GetHunks()
+  return printf('+%s ~%s -%s ',
+      \ s:hunksPrev[0], s:hunksPrev[1], s:hunksPrev[2])
+endfunction
+
 function! ShortCWD()
+  if &filetype ==# 'vimfiler' | return '' | endif
+  if &filetype ==# 'unite'
+    return get(unite#get_context(), 'buffer_name', '')
+  endif
   if getcwd() == s:cwdPrev && @% == s:bufNamePrev &&
       \ winwidth(0) == s:winWidthPrev && &mod == s:bufModPrev &&
       \ s:HunksSame() && s:WhitespaceSame()
@@ -49,12 +58,12 @@ function! ShortCWD()
   let s:winWidthPrev = winwidth(0)
   let s:bufModPrev = &modified
   let s:cwd = fnamemodify(s:cwdPrev,':~')
-  if exists('*airline#extensions#whitespace#get_enabled')
-    let s:wsEnabledPrev = airline#extensions#whitespace#get_enabled()
+  if exists('*whitespace#get_enabled')
+    let s:wsEnabledPrev = whitespace#get_enabled()
   endif
-  if exists('b:airline_whitespace_check')
+  if exists('b:whitespace_check')
       \ && s:wsEnabledPrev
-    let s:wsPrev = b:airline_whitespace_check
+    let s:wsPrev = b:whitespace_check
   else
     let s:wsPrev = ''
   endif
@@ -65,18 +74,16 @@ function! ShortCWD()
     if exists("*GitGutterGetHunkSummary")
       let s:hunksPrev = GitGutterGetHunkSummary()
       if max(s:hunksPrev)
-        let git = airline#extensions#hunks#get_hunks() . git
+        let git = s:GetHunks() . git
       endif
     endif
   endif
 
-  if &buftype == 'help'
-    let s:maxLen = winwidth(0) - strchars(expand('%:t')) - 37
-  else
-    let s:maxLen = winwidth(0) - strchars(expand('%:~:.')) -
-        \ strchars(&filetype) - 3 * &modified - 2 * &readonly - 37 -
-        \ strchars(s:wsPrev) - (strchars(s:wsPrev) ? 3 : 0)
-  endif
+  let s:maxLen = winwidth(0) - 4 * (&modified || !&modifiable) -
+      \ 34 - strchars(s:wsPrev) - (empty(s:wsPrev) ? 0 : 3) -
+      \ strchars(&filetype) - 2 * &readonly -
+      \ strchars(expand(&filetype ==# 'help' ? '%:t' : '%:~:.'))
+
   if len(git) | let s:maxLen -= 2 | endif
   let s:maxLen -= len(FFinfo())
 
