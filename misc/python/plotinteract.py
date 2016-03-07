@@ -30,10 +30,11 @@ PROPERTIES = ('color', 'linestyle', 'linewidth', 'alpha', 'marker',
               'pickradius', 'solid_capstyle', 'solid_joinstyle')
 ALIASES = dict(aa='antialiased', c='color', ec='edgecolor', fc='facecolor',
                ls='linestyle', lw='linewidth', mew='markeredgewidth')
-CONSTANTS = dict(d2r=const.degree,
-                 nmi=const.nautical_mile,
-                 r2d=1.0 / const.degree,
-                 psf=const.pound_force / (const.foot ** 2))
+CONSTANTS = {k: v for k, v in const.__dict__.items() if isinstance(v, float)}
+CONSTANTS.update(dict(d2r=const.degree,
+                      nmi=const.nautical_mile,
+                      r2d=1.0 / const.degree,
+                      psf=const.pound_force / (const.foot ** 2)))
 color_cycle = mpl.rcParams['axes.color_cycle']
 linestyle_cycle = '-', '--', '-.', ':'
 
@@ -66,6 +67,13 @@ def flatten(d, ndim=None, prefix=''):
                     out.update(new)
                     queue.extend(q for q in new.keys() if new[q].ndim > ndim)
     return out
+
+
+def isiterable(obj):
+    """Check if an object is iterable (but not a string)."""
+    if isinstance(obj, string_types):
+        return False
+    return hasattr(obj, '__iter__')
 
 
 def props_repr(value):
@@ -348,8 +356,9 @@ class DataObj(object):
         self.twin = False
         self.props = kwargs.get('props', {}).copy()
         self.obj = flatten(obj, ndim=self.guess_ndim(obj, kwargs))
+        self.label = QtGui.QLabel('', parent=self.parent)
+        self._labels = getattr(obj, 'labels', kwargs.get('labels', None))
         self.choose_label()
-        self.labels = kwargs.get('labels', text_type(self.label.text()[:-1]))
 
         draw = self.parent.draw
         connect = self.parent.connect
@@ -381,9 +390,7 @@ class DataObj(object):
         self.xmenu.setCurrentIndex(0)
         self.xlabel = QtGui.QLabel('x axis:', parent=self.parent)
 
-        words = [c for c in dir(const) if isinstance(getattr(const, c), float)]
-        words.extend(CONSTANTS.keys())
-        words.sort(key=lambda w: w.lower())
+        words = sorted(CONSTANTS.keys(), key=lambda w: w.lower())
 
         def new_scale_box():
             scale_compl = TabCompleter(words, parent=self.parent)
@@ -440,17 +447,22 @@ class DataObj(object):
         self.process_kwargs()
 
     def choose_label(self):
-        names = [d.name for d in self.parent.datas]
+        names = [d.name for d in self.parent.datas if d is not self]
         if self.name in names:
-            labels = [text_type(d.label.text()) for d in self.parent.datas]
+            labels = [text_type(d.label.text()).rstrip(':')
+                      for d in self.parent.datas if d is not self]
             i = -1
             label = self.name
             while label in labels:
                 i += 1
-                label = '{0} ({1}):'.format(self.name, i)
+                label = '{0} ({1})'.format(self.name, i)
         else:
-            label = self.name + ':'
-        self.label = QtGui.QLabel(label, parent=self.parent)
+            label = self.name
+        self.label.setText(label + ':')
+        if self._labels is None:
+            self.labels = getattr(self.obj, 'labels', label)
+        else:
+            self.labels = self._labels
 
     def guess_ndim(self, obj, kwargs):
         try:
@@ -531,12 +543,11 @@ class DataObj(object):
     def change_label(self):
         text, ok = QtGui.QInputDialog.getText(
             self.parent, 'Rename data object', 'New label:',
-            QtGui.QLineEdit.Normal, getattr(self, 'old_label', self.name))
+            QtGui.QLineEdit.Normal, self.name)
         if ok:
             self.name = text_type(text)
-            self.label.setText(text + ':')
-            if (hasattr(self, 'old_label') or
-                    not isinstance(self.labels, (list, tuple))):
+            self.choose_label()
+            if not isiterable(self.labels):
                 self.labels = self.name
             self.parent.draw()
 
@@ -664,7 +675,7 @@ class Interact(QtGui.QMainWindow):
 
     def add_data(self, obj, name, kwargs=None):
         kwargs = kwargs or {}
-        kwargs['name'] = kwargs.get('name', name)
+        kwargs['name'] = kwargs.get('name', name) or 'data'
         self.datas.append(DataObj(self, obj, **kwargs))
         data = self.datas[-1]
 
@@ -728,7 +739,7 @@ class Interact(QtGui.QMainWindow):
         completer.close_popup()
         text = text_type(textbox.text())
         try:
-            return eval(text, const.__dict__, CONSTANTS)
+            return eval(text, CONSTANTS)
         except Exception as e:
             self.warnings.append('Error setting scale: ' + text_type(e))
             return 1.0
@@ -762,7 +773,7 @@ class Interact(QtGui.QMainWindow):
         for line in lines:
             if hasattr(data, 'cdata'):
                 line.set_color(data.cmap(data.norm(data.cdata[i])))
-                self.handles[(getattr(data, 'old_label', label),)] = line
+                self.handles[(label,)] = line
             elif 'color' not in data.props and 'linestyle' not in data.props:
                 style, color = next(self.styles)
                 line.set_color(color)
@@ -774,7 +785,7 @@ class Interact(QtGui.QMainWindow):
                     (label, line.get_color(), data.props['linestyle'])] = line
             else:
                 self.handles[
-                    (getattr(data, 'old_label', label),
+                    (label,
                      data.props.get('color', line.get_color()),
                      data.props.get('linestyle', line.get_linestyle()))] = line
             for key, value in data.props.items():
@@ -820,7 +831,7 @@ class Interact(QtGui.QMainWindow):
             xscale = self.get_scale(d.xscale_box, d.xscale_compl)
             text = self.get_key(d.menu)
             xtext = self.get_key(d.xmenu)
-            if isinstance(d.labels, (list, tuple)):
+            if isiterable(d.labels):
                 for i, label in enumerate(d.labels):
                     self.plot(axes, d.obj[xtext][..., i] * xscale,
                               d.obj[text][..., i] * scale, i, d, label=label)
@@ -828,8 +839,7 @@ class Interact(QtGui.QMainWindow):
                 n = self.plot(axes, d.obj[xtext] * xscale, d.obj[text] * scale,
                               0, d, label=d.labels)
                 if n > 1:
-                    d.old_label = d.labels
-                    d.labels = ['%s %d' % (d.old_label, i) for i in range(n)]
+                    d.labels = ['%s %d' % (d.labels, i) for i in range(n)]
                     return self.draw()
             axes.set_xlabel('')
             x.append(xtext + ' (' + d.name + ')')
@@ -884,20 +894,37 @@ class Interact(QtGui.QMainWindow):
     def _close(self):
         self.window().close()
 
-    def _resetx(self):
-        self.xlim = None
+    def _input_lim(self, axis, default):
+        default = text_type(default)
+        if default.startswith('(') and default.endswith(')'):
+            default = default[1:-1]
+        text, ok = QtGui.QInputDialog.getText(
+            self, 'Set axis limits', '{0} limits:'.format(axis),
+            QtGui.QLineEdit.Normal, default)
+        if ok:
+            try:
+                return eval(text_type(text), CONSTANTS)
+            except Exception:
+                return None
+        else:
+            return None
+
+    def _set_xlim(self):
+        self.xlim = self._input_lim(
+            'x', self.xlim or self.axes.get_xlim())
         self.draw()
 
-    def _resety(self):
-        self.ylim = None
+    def _set_ylim(self):
+        self.ylim = self._input_lim(
+            'y', self.ylim or self.axes.get_ylim())
         self.draw()
 
     control_actions = {
         QtCore.Qt.Key_M: _margins,
         QtCore.Qt.Key_O: _options,
         QtCore.Qt.Key_Q: _close,
-        QtCore.Qt.Key_X: _resetx,
-        QtCore.Qt.Key_Y: _resety,
+        QtCore.Qt.Key_X: _set_xlim,
+        QtCore.Qt.Key_Y: _set_ylim,
     }
 
     @staticmethod
@@ -909,7 +936,7 @@ class Interact(QtGui.QMainWindow):
             ('yname', text_type(d.menu.lineEdit().text())),
             ('yscale', text_type(d.scale_box.text())),
             ('props', d.props),
-            ('labels', d.old_label if hasattr(d, 'old_label') else d.labels),
+            ('labels', d.labels),
         ))
         for key in 'xscale', 'yscale':
             try:
@@ -1025,11 +1052,14 @@ def create(*data, **kwargs):
     app.references = set()
 
     # Backwards compatibility
-    for d in data:
-        if len(d) == 4 and isinstance(d[-1], (list, tuple)):
+    data = list(data)
+    for i, d in enumerate(data):
+        if isinstance(d, dict):
+            data[i] = [d, '']
+        elif isiterable(d[-1]) and len(d) == 4:
             d[-2] = {'xname': d[-2], 'labels': list(d[-1])}
             d.pop()
-        elif len(d) >= 3 and isinstance(d[2], string_types):
+        elif isinstance(d[2], string_types) and len(d) >= 3:
             if len(d) == 3:
                 d[-1] = {'xname': d[-1]}
             else:

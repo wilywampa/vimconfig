@@ -228,7 +228,17 @@ def _install():
         ip.extension_manager.load_extension('cython')
         with io.open(filename, 'r', encoding='utf-8') as f:
             ip.run_cell_magic('cython', ' '.join(args), f.read())
-    del run_cython
+
+    @magic.register_cell_magic
+    def create(line, cell):
+        """Start a plotinteract session from user namespace data."""
+        from plottools import create, dataobj
+        ip = get_ipython()
+        args = ip.ev('dict({0})'.format(line))
+        objs = (eval('dataobj({0})'.format(line),
+                     ip.user_global_ns, dict(dataobj=dataobj))
+                for line in cell.splitlines())
+        create(*objs, **args)
 
     def arraystr(a, max_line_width=None, precision=None, suppress_small=None):
         """Separate values with a comma in array2string."""
