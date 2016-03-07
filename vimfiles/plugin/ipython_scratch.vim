@@ -118,13 +118,18 @@ function! s:bufnr() abort
 endfunction
 
 function! s:IPyScratchBuffer()
-  silent! autocmd! ipython_scratch_bufread
-  let scratch = s:bufnr()
-  if scratch == -1
-    silent execute 'edit' fnameescape(s:scratch_name)
-  else
-    execute "buffer ".scratch
-  endif
+  let eventignore_save = &eventignore
+  try
+    set eventignore+=BufReadCmd
+    let scratch = s:bufnr()
+    if scratch == -1
+      silent execute 'edit' fnameescape(s:scratch_name)
+    else
+      execute "buffer ".scratch
+    endif
+  finally
+    let &eventignore = eventignore_save
+  endtry
   if &filetype !=# 'python'
     setfiletype python
     IPythonConsole
