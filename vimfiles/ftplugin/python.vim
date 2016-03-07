@@ -341,9 +341,10 @@ EOF
     " mode 1 = replace visual selection
     " mode 2 = expression register-like
     " mode 3 = paste below visual selection
+    " mode 4 = expression register cmap
     call SaveRegs()
     try
-      if a:mode != 2
+      if index([2, 4], a:mode) == -1
         normal! gvy
         let g:ipy_input = @@
       else
@@ -359,6 +360,10 @@ EOF
         Python2or3 eval_ipy_input('g:ipy_result')
         if !exists('g:ipy_result') || empty(g:ipy_result)
           return ''
+        endif
+        if a:mode == 4
+          let g:ipy_result = substitute(g:ipy_result, '\n\|^\s*\|\s*$', '', 'g')
+          return "\<C-r>=g:ipy_result\<CR>"
         endif
         let mark = a:mode != 2 ? '.' : "'<"
         let after = strchars(getline(mark)[col(mark)-1:])
@@ -424,6 +429,7 @@ xnoremap <silent> <buffer> <Leader>K :<C-u>call <SID>IPyGetHelp('??')<CR>
 xnoremap <silent> <buffer> <M-y>     :<C-u>call IPyEval(0)<CR>
 xnoremap <silent> <buffer> <M-e>     :<C-u>call IPyEval(1)<CR>
 inoremap <silent> <expr>   <C-r>? IPyEval(2)
+cnoremap <silent> <expr>   <C-r>? IPyEval(4)
 nnoremap <silent> <buffer> <Leader>X :<C-u>let g:first_op=1<bar>set opfunc=<SID>IPyPPmotion<CR>g@
 nnoremap <silent> <buffer> <Leader>x :<C-u>let g:first_op=1<bar>set opfunc=<SID>IPyRunMotion<CR>g@
 nnoremap <silent> <buffer> <Leader>xx :<C-u>set opfunc=<SID>IPyRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
@@ -491,6 +497,10 @@ if !exists('g:neocomplete#sources#omni#input_patterns')
 endif
 if !exists('g:neocomplete#force_omni_input_patterns')
   let g:neocomplete#force_omni_input_patterns = {}
+endif
+
+if !exists('s:omni_patterns')
+  let s:omni_patterns = {}
 endif
 
 augroup python_ftplugin
@@ -619,7 +629,7 @@ function! FixMagicSyntax() abort
       call g:PymodeLocList.current().clear()
       PymodePython code_check()
       let loclist = g:PymodeLocList.current()._loclist
-      if len(loclist) == 1 && loclist[0].text =~ 'invalid syntax\|unexpected indent'
+      if len(loclist) == 1 && loclist[0].type ==# 'E'
         let [lnum, col] = [loclist[0].lnum, loclist[0].col]
         if stridx(join(map(synstack(lnum, col),
             \ 'tolower(synIDattr(v:val, "name"))')), 'magic') != -1
