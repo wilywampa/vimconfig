@@ -108,6 +108,8 @@ control_actions = {
     QtCore.Qt.Key_Return: lambda self, *args: self.emit(SIGNAL('sync()')),
     QtCore.Qt.Key_S: lambda self, *args: self.emit(SIGNAL('sync()')),
     QtCore.Qt.Key_T: lambda self, *args: self.emit(SIGNAL('twin()')),
+    QtCore.Qt.Key_X: lambda self, *args: self.emit(SIGNAL('xlim()')),
+    QtCore.Qt.Key_Y: lambda self, *args: self.emit(SIGNAL('ylim()')),
     QtCore.Qt.Key_W: _delete_word,
 }
 
@@ -695,8 +697,10 @@ class Interact(QtGui.QMainWindow):
             self.connect(w, SIGNAL('axisequal()'), axisequal)
             self.connect(w, SIGNAL('relabel()'), data.change_label)
             self.connect(w, SIGNAL('edit_props()'), data.edit_props)
-            self.connect(w, SIGNAL('twin()'), data.toggle_twin)
             self.connect(w, SIGNAL('sync()'), data.sync)
+            self.connect(w, SIGNAL('twin()'), data.toggle_twin)
+            self.connect(w, SIGNAL('xlim()'), self.set_xlim)
+            self.connect(w, SIGNAL('ylim()'), self.set_ylim)
             if axis:
                 self.connect(w, SIGNAL('sync_axis()'),
                              lambda axes=[axis]: data.sync(axes))
@@ -896,7 +900,7 @@ class Interact(QtGui.QMainWindow):
 
     def _input_lim(self, axis, default):
         default = text_type(default)
-        if default.startswith('(') and default.endswith(')'):
+        if re.match(r'^\(.*\)$', default) or re.match(r'^\[.*\]$', default):
             default = default[1:-1]
         text, ok = QtGui.QInputDialog.getText(
             self, 'Set axis limits', '{0} limits:'.format(axis),
@@ -909,12 +913,12 @@ class Interact(QtGui.QMainWindow):
         else:
             return None
 
-    def _set_xlim(self):
+    def set_xlim(self):
         self.xlim = self._input_lim(
             'x', self.xlim or self.axes.get_xlim())
         self.draw()
 
-    def _set_ylim(self):
+    def set_ylim(self):
         self.ylim = self._input_lim(
             'y', self.ylim or self.axes.get_ylim())
         self.draw()
@@ -923,8 +927,6 @@ class Interact(QtGui.QMainWindow):
         QtCore.Qt.Key_M: _margins,
         QtCore.Qt.Key_O: _options,
         QtCore.Qt.Key_Q: _close,
-        QtCore.Qt.Key_X: _set_xlim,
-        QtCore.Qt.Key_Y: _set_ylim,
     }
 
     @staticmethod
