@@ -4,7 +4,8 @@ import numpy as np
 from plotinteract import create, dataobj, merge_dicts
 from plottools.angle2dcm import angle2dcm
 from plottools.dcm2angle import dcm2angle
-from plottools.indexing import ArrayBunch, array_bunchify, index_all, map_dict
+from plottools.indexing import (ArrayBunch, array_bunchify, azip, index_all,
+                                map_dict, product_items, unmask)
 
 
 def fg(fig=None):
@@ -179,55 +180,12 @@ def pad(array, length, filler=float('nan')):
                      mode='constant', constant_values=(filler,))
 
 
-def azip(*iterables, **kwargs):
-    """Move `axis` (default -1) to the front of ndarrays in `iterables`."""
-    from six.moves import map as imap, zip as izip
-    return izip(*(
-        imap(kwargs.get('func', unmask),
-             np.rollaxis(i, kwargs.get('axis', -1), kwargs.get('start', 0)))
-        if isinstance(i, np.ndarray) else i for i in iterables))
-
-
-def unmask(arr):
-    """Return a view of the unmasked portion of an array."""
-    import numpy.ma as ma
-    if not isinstance(arr, ma.MaskedArray):
-        return arr
-    ix = np.argwhere(~np.all(arr.mask, axis=tuple(range(arr.ndim - 1))))
-    if not ix.size:
-        return arr[..., :0]
-    return arr[..., ix[0]:ix[-1] + 1]
-
-
 def styles(order=('-', '--', '-.', ':')):
     """Generate a cycle of line styles to pair with `axes.color_cycle`."""
     from itertools import cycle
     from matplotlib import rcParams
     from numpy import repeat
     return cycle(repeat(order, len(rcParams['axes.color_cycle'])))
-
-
-def product_items(params, names, enum=1, dtypes=None):
-    """Make a masked record array representing variables in a Cartesian
-    product."""
-    import itertools as it
-    from numpy.ma.mrecords import mrecarray
-    items = list(it.product(*params))
-    if enum is not None:
-        items = [(i,) + item for i, item in enumerate(items, enum)]
-        names = ('enum',) + names
-        dtype = 'int32',
-    else:
-        dtype = ()
-    if dtypes is None:
-        dtypes = it.chain(dtype, it.repeat(float))
-    elif not isinstance(dtypes, (list, tuple, np.ndarray)):
-        dtypes = it.chain(dtype, it.repeat(dtypes))
-    elif enum is not None:
-        dtypes = dtype + dtypes
-    return np.ma.array(
-        items, dtype=[(name, dtype) for name, dtype in
-                      zip(names, dtypes)]).view(mrecarray)
 
 
 def fix_angles(angles, pi=np.pi, axis=0):

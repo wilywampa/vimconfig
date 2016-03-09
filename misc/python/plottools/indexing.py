@@ -53,17 +53,59 @@ class ArrayBunch(Bunch):
                          types=self._types, callback=self._callback)[key]
 
 
-def array_bunchify(mapping, copy=copy.copy, types=np.ndarray, ignore=()):
+def array_bunchify(mapping, **kwargs):
     """Recursively transform mappings into ArrayBunch."""
     from collections import Mapping
     if isinstance(mapping, Mapping):
-        return ArrayBunch(((k, array_bunchify(v))
-                           for k, v in six.iteritems(mapping)),
-                          copy=copy, types=types, ignore=ignore)
+        return ArrayBunch(((k, array_bunchify(v, **kwargs))
+                           for k, v in six.iteritems(mapping)), **kwargs)
     elif isinstance(mapping, (list, tuple)):
-        return type(mapping)(array_bunchify(v) for v in mapping)
+        return type(mapping)(array_bunchify(v, **kwargs) for v in mapping)
     else:
         return mapping
+
+
+def azip(*iterables, **kwargs):
+    """Move `axis` (default -1) to the front of ndarrays in `iterables`."""
+    from six.moves import map as imap, zip as izip
+    return izip(*(
+        imap(kwargs.get('func', unmask),
+             np.rollaxis(i, kwargs.get('axis', -1), kwargs.get('start', 0)))
+        if isinstance(i, np.ndarray) else i for i in iterables))
+
+
+def unmask(arr):
+    """Return a view of the unmasked portion of an array."""
+    import numpy.ma as ma
+    if not isinstance(arr, ma.MaskedArray):
+        return arr
+    ix = np.argwhere(~np.all(arr.mask, axis=tuple(range(arr.ndim - 1))))
+    if not ix.size:
+        return arr[..., :0]
+    return arr[..., ix[0]:ix[-1] + 1]
+
+
+def product_items(params, names, enum=1, dtypes=None):
+    """Make a masked record array representing variables in a Cartesian
+    product."""
+    import itertools as it
+    from numpy.ma.mrecords import mrecarray
+    items = list(it.product(*params))
+    if enum is not None:
+        items = [(i,) + item for i, item in enumerate(items, enum)]
+        names = ('enum',) + names
+        dtype = 'int32',
+    else:
+        dtype = ()
+    if dtypes is None:
+        dtypes = it.chain(dtype, it.repeat(float))
+    elif not isinstance(dtypes, (list, tuple, np.ndarray)):
+        dtypes = it.chain(dtype, it.repeat(dtypes))
+    elif enum is not None:
+        dtypes = dtype + dtypes
+    return np.ma.array(
+        items, dtype=[(name, dtype) for name, dtype in
+                      zip(names, dtypes)]).view(mrecarray)
 
 
 class _Visitor(object):
