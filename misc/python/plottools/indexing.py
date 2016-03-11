@@ -47,7 +47,7 @@ class ArrayBunch(Bunch):
         super(ArrayBunch, self).__init__(*args, **kwargs)
 
     def __getitem__(self, key):
-        if isinstance(key, six.string_types):
+        if isinstance(key, six.string_types) or key in self:
             return super(ArrayBunch, self).__getitem__(key)
         return index_all(self, copy=self._copy, ignore=self._ignore,
                          types=self._types, callback=self._callback)[key]
