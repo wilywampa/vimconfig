@@ -74,12 +74,18 @@ def azip(*iterables, **kwargs):
         if isinstance(i, np.ndarray) else i for i in iterables))
 
 
-def unmask(arr):
+def unmask(arr, unnan=True):
     """Return a view of the unmasked portion of an array."""
     import numpy.ma as ma
-    if not isinstance(arr, ma.MaskedArray):
+    if not isinstance(arr, np.ndarray):
         return arr
-    ix = np.argwhere(~np.all(arr.mask, axis=tuple(range(arr.ndim - 1))))
+    axis = tuple(range(arr.ndim - 1))
+    if isinstance(arr, ma.MaskedArray):
+        ix = np.argwhere(~np.all(arr.mask, axis=axis))
+    elif unnan:
+        ix = np.argwhere(~np.all(np.isnan(arr), axis=axis))
+    else:
+        return arr
     if not ix.size:
         return arr[..., :0]
     return arr[..., ix[0]:ix[-1] + 1]
