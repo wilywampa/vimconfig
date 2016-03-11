@@ -630,6 +630,9 @@ ino <silent> <expr> <C-x><C-d> substitute(strftime('%d%b%Y'), '^0*', '', '')
 cno          <expr> <C-x><C-d> substitute(strftime('%d%b%Y'), '^0*', '', '')
 ino <silent> <expr> <C-x>d strftime('%Y_%m_%d_%H%M%Z')
 cno          <expr> <C-x>d strftime('%Y_%m_%d_%H%M%Z')
+
+" Copy all differences from other buffer
+nn <Leader>do :<C-u>%diffget<CR>
 " }}}
 
 " {{{ Abbreviations to open help
@@ -2473,6 +2476,7 @@ nnoremap <C-w>g<C-^> :<C-u>FSSplitBelow<CR>
 func! s:ScripteaseMaps() " {{{
     nnoremap <buffer> <Leader>bb :<C-u>Breakadd<CR>
     nnoremap <buffer> <Leader>bc :<C-u>Breakdel *<CR>
+    nnoremap <buffer> <Leader>r :<C-u>update<bar>Runtime<CR>
 endfunc " }}}
 autocmd VimrcAutocmds FileType vim call s:ScripteaseMaps()
 
@@ -2553,7 +2557,9 @@ let g:neocomplete#sources#omni#input_patterns.tex = '\\\h\w*{'
 let g:exchange_indent = '=='
 
 " neomru settings
+let g:neomru#do_validate = hasMac
 let g:neomru#file_mru_limit = 2000
+let g:neomru#update_interval = hasMac ? 0 : 1.0
 
 " gitgutter maps " {{{
 nnoremap <silent> ,gg :<C-u>GitGutter<CR>
