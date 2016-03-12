@@ -126,7 +126,7 @@ def savehtml(file_or_name, html_attrs=None, header=None, footer=None,
     template = template or dedent("""\
     <center><img src="data:image/png;base64,{img}"{attrs}><br></center>
     """)
-    attrs = (' ' + ' '.join('{0}="{1}"'.format(a, html_attrs[a])
+    attrs = (' ' + ' '.join('{}="{}"'.format(a, html_attrs[a])
                             for a in html_attrs)) if html_attrs else ''
 
     def save(fid):

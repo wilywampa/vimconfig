@@ -234,8 +234,8 @@ def _install():
         """Start a plotinteract session from user namespace data."""
         from plottools import create, dataobj
         ip = get_ipython()
-        args = ip.ev('dict({0})'.format(line))
-        objs = (eval('dataobj({0})'.format(line),
+        args = ip.ev('dict({})'.format(line))
+        objs = (eval('dataobj({})'.format(line),
                      ip.user_global_ns, dict(dataobj=dataobj))
                 for line in cell.splitlines())
         create(*objs, **args)

@@ -457,7 +457,7 @@ class DataObj(object):
             label = self.name
             while label in labels:
                 i += 1
-                label = '{0} ({1})'.format(self.name, i)
+                label = '{} ({})'.format(self.name, i)
         else:
             label = self.name
         self.label.setText(label + ':')
@@ -903,7 +903,7 @@ class Interact(QtGui.QMainWindow):
         if re.match(r'^\(.*\)$', default) or re.match(r'^\[.*\]$', default):
             default = default[1:-1]
         text, ok = QtGui.QInputDialog.getText(
-            self, 'Set axis limits', '{0} limits:'.format(axis),
+            self, 'Set axis limits', '{} limits:'.format(axis),
             QtGui.QLineEdit.Normal, default)
         if ok:
             try:
@@ -959,8 +959,8 @@ class Interact(QtGui.QMainWindow):
     @classmethod
     def dict_repr(cls, d):
         if isinstance(d, dict):
-            return 'dict({0})'.format(', '.join(
-                ['{0}={1}'.format(k, cls.dict_repr(v)) for k, v in d.items()]))
+            return 'dict({})'.format(', '.join(
+                ['{}={}'.format(k, cls.dict_repr(v)) for k, v in d.items()]))
         elif isinstance(d, string_types):
             return repr(str(d))
         return repr(d)
