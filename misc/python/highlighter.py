@@ -7,7 +7,7 @@ import warnings
 from IPython import get_ipython
 from IPython.core import formatters
 from IPython.core.events import available_events
-from pygments.lexer import RegexLexer, bygroups, using
+from pygments.lexer import Lexer, RegexLexer, bygroups, using
 from pygments.lexers import (BashLexer, ClassNotFound, CythonLexer,
                              Python3Lexer, PythonLexer)
 from pygments.token import Keyword, Name, Operator, String, Text
@@ -162,6 +162,8 @@ def highlight(text, lexer_or_filename=python_lexer,
             lexer = pygments.lexers.guess_lexer_for_filename(lexer, text)
         elif language is not None:
             lexer = pygments.lexers.get_lexer_by_name(language)
+        elif isinstance(lexer, type) and issubclass(lexer, Lexer):
+            lexer = lexer()
     except ClassNotFound:
         pass
     return pygments.highlight(text, lexer, formatter)
