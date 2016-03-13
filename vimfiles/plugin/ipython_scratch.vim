@@ -72,7 +72,7 @@ function! s:RestoreScratchBuffer(count) abort
   normal! gg"_dd
   if filereadable(undofile(fname))
     silent execute 'rundo' undofile(fname)
-    execute "normal! u\<C-r>"
+    keepjumps normal! G
   endif
   let s:changedtick = b:changedtick
 endfunction
