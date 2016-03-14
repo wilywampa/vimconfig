@@ -45,6 +45,7 @@ let g:lightline.component_function = {
 let g:lightline.component_expand = {
     \   'info': 'LightLineInfo',
     \   'whitespace': 'whitespace#check',
+    \   'inactive_filename': 'LightLineInactiveFilename',
     \ }
 let g:lightline.component_type = {'whitespace': 'error'}
 let g:lightline.active = {
@@ -52,7 +53,7 @@ let g:lightline.active = {
     \   'right': [['whitespace', 'lineinfo'], ['ffinfo'], ['filetype']],
     \ }
 let g:lightline.inactive = {
-    \   'left': [['absolutepath']],
+    \   'left': [['inactive_filename']],
     \   'right': [['lineinfo']],
     \ }
 let g:lightline.separator = {
@@ -68,23 +69,33 @@ function! LightLineInfo() abort
   if get(g:, 'solarized_termcolors', 256) == 16
     return '%#StatusFlag#%{LightLineFlags()}'.
         \  '%#LightLineMiddle_active#%<%{LightLineFile()}'.
-        \  '%{&modifiable?"":" [-] "}%#StatusFlag#'.
-        \  '%{&readonly?"  '.g:airline_symbols.readonly.'":""}'.
-        \  '%#StatusModified#'.
-        \  '%{LightLineFileModified()}%0*'
+        \  '%#StatusModified#%{LightLineFileModified()}%0*'.
+        \  '%{&modifiable?"":"[-]"}'.
+        \  '%#StatusFlag#%{&readonly?"  '.g:airline_symbols.readonly.'":""}'
   else
-    return '%{LightLineFlags()}%<%f '.
-        \  '%{&modifiable?"":" [-] "}'.
-        \  '%{&readonly?"  '.g:airline_symbols.readonly.'":""}%'.
-        \  '{&modified?" [+]":""}'
+    return '%{LightLineFlags()}%<%f'.
+        \  '%{&modified?"[+]":""}'.
+        \  '%{&modifiable?"":"[-] "}'.
+        \  '%{&readonly?" '.g:airline_symbols.readonly.'":""}'
+  endif
+endfunction
+
+function! LightLineInactiveFilename()
+  if get(g:, 'solarized_termcolors', 256) == 16
+    return '%<%{LightLineFile()}%#StatusModified#%{LightLineFileModified()}'
+  else
+    return '%{LightLineFlags()}%<%f%{&modified?"[+]":""}'
   endif
 endfunction
 
 function! LightLineFilename() abort
   let name = &filetype ==# 'help' ? expand('%:t') : expand('%:~:.')
   return stridx(name, '__Gundo') == 0 ? '' :
+      \ stridx(name, '--Python--') != -1 ? 'IPython' :
+      \ &previewwindow ? 'Preview' :
       \ &filetype ==# 'vimfiler' ? vimfiler#get_status_string() :
       \ &filetype ==# 'unite' ? unite#get_status_string() :
+      \ &filetype ==# 'qf' ? get(w:, 'quickfix_title', '') :
       \ empty(name) ? '[No Name]' : name
 endfunction
 
@@ -93,13 +104,16 @@ function! LightLineFile() abort
 endfunction
 
 function! LightLineFileModified() abort
-  return &modified ? LightLineFilename() . ' [+]' : ''
+  return &modified ? LightLineFilename() . '[+]' : ''
 endfunction
 
 function! LightLineMode() abort
   let name = expand('%:t')
   return name ==# '__Gundo__' ? 'Gundo' :
       \ name ==# '__Gundo_Preview__' ? 'Gundo Preview' :
+      \ &filetype ==# 'qf' ? (empty(getloclist(0)) ?
+      \   'Quickfix' : 'Location List') :
+      \ &filetype ==# 'help' ? 'Help' :
       \ &filetype ==# 'unite' ? 'Unite' :
       \ &filetype ==# 'vimfiler' ? 'vimfiler' :
       \ &previewwindow ? 'Preview' : lightline#mode()

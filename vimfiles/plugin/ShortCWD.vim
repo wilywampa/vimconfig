@@ -37,9 +37,9 @@ function! s:GetHunks()
 endfunction
 
 function! ShortCWD()
-  if &filetype ==# 'vimfiler' | return '' | endif
   if &filetype ==# 'unite'
-    return get(unite#get_context(), 'buffer_name', '')
+    return substitute(get(unite#get_context(), 'buffer_name', ''),
+        \ '^default$', '', '')
   endif
   if getcwd() == s:cwdPrev && @% == s:bufNamePrev &&
       \ winwidth(0) == s:winWidthPrev && &mod == s:bufModPrev &&
@@ -47,12 +47,7 @@ function! ShortCWD()
     return s:cwd
   endif
 
-  if !exists("+shellslash") || &shellslash
-    let pathSep = '/'
-  else
-    let pathSep = '\'
-  endif
-
+  let sep = !exists("+shellslash") || &shellslash ? '/' : '\'
   let s:cwdPrev = getcwd()
   let s:bufNamePrev = @%
   let s:winWidthPrev = winwidth(0)
@@ -82,23 +77,28 @@ function! ShortCWD()
   let s:maxLen = winwidth(0) - 4 * (&modified || !&modifiable) -
       \ 34 - strchars(s:wsPrev) - (empty(s:wsPrev) ? 0 : 3) -
       \ strchars(&filetype) - 2 * &readonly -
-      \ strchars(expand(&filetype ==# 'help' ? '%:t' : '%:~:.'))
+      \ strchars(exists('*LightLineFilename') ? LightLineFilename() :
+      \ expand(&filetype ==# 'help' ? '%:t' : '%:~:.'))
 
   if len(git) | let s:maxLen -= 2 | endif
   let s:maxLen -= len(FFinfo())
 
   if strchars(s:cwd) + strchars(git) > s:maxLen
-    let parts = split(s:cwd, pathSep)
-    let partNum = s:hasWin ? 1 : 0
-    while (strchars(s:cwd) + strchars(git) >= s:maxLen) &&
-        \ (partNum < len(parts) - 1)
-      let parts[partNum] = parts[partNum][0]
-      let s:cwd = join(parts, pathSep)
-      if pathSep ==# '/' && parts[0] != '~' | let s:cwd = '/' . s:cwd | endif
-      let partNum += 1
-    endwhile
-    if strchars(s:cwd) + strchars(git) > s:maxLen && len(parts)
-      let s:cwd = parts[-1]
+    if strchars(pathshorten(s:cwd)) + strchars(git) < s:maxLen
+      let parts = split(s:cwd, sep)
+      let partNum = s:hasWin ? 1 : 0
+      while (strchars(s:cwd) + strchars(git) >= s:maxLen) &&
+          \ (partNum <= len(parts))
+        let parts[partNum] = parts[partNum][0]
+        let s:cwd = join(parts, sep)
+        if sep ==# '/' && parts[0] != '~' | let s:cwd = '/' . s:cwd | endif
+        let partNum += 1
+      endwhile
+      if strchars(s:cwd) + strchars(git) > s:maxLen && len(parts)
+        let s:cwd = parts[-1]
+      endif
+    else
+      let s:cwd = fnamemodify(s:cwd, ':t')
     endif
   endif
   if s:cwd == '~/' | let s:cwd = '~' | endif
