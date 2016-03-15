@@ -66,7 +66,12 @@ alias fsa='fs | ag'
 alias fsxa='fs | xargs ag'
 
 # vim
-alias vim='vim --servername $VIMSERVER --cmd "set history=5000"'
+if (( $+commands[vim] )) && command vim --version |
+    command grep '+clientserver' >& /dev/null; then
+    alias vim='vim --servername $VIMSERVER --cmd "set history=5000"'
+else
+    alias vim='vim --cmd "set history=5000"'
+fi
 alias vit='vim --remote-tab'
 alias view='vim -R'
 alias e='vim'
@@ -1064,7 +1069,7 @@ if (( $+commands[vimpager] )); then
     export PAGER=vimpager
 else
     export VIMPAGER="/bin/sh -c \"unset PAGER;col -b -x | \
-        vim -R -c 'set ft=man nomod noma nolist' --servername $VIMSERVER \
+        vim -R -c 'set ft=man nomod noma nolist' \
         -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
     export PAGER=
     alias man='PAGER=$VIMPAGER man'
