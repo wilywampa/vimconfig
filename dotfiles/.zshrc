@@ -494,7 +494,7 @@ magic-abbrev-expand() {
         [[ ${prevword[-1]} == '|' ]] && doabbrev=1
         [[ ${prevword[-1]} == ';' ]] && doabbrev=1
         [[ ${prevword[-2,-1]} == '$(' ]] && doabbrev=1
-        if [[ ${prevword[-2,-1]} == '$(' ]] && [[ $pre =~ wh? ]]; then
+        if [[ ${prevword[-2,-1]} == '$(' ]] && [[ $pre =~ ^wh?$ ]]; then
             LBUFFER=$left'whence -p'
         elif [[ ${prevword[-1]} == '|' ]] && [[ $pre == 'g' ]]; then
             LBUFFER=$left'grep -i'
