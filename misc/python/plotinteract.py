@@ -124,6 +124,9 @@ def handle_key(self, event, parent, lineEdit):
               event.modifiers() & QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_S):
             self.emit(SIGNAL('sync_axis()'))
+        elif event.key() in (QtCore.Qt.Key_Home,
+                             QtCore.Qt.Key_End):
+            return _move_cursor(event, parent, lineEdit)
         elif self.completer.popup().viewport().isVisible():
             if event.key() == QtCore.Qt.Key_Tab:
                 self.emit(SIGNAL('tabPressed(int)'), 1)
@@ -138,6 +141,22 @@ def handle_key(self, event, parent, lineEdit):
         return parent.event(self, event)
     except AttributeError:
         return False
+
+
+def _move_cursor(event, parent, lineEdit):
+    if event.key() == QtCore.Qt.Key_Home:
+        if event.modifiers() & QtCore.Qt.ShiftModifier:
+            lineEdit.cursorBackward(True, len(lineEdit.text()))
+        else:
+            lineEdit.setCursorPosition(0)
+        return True
+    elif event.key() == QtCore.Qt.Key_End:
+        if event.modifiers() & QtCore.Qt.ShiftModifier:
+            lineEdit.cursorForward(True, len(lineEdit.text()))
+        else:
+            lineEdit.setCursorPosition(len(lineEdit.text()))
+        return True
+    return False
 
 
 def KeyHandler(parent):
