@@ -148,7 +148,7 @@ froms = {
     'collections':
         ['Mapping', 'OrderedDict', 'defaultdict', 'deque', 'namedtuple'],
     'contextlib': ['closing', 'contextmanager', 'suppress'],
-    'copy': ['copy', 'deepcopy'],
+    'copy': ['deepcopy'],
     'datetime': ['date', 'datetime', 'timedelta'],
     'ein': ['eijk', 'mtimesm', 'mtimesv'],
     'fractions': ['Fraction', 'gcd'],
@@ -216,10 +216,10 @@ froms = {
     'plottools': [
         'ArrayBunch', 'Conversion', 'angle2dcm', 'array_bunchify',
         'axis_equal_3d', 'azip', 'cl', 'create', 'cursor', 'd2r', 'dataobj',
-        'dcm2angle', 'dict2obj', 'fg', 'fig', 'figdo', 'fix_angles',
+        'dcm2angle', 'dcm2quat', 'dict2obj', 'fg', 'fig', 'figdo', 'fix_angles',
         'index_all', 'map_dict', 'merge_dicts', 'pad', 'picker',
-        'product_items', 'r2d', 'resize', 'savehtml', 'savepdf', 'savesvg',
-        'styles', 'unique_legend', 'unmask', 'varinfo'],
+        'product_items', 'quat2dcm', 'r2d', 'resize', 'savehtml', 'savepdf',
+        'savesvg', 'styles', 'unique_legend', 'unmask', 'varinfo'],
     'pprint': ['pprint'],
     'pyprimes': ['is_prime', 'primes'],
     'pyprimes.factors': ['factorise', 'factors'],

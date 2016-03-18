@@ -212,6 +212,55 @@ def axis_equal_3d(axes=None):
     return radii
 
 
+def dcm2quat(dcm):
+    """Create quaternion array from direction cosine matrix array."""
+    if isinstance(dcm, np.ma.MaskedArray):
+        zeros = np.ma.zeros
+    else:
+        zeros = np.zeros
+    quat = zeros((4,) + dcm.shape[2:])
+    quat[0] = np.sqrt(np.trace(dcm) + 1) / 2
+    quat[1] = dcm[1, 2] - dcm[2, 1]
+    quat[2] = dcm[2, 0] - dcm[0, 2]
+    quat[3] = dcm[0, 1] - dcm[1, 0]
+    quat[1:] /= 4 * quat[0]
+    return quat
+
+
+def quat2dcm(quat):
+    """Create a direction cosine matrix array from quaternion array."""
+    quat = np.asanyarray(quat)
+    quat /= np.sqrt(np.sum(quat ** 2, axis=0))
+    q0, q1, q2, q3 = quat
+    if isinstance(quat, np.ma.MaskedArray):
+        zeros = np.ma.zeros
+    else:
+        zeros = np.zeros
+    dcm = zeros((3, 3) + quat.shape[1:])
+
+    q0sq = q0 ** 2
+    dcm[0, 0] = 2 * q0sq - 1 + 2 * q1 ** 2
+    dcm[1, 1] = 2 * q0sq - 1 + 2 * q2 ** 2
+    dcm[2, 2] = 2 * q0sq - 1 + 2 * q3 ** 2
+
+    q0q1 = q0 * q1
+    q0q2 = q0 * q2
+    q0q3 = q0 * q3
+    q1q2 = q1 * q2
+    q1q3 = q1 * q3
+    q2q3 = q2 * q3
+
+    dcm[0, 1] = 2 * q1q2 + 2 * q0q3
+    dcm[0, 2] = 2 * q1q3 - 2 * q0q2
+    dcm[1, 0] = 2 * q1q2 - 2 * q0q3
+
+    dcm[1, 2] = 2 * q2q3 + 2 * q0q1
+    dcm[2, 0] = 2 * q1q3 + 2 * q0q2
+    dcm[2, 1] = 2 * q2q3 - 2 * q0q1
+
+    return dcm
+
+
 class Conversion(float):
 
     """Callable unit conversion."""
@@ -303,6 +352,7 @@ __all__ = [
     'd2r',
     'dataobj',
     'dcm2angle',
+    'dcm2quat',
     'dict2obj',
     'fg',
     'fig',
@@ -314,6 +364,7 @@ __all__ = [
     'pad',
     'picker',
     'product_items',
+    'quat2dcm',
     'r2d',
     'resize',
     'savehtml',
