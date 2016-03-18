@@ -1838,7 +1838,9 @@ nnoremap <silent> <Leader>- :VimFilerExplorer -find <C-r>=
 nnoremap <silent> <C-_> :VimFilerCurrentDir -force-quit -find<CR>
 nnoremap <silent> <Leader><C-_> :VimFilerExplorer -find <C-r>=getcwd()<CR><CR>
 let g:vimfiler_as_default_explorer=1
-let g:loaded_netrwPlugin=1
+if stridx($VIMBLACKLIST, 'vimfiler') == -1
+    let g:loaded_netrwPlugin=1
+endif
 nn <silent> gx :call netrw#BrowseX(expand("<cfile>"),0)<CR>
 let g:vimfiler_tree_leaf_icon=' '
 let g:vimfiler_file_icon='-'
@@ -2096,6 +2098,7 @@ func! s:UniteSetup() " {{{
     call unite#custom#profile('default', 'context',
         \ {'start_insert': 1, 'direction': 'botright', 'prompt_direction': 'top'})
     call unite#custom#profile('all_files', 'matchers', ['matcher_default'])
+    call unite#custom#profile('script/vimfiler/mask', 'matchers', ['matcher_context'])
     call unite#custom#source('file', 'ignore_pattern', '.*\.\(un\~\|mat\|pdf\)$')
     call unite#custom#source('file,file_rec,file_rec/async', 'sorters', 'sorter_rank')
     for source in ['history/yank', 'register', 'grep', 'vimgrep']
