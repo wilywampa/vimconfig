@@ -33,6 +33,12 @@ def index_all(mapping, ix=no_index, copy=copy.copy, types=np.ndarray,
     return Indexer() if ix is no_index else Indexer()[ix]
 
 
+def hashable(obj):
+    """Check if an object is hashable (can be a dict key)."""
+    import collections
+    return isinstance(obj, collections.Hashable)
+
+
 class ArrayBunch(Bunch):
 
     """Like Bunch but support indexing via index_all."""
@@ -47,7 +53,7 @@ class ArrayBunch(Bunch):
         super(ArrayBunch, self).__init__(*args, **kwargs)
 
     def __getitem__(self, key):
-        if isinstance(key, six.string_types) or key in self:
+        if isinstance(key, six.string_types) or hashable(key) and key in self:
             return super(ArrayBunch, self).__getitem__(key)
         return index_all(self, copy=self._copy, ignore=self._ignore,
                          types=self._types, callback=self._callback)[key]
