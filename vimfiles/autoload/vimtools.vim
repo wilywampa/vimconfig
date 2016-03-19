@@ -601,7 +601,14 @@ function! vimtools#CmdlineComplete(arglead, cmdline, cursorpos) " {{{
   let hist = map(range(1, min([+&history, 500])),
       \ '[substitute(histget("search", -v:val), pattern, "", "g"),
       \   histget("input", -v:val)]')
-  return s:List.uniq(results + filter(s:List.flatten(hist),
+
+  " Buffer completion
+  let limit = get(g:, 'buffer_completion_lines', 1000)
+  let start = max([1, line('.') - limit / 2])
+  let words = filter(split(join(getline(start, start + limit)), '\W'), '
+      \ !empty(v:val)')
+
+  return s:List.uniq(results + filter(s:List.flatten(hist) + words,
       \ "v:val =~ '\\S' && stridx(tolower(v:val), tolower(a:arglead)) == 0"))
 endfunction " }}}
 
