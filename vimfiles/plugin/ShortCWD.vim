@@ -17,15 +17,6 @@ let s:wsPrev = ''
 let s:wsEnabledPrev = 0
 let s:hunksPrev = [0, 0, 0]
 
-function! s:WhitespaceSame()
-  if !exists('*whitespace#get_enabled') | return 1 | endif
-  return (whitespace#get_enabled()
-      \ && !exists('b:whitespace_check')) ||
-      \ (exists('b:whitespace_check')
-      \ && b:whitespace_check == s:wsPrev
-      \ && whitespace#get_enabled() == s:wsEnabledPrev)
-endfunction
-
 function! s:HunksSame()
   return !exists('*GitGutterGetHunkSummary') ||
       \ GitGutterGetHunkSummary() == s:hunksPrev
@@ -43,7 +34,7 @@ function! ShortCWD()
   endif
   if getcwd() == s:cwdPrev && @% == s:bufNamePrev &&
       \ winwidth(0) == s:winWidthPrev && &mod == s:bufModPrev &&
-      \ s:HunksSame() && s:WhitespaceSame()
+      \ s:HunksSame() && s:wsPrev ==# get(b:, 'whitespace_check', '')
     return s:cwd
   endif
 
