@@ -167,6 +167,7 @@ def varinfo(var):
     print(type(var))
     if isinstance(var, numpy.ndarray):
         print(var.shape)
+        print(var.dtype)
     elif isinstance(var, (dict, list, tuple, set)):
         print('n = %d' % len(var))
 
@@ -185,7 +186,11 @@ def styles(order=('-', '--', '-.', ':')):
     from itertools import cycle
     from matplotlib import rcParams
     from numpy import repeat
-    return cycle(repeat(order, len(rcParams['axes.color_cycle'])))
+    try:
+        color_cycle = rcParams['axes.prop_cycle'].by_key()['color']
+    except (AttributeError, KeyError):
+        color_cycle = rcParams['axes.color_cycle']
+    return cycle(repeat(order, len(color_cycle)))
 
 
 def fix_angles(angles, pi=np.pi, axis=0):
