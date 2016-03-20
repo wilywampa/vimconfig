@@ -699,11 +699,9 @@ command! -nargs=+ -complete=command Windo call Windo(<q-args>)
 " Function to set key codes for terminals
 func! s:KeyCodes() " {{{
     " Set key codes to work as meta key combinations
-    let ns=range(65,90)+range(92,123)+range(125,126)
-    for n in ns
-        exec "set <M-".nr2char(n).">=\<Esc>".nr2char(n)
+    for n in range(33, 47) + range(58, 61) + range(63, 126)
+        execute "set <M-" . escape(nr2char(n), '"|') . ">=\<Esc>" . escape(nr2char(n), '"|')
     endfor
-    exec "set <M-\\|>=\<Esc>\\| <M-'>=\<Esc>'"
 endfunc " }}}
 nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
 if mobileSSH | call s:KeyCodes() | endif
