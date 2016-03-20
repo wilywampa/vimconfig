@@ -1492,7 +1492,9 @@ augroup VimrcAutocmds " {{{
     " Set global variable on FocusLost
     autocmd FocusLost * let g:focuslost = 1 | silent! call lightline#update()
     autocmd FocusGained,CursorMoved,CursorMovedI *
-        \ silent! unlet g:focuslost | silent! call lightline#update()
+        \ if exists('g:focuslost') |
+        \     unlet g:focuslost | silent! call lightline#update() |
+        \ endif
 
     " Save position of last text change
     if v:version >= 704 || (v:version == 703 && has('patch867'))
