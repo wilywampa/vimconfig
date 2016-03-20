@@ -155,6 +155,7 @@ froms = {
     'functools': [
         'cmp_to_key', 'partial', 'reduce', 'total_ordering', 'update_wrapper',
         'wraps'],
+    'highlighter': ['add_handler', 'highlight', 'hl'],
     'itertools': [
         'chain', 'combinations', 'combinations_with_replacement', 'compress',
         'count', 'cycle', 'dropwhile', 'groupby', 'ifilter', 'ifilterfalse',
@@ -235,7 +236,7 @@ froms = {
         'viewvalues'],
     'subprocess': ['PIPE', 'Popen', 'STDOUT', 'call', 'check_output',
                    'list2cmdline'],
-    'time': ['time'],
+    'time': ['sleep'],
 }
 
 froms_as = dict(
@@ -282,10 +283,6 @@ def remove_unused(i):
             remove(i, asname)
 
 
-def decode(line):
-    return line if PY3 else line.decode('utf-8')
-
-
 for lnum, r in redefined.items():
     for i in imports:
         if r in i.asnames:
@@ -293,7 +290,8 @@ for lnum, r in redefined.items():
 
 tokens = set()
 code = io.StringIO(u'\n'.join(
-    decode(line) for line in vim.current.buffer[end:] if line.strip()))
+    line if PY3 else line.decode('utf-8')
+    for line in vim.current.buffer[end:] if line.strip()))
 for ttype, token, _, _, _ in tokenize.generate_tokens(code.readline):
     if ttype == tokenize.NAME:
         tokens.add(token)

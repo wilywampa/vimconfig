@@ -221,6 +221,21 @@ class LogHighlighter(logging.Formatter):
         return super(LogHighlighter, self).format(record)
 
 
+def add_handler(file_or_stream, logger=None, level=logging.INFO):
+    import highlighter
+    if not isinstance(logger, logging.Logger):
+        logger = logging.getLogger(logger)
+    if level is not None:
+        logger.setLevel(level)
+    if isinstance(file_or_stream, six.string_types):
+        handler = logging.FileHandler(file_or_stream)
+    else:
+        handler = logging.StreamHandler(file_or_stream)
+    handler.setFormatter(highlighter.LogHighlighter())
+    logger.addHandler(handler)
+    return handler
+
+
 def hl(*objs):
     text = str(objs[0] if len(objs) == 1 else objs)
     return pygments.highlight(text, python_lexer, formatter).strip()
