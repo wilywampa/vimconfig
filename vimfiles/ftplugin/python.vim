@@ -580,11 +580,12 @@ EOF
       let loclist = g:PymodeLocList.current()
       let messages = copy(loclist._loclist)
       let module_cache = s:module_cache
-      if exists('g:python_autoimport_debug_file')
-        execute s:pyfile . ' ' . fnameescape(g:python_autoimport_debug_file)
-      else
-        execute s:pyfile . ' ' . fnameescape(s:python_script_dir . '/autoimport.py')
-      endif
+      let pyfile = get(g:, 'python_autoimport_debug_file',
+          \ s:python_script_dir . '/autoimport.py')
+      Python2or3 << EOF
+import runpy
+runpy.run_path(vim.eval('pyfile'))
+EOF
     endwhile
   finally
     let g:pymode_lint_checkers = s:checkers
