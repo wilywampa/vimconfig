@@ -66,7 +66,7 @@ except NameError:
     unicode = str
 
 
-__version__ = '1.2'
+__version__ = '1.2.2'
 
 
 CR = '\r'
@@ -471,7 +471,7 @@ class FixPEP8(object):
                 line_index = result['line'] - 1
                 original_line = self.source[line_index]
 
-                is_logical_fix = len(inspect.getargspec(fix).args) > 2
+                is_logical_fix = len(_get_parameters(fix)) > 2
                 if is_logical_fix:
                     logical = None
                     if logical_support:
@@ -652,7 +652,7 @@ class FixPEP8(object):
         line_index = result['line'] - 1
         target = self.source[line_index]
         offset = result['column']
-        fixed = target[:offset] + ' ' + target[offset:]
+        fixed = target[:offset].rstrip() + ' ' + target[offset:].lstrip()
         self.source[line_index] = fixed
 
     def fix_e251(self, result):
@@ -891,9 +891,9 @@ class FixPEP8(object):
         second = (_get_indentation(logical_lines[0]) +
                   target[offset:].lstrip(';').lstrip())
 
-        # find inline commnet
+        # Find inline comment.
         inline_comment = None
-        if '# ' == target[offset:].lstrip(';').lstrip()[:2]:
+        if target[offset:].lstrip(';').lstrip()[:2] == '# ':
             inline_comment = target[offset:].lstrip(';')
 
         if inline_comment:
@@ -1166,7 +1166,7 @@ def code_almost_equal(a, b):
     if len(split_a) != len(split_b):
         return False
 
-    for index in range(len(split_a)):
+    for (index, _) in enumerate(split_a):
         if ''.join(split_a[index].split()) != ''.join(split_b[index].split()):
             return False
 
@@ -1197,7 +1197,8 @@ def fix_e265(source, aggressive=False):  # pylint: disable=unused-argument
     for (line_number, line) in enumerate(sio.readlines(), start=1):
         if (
             line.lstrip().startswith('#') and
-            line_number not in ignored_line_numbers
+            line_number not in ignored_line_numbers and
+            not pep8.noqa(line)
         ):
             indentation = _get_indentation(line)
             line = line.lstrip()
@@ -2984,15 +2985,29 @@ def fix_file(filename, options=None, output=None, apply_config=False):
 
 def global_fixes():
     """Yield multiple (code, function) tuples."""
-    for function in globals().values():
+    for function in list(globals().values()):
         if inspect.isfunction(function):
-            arguments = inspect.getargspec(function)[0]
+            arguments = _get_parameters(function)
             if arguments[:1] != ['source']:
                 continue
 
             code = extract_code_from_function(function)
             if code:
                 yield (code, function)
+
+
+def _get_parameters(function):
+    # pylint: disable=deprecated-method
+    if sys.version_info >= (3, 3):
+        # We need to match "getargspec()", which includes "self" as the first
+        # value for methods.
+        # https://bugs.python.org/issue17481#msg209469
+        if inspect.ismethod(function):
+            function = function.__func__
+
+        return list(inspect.signature(function).parameters)
+    else:
+        return inspect.getargspec(function)[0]
 
 
 def apply_global_fixes(source, options, where='global', filename=''):
@@ -3104,9 +3119,7 @@ def create_parser():
                              'range of line numbers (e.g. 1 99); '
                              'line numbers are indexed at 1')
     parser.add_argument('--indent-size', default=DEFAULT_INDENT_SIZE,
-                        type=int, metavar='n',
-                        help='number of spaces per indent level '
-                             '(default %(default)s)')
+                        type=int, help=argparse.SUPPRESS)
     parser.add_argument('files', nargs='*',
                         help="files to format or '-' for standard in")
 
@@ -3163,14 +3176,14 @@ def parse_args(arguments, apply_config=False):
     elif not args.select:
         if args.aggressive:
             # Enable everything by default if aggressive.
-            args.select = ['E', 'W']
+            args.select = set(['E', 'W'])
         else:
             args.ignore = _split_comma_separated(DEFAULT_IGNORE)
 
     if args.exclude:
         args.exclude = _split_comma_separated(args.exclude)
     else:
-        args.exclude = []
+        args.exclude = set([])
 
     if args.jobs < 1:
         # Do not import multiprocessing globally in case it is not supported
@@ -3267,7 +3280,7 @@ def supported_fixes():
 
 def docstring_summary(docstring):
     """Return summary of docstring."""
-    return docstring.split('\n')[0]
+    return docstring.split('\n')[0] if docstring else ''
 
 
 def line_shortening_rank(candidate, indent_word, max_line_length,

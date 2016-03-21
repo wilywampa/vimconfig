@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2012-2014 Steven Myint
+# Copyright (C) 2012-2015 Steven Myint
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -41,7 +41,7 @@ import tokenize
 import untokenize
 
 
-__version__ = '0.7'
+__version__ = '0.7.1'
 
 
 try:
@@ -569,7 +569,7 @@ def _format_standard_in(args, parser, standard_out, standard_in):
     source = standard_in.read()
 
     if not isinstance(source, unicode):
-        encoding = standard_in.encoding or locale.getpreferredencoding()
+        encoding = standard_in.encoding or _get_encoding()
         source = source.decode(encoding)
 
     formatted_source = _format_code_with_args(source, args=args)
@@ -577,6 +577,11 @@ def _format_standard_in(args, parser, standard_out, standard_in):
         formatted_source = formatted_source.encode(encoding)
 
     standard_out.write(formatted_source)
+
+
+def _get_encoding():
+    """Return preferred encoding."""
+    return locale.getpreferredencoding() or sys.getdefaultencoding()
 
 
 def _format_files(args, standard_out, standard_error):
