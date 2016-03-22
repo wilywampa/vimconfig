@@ -32,7 +32,7 @@ if get(g:, 'lightline_powerline_fonts', 0)
       \ }, 'force')
 endif
 
-let g:lightline.colorscheme = 'solarized'
+let g:lightline.colorscheme = 'solarized_custom'
 let g:lightline.component = {
     \   'lineinfo': '%3p%% ' . g:airline_symbols.linenr . '%3l:%-2v',
     \   'filetype': '%{&filetype}',
