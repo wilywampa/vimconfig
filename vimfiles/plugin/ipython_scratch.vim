@@ -77,20 +77,27 @@ function! s:RestoreScratchBuffer(count) abort
   let s:changedtick = b:changedtick
 endfunction
 
-function! s:IPyRunScratchBuffer()
+function! s:IPyRunScratchBuffer(...)
   let view = winsaveview()
   call SaveRegs()
   let left_save = getpos("'<")
   let right_save = getpos("'>")
   let vimode = visualmode()
-  execute "normal! " . g:ipython_scratch_motion
-  let g:ipy_input = UncommentMagics(@@)
-  call RestoreRegs()
-  execute "normal! " . vimode . "\<Esc>"
-  call setpos("'<", left_save)
-  call setpos("'>", right_save)
-  call winrestview(view)
-  call IPyRunIPyInput()
+  try
+    execute "normal! " . g:ipython_scratch_motion
+    let g:ipy_input = UncommentMagics(@@)
+  finally
+    call RestoreRegs()
+    execute "normal! " . vimode . "\<Esc>"
+    call setpos("'<", left_save)
+    call setpos("'>", right_save)
+    call winrestview(view)
+  endtry
+  if a:0
+    call IPyRunSilent(g:ipy_input)
+  else
+    call IPyRunIPyInput()
+  endif
 endfunction
 
 " Add '## ' escape to magic lines automatically
@@ -156,6 +163,9 @@ function! s:IPyScratchBuffer()
   command! -count=1 -buffer Restore call s:RestoreScratchBuffer(<count>)
   map  <buffer> <C-s> <F5>
   map! <buffer> <C-s> <F5>
+  nnoremap <buffer> <silent> <Leader><C-s>      :<C-u>call <SID>IPyRunScratchBuffer(0)<CR>
+  inoremap <buffer> <silent> <Leader><C-s> <Esc>:<C-u>call <SID>IPyRunScratchBuffer(0)<CR>
+  xnoremap <buffer> <silent> <Leader><C-s> <Esc>:<C-u>call <SID>IPyRunScratchBuffer(0)<CR>
   augroup ipython_scratch_buffer
     autocmd!
     autocmd TextChangedI <buffer> call s:CommentMagic()
