@@ -17,6 +17,7 @@ bind: ctrl-up up enter
 bind: ó : s t e p enter
 bind: î : n e x t enter
 bind: ã : c o n t i n u e enter
+bind: ì : l i s t enter
 completionPaging: False
 completionPromptLimit: Just 99999
 maxhistorysize: Just 5000
