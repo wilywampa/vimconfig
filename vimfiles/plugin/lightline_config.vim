@@ -66,26 +66,15 @@ let g:lightline.subseparator = {
     \ }
 
 function! LightLineInfo() abort
-  if get(g:, 'solarized_termcolors', 256) == 16
-    return '%#StatusFlag#%{LightLineFlags()}'.
-        \  '%#LightLineMiddle_active#%<%{LightLineFile()}'.
-        \  '%#StatusModified#%{LightLineFileModified()}%0*'.
-        \  '%{&modifiable?"":"[-]"}'.
-        \  '%#StatusFlag#%{&readonly?"  '.g:airline_symbols.readonly.'":""}'
-  else
-    return '%{LightLineFlags()}%<%f'.
-        \  '%{&modified?"[+]":""}'.
-        \  '%{&modifiable?"":"[-] "}'.
-        \  '%{&readonly?" '.g:airline_symbols.readonly.'":""}'
-  endif
+  return '%#StatusFlag#%{LightLineFlags()}'.
+      \  '%#LightLineMiddle_active#%<%{LightLineFile()}'.
+      \  '%#StatusModified#%{LightLineFileModified()}%0*'.
+      \  '%{&modifiable?"":"[-]"}'.
+      \  '%#StatusFlag#%{&readonly?"  '.g:airline_symbols.readonly.'":""}'
 endfunction
 
 function! LightLineInactiveFilename()
-  if get(g:, 'solarized_termcolors', 256) == 16
-    return '%<%{LightLineFile()}%#StatusModified#%{LightLineFileModified()}'
-  else
-    return '%{LightLineFlags()}%<%f%{&modified?"[+]":""}'
-  endif
+  return '%<%{LightLineFile()}%#StatusModified#%{LightLineFileModified()}'
 endfunction
 
 function! LightLineFilename() abort
