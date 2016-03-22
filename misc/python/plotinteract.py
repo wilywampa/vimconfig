@@ -339,6 +339,7 @@ class PropertyEditor(QtGui.QTableWidget):
     control_actions = {
         QtCore.Qt.Key_J: lambda self: self.focusNextPrevChild(True),
         QtCore.Qt.Key_K: lambda self: self.focusNextPrevChild(False),
+        QtCore.Qt.Key_L: lambda self: self.parent.draw(),
         QtCore.Qt.Key_N: lambda self: self.cycle_editors(1),
         QtCore.Qt.Key_P: lambda self: self.cycle_editors(-1),
         QtCore.Qt.Key_Q: lambda self: self.close(),
@@ -358,12 +359,6 @@ class PropertyEditor(QtGui.QTableWidget):
             self.setItem(self.currentRow(),
                          self.currentColumn(),
                          QtGui.QTableWidgetItem(''))
-            return True
-        elif (event.type() == QtCore.QEvent.KeyPress and
-              self.state() == self.NoState and
-              event.key() in (QtCore.Qt.Key_Enter,
-                              QtCore.Qt.Key_Return)):
-            self.parent.draw()
             return True
         try:
             return super(PropertyEditor, self).event(event)
@@ -583,7 +578,9 @@ class DataObj(object):
             pass
         props_editor.dataobj = self
         for i, k in enumerate(PROPERTIES):
-            props_editor.setItem(i, 0, QtGui.QTableWidgetItem(k))
+            item = QtGui.QTableWidgetItem(k)
+            item.setFlags(QtCore.Qt.ItemIsEditable)
+            props_editor.setItem(i, 0, item)
             props_editor.setItem(i, 1, QtGui.QTableWidgetItem(
                 props_repr(self.props[k]) if k in self.props else ''))
         props_editor.setWindowTitle(text_type(self.label.text()))
@@ -979,10 +976,11 @@ class Interact(QtGui.QMainWindow):
                          for d in self.datas)
 
     @classmethod
-    def dict_repr(cls, d):
+    def dict_repr(cls, d, top=True):
         if isinstance(d, dict):
-            return 'dict({})'.format(', '.join(
-                ['{}={}'.format(k, cls.dict_repr(v)) for k, v in d.items()]))
+            return ('{}' if top else 'dict({})').format(', '.join(
+                ['{}={}'.format(k, cls.dict_repr(v, False))
+                 for k, v in d.items()]))
         elif isinstance(d, string_types):
             return repr(str(d))
         return repr(d)
