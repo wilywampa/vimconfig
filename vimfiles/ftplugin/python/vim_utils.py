@@ -97,7 +97,7 @@ def select_docstring():
 
 
 class Options(object):
-    aggressive = 2
+    aggressive = vim.vars.get('pep8_aggressive', 1)
     diff = False
     experimental = True
     ignore = vim.vars.get('pymode_lint_ignore', ())
