@@ -699,7 +699,7 @@ command! -nargs=+ -complete=command Windo call Windo(<q-args>)
 " Function to set key codes for terminals
 func! s:KeyCodes() " {{{
     " Set key codes to work as meta key combinations
-    for n in range(33, 47) + range(58, 61) + range(63, 126)
+    for n in range(33, 47) + range(58, 61) + range(63, 90) + range(92, 126)
         execute "set <M-" . escape(nr2char(n), '"|') . ">=\<Esc>" . escape(nr2char(n), '"|')
     endfor
 endfunc " }}}
