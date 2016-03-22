@@ -229,11 +229,14 @@ def _install():
         with io.open(filename, 'r', encoding='utf-8') as f:
             ip.run_cell_magic('cython', ' '.join(args), f.read())
 
-    @magic.register_cell_magic
-    def create(line, cell):
+    @magic.register_line_cell_magic
+    def create(line='', cell=None):
         """Start a plotinteract session from user namespace data."""
         from plottools import create, dataobj
         ip = get_ipython()
+        if not cell:
+            cell = line
+            line = ''
         args = ip.ev('dict({})'.format(line))
         objs = (eval('dataobj({})'.format(line),
                      ip.user_global_ns, dict(dataobj=dataobj))
