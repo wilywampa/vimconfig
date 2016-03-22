@@ -166,8 +166,7 @@ def varinfo(var):
     print(highlight(s).strip())
     print(type(var))
     if isinstance(var, numpy.ndarray):
-        print(var.shape)
-        print(var.dtype)
+        print(var.shape, var.dtype)
     elif isinstance(var, (dict, list, tuple, set)):
         print('n = %d' % len(var))
 
@@ -201,19 +200,21 @@ def fix_angles(angles, pi=np.pi, axis=0):
                                    np.cumsum(delta, axis=axis)))
 
 
-def axis_equal_3d(axes=None):
+def axis_equal_3d(axes=None, xlim=None, ylim=None, zlim=None):
     """Adjust axis limits for equal scaling in Axes3D instance `ax`."""
     if axes is None:
         axes = plt.gca()
     radii = []
     for ax in np.atleast_1d(axes).ravel():
+        ax.set_aspect('equal')
         radii.append(max(np.abs(lim - lim.mean()).max()
                          for lim in (getattr(ax, 'get_%slim3d' % axis)()
                                      for axis in 'xyz')))
-        for axis in 'xyz':
+        for axis, lim in zip('xyz', (xlim, ylim, zlim)):
+            if lim is None:
+                lim = getattr(ax, 'get_%slim3d' % axis)()
             getattr(ax, 'set_%slim3d' % axis)(
-                np.array([-radii[-1], radii[-1]]) +
-                getattr(ax, 'get_%slim3d' % axis)().mean())
+                np.array([-radii[-1], radii[-1]]) + np.mean(lim))
     return radii
 
 
