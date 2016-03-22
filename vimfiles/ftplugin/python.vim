@@ -152,7 +152,8 @@ import vim
 ipy_input = vim.vars['ipy_input']
 if not isinstance(ipy_input, str):
     ipy_input = str(ipy_input, vim.eval('&encoding') or 'utf-8')
-vim.vars['ipy_input'] = textwrap.dedent(ipy_input).strip()
+ipy_input = textwrap.dedent(ipy_input).strip()
+vim.vars['ipy_input'] = ipy_input
 EOF
       if g:ipython_write_all || bufnr('%') == bufnr(s:scratch_name)
         call s:WriteScratch(g:ipy_input)
@@ -163,6 +164,17 @@ try:
     kwargs = ast.literal_eval(vim.eval('a:1'))
 except (ValueError, vim.error):
     kwargs = {}
+try:
+    ast.parse(ipy_input)
+except SyntaxError:
+    try:
+        first, second = ipy_input.split('\n%%')
+    except ValueError:
+        pass
+    else:
+        vim.vars['ipy_input'] = first.strip()
+        run_ipy_input(**kwargs)
+        vim.vars['ipy_input'] = '%%' + second
 run_ipy_input(**kwargs)
 EOF
       unlet g:ipy_input
