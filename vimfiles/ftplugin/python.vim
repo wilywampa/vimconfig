@@ -233,7 +233,7 @@ EOF
     else
       call SaveRegs()
       normal! gvy
-      let input = @"
+      let input = substitute(@", '^\s*\|\s*\n\?\s*$', '', 'g')
       call RestoreRegs()
     endif
     let g:ipy_input = 'from plottools import varinfo; varinfo('.input.')'
