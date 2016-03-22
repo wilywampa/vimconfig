@@ -224,12 +224,12 @@ def dcm2quat(dcm):
         zeros = np.ma.zeros
     else:
         zeros = np.zeros
-    quat = zeros((4,) + dcm.shape[2:])
-    quat[0] = np.sqrt(np.trace(dcm) + 1) / 2
+    quat = zeros((4,) + dcm.shape[2:], dtype=dcm.dtype)
+    quat[0] = np.sqrt(np.trace(dcm) + 1.0) / 2.0
     quat[1] = dcm[1, 2] - dcm[2, 1]
     quat[2] = dcm[2, 0] - dcm[0, 2]
     quat[3] = dcm[0, 1] - dcm[1, 0]
-    quat[1:] /= 4 * quat[0]
+    quat[1:] /= 4.0 * quat[0]
     return quat
 
 
@@ -242,12 +242,12 @@ def quat2dcm(quat):
         zeros = np.ma.zeros
     else:
         zeros = np.zeros
-    dcm = zeros((3, 3) + quat.shape[1:])
+    dcm = zeros((3, 3) + quat.shape[1:], dtype=quat.dtype)
 
-    q0sq = q0 ** 2
-    dcm[0, 0] = 2 * q0sq - 1 + 2 * q1 ** 2
-    dcm[1, 1] = 2 * q0sq - 1 + 2 * q2 ** 2
-    dcm[2, 2] = 2 * q0sq - 1 + 2 * q3 ** 2
+    qsq = quat ** 2.0
+    q0sq = qsq[0]
+    for i in range(3):
+        dcm[i, i] = q0sq + qsq[i + 1] - 0.5
 
     q0q1 = q0 * q1
     q0q2 = q0 * q2
@@ -256,15 +256,15 @@ def quat2dcm(quat):
     q1q3 = q1 * q3
     q2q3 = q2 * q3
 
-    dcm[0, 1] = 2 * q1q2 + 2 * q0q3
-    dcm[0, 2] = 2 * q1q3 - 2 * q0q2
-    dcm[1, 0] = 2 * q1q2 - 2 * q0q3
+    dcm[0, 1] = q1q2 + q0q3
+    dcm[0, 2] = q1q3 - q0q2
+    dcm[1, 0] = q1q2 - q0q3
 
-    dcm[1, 2] = 2 * q2q3 + 2 * q0q1
-    dcm[2, 0] = 2 * q1q3 + 2 * q0q2
-    dcm[2, 1] = 2 * q2q3 - 2 * q0q1
+    dcm[1, 2] = q2q3 + q0q1
+    dcm[2, 0] = q1q3 + q0q2
+    dcm[2, 1] = q2q3 - q0q1
 
-    return dcm
+    return 2.0 * dcm
 
 
 class Conversion(float):
