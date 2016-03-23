@@ -216,9 +216,9 @@ froms = {
         'svd', 'tensorinv', 'tensorsolve'],
     'plottools': [
         'ArrayBunch', 'Conversion', 'angle2dcm', 'array_bunchify',
-        'axis_equal_3d', 'azip', 'cl', 'create', 'cursor', 'd2r', 'dataobj',
-        'dcm2angle', 'dcm2quat', 'dict2obj', 'fg', 'fig', 'figdo', 'fix_angles',
-        'index_all', 'map_dict', 'merge_dicts', 'pad', 'picker',
+        'axis_equal_3d', 'azip', 'cdfplot', 'cl', 'create', 'cursor', 'd2r',
+        'dataobj', 'dcm2angle', 'dcm2quat', 'dict2obj', 'fg', 'fig', 'figdo',
+        'fix_angles', 'index_all', 'map_dict', 'merge_dicts', 'pad', 'picker',
         'product_items', 'quat2dcm', 'r2d', 'resize', 'savehtml', 'savepdf',
         'savesvg', 'styles', 'unique_legend', 'unmask', 'varinfo'],
     'pprint': ['pprint'],

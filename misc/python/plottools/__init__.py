@@ -218,6 +218,21 @@ def axis_equal_3d(axes=None, xlim=None, ylim=None, zlim=None):
     return radii
 
 
+def cdfplot(x, *args, **kwargs):
+    """Plot the empirical cumulative distribution function of `x`."""
+    kwargs['drawstyle'] = kwargs.get('drawstyle', 'steps')
+    return_data = kwargs.pop('return_data', False)
+    ax = kwargs.pop('ax', None)
+    x = np.sort(np.atleast_2d(np.squeeze(x)).T, axis=0)
+    X = np.append(x, x[-1:], axis=0)
+    Y = np.repeat(np.linspace(
+        0.0, 1.0, x.shape[0] + 1), x.shape[1]).reshape(X.shape)
+    artists = getattr(ax, 'plot', plt.plot)(X, Y, *args, **kwargs)
+    if return_data:
+        return artists, X, Y
+    return artists
+
+
 def dcm2quat(dcm):
     """Create quaternion array from direction cosine matrix array."""
     if isinstance(dcm, np.ma.MaskedArray):
@@ -352,6 +367,7 @@ __all__ = [
     'array_bunchify',
     'axis_equal_3d',
     'azip',
+    'cdfplot',
     'cl',
     'create',
     'cursor',
