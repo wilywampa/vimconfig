@@ -35,8 +35,11 @@ def index_all(mapping, ix=no_index, copy=copy.copy, types=np.ndarray,
 
 def hashable(obj):
     """Check if an object is hashable (can be a dict key)."""
-    import collections
-    return isinstance(obj, collections.Hashable)
+    try:
+        obj in {}
+    except TypeError:
+        return False
+    return True
 
 
 class ArrayBunch(Bunch):
