@@ -98,6 +98,12 @@ def _select_all(self, event, parent, lineEdit):
 def _quit(self, event, parent, lineEdit):
     self.emit(SIGNAL('closed()'))
     self.window().close()
+    while not isinstance(self, Interact):
+        try:
+            self = self.parent
+        except AttributeError:
+            return
+    self._close()
 
 
 control_actions = {
@@ -164,6 +170,10 @@ def _move_cursor(event, parent, lineEdit):
 
 def KeyHandler(parent):
     class KeyHandlerClass(parent):
+
+        def __init__(self, *args, **kwargs):
+            self.parent = kwargs.get('parent', None)
+            parent.__init__(self, *args, **kwargs)
 
         def set_completer(self, completer):
             self.completer = completer
@@ -630,8 +640,9 @@ class DataObj(object):
 
 class Interact(QtGui.QMainWindow):
 
-    def __init__(self, data, title=None, sortkey=None, axisequal=False,
+    def __init__(self, data, app, title=None, sortkey=None, axisequal=False,
                  parent=None, **kwargs):
+        self.app = app
         QtGui.QMainWindow.__init__(self, parent)
         if title is not None:
             self.setWindowTitle(title)
@@ -915,6 +926,7 @@ class Interact(QtGui.QMainWindow):
         self.edit_parameters()
 
     def _close(self):
+        self.app.references.discard(self)
         self.window().close()
 
     def _input_lim(self, axis, default):
@@ -1071,7 +1083,7 @@ def create(*data, **kwargs):
     if app is None:
         app = QtGui.QApplication(sys.argv)
         app_created = True
-    app.references = set()
+    app.references = getattr(app, 'references', set())
 
     # Backwards compatibility
     data = list(data)
@@ -1091,7 +1103,7 @@ def create(*data, **kwargs):
     interactive = mpl.is_interactive()
     try:
         mpl.interactive(False)
-        i = Interact(data, **kwargs)
+        i = Interact(data, app, **kwargs)
     finally:
         mpl.interactive(interactive)
     app.references.add(i)
