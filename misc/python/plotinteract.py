@@ -573,7 +573,7 @@ class DataObj(object):
         text, ok = QtGui.QInputDialog.getText(
             self.parent, 'Rename data object', 'New label:',
             QtGui.QLineEdit.Normal, self.name)
-        if ok:
+        if ok and text_type(text):
             self.name = text_type(text)
             self.choose_label()
             if not isiterable(self.labels):
