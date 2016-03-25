@@ -2406,6 +2406,8 @@ func! s:JediSetup() " {{{
         setlocal omnifunc=jedi#completions
     endif
     nnoremap <silent> <buffer> <M-]> :<C-u>call jedi#goto()<CR>zv
+    nnoremap <silent> <buffer> <expr> gd exists('*jedi#goto_assignments') ?
+        \ ':<C-u>call jedi#goto_assignments()<CR>zv' : 'gd'
 endfunc " }}}
 autocmd VimrcAutocmds FileType python call s:JediSetup()
 let g:jedi#use_tabs_not_buffers = 0
