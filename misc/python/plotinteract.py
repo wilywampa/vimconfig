@@ -384,6 +384,8 @@ class DataObj(object):
         self.widgets = []
         self.twin = False
         self.props = kwargs.get('props', {}).copy()
+        if isinstance(obj, np.ndarray):
+            obj = {n: obj[n] for n in obj.dtype.names}
         self.obj = flatten(obj, ndim=self.guess_ndim(obj, kwargs))
         self.label = QtGui.QLabel('', parent=self.parent)
         self._labels = getattr(obj, 'labels', kwargs.get('labels', None))
@@ -414,6 +416,7 @@ class DataObj(object):
 
         self.completer, self.menu = new_text_box()
         self.xcompleter, self.xmenu = new_text_box()
+        self.xmenu.setModel(words + ['_'])
 
         self.menu.setCurrentIndex(0)
         self.xmenu.setCurrentIndex(0)
@@ -773,7 +776,7 @@ class Interact(QtGui.QMainWindow):
         completer.close_popup()
         text = text_type(textbox.text())
         try:
-            return eval(text, CONSTANTS)
+            return eval(text, CONSTANTS.copy())
         except Exception as e:
             self.warnings.append('Error setting scale: ' + text_type(e))
             return 1.0
@@ -798,12 +801,24 @@ class Interact(QtGui.QMainWindow):
             [p.disable() for p in self.pickers]
             self.pickers = None
 
-    def plot(self, axes, x, y, i, data, label):
-        try:
-            lines = axes.plot(x, y, label=label)
-        except ValueError:
-            lines = axes.plot(x, y.T, label=label)
+    def plot(self, axes, data, xname, xscale, yname, yscale, i, label):
+        if xname in data.obj:
+            x = data.obj[xname][..., i] * xscale
+        y = data.obj[yname][..., i] * yscale
 
+        def plot(y):
+            if xname in data.obj:
+                return axes.plot(x, y, label=label)
+            else:
+                return axes.plot(y, label=label)
+
+        try:
+            lines = plot(y)
+        except ValueError:
+            lines = plot(y.T)
+
+        if isinstance(i, slice):
+            i = 0
         for line in lines:
             if hasattr(data, 'cdata'):
                 line.set_color(data.cmap(data.norm(data.cdata[i])))
@@ -865,18 +880,18 @@ class Interact(QtGui.QMainWindow):
             xscale = self.get_scale(d.xscale_box, d.xscale_compl)
             text = self.get_key(d.menu)
             xtext = self.get_key(d.xmenu)
+            args = axes, d, xtext, xscale, text, scale
             if isiterable(d.labels):
                 for i, label in enumerate(d.labels):
-                    self.plot(axes, d.obj[xtext][..., i] * xscale,
-                              d.obj[text][..., i] * scale, i, d, label=label)
+                    self.plot(*args + (i, label))
             else:
-                n = self.plot(axes, d.obj[xtext] * xscale, d.obj[text] * scale,
-                              0, d, label=d.labels)
+                n = self.plot(*args + (slice(None), d.labels))
                 if n > 1:
                     d.labels = ['%s %d' % (d.labels, i) for i in range(n)]
                     return self.draw()
             axes.set_xlabel('')
-            x.append(xtext + ' (' + d.name + ')')
+            if xtext:
+                x.append(xtext + ' (' + d.name + ')')
             y.append(text + ' (' + d.name + ')')
 
         self.axes.set_xlabel('\n'.join(xlabel))
@@ -938,7 +953,7 @@ class Interact(QtGui.QMainWindow):
             QtGui.QLineEdit.Normal, default)
         if ok:
             try:
-                return eval(text_type(text), CONSTANTS)
+                return eval(text_type(text), CONSTANTS.copy())
             except Exception:
                 return None
         else:
@@ -1029,7 +1044,10 @@ def merge_dicts(*dicts):
     keys = sets[0].intersection(*sets)
 
     def validate(array):
-        return isinstance(array, np.ndarray) and np.squeeze(array).ndim == 1
+        return (isinstance(array, np.ndarray) and
+                (np.issubdtype(array.dtype, np.number) or
+                 np.issubdtype(array.dtype, np.bool_))
+                and np.squeeze(array).ndim == 1)
 
     def pad(array):
         return np.pad(np.squeeze(array), (0, length - array.size),
@@ -1090,6 +1108,8 @@ def create(*data, **kwargs):
     for i, d in enumerate(data):
         if isinstance(d, dict):
             data[i] = [d, '']
+        elif isinstance(d, np.ndarray) and isiterable(d.dtype.names):
+            data[i] = [{n: d[n] for n in d.dtype.names}, '']
         elif isiterable(d[-1]) and len(d) == 4:
             d[-2] = {'xname': d[-2], 'labels': list(d[-1])}
             d.pop()
