@@ -84,7 +84,11 @@ function! s:IPyRunScratchBuffer(...)
   let right_save = getpos("'>")
   let vimode = visualmode()
   try
+    let @@ = ''
     execute "normal! " . g:ipython_scratch_motion
+    if empty(@@)
+      return
+    endif
     let g:ipy_input = UncommentMagics(@@)
   finally
     call RestoreRegs()
