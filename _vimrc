@@ -2260,6 +2260,8 @@ let g:surround_69 = "\\(\r\\)"
 let g:surround_101 = "\\%(\r\\)"
 " Single-element tuple with t
 let g:surround_116 = "(\r,)"
+" list() with l
+let g:surround_108 = "list(\r)"
 
 " Syntastic settings
 let g:syntastic_filetype_map = {'arduino': 'cpp'}
