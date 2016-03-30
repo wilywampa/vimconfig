@@ -2,11 +2,11 @@
 " jacob.niehus@gmail.com
 " Do not distribute without permission.
 
-if exists('SelectTextObjectLoaded')
+if exists('g:SelectTextObjectLoaded')
   finish
 endif
 
-let SelectTextObjectLoaded=1
+let g:SelectTextObjectLoaded=1
 
 func! s:SelectTextObject(obj, motion, visual)
   let eventignore = &eventignore
