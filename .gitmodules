@@ -6,10 +6,6 @@
 	path = vimfiles/bundle/FastFold
 	url = https://github.com/Konfekt/FastFold.git
 	branch = master
-[submodule "vimfiles/bundle/Gundo"]
-	path = vimfiles/bundle/Gundo
-	url = https://github.com/wilywampa/Gundo.git
-	branch = dev
 [submodule "vimfiles/bundle/LaTeX-Box"]
 	path = vimfiles/bundle/LaTeX-Box
 	url = https://github.com/LaTeX-Box-Team/LaTeX-Box.git
@@ -250,3 +246,6 @@
 [submodule "vimfiles/bundle/lightline"]
 	path = vimfiles/bundle/lightline
 	url = https://github.com/wilywampa/lightline.vim.git
+[submodule "vimfiles/bundle/mundo"]
+	path = vimfiles/bundle/mundo
+	url = https://github.com/wilywampa/vim-mundo.git

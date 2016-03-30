@@ -79,7 +79,7 @@ endfunction
 
 function! LightLineFilename() abort
   let name = &filetype ==# 'help' ? expand('%:t') : expand('%:~:.')
-  return stridx(name, '__Gundo') == 0 ? '' :
+  return stridx(name, '__Mundo') == 0 ? '' :
       \ stridx(name, '--Python--') != -1 ? 'IPython' :
       \ &previewwindow ? 'Preview' :
       \ &filetype ==# 'vimfiler' ? vimfiler#get_status_string() :
@@ -98,8 +98,8 @@ endfunction
 
 function! LightLineMode() abort
   let name = expand('%:t')
-  return name ==# '__Gundo__' ? 'Gundo' :
-      \ name ==# '__Gundo_Preview__' ? 'Gundo Preview' :
+  return name ==# '__Mundo__' ? 'Mundo' :
+      \ name ==# '__Mundo_Preview__' ? 'Mundo Preview' :
       \ &filetype ==# 'qf' ? (empty(getloclist(0)) ?
       \   'Quickfix' : 'Location List') :
       \ &filetype ==# 'help' ? 'Help' :

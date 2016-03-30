@@ -2235,15 +2235,15 @@ func! s:UniteSetup() " {{{
 endfunc " }}}
 " }}}
 
-" Gundo settings
+" mundo settings
 if has('python') || has('python3')
-    nnoremap <silent> <Leader>u :GundoToggle<CR>
+    nnoremap <silent> <Leader>u :<C-u>MundoToggle<CR>
     if !has('python')
-        let g:gundo_prefer_python3=1
+        let g:mundo_prefer_python3 = 1
     endif
-    let g:gundo_help=0
-    let g:gundo_preview_bottom=1
-    let g:gundo_close_on_revert=1
+    let g:mundo_help = 0
+    let g:mundo_preview_bottom = 1
+    let g:mundo_close_on_revert = 1
 endif
 
 " Surround settings
@@ -2605,7 +2605,7 @@ if filereadable(expand('$HOME/.plugged'))
 endif
 Plug 'vim-scripts/DirDiff.vim', {'on': 'DirDiff'}
 Plug 'Konfekt/FastFold'
-Plug 'wilywampa/Gundo', {'branch': 'dev', 'on': 'GundoToggle'}
+Plug 'wilywampa/vim-mundo', {'on': 'MundoToggle'}
 Plug 'LaTeX-Box-Team/LaTeX-Box', {'for': ['plaintext', 'context', 'tex']}
 Plug 'vim-scripts/OmniCppComplete'
 Plug 'tpope/vim-abolish', {'on': ['S', '<Plug>Coerce']}
