@@ -2339,16 +2339,19 @@ command! -nargs=0 VimuxToggleRunnerType let g:VimuxRunnerType =
     \ g:VimuxRunnerType == 'pane' ? 'window' : 'pane' | echo g:VimuxRunnerType
 
 " Targets settings
-let g:targets_aiAI = 'ai  '
-let g:targets_nlNL = '    '
-let g:targets_pairs = ''
-let g:targets_quotes = ''
+let g:targets_aiAI = 'aiAI'
+let g:targets_nlNL = 'nlNL'
+let g:targets_pairs = '()b {}B []r <>a'
+let g:targets_quotes = '" '' `'
+let g:targets_separators = ', . : + - = ~ _ * # / | & $ %'
 let g:targets_argOpening = '[([{"]'
 let g:targets_argClosing = '[])}"]'
-let g:targets_separators = ', . : + - = ~ _ * # / \ | & $ %'
 let g:targets_argTrigger = 'A'
-onoremap <silent> iA :<C-u>call targets#o('AcI', v:count1)<CR>
-xnoremap <silent> iA :<C-u>call targets#x('AcI', v:count1)<CR>
+if stridx($VIMBLACKLIST, 'targets') == -1
+    let g:SelectTextObjectLoaded = 1
+    onoremap <silent> iA :<C-u>call targets#o('AcI', v:count1)<CR>
+    xnoremap <silent> iA :<C-u>call targets#x('AcI', v:count1)<CR>
+endif
 
 " fuzzyfinder settings
 nnoremap <silent> <M-f> :FZF<CR>
@@ -2641,7 +2644,7 @@ Plug 'wilywampa/vim-colors-solarized', {'dir': '$VIMCONFIG/vimfiles/bundle/solar
 Plug 'ervandew/supertab'
 Plug 'wilywampa/vim-surround'
 Plug 'scrooloose/syntastic', {'on': ['SyntasticInfo', 'SyntasticCheck']}
-Plug 'wellle/targets.vim'
+Plug 'wellle/targets.vim', {'branch': 'improve-quotes'}
 Plug 'wilywampa/tmux-complete.vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'wilywampa/vim-unimpaired'
@@ -2691,8 +2694,8 @@ silent! call neocomplete#custom#source('omni', 'sorters', [])
 
 " Text object for a line and inner (exclude leading space) line
 silent! call textobj#user#plugin('line', { '-': {
-    \     'select-a-function': 'CurrentLineA', 'select-a': 'al',
-    \     'select-i-function': 'CurrentLineI', 'select-i': 'il',
+    \     'select-a-function': 'CurrentLineA', 'select-a': 'a\',
+    \     'select-i-function': 'CurrentLineI', 'select-i': 'i\',
     \ }})
 function! CurrentLineA()
     let [bufnr, lnum, _, offset] = getpos('.')

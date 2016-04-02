@@ -141,7 +141,7 @@
 [submodule "vimfiles/bundle/targets"]
 	path = vimfiles/bundle/targets
 	url = https://github.com/wellle/targets.vim.git
-	branch = master
+	branch = improve-quotes
 [submodule "vimfiles/bundle/tmux-complete"]
 	path = vimfiles/bundle/tmux-complete
 	url = https://github.com/wilywampa/tmux-complete.vim.git
