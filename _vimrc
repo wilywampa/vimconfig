@@ -979,7 +979,7 @@ func! s:SearchHandleKey(dir) " {{{
             \ '<C-\>e<SID>SearchComplete()<CR><C-t>' : '<Tab>'
     endif
     " CursorHold, FocusLost, FocusGained
-    if c == "\200\375`" || c == "\<F24>" || c == "\<F25>" | let c = '' | endif
+    if c =~ "\200\375[`_]" || c == "\<F24>" || c == "\<F25>" | let c = '' | endif
     if     c == char2nr("\<CR>")             | return a:dir."\<CR>"
     elseif c == char2nr("\<Esc>")            | return "\<C-l>"
     elseif c == char2nr("\<C-c>")            | return "\<C-l>"
