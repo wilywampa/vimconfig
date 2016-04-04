@@ -103,5 +103,4 @@ abbr        assert Line
 snippet     fax
 abbr        plt.subplots()
         ${1:f}, ${2:ax} = plt.subplots()
-	assert isinstance($1, plt.Figure) and isinstance($2, plt.Axes)
-	${0}
+	$2.${0}
