@@ -83,6 +83,27 @@ def azip(*iterables, **kwargs):
         if isinstance(i, np.ndarray) else i for i in iterables))
 
 
+def shift(arr, to_front=False, out=None, copy_dict=True):
+    """Shift array padding to the front or back of the array."""
+
+    if isinstance(arr, dict):
+        return map_dict(lambda x: shift(x, to_front=to_front),
+                        arr, copy=copy_dict, types=np.ndarray)
+
+    import numpy.ma as ma
+    empty, masked = np.empty, np.nan
+    if isinstance(arr, ma.MaskedArray):
+        empty, masked = ma.empty, ma.masked
+    new = empty(arr.shape) if out is None else out
+    for i, (a,) in enumerate(azip(arr)):
+        new[..., i] = masked
+        if to_front:
+            new[..., :a.shape[-1], i] = a
+        else:
+            new[..., arr.shape[-2] - a.shape[-1]:, i] = a
+    return new
+
+
 def unmask(arr, unnan=True, axis=-1):
     """Return a view of the unmasked portion of an array."""
     import numpy.ma as ma

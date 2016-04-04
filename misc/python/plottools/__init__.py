@@ -5,7 +5,7 @@ from plotinteract import create, dataobj, merge_dicts
 from plottools.angle2dcm import angle2dcm
 from plottools.dcm2angle import dcm2angle
 from plottools.indexing import (ArrayBunch, array_bunchify, azip, index_all,
-                                map_dict, product_items, unmask)
+                                map_dict, product_items, shift, unmask)
 
 
 def fg(fig=None):
@@ -200,6 +200,15 @@ def fix_angles(angles, pi=np.pi, axis=0):
                                    np.cumsum(delta, axis=axis)))
 
 
+def angle_difference(a, b, pi=np.pi):
+    """Find the unwrapped difference in angle between `a` and `b`."""
+    diff = np.subtract(a, b)
+    div = np.floor_divide(pi + np.abs(diff), 2 * pi) * 2 * pi
+    diff[diff > pi] -= div[diff > pi]
+    diff[diff < pi] += div[diff < pi]
+    return diff
+
+
 def axis_equal_3d(axes=None, xlim=None, ylim=None, zlim=None):
     """Adjust axis limits for equal scaling in Axes3D instance `ax`."""
     if axes is None:
@@ -364,6 +373,7 @@ __all__ = [
     'ArrayBunch',
     'Conversion',
     'angle2dcm',
+    'angle_difference',
     'array_bunchify',
     'axis_equal_3d',
     'azip',
@@ -392,6 +402,7 @@ __all__ = [
     'savehtml',
     'savepdf',
     'savesvg',
+    'shift',
     'styles',
     'unique_legend',
     'unmask',
