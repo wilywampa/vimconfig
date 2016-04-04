@@ -332,11 +332,20 @@ EOF
           endif
         endfor
         try
-          " Go to last error in a listed buffer
-          let listed = reverse(map(getqflist(),
-              \ "v:val['bufnr'] > 0 && buflisted(v:val['bufnr'])"))
+          " Go to last error in a listed buffer (prefer current buffer)
+          let [n, list] = [1, getqflist()]
+          for entry in list
+            let [entry.ccnr, n] = [n, n + 1]
+          endfor
           if &filetype ==# 'qf' | wincmd p | endif
-          execute "cc ".(len(listed) - index(listed, 1))
+          call filter(list, "v:val.bufnr >= 0 && buflisted(v:val.bufnr)")
+          if bufnr('%') > 0 && !empty(filter(copy(list), "v:val.bufnr == bufnr('%')"))
+            execute "cc" filter(list, "v:val.bufnr == bufnr('%')")[-1].ccnr
+          elseif !empty(list)
+            execute "cc" list[-1].ccnr
+          elseif !empty(getqflist())
+            cfirst
+          endif
         catch
           cfirst
         endtry
