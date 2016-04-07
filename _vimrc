@@ -632,7 +632,7 @@ ino <silent> <expr> <C-x>d strftime('%Y_%m_%d_%H%M%Z')
 cno          <expr> <C-x>d strftime('%Y_%m_%d_%H%M%Z')
 
 " Copy all differences from other buffer
-nn <Leader>do :<C-u>%diffget<CR>
+nn <Leader>do <C-\><C-n>gg:diffget<bar>1,$+diffget<CR>
 " }}}
 
 " {{{ Abbreviations to open help
@@ -1979,6 +1979,7 @@ func! s:UniteSettings() " {{{
     nmap <buffer> ]U G<CR>
     nnor <buffer> <C-g> :<C-u>call <SID>modify_unite_options()<CR>
     xmap <buffer> * <Plug>(unite_toggle_mark_selected_candidates)
+    nmap <buffer> ! <Plug>(unite_disable_max_candidates)
     for key in ['<Up>', '<Down>', '<Left>', '<Right>'] + split('?Nbet', '\zs')
         execute 'silent! nunmap <buffer> ' . key
     endfor
