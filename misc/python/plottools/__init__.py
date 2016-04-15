@@ -259,7 +259,7 @@ def dcm2quat(dcm):
 
 def quat2dcm(quat):
     """Create a direction cosine matrix array from quaternion array."""
-    quat = np.asanyarray(quat)
+    quat = np.array(quat, subok=True)
     quat /= np.sqrt(np.sum(quat ** 2, axis=0))
     q0, q1, q2, q3 = quat
     if isinstance(quat, np.ma.MaskedArray):
@@ -317,7 +317,7 @@ class Conversion(float):
         def g(*args, **kwargs):
             dtype = None if np.issubdtype(
                 np.asanyarray(args[0]).dtype, float) else np.float64
-            args = np.asanyarray(args, dtype=dtype)
+            args = np.array(args, dtype=dtype, subok=True)
             if input:
                 args[input] /= self
             result = np.asanyarray(f(*args.tolist(), **kwargs))
