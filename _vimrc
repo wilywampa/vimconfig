@@ -1888,7 +1888,8 @@ let g:unite_marked_icon='✓'
 let g:unite_cursor_line_highlight='CursorLine'
 if executable('ag')
     let g:unite_source_grep_command = 'ag'
-    let g:unite_source_grep_default_opts = '--nogroup --nocolor --column -S'
+    let g:unite_source_grep_default_opts = "--vimgrep --hidden -S " .
+        \ "--ignore '.hg' --ignore '.svn' --ignore '.git' --ignore '.bzr'"
     let g:unite_source_grep_recursive_opt = ''
     let g:unite_source_rec_async_command =
         \ ['ag', '--follow', '--nocolor', '--nogroup', '--hidden', '-g', '']
@@ -2278,7 +2279,7 @@ let g:indent_guides_auto_colors=0
 nmap <silent> <Leader>i <Plug>IndentGuidesToggle
 
 " Ack settings
-if executable('ag') | let g:ackprg='ag --nogroup --nocolor --column -S' | endif
+if executable('ag') | let g:ackprg='ag --vimgrep -S' | endif
 let g:ack_autofold_results=0
 let g:ack_apply_lmappings=0
 let g:ack_apply_qmappings=0
