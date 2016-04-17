@@ -96,26 +96,26 @@ def select_docstring():
         vim.command('call cursor(%d, 0)' % end)
 
 
-class Options(object):
-    aggressive = vim.vars.get('pep8_aggressive', 1)
-    diff = False
-    experimental = True
-    ignore = vim.vars.get('pymode_lint_ignore', ())
-    in_place = False
-    indent_size = autopep8.DEFAULT_INDENT_SIZE
-    line_range = None
-    max_line_length = int(vim.vars.get('pymode_options_max_line_length', 80))
-    pep8_passes = 100
-    recursive = False
-    select = vim.vars.get('pymode_lint_select', ())
-    verbose = 0
-
-
 doc_start = re.compile('^\s*[ur]?("""|' + (3 * "'") + ').*')
 doc_end = re.compile('.*("""|' + (3 * "'") + ')' + '\s*$')
 
 
 def PEP8():
+
+    class Options(object):
+        aggressive = vim.vars.get('pep8_aggressive', 1)
+        diff = False
+        experimental = True
+        ignore = vim.vars.get('pymode_lint_ignore', ())
+        in_place = False
+        indent_size = autopep8.DEFAULT_INDENT_SIZE
+        line_range = None
+        max_line_length = int(vim.vars.get('pep8_max_line_length', 78))
+        pep8_passes = 100
+        recursive = False
+        select = vim.vars.get('pymode_lint_select', ())
+        verbose = 0
+
     start = vim.vvars['lnum'] - 1
     end = vim.vvars['lnum'] + vim.vvars['count'] - 1
 

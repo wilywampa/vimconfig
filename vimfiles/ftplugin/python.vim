@@ -130,7 +130,7 @@ SCRIPT_DIR = vim.eval('s:python_script_dir')
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
-from vim_utils import Options, PEP8, get_ipython_file, select_docstring
+from vim_utils import PEP8, get_ipython_file, select_docstring
 EOF
 function! s:IPythonConsole(bang) abort " {{{
   let ipython_file = s:pyeval('get_ipython_file()')
