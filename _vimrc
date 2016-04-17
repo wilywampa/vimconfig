@@ -1895,7 +1895,7 @@ if executable('ag')
 endif
 let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_registers=['"', '+', '*']
-let g:unite_kind_cdable_cd_command='Windo cd'
+let g:unite_kind_cdable_cd_command='Windo silent! cd'
 let g:unite_force_overwrite_statusline=0
 call s:CreateAbbrev('U', 'Unite -start-insert', ':')
 call s:CreateAbbrev('u', 'Unite -start-insert', ':')
