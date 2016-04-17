@@ -152,6 +152,7 @@ function! s:IPyScratchBuffer()
     keepjumps normal! G
   endif
   setfiletype python
+  syntax clear pythonError
   setlocal buftype=nowrite bufhidden=hide noswapfile
   setlocal omnifunc=CompleteIPython
   setlocal foldmethod=manual foldexpr=
