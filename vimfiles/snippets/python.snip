@@ -104,3 +104,15 @@ snippet     fax
 abbr        plt.subplots()
         ${1:f}, ${2:ax} = plt.subplots()
 	$2.${0}
+
+snippet     future
+abbr        from __future__ ...
+	from __future__ import division, print_function
+
+snippet     c
+abbr        create(dataobj(...))
+	create(dataobj(${1:data}, xname='${2}', yname='${3}')
+
+snippet     do
+abbr        dataobj(...)
+	dataobj(${1:data}, xname='${2}', yname='${3}')
