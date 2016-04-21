@@ -13,7 +13,6 @@ __all__ = ['S', 'SliceIndex', 'dump', 'fields_dict', 'globn', 'items_dict',
 
 _imports = """\
 from __future__ import division
-import IPython.parallel as px  # python2
 try:
     import cPickle as pickle
 except ImportError:
@@ -22,7 +21,6 @@ import collections
 import copy
 import ein
 import inspect
-import ipyparallel as px  # python3
 import itertools as it
 import logging
 import mathtools as mt
@@ -44,7 +42,6 @@ import subprocess
 import sys
 from IPython.core.display import display
 from IPython.lib.pretty import pretty
-from IPython.parallel import Client  # python2
 try:  # python2
     from IPython.external.path import path as Path  # python2
 except ImportError:  # python2
@@ -54,7 +51,6 @@ from bunch import Bunch, bunchify, unbunchify
 from collections import defaultdict, namedtuple
 from contextlib import suppress  # python3
 from functools import reduce
-from ipyparallel import Client  # python3
 from ipython_config import *
 from itertools import (chain, count, cycle, dropwhile, groupby, islice,
                        starmap, takewhile, tee)
