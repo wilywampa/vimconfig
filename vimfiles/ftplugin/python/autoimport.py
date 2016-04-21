@@ -125,6 +125,7 @@ aliases = dict(
     np='numpy',
     op='operator',
     opt='scipy.optimize',
+    pd='pandas',
     pickle='cPickle',
     plt='matplotlib.pyplot',
     pt='plottools',
