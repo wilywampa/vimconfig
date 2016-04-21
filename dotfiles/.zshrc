@@ -546,18 +546,18 @@ b2h() {
 echo "test" | sort -h >& /dev/null
 if [ $? -eq 0 ]; then
     bigdirs() {
-        du -h $PWD | sort -h | tail -n ${1:-$(( $LINES - 6 ))}
+        du -h ${PWD:A} | sort -h | tail -n ${1:-$(( $LINES - 6 ))}
     }
     bigfiles() {
-        find $PWD -type f -exec du -h {} + | sort -h \
+        find ${PWD:A} -type f -exec du -h {} + | sort -h \
             | tail -n ${1:-$(( $LINES - 6 ))}
     }
 else
     bigdirs() {
-        du --block-size=1 $PWD | sort -n | tail -n ${1:-$(( $LINES - 6 ))} | b2h
+        du --block-size=1 ${PWD:A} | sort -n | tail -n ${1:-$(( $LINES - 6 ))} | b2h
     }
     bigfiles() {
-        find $PWD -type f -exec du -b {} + | sort -n \
+        find ${PWD:A} -type f -exec du -b {} + | sort -n \
             | tail -n ${1:-$(( $LINES - 6 ))} | b2h
     }
 fi
