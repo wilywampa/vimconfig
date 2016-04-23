@@ -36,8 +36,8 @@ CONSTANTS.update(dict(d2r=const.degree,
                       r2d=1.0 / const.degree,
                       psf=const.pound_force / (const.foot ** 2)))
 try:
-    color_cycle = mpl.rcParams['axes.prop_cycle'].by_key()['color']
-except (AttributeError, KeyError):
+    color_cycle = [x['color'] for x in mpl.rcParams['axes.prop_cycle']]
+except KeyError:
     color_cycle = mpl.rcParams['axes.color_cycle']
 linestyle_cycle = '-', '--', '-.', ':'
 
