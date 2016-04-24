@@ -484,6 +484,7 @@ magic-abbrev-expand() {
         fi
         mods=('xargs' 'unbuffer' 'nohup' 'sudo')
         [[ ${LBUFFER[(w)1]} == "zargs" ]] && mods+=('--' '..')
+        [[ ${LBUFFER[(w)-3]} == "xargs" ]] && mods+=('-0')
         # Previous word is a modifier
         if (( ${mods[(i)$prevword]} <= ${#mods} )); then
             doabbrev=1; dopostmod=1
