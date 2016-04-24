@@ -69,12 +69,12 @@ for source in filter(check, sources):
         print('Target "{0}" or "{1}" exists - skipping'.format(
             target, undo_target))
         continue
-    shutil.copy(source, target)
+    shutil.copy2(source, target)
     if remove:
         os.remove(source)
     srcs += 1
     if check(undo):
-        shutil.copy(undo, undo_target)
+        shutil.copy2(undo, undo_target)
         if remove:
             os.remove(undo)
         undos += 1
