@@ -48,11 +48,11 @@ function! s:PyclewnMaps()
     nnoremap <buffer> <M-d> :C down<CR>
     nnoremap <buffer> <M-e> :execute "C clear ".expand('%:p').":".line('.')<CR>
     nnoremap <buffer> <C-n> :C next<CR>
-    nnoremap <buffer> <M-p> :execute "C print ".expand('<cword>')<CR>
+    nnoremap <buffer> <M-p> :execute "C p ".expand('<cword>')<CR>
     nnoremap <buffer> g<M-p> :execute "C call ".expand('<cword>').".print()"<CR>
     nnoremap <buffer> <M-P> :execute "C display ".expand('<cword>')<CR>
     nnoremap <M-u> :C up<CR>
-    nnoremap <buffer> <M-x> :execute "C print *".expand('<cword>')<CR>
+    nnoremap <buffer> <M-x> :execute "C p *".expand('<cword>')<CR>
     nnoremap <M-z> :C sigint<CR>
     nnoremap <M-A> :C info args<CR>
     nnoremap <buffer> <M-B> :C info breakpoints<CR>:Ccwindow<CR>
@@ -69,12 +69,12 @@ function! s:PyclewnMaps()
     nnoremap <M-s> :C step<CR>
     nnoremap <M-W> :C where<CR>
     nnoremap <M-X> :execute "C foldvar ."line('.')<CR>
-    vnoremap <buffer> <silent> <C-p> :<C-u>call SaveRegs()<CR>gvy:C print <C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
-    vnoremap <buffer> <silent> <M-p> :<C-u>call SaveRegs()<CR>gvy:C print *<C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
+    vnoremap <buffer> <silent> <C-p> :<C-u>call SaveRegs()<CR>gvy:C p <C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
+    vnoremap <buffer> <silent> <M-p> :<C-u>call SaveRegs()<CR>gvy:C p *<C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
     vnoremap <buffer> <silent> <M-P> :<C-u>call SaveRegs()<CR>gvy:C display <C-r>=<SID>escape(@@)<CR><CR>:call RestoreRegs()<CR>
     nnoremap <buffer> <silent> <M-w> :<C-u>wincmd t<bar>:resize 12<bar>:set winfixheight<bar>
         \ <C-r>=winnr('#') > 0 ? winnr('#').'wincmd w' : ''<CR><bar><C-r>=winnr().'wincmd w'<CR><CR>
-    cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'C print':'Cp')
+    cnoreabbrev <expr> Cp ((getcmdtype()==':'&&getcmdpos()<=3)?'C p':'Cp')
     cnoreabbrev <expr> Cd ((getcmdtype()==':'&&getcmdpos()<=3)?'Cdisplay':'Cd')
     nnoremap <silent> <buffer> <Leader>x :<C-u>call <SID>set_print(0)<bar>let g:first_op=1<bar>set opfunc=<SID>PdbRunMotion<CR>g@
     nnoremap <silent> <buffer> <Leader>xx :<C-u>call <SID>set_print(0)<bar>set opfunc=<SID>PdbRunMotion<Bar>exe 'norm! 'v:count1.'g@_'<CR>
