@@ -205,7 +205,7 @@ def angle_difference(a, b, pi=np.pi):
     diff = np.subtract(a, b)
     div = np.floor_divide(pi + np.abs(diff), 2 * pi) * 2 * pi
     diff[diff > pi] -= div[diff > pi]
-    diff[diff < pi] += div[diff < pi]
+    diff[diff < -pi] += div[diff < -pi]
     return diff
 
 
