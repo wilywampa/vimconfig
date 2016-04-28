@@ -37,8 +37,8 @@ if [ $? -eq 0 ]; then
   if [[ $# == 0 ]] && [[ -n "$stdin" ]]; then
     panepwd=$(tmux display-message -p "#{pane_current_path}")
     stdin="${${${${stdin#\'}%\'}#\"}%\"}"
-    if [[ ${~stdin} != ./* && -e ${${~stdin}%%[:(]*} ]]; then
-      remote "${~stdin}"
+    if [[ ${(e)~stdin} != ./* && -e ${${(e)~stdin}%%[:(]*} ]]; then
+      remote "${(e)~stdin}"
     elif [[ -d "$panepwd" ]] && [[ -e "$panepwd"/"${${${stdin#./}#/}%%[:(]*}" ]]; then
       remote "$panepwd"/"${${stdin#./}#/}"
     else
