@@ -71,6 +71,9 @@ while not connected:
         except Exception as e:
             import traceback
             traceback.print_exc()
+        finally:
+            if not connected:
+                kc.stop_channels()
 
 if len(sys.argv) > 1:
     term = open(sys.argv[1], 'w+')
