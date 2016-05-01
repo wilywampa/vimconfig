@@ -1695,6 +1695,7 @@ endif
 " lightline configuration
 let g:lightline_powerline_fonts = !mobileSSH && v:version >= 703
 runtime! plugin/lightline_config.vim
+nnoremap <silent> <M-w> :<C-u>call whitespace#toggle()<CR>
 
 " Shortcut to force close buffer without closing window
 nnoremap <silent> <Leader><Leader>bd :Bclose!<CR>
