@@ -70,6 +70,9 @@ def array_bunchify(mapping, **kwargs):
                            for k, v in six.iteritems(mapping)), **kwargs)
     elif isinstance(mapping, (list, tuple)):
         return type(mapping)(array_bunchify(v, **kwargs) for v in mapping)
+    elif hasattr(mapping, '_fieldnames'):
+        return ArrayBunch(((k, array_bunchify(getattr(mapping, k), **kwargs))
+                           for k in mapping._fieldnames), **kwargs)
     else:
         return mapping
 
