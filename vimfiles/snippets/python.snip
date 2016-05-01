@@ -116,3 +116,11 @@ abbr        create(dataobj(...))
 snippet     do
 abbr        dataobj(...)
 	dataobj(${1:data}, xname='${2}', yname='${3}')
+
+snippet     plot
+	plt.figure()
+	plt.${1:plot}(${2}, ${3}, ${4:#:'b-', }label=${5})
+	plt.xlabel('${6}')
+	plt.ylabel('${7}')
+	plt.title('${8}')
+	plt.legend()
