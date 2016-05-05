@@ -49,18 +49,12 @@ def _fmt(x=None, y=None, label=None, **kwargs):
     return "\n".join(output)
 
 
-def cursor(fig=None, **kwargs):
-    """Add mpldatacursor to a figure."""
-    from mpldatacursor import datacursor
-    plt.figure((fig or plt.gcf()).number)
-    kw = dict(formatter=_fmt, props_override=_snap)
-    kw.update(kwargs)
-    cursors = []
-    axes = kwargs.get('axes', plt.gcf().get_axes())
-    for ax in axes:
-        cursors.append(datacursor(axes=ax, **kw))
-        [a.draggable() for a in cursors[-1].annotations.values()]
-    return cursors
+def cursor(artists=None, axes=None, **kwargs):
+    """Add mpldatacursor to the current artists."""
+    import mpldatacursor
+    defaults = dict(formatter=_fmt, props_override=_snap, draggable=True)
+    defaults.update(kwargs)
+    return mpldatacursor.datacursor(artists=artists, axes=axes, **defaults)
 
 
 def picker(fig=None, **kwargs):
