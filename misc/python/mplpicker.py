@@ -6,7 +6,7 @@ MIDDLE_CLICK = 2
 RIGHT_CLICK = 3
 
 
-class Picker:
+class Picker(object):
 
     annotation_kwargs = dict(bbox=dict(alpha=0.5,
                                        boxstyle='round,pad=0.5',
@@ -57,8 +57,10 @@ class Picker:
 
     def disable(self):
         self.remove()
-        [self.canvas.mpl_disconnect(c) for c in self.cids]
-        [self.timer.remove_callback(c) for c in self.timer.callbacks]
+        for c in self.cids:
+            self.canvas.mpl_disconnect(c)
+        for c in self.timer.callbacks:
+            self.timer.remove_callback(c)
         del self.axes._active_picker
 
     def button_press(self, event):
@@ -69,13 +71,17 @@ class Picker:
                                 (self.canvas._active_picker == self and
                                  self.control)):
             self.annotation.pick(event)
-        if (self.measure_box and self.measure_box.contains(event)[0] and
+        elif (self.measure_box and self.measure_box.contains(event)[0] and
                 event.button == RIGHT_CLICK):
             self.remove_measurement()
+        elif self.measure_box and self.measure_box.contains(event)[0]:
+            self.measure_box.pick(event)
 
     def key_press(self, event):
         if event.key == 'd':
             self.remove()
+        elif event.key == 'D':
+            self.disable()
         elif event.key == ']':
             self.move(1)
         elif event.key == '[':
@@ -144,7 +150,7 @@ class Picker:
                 # Change target point without moving bbox
                 self.point = point
                 self.annotation.set_text(self.format(self.point))
-                self.annotation.xy = (self.point[0], self.point[1])
+                self.annotation.xy = point[:2]
 
             elif not self.control and not self.shift:
                 # Choose a new point and draw annotation
@@ -174,18 +180,16 @@ class Picker:
     def remove(self):
         self.remove_measurement(draw=False)
         if self.annotation:
-            self.annotation.remove()
+            self.annotation.set_visible(False)
             self.annotation = None
             self.canvas._active_picker = None
             self.canvas.draw()
 
     def remove_measurement(self, draw=True):
         if self.measure_line:
-            self.measure_line.remove()
-            self.measure_line = None
+            self.measure_line.set_visible(False)
         if self.measure_box:
-            self.measure_box.remove()
-            self.measure_box = None
+            self.measure_box.set_visible(False)
         if draw:
             self.canvas.draw()
 
