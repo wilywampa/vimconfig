@@ -1,11 +1,13 @@
 from __future__ import division, print_function
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 from plotinteract import create, dataobj, merge_dicts
 from plottools.angle2dcm import angle2dcm
 from plottools.dcm2angle import dcm2angle
-from plottools.indexing import (ArrayBunch, array_bunchify, azip, index_all,
-                                map_dict, product_items, shift, unmask)
+from plottools.indexing import (ArrayBunch, array_bunchify, azip,
+                                index_all, map_dict, product_items,
+                                shift, unmask)
 
 
 def fg(fig=None):
@@ -223,7 +225,7 @@ def axis_equal_3d(axes=None, xlim=None, ylim=None, zlim=None):
 
 def cdfplot(x, *args, **kwargs):
     """Plot the empirical cumulative distribution function of `x`."""
-    kwargs['drawstyle'] = kwargs.get('drawstyle', 'steps')
+    kwargs.setdefault('drawstyle', 'steps')
     return_data = kwargs.pop('return_data', False)
     ax = kwargs.pop('ax', None)
     x = np.sort(np.atleast_2d(np.squeeze(x)).T, axis=0)
@@ -234,6 +236,26 @@ def cdfplot(x, *args, **kwargs):
     if return_data:
         return artists, X, Y
     return artists
+
+
+def colored_line(x, y, c, norm=None, ax=None, **kwargs):
+    """Create a LineCollection with segments of `x` and `y` colored by `c`."""
+    x = np.squeeze(x)
+    y = np.squeeze(y)
+    xmid = (x[1:] + x[:-1]) / 2.0
+    ymid = (y[1:] + y[:-1]) / 2.0
+    x = np.r_[np.array([x[:-1], xmid, xmid]).T.ravel(), x[-1]]
+    y = np.r_[np.array([y[:-1], ymid, ymid]).T.ravel(), y[-1]]
+    pairs = np.array([x, y]).T
+    segments = np.array([pairs[:-1], pairs[1:]]).swapaxes(0, 1)
+    if norm and not callable(norm):
+        norm = plt.Normalize(*norm)
+    lc = mpl.collections.LineCollection(segments, norm=norm, **kwargs)
+    lc.set_array(np.repeat(c, 3)[1:-1])
+    if ax:
+        ax.add_collection(lc)
+        ax.autoscale_view()
+    return lc
 
 
 def dcm2quat(dcm):
@@ -373,6 +395,7 @@ __all__ = [
     'azip',
     'cdfplot',
     'cl',
+    'colored_line',
     'create',
     'cursor',
     'd2r',
