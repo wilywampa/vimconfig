@@ -921,6 +921,19 @@ class Interact(QtGui.QMainWindow):
 
     def canvas_key_press(self, event):
         key_press_handler(event, self.canvas, self.mpl_toolbar)
+        if event.key == 'ctrl+q':
+            self._close()
+        elif event.key in mpl.rcParams['keymap.home']:
+            self.xlim = self.ylim = None
+            self.draw()
+        elif event.key == 'ctrl+x':
+            self.set_xlim(draw=False)
+        elif event.key == 'ctrl+y':
+            self.set_ylim(draw=False)
+        elif event.key == 'ctrl+l':
+            self.draw()
+        self.xlogscale = self.axes.get_xscale()
+        self.ylogscale = self.axes.get_yscale()
 
     def edit_parameters(self):
         xlim = self.axes.get_xlim()
@@ -959,15 +972,17 @@ class Interact(QtGui.QMainWindow):
         else:
             return None
 
-    def set_xlim(self):
+    def set_xlim(self, draw=True):
         self.xlim = self._input_lim(
             'x', self.xlim or self.axes.get_xlim())
-        self.draw()
+        if draw:
+            self.draw()
 
-    def set_ylim(self):
+    def set_ylim(self, draw=True):
         self.ylim = self._input_lim(
             'y', self.ylim or self.axes.get_ylim())
-        self.draw()
+        if draw:
+            self.draw()
 
     control_actions = {
         QtCore.Qt.Key_M: _margins,
