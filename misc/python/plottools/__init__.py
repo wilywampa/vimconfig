@@ -307,6 +307,32 @@ def quat2dcm(quat):
     return 2.0 * dcm
 
 
+def loadmat(filename, **kwargs):
+    """Load a .mat file with sensible default options."""
+    import scipy.io
+    defaults = dict(squeeze_me=True,
+                    chars_as_strings=True,
+                    struct_as_record=False)
+    defaults.update(kwargs)
+
+    def dictify(struct):
+        if isinstance(struct, dict):
+            return {k: dictify(v) for k, v in struct.items()}
+        elif isinstance(struct, scipy.io.matlab.mio5_params.mat_struct):
+            return {k: dictify(getattr(struct, k)) for k in struct._fieldnames}
+        return struct
+
+    return dict2obj(dictify(scipy.io.loadmat(filename, **defaults)))
+
+
+def savemat(filename, obj, **kwargs):
+    """Save a .mat file with sensible default options."""
+    import scipy.io
+    kwargs.setdefault('long_field_names', True)
+    kwargs.setdefault('do_compression', True)
+    return scipy.io.savemat(filename, obj, **kwargs)
+
+
 class Conversion(float):
 
     """Callable unit conversion."""
@@ -408,6 +434,7 @@ __all__ = [
     'figdo',
     'fix_angles',
     'index_all',
+    'loadmat',
     'map_dict',
     'merge_dicts',
     'pad',
@@ -417,6 +444,7 @@ __all__ = [
     'r2d',
     'resize',
     'savehtml',
+    'savemat',
     'savepdf',
     'savesvg',
     'shift',
