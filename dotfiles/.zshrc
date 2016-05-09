@@ -244,7 +244,7 @@ vibindkey '^[[1;5D' backward-word
 # Focus events
 vibindkey '^[[I' redisplay
 vibindkey '^[[O' redisplay
-bindkey -M viins '^J' vi-open-line-below
+bindkey -M viins '^J' self-insert
 bindkey -M viins '^U' backward-kill-line
 bindkey -M viins '^B' vi-beginning-of-line
 bindkey -M viins '^E' vi-end-of-line
