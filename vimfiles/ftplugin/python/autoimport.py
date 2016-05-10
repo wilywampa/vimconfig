@@ -165,7 +165,8 @@ froms = {
     'ipython_config': [
         'SliceIndex', 'dump', 'fields_dict', 'globn', 'items_dict', 'load',
         'sortn', 'sortnkey'],
-    'mathtools': ['cat', 'derivative', 'ecat', 'norm0', 'unit'],
+    'mathtools': ['angle_between', 'cat', 'derivative', 'ecat', 'norm', 'norm0',
+                  'projection', 'unit'],
     'matplotlib.backends.backend_pdf': ['PdfPages'],
     'matplotlib.pyplot': [
         'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',

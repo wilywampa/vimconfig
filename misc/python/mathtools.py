@@ -1,6 +1,22 @@
 import numpy as np
 
-__all__ = ['cat', 'derivative', 'ecat', 'norm', 'norm0', 'unit']
+__all__ = [
+    'angle_between',
+    'cat',
+    'derivative',
+    'ecat',
+    'norm',
+    'norm0',
+    'projection',
+    'unit',
+]
+
+
+def angle_between(a, b, axisa=0, axisb=0):
+    """Compute the angle between arrays of vectors `a` and `b`."""
+    import ein
+    return np.arccos(ein.dot(a, b, axisa=axisa, axisb=axisb) /
+                     (norm(a, axisa) * norm(b, axisb)))
 
 
 def cat(*arrays):
@@ -47,6 +63,12 @@ def norm0(array):
     return norm(array, axis=0)
 
 
-def unit(array):
-    """Compute the unit vectors along the first axis of an array."""
-    return array / norm0(array)
+def projection(a, b, axisa=0, axisb=0):
+    """Compute the component of `a` in the direction of `b`."""
+    import ein
+    return ein.dot(a, b, axisa=axisa, axisb=axisb) / norm(b, axisb)
+
+
+def unit(array, axis=0):
+    """Compute the unit vectors of `array` along `axis`."""
+    return array / norm(array, axis)
