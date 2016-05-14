@@ -1802,10 +1802,10 @@ let g:sneak#use_ic_scs=1
 autocmd VimrcAutocmds ColorScheme * call s:SneakHighlights()
 func! s:SneakHighlights() " {{{
     let fg = &background == 'dark' ? 8 : 15 | let gui = 'gui=reverse guifg=#'
-    execute "highlight! SneakPluginTarget ctermfg=".fg." ctermbg=4 ".gui."268bd2"
-    execute "highlight! SneakStreakTarget cterm=bold ctermfg="fg." ctermbg=2 ".gui."859900"
-    execute "highlight! SneakStreakMask ctermfg=".(fg-8)." ctermbg=2 ".gui."859900"
-    execute "highlight! SneakStreakCursor ctermfg=".fg." ctermbg=1 ".gui."dc322f"
+    execute "highlight! SneakPluginTarget cterm=reverse ctermbg=".fg." ctermfg=4 ".gui."268bd2"
+    execute "highlight! SneakStreakTarget cterm=bold,reverse ctermbg="fg." ctermfg=2 ".gui."859900"
+    execute "highlight! SneakStreakMask cterm=reverse ctermbg=".(fg-8)." ctermfg=2 ".gui."859900"
+    execute "highlight! SneakStreakCursor cterm=reverse ctermbg=".fg." ctermfg=1 ".gui."dc322f"
     highlight! link SneakStreakStatusLine StatusLine
 endfunc " }}}
 func! s:SneakMaps() " {{{
