@@ -1078,7 +1078,6 @@ fi
 export DIRSTACKSIZE=10
 export KEYTIMEOUT=5
 [[ -e ~/.dircolors ]] && eval $(dircolors -b ~/.dircolors)
-[[ -d ~/vimconfig/misc ]] && fpath=(~/vimconfig/misc $fpath)
 export FPATH
 export EDITOR=vim
 export DATEFMT='%a %d%b%Y %T'
@@ -1440,5 +1439,6 @@ done
 
 [[ -z $VIMCONFIG ]] && export VIMCONFIG=$HOME/vimconfig || :
 [[ -e $VIMCONFIG ]] && source $VIMCONFIG/misc/extract.plugin.zsh || :
+[[ -d $VIMCONFIG/misc ]] && fpath=($VIMCONFIG/misc $fpath)
 
 # vim: set fdm=marker fdl=1 et sw=4 fmr=[[[,]]]:
