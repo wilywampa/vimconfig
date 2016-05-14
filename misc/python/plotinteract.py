@@ -505,7 +505,7 @@ class DataObj(object):
         for key in 'xname', 'yname':
             try:
                 return obj[kwargs[key]].ndim
-            except (AttributeError, IndexError):
+            except (AttributeError, KeyError, IndexError):
                 return None
 
     def set_xname(self, xname):
