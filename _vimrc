@@ -1059,8 +1059,8 @@ endif
 " Delete until character on command line
 func! s:DeleteUntilChar(char) " {{{
     let cmdstart = strpart(getcmdline(), 0, getcmdpos() - 1)
-    let cmdstart = substitute(cmdstart, '\V'.escape(a:char, '\').'\*\$', '', '')
-    let newcmdstart = strpart(cmdstart, 0, strridx(cmdstart, a:char) + 1)
+    let start = substitute(cmdstart, '\V'.escape(a:char, '\').'\*\$', '', '')
+    let newcmdstart = strpart(start, 0, strridx(start, a:char) + 1)
     let end = strpart(getcmdline(), getcmdpos() - 1)
     call setcmdpos(getcmdpos() + len(newcmdstart) - len(cmdstart))
     return newcmdstart.end
