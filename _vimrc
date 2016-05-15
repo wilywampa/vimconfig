@@ -2578,7 +2578,8 @@ let g:neomru#do_validate = hasMac
 let g:neomru#file_mru_limit = 2000
 let g:neomru#update_interval = hasMac ? 0 : 1.0
 
-" gitgutter maps " {{{
+" gitgutter configuration " {{{
+let g:gitgutter_async = 0
 nnoremap <silent> ,gg :<C-u>GitGutter<CR>
 function! s:hunk(mode, sign, ...) abort
     if gitgutter#utility#is_active()
