@@ -1903,6 +1903,9 @@ let g:unite_source_grep_search_word_highlight='WarningMsg'
 let g:unite_source_history_yank_save_registers=['"', '+', '*']
 let g:unite_kind_cdable_cd_command='Windo silent! cd'
 let g:unite_force_overwrite_statusline=0
+let g:unite_source_output_shellcmd_colors = [
+    \ '#073642', '#dc322f', '#859900', '#b58900', '#268bd2', '#d33682', '#2aa198', '#eee8d5',
+    \ '#002b36', '#cb4b16', '#586e75', '#657b83', '#839496', '#6c71c4', '#93a1a1', '#fdf6e3']
 call s:CreateAbbrev('U', 'Unite -start-insert', ':')
 call s:CreateAbbrev('u', 'Unite -start-insert', ':')
 augroup VimrcAutocmds
