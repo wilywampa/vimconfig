@@ -7,7 +7,7 @@ from plottools.angle2dcm import angle2dcm
 from plottools.dcm2angle import dcm2angle
 from plottools.indexing import (ArrayBunch, array_bunchify, azip,
                                 index_all, map_dict, product_items,
-                                shift, unmask)
+                                shift, unmask, where_first, where_last)
 
 
 def fg(fig=None):
@@ -451,5 +451,7 @@ __all__ = [
     'styles',
     'unique_legend',
     'unmask',
+    'where_first',
+    'where_last',
     'varinfo',
 ]

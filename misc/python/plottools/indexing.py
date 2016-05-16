@@ -194,3 +194,29 @@ class _Visitor(object):
                 if not isinstance(e, self.ignore):
                     raise
         return v
+
+
+def where_first(cond, *out, **kwargs):
+    """Return values from `out` where `cond` is first true along axis 0."""
+    import numpy.ma as ma
+    last = kwargs.pop('last', False)
+    if last:
+        ix = cond.shape[0] - ma.argmax(cond[::-1], axis=0) - 1
+        mask = Ellipsis, (ix + 1 == cond.shape[0]) & ~cond[-1]
+    else:
+        ix = ma.argmax(cond, axis=0)
+        mask = Ellipsis, (ix == 0) & ~cond[0]
+    ix = Ellipsis, ix, np.arange(ix.size)
+    if not out:
+        return ix, mask
+    out = [ma.masked_array(a[ix], **kwargs) for a in out]
+    if mask[-1].any():
+        for o in out:
+            o[mask] = ma.masked
+    return out[0] if len(out) == 1 else out
+
+
+def where_last(cond, *out, **kwargs):
+    """Return values from `out` where `cond` is last true along axis 0."""
+    kwargs['last'] = True
+    return where_first(cond, *out, **kwargs)
