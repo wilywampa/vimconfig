@@ -348,9 +348,8 @@ class Conversion(float):
 
     def func(self, f, **kwargs):
         """Modify the units of a function's inputs and/or outputs."""
-        input = kwargs.get('input',
-                           False if kwargs.get('output', None) else True)
-        output = kwargs.get('output', False if input else True)
+        input = kwargs.get('input', not kwargs.get('output', None))
+        output = kwargs.get('output', not input)
         if input in (True, False):
             input = Ellipsis if input else ()
         if output in (True, False):
