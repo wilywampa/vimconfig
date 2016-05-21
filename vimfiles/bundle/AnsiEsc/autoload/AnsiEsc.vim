@@ -565,241 +565,241 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    " eight-color handling: {{{3
    " ---------------------
 "   call Decho("set up 8-color highlighting groups")
-   hi ansiBlack             ctermfg=0          guifg=black                                        cterm=none         gui=none
-   hi ansiRed               ctermfg=1          guifg=red                                          cterm=none         gui=none
-   hi ansiGreen             ctermfg=2          guifg=green                                        cterm=none         gui=none
-   hi ansiYellow            ctermfg=3          guifg=yellow                                       cterm=none         gui=none
-   hi ansiBlue              ctermfg=4          guifg=blue                                         cterm=none         gui=none
-   hi ansiMagenta           ctermfg=5          guifg=magenta                                      cterm=none         gui=none
-   hi ansiCyan              ctermfg=6          guifg=cyan                                         cterm=none         gui=none
-   hi ansiWhite             ctermfg=7          guifg=white                                        cterm=none         gui=none
+   hi ansiBlack             ctermfg=0          guifg=#073642                                      cterm=none         gui=none
+   hi ansiRed               ctermfg=1          guifg=#dc322f                                      cterm=none         gui=none
+   hi ansiGreen             ctermfg=2          guifg=#859900                                      cterm=none         gui=none
+   hi ansiYellow            ctermfg=3          guifg=#b58900                                      cterm=none         gui=none
+   hi ansiBlue              ctermfg=4          guifg=#268bd2                                      cterm=none         gui=none
+   hi ansiMagenta           ctermfg=5          guifg=#d33682                                      cterm=none         gui=none
+   hi ansiCyan              ctermfg=6          guifg=#2aa198                                      cterm=none         gui=none
+   hi ansiWhite             ctermfg=7          guifg=#eee8d5                                      cterm=none         gui=none
 
-   hi ansiBlackBg           ctermbg=0          guibg=black                                        cterm=none         gui=none
-   hi ansiRedBg             ctermbg=1          guibg=red                                          cterm=none         gui=none
-   hi ansiGreenBg           ctermbg=2          guibg=green                                        cterm=none         gui=none
-   hi ansiYellowBg          ctermbg=3          guibg=yellow                                       cterm=none         gui=none
-   hi ansiBlueBg            ctermbg=4          guibg=blue                                         cterm=none         gui=none
-   hi ansiMagentaBg         ctermbg=5          guibg=magenta                                      cterm=none         gui=none
-   hi ansiCyanBg            ctermbg=6          guibg=cyan                                         cterm=none         gui=none
-   hi ansiWhiteBg           ctermbg=7          guibg=white                                        cterm=none         gui=none
+   hi ansiBlackBg           ctermbg=0          guibg=#073642                                      cterm=none         gui=none
+   hi ansiRedBg             ctermbg=1          guibg=#dc322f                                      cterm=none         gui=none
+   hi ansiGreenBg           ctermbg=2          guibg=#859900                                      cterm=none         gui=none
+   hi ansiYellowBg          ctermbg=3          guibg=#b58900                                      cterm=none         gui=none
+   hi ansiBlueBg            ctermbg=4          guibg=#268bd2                                      cterm=none         gui=none
+   hi ansiMagentaBg         ctermbg=5          guibg=#d33682                                      cterm=none         gui=none
+   hi ansiCyanBg            ctermbg=6          guibg=#2aa198                                      cterm=none         gui=none
+   hi ansiWhiteBg           ctermbg=7          guibg=#eee8d5                                      cterm=none         gui=none
 
-   hi ansiBoldBlack         ctermfg=0          guifg=black                                        cterm=bold         gui=bold
-   hi ansiBoldRed           ctermfg=1          guifg=red                                          cterm=bold         gui=bold
-   hi ansiBoldGreen         ctermfg=2          guifg=green                                        cterm=bold         gui=bold
-   hi ansiBoldYellow        ctermfg=3          guifg=yellow                                       cterm=bold         gui=bold
-   hi ansiBoldBlue          ctermfg=4          guifg=blue                                         cterm=bold         gui=bold
-   hi ansiBoldMagenta       ctermfg=5          guifg=magenta                                      cterm=bold         gui=bold
-   hi ansiBoldCyan          ctermfg=6          guifg=cyan                                         cterm=bold         gui=bold
-   hi ansiBoldWhite         ctermfg=7          guifg=white                                        cterm=bold         gui=bold
+   hi ansiBoldBlack         ctermfg=0          guifg=#073642                                      cterm=bold         gui=bold
+   hi ansiBoldRed           ctermfg=1          guifg=#dc322f                                      cterm=bold         gui=bold
+   hi ansiBoldGreen         ctermfg=2          guifg=#859900                                      cterm=bold         gui=bold
+   hi ansiBoldYellow        ctermfg=3          guifg=#b58900                                      cterm=bold         gui=bold
+   hi ansiBoldBlue          ctermfg=4          guifg=#268bd2                                      cterm=bold         gui=bold
+   hi ansiBoldMagenta       ctermfg=5          guifg=#d33682                                      cterm=bold         gui=bold
+   hi ansiBoldCyan          ctermfg=6          guifg=#2aa198                                      cterm=bold         gui=bold
+   hi ansiBoldWhite         ctermfg=7          guifg=#eee8d5                                      cterm=bold         gui=bold
 
-   hi ansiStandoutBlack     ctermfg=0          guifg=black                                        cterm=standout     gui=standout
-   hi ansiStandoutRed       ctermfg=1          guifg=red                                          cterm=standout     gui=standout
-   hi ansiStandoutGreen     ctermfg=2          guifg=green                                        cterm=standout     gui=standout
-   hi ansiStandoutYellow    ctermfg=3          guifg=yellow                                       cterm=standout     gui=standout
-   hi ansiStandoutBlue      ctermfg=4          guifg=blue                                         cterm=standout     gui=standout
-   hi ansiStandoutMagenta   ctermfg=5          guifg=magenta                                      cterm=standout     gui=standout
-   hi ansiStandoutCyan      ctermfg=6          guifg=cyan                                         cterm=standout     gui=standout
-   hi ansiStandoutWhite     ctermfg=7          guifg=white                                        cterm=standout     gui=standout
+   hi ansiStandoutBlack     ctermfg=0          guifg=#073642                                      cterm=standout     gui=standout
+   hi ansiStandoutRed       ctermfg=1          guifg=#dc322f                                      cterm=standout     gui=standout
+   hi ansiStandoutGreen     ctermfg=2          guifg=#859900                                      cterm=standout     gui=standout
+   hi ansiStandoutYellow    ctermfg=3          guifg=#b58900                                      cterm=standout     gui=standout
+   hi ansiStandoutBlue      ctermfg=4          guifg=#268bd2                                      cterm=standout     gui=standout
+   hi ansiStandoutMagenta   ctermfg=5          guifg=#d33682                                      cterm=standout     gui=standout
+   hi ansiStandoutCyan      ctermfg=6          guifg=#2aa198                                      cterm=standout     gui=standout
+   hi ansiStandoutWhite     ctermfg=7          guifg=#eee8d5                                      cterm=standout     gui=standout
 
-   hi ansiItalicBlack       ctermfg=0          guifg=black                                        cterm=italic       gui=italic
-   hi ansiItalicRed         ctermfg=1          guifg=red                                          cterm=italic       gui=italic
-   hi ansiItalicGreen       ctermfg=2          guifg=green                                        cterm=italic       gui=italic
-   hi ansiItalicYellow      ctermfg=3          guifg=yellow                                       cterm=italic       gui=italic
-   hi ansiItalicBlue        ctermfg=4          guifg=blue                                         cterm=italic       gui=italic
-   hi ansiItalicMagenta     ctermfg=5          guifg=magenta                                      cterm=italic       gui=italic
-   hi ansiItalicCyan        ctermfg=6          guifg=cyan                                         cterm=italic       gui=italic
-   hi ansiItalicWhite       ctermfg=7          guifg=white                                        cterm=italic       gui=italic
+   hi ansiItalicBlack       ctermfg=0          guifg=#073642                                      cterm=italic       gui=italic
+   hi ansiItalicRed         ctermfg=1          guifg=#dc322f                                      cterm=italic       gui=italic
+   hi ansiItalicGreen       ctermfg=2          guifg=#859900                                      cterm=italic       gui=italic
+   hi ansiItalicYellow      ctermfg=3          guifg=#b58900                                      cterm=italic       gui=italic
+   hi ansiItalicBlue        ctermfg=4          guifg=#268bd2                                      cterm=italic       gui=italic
+   hi ansiItalicMagenta     ctermfg=5          guifg=#d33682                                      cterm=italic       gui=italic
+   hi ansiItalicCyan        ctermfg=6          guifg=#2aa198                                      cterm=italic       gui=italic
+   hi ansiItalicWhite       ctermfg=7          guifg=#eee8d5                                      cterm=italic       gui=italic
 
-   hi ansiUnderlineBlack    ctermfg=0          guifg=black                                        cterm=underline    gui=underline
-   hi ansiUnderlineRed      ctermfg=1          guifg=red                                          cterm=underline    gui=underline
-   hi ansiUnderlineGreen    ctermfg=2          guifg=green                                        cterm=underline    gui=underline
-   hi ansiUnderlineYellow   ctermfg=3          guifg=yellow                                       cterm=underline    gui=underline
-   hi ansiUnderlineBlue     ctermfg=4          guifg=blue                                         cterm=underline    gui=underline
-   hi ansiUnderlineMagenta  ctermfg=5          guifg=magenta                                      cterm=underline    gui=underline
-   hi ansiUnderlineCyan     ctermfg=6          guifg=cyan                                         cterm=underline    gui=underline
-   hi ansiUnderlineWhite    ctermfg=7          guifg=white                                        cterm=underline    gui=underline
+   hi ansiUnderlineBlack    ctermfg=0          guifg=#073642                                      cterm=underline    gui=underline
+   hi ansiUnderlineRed      ctermfg=1          guifg=#dc322f                                      cterm=underline    gui=underline
+   hi ansiUnderlineGreen    ctermfg=2          guifg=#859900                                      cterm=underline    gui=underline
+   hi ansiUnderlineYellow   ctermfg=3          guifg=#b58900                                      cterm=underline    gui=underline
+   hi ansiUnderlineBlue     ctermfg=4          guifg=#268bd2                                      cterm=underline    gui=underline
+   hi ansiUnderlineMagenta  ctermfg=5          guifg=#d33682                                      cterm=underline    gui=underline
+   hi ansiUnderlineCyan     ctermfg=6          guifg=#2aa198                                      cterm=underline    gui=underline
+   hi ansiUnderlineWhite    ctermfg=7          guifg=#eee8d5                                      cterm=underline    gui=underline
 
-   hi ansiBlinkBlack        ctermfg=0          guifg=black                                        cterm=standout     gui=undercurl
-   hi ansiBlinkRed          ctermfg=1          guifg=red                                          cterm=standout     gui=undercurl
-   hi ansiBlinkGreen        ctermfg=2          guifg=green                                        cterm=standout     gui=undercurl
-   hi ansiBlinkYellow       ctermfg=3          guifg=yellow                                       cterm=standout     gui=undercurl
-   hi ansiBlinkBlue         ctermfg=4          guifg=blue                                         cterm=standout     gui=undercurl
-   hi ansiBlinkMagenta      ctermfg=5          guifg=magenta                                      cterm=standout     gui=undercurl
-   hi ansiBlinkCyan         ctermfg=6          guifg=cyan                                         cterm=standout     gui=undercurl
-   hi ansiBlinkWhite        ctermfg=7          guifg=white                                        cterm=standout     gui=undercurl
+   hi ansiBlinkBlack        ctermfg=0          guifg=#073642                                      cterm=standout     gui=undercurl
+   hi ansiBlinkRed          ctermfg=1          guifg=#dc322f                                      cterm=standout     gui=undercurl
+   hi ansiBlinkGreen        ctermfg=2          guifg=#859900                                      cterm=standout     gui=undercurl
+   hi ansiBlinkYellow       ctermfg=3          guifg=#b58900                                      cterm=standout     gui=undercurl
+   hi ansiBlinkBlue         ctermfg=4          guifg=#268bd2                                      cterm=standout     gui=undercurl
+   hi ansiBlinkMagenta      ctermfg=5          guifg=#d33682                                      cterm=standout     gui=undercurl
+   hi ansiBlinkCyan         ctermfg=6          guifg=#2aa198                                      cterm=standout     gui=undercurl
+   hi ansiBlinkWhite        ctermfg=7          guifg=#eee8d5                                      cterm=standout     gui=undercurl
 
-   hi ansiRapidBlinkBlack   ctermfg=0          guifg=black                                        cterm=standout     gui=undercurl
-   hi ansiRapidBlinkRed     ctermfg=1          guifg=red                                          cterm=standout     gui=undercurl
-   hi ansiRapidBlinkGreen   ctermfg=2          guifg=green                                        cterm=standout     gui=undercurl
-   hi ansiRapidBlinkYellow  ctermfg=3          guifg=yellow                                       cterm=standout     gui=undercurl
-   hi ansiRapidBlinkBlue    ctermfg=4          guifg=blue                                         cterm=standout     gui=undercurl
-   hi ansiRapidBlinkMagenta ctermfg=5          guifg=magenta                                      cterm=standout     gui=undercurl
-   hi ansiRapidBlinkCyan    ctermfg=6          guifg=cyan                                         cterm=standout     gui=undercurl
-   hi ansiRapidBlinkWhite   ctermfg=7          guifg=white                                        cterm=standout     gui=undercurl
+   hi ansiRapidBlinkBlack   ctermfg=0          guifg=#073642                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkRed     ctermfg=1          guifg=#dc322f                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkGreen   ctermfg=2          guifg=#859900                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkYellow  ctermfg=3          guifg=#b58900                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkBlue    ctermfg=4          guifg=#268bd2                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkMagenta ctermfg=5          guifg=#d33682                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkCyan    ctermfg=6          guifg=#2aa198                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkWhite   ctermfg=7          guifg=#eee8d5                                      cterm=standout     gui=undercurl
 
    hi ansiRV                                                                                      cterm=reverse      gui=reverse
-   hi ansiRVBlack           ctermfg=0          guifg=black                                        cterm=reverse      gui=reverse
-   hi ansiRVRed             ctermfg=1          guifg=red                                          cterm=reverse      gui=reverse
-   hi ansiRVGreen           ctermfg=2          guifg=green                                        cterm=reverse      gui=reverse
-   hi ansiRVYellow          ctermfg=3          guifg=yellow                                       cterm=reverse      gui=reverse
-   hi ansiRVBlue            ctermfg=4          guifg=blue                                         cterm=reverse      gui=reverse
-   hi ansiRVMagenta         ctermfg=5          guifg=magenta                                      cterm=reverse      gui=reverse
-   hi ansiRVCyan            ctermfg=6          guifg=cyan                                         cterm=reverse      gui=reverse
-   hi ansiRVWhite           ctermfg=7          guifg=white                                        cterm=reverse      gui=reverse
+   hi ansiRVBlack           ctermfg=0          guifg=#073642                                      cterm=reverse      gui=reverse
+   hi ansiRVRed             ctermfg=1          guifg=#dc322f                                      cterm=reverse      gui=reverse
+   hi ansiRVGreen           ctermfg=2          guifg=#859900                                      cterm=reverse      gui=reverse
+   hi ansiRVYellow          ctermfg=3          guifg=#b58900                                      cterm=reverse      gui=reverse
+   hi ansiRVBlue            ctermfg=4          guifg=#268bd2                                      cterm=reverse      gui=reverse
+   hi ansiRVMagenta         ctermfg=5          guifg=#d33682                                      cterm=reverse      gui=reverse
+   hi ansiRVCyan            ctermfg=6          guifg=#2aa198                                      cterm=reverse      gui=reverse
+   hi ansiRVWhite           ctermfg=7          guifg=#eee8d5                                      cterm=reverse      gui=reverse
 
-   hi ansiBrightBlack             ctermfg=8          guifg=black                                        cterm=none         gui=none
-   hi ansiBrightRed               ctermfg=9          guifg=red                                          cterm=none         gui=none
-   hi ansiBrightGreen             ctermfg=10         guifg=green                                        cterm=none         gui=none
-   hi ansiBrightYellow            ctermfg=11         guifg=yellow                                       cterm=none         gui=none
-   hi ansiBrightBlue              ctermfg=12         guifg=blue                                         cterm=none         gui=none
-   hi ansiBrightMagenta           ctermfg=13         guifg=magenta                                      cterm=none         gui=none
-   hi ansiBrightCyan              ctermfg=14         guifg=cyan                                         cterm=none         gui=none
-   hi ansiBrightWhite             ctermfg=15         guifg=white                                        cterm=none         gui=none
+   hi ansiBrightBlack             ctermfg=8          guifg=#073642                                      cterm=none         gui=none
+   hi ansiBrightRed               ctermfg=9          guifg=#cb4b16                                      cterm=none         gui=none
+   hi ansiBrightGreen             ctermfg=10         guifg=#586e75                                      cterm=none         gui=none
+   hi ansiBrightYellow            ctermfg=11         guifg=#657b83                                      cterm=none         gui=none
+   hi ansiBrightBlue              ctermfg=12         guifg=#839496                                      cterm=none         gui=none
+   hi ansiBrightMagenta           ctermfg=13         guifg=#6c71c4                                      cterm=none         gui=none
+   hi ansiBrightCyan              ctermfg=14         guifg=#93a1a1                                      cterm=none         gui=none
+   hi ansiBrightWhite             ctermfg=15         guifg=#fdf6e3                                      cterm=none         gui=none
 
-   hi ansiBrightBlackBg           ctermbg=8          guibg=black                                        cterm=none         gui=none
-   hi ansiBrightRedBg             ctermbg=9          guibg=red                                          cterm=none         gui=none
-   hi ansiBrightGreenBg           ctermbg=10         guibg=green                                        cterm=none         gui=none
-   hi ansiBrightYellowBg          ctermbg=11         guibg=yellow                                       cterm=none         gui=none
-   hi ansiBrightBlueBg            ctermbg=12         guibg=blue                                         cterm=none         gui=none
-   hi ansiBrightMagentaBg         ctermbg=13         guibg=magenta                                      cterm=none         gui=none
-   hi ansiBrightCyanBg            ctermbg=14         guibg=cyan                                         cterm=none         gui=none
-   hi ansiBrightWhiteBg           ctermbg=15         guibg=white                                        cterm=none         gui=none
+   hi ansiBrightBlackBg           ctermbg=8          guibg=#073642                                      cterm=none         gui=none
+   hi ansiBrightRedBg             ctermbg=9          guibg=#cb4b16                                      cterm=none         gui=none
+   hi ansiBrightGreenBg           ctermbg=10         guibg=#586e75                                      cterm=none         gui=none
+   hi ansiBrightYellowBg          ctermbg=11         guibg=#657b83                                      cterm=none         gui=none
+   hi ansiBrightBlueBg            ctermbg=12         guibg=#839496                                      cterm=none         gui=none
+   hi ansiBrightMagentaBg         ctermbg=13         guibg=#6c71c4                                      cterm=none         gui=none
+   hi ansiBrightCyanBg            ctermbg=14         guibg=#93a1a1                                      cterm=none         gui=none
+   hi ansiBrightWhiteBg           ctermbg=15         guibg=#fdf6e3                                      cterm=none         gui=none
 
-   hi ansiBrightBoldBlack         ctermfg=8          guifg=black                                        cterm=bold         gui=bold
-   hi ansiBrightBoldRed           ctermfg=9          guifg=red                                          cterm=bold         gui=bold
-   hi ansiBrightBoldGreen         ctermfg=10         guifg=green                                        cterm=bold         gui=bold
-   hi ansiBrightBoldYellow        ctermfg=11         guifg=yellow                                       cterm=bold         gui=bold
-   hi ansiBrightBoldBlue          ctermfg=12         guifg=blue                                         cterm=bold         gui=bold
-   hi ansiBrightBoldMagenta       ctermfg=13         guifg=magenta                                      cterm=bold         gui=bold
-   hi ansiBrightBoldCyan          ctermfg=14         guifg=cyan                                         cterm=bold         gui=bold
-   hi ansiBrightBoldWhite         ctermfg=15         guifg=white                                        cterm=bold         gui=bold
+   hi ansiBrightBoldBlack         ctermfg=8          guifg=#073642                                      cterm=bold         gui=bold
+   hi ansiBrightBoldRed           ctermfg=9          guifg=#cb4b16                                      cterm=bold         gui=bold
+   hi ansiBrightBoldGreen         ctermfg=10         guifg=#586e75                                      cterm=bold         gui=bold
+   hi ansiBrightBoldYellow        ctermfg=11         guifg=#657b83                                      cterm=bold         gui=bold
+   hi ansiBrightBoldBlue          ctermfg=12         guifg=#839496                                      cterm=bold         gui=bold
+   hi ansiBrightBoldMagenta       ctermfg=13         guifg=#6c71c4                                      cterm=bold         gui=bold
+   hi ansiBrightBoldCyan          ctermfg=14         guifg=#93a1a1                                      cterm=bold         gui=bold
+   hi ansiBrightBoldWhite         ctermfg=15         guifg=#fdf6e3                                      cterm=bold         gui=bold
 
-   hi ansiBrightStandoutBlack     ctermfg=8          guifg=black                                        cterm=standout     gui=standout
-   hi ansiBrightStandoutRed       ctermfg=9          guifg=red                                          cterm=standout     gui=standout
-   hi ansiBrightStandoutGreen     ctermfg=10         guifg=green                                        cterm=standout     gui=standout
-   hi ansiBrightStandoutYellow    ctermfg=11         guifg=yellow                                       cterm=standout     gui=standout
-   hi ansiBrightStandoutBlue      ctermfg=12         guifg=blue                                         cterm=standout     gui=standout
-   hi ansiBrightStandoutMagenta   ctermfg=13         guifg=magenta                                      cterm=standout     gui=standout
-   hi ansiBrightStandoutCyan      ctermfg=14         guifg=cyan                                         cterm=standout     gui=standout
-   hi ansiBrightStandoutWhite     ctermfg=15         guifg=white                                        cterm=standout     gui=standout
+   hi ansiBrightStandoutBlack     ctermfg=8          guifg=#073642                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutRed       ctermfg=9          guifg=#cb4b16                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutGreen     ctermfg=10         guifg=#586e75                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutYellow    ctermfg=11         guifg=#657b83                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutBlue      ctermfg=12         guifg=#839496                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutMagenta   ctermfg=13         guifg=#6c71c4                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutCyan      ctermfg=14         guifg=#93a1a1                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutWhite     ctermfg=15         guifg=#fdf6e3                                      cterm=standout     gui=standout
 
-   hi ansiBrightItalicBlack       ctermfg=8          guifg=black                                        cterm=italic       gui=italic
-   hi ansiBrightItalicRed         ctermfg=9          guifg=red                                          cterm=italic       gui=italic
-   hi ansiBrightItalicGreen       ctermfg=10         guifg=green                                        cterm=italic       gui=italic
-   hi ansiBrightItalicYellow      ctermfg=11         guifg=yellow                                       cterm=italic       gui=italic
-   hi ansiBrightItalicBlue        ctermfg=12         guifg=blue                                         cterm=italic       gui=italic
-   hi ansiBrightItalicMagenta     ctermfg=13         guifg=magenta                                      cterm=italic       gui=italic
-   hi ansiBrightItalicCyan        ctermfg=14         guifg=cyan                                         cterm=italic       gui=italic
-   hi ansiBrightItalicWhite       ctermfg=15         guifg=white                                        cterm=italic       gui=italic
+   hi ansiBrightItalicBlack       ctermfg=8          guifg=#073642                                      cterm=italic       gui=italic
+   hi ansiBrightItalicRed         ctermfg=9          guifg=#cb4b16                                      cterm=italic       gui=italic
+   hi ansiBrightItalicGreen       ctermfg=10         guifg=#586e75                                      cterm=italic       gui=italic
+   hi ansiBrightItalicYellow      ctermfg=11         guifg=#657b83                                      cterm=italic       gui=italic
+   hi ansiBrightItalicBlue        ctermfg=12         guifg=#839496                                      cterm=italic       gui=italic
+   hi ansiBrightItalicMagenta     ctermfg=13         guifg=#6c71c4                                      cterm=italic       gui=italic
+   hi ansiBrightItalicCyan        ctermfg=14         guifg=#93a1a1                                      cterm=italic       gui=italic
+   hi ansiBrightItalicWhite       ctermfg=15         guifg=#fdf6e3                                      cterm=italic       gui=italic
 
-   hi ansiBrightUnderlineBlack    ctermfg=8          guifg=black                                        cterm=underline    gui=underline
-   hi ansiBrightUnderlineRed      ctermfg=9          guifg=red                                          cterm=underline    gui=underline
-   hi ansiBrightUnderlineGreen    ctermfg=10         guifg=green                                        cterm=underline    gui=underline
-   hi ansiBrightUnderlineYellow   ctermfg=11         guifg=yellow                                       cterm=underline    gui=underline
-   hi ansiBrightUnderlineBlue     ctermfg=12         guifg=blue                                         cterm=underline    gui=underline
-   hi ansiBrightUnderlineMagenta  ctermfg=13         guifg=magenta                                      cterm=underline    gui=underline
-   hi ansiBrightUnderlineCyan     ctermfg=14         guifg=cyan                                         cterm=underline    gui=underline
-   hi ansiBrightUnderlineWhite    ctermfg=15         guifg=white                                        cterm=underline    gui=underline
+   hi ansiBrightUnderlineBlack    ctermfg=8          guifg=#073642                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineRed      ctermfg=9          guifg=#cb4b16                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineGreen    ctermfg=10         guifg=#586e75                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineYellow   ctermfg=11         guifg=#657b83                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineBlue     ctermfg=12         guifg=#839496                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineMagenta  ctermfg=13         guifg=#6c71c4                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineCyan     ctermfg=14         guifg=#93a1a1                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineWhite    ctermfg=15         guifg=#fdf6e3                                      cterm=underline    gui=underline
 
-   hi ansiBrightBlinkBlack        ctermfg=8          guifg=black                                        cterm=standout     gui=undercurl
-   hi ansiBrightBlinkRed          ctermfg=9          guifg=red                                          cterm=standout     gui=undercurl
-   hi ansiBrightBlinkGreen        ctermfg=10         guifg=green                                        cterm=standout     gui=undercurl
-   hi ansiBrightBlinkYellow       ctermfg=11         guifg=yellow                                       cterm=standout     gui=undercurl
-   hi ansiBrightBlinkBlue         ctermfg=12         guifg=blue                                         cterm=standout     gui=undercurl
-   hi ansiBrightBlinkMagenta      ctermfg=13         guifg=magenta                                      cterm=standout     gui=undercurl
-   hi ansiBrightBlinkCyan         ctermfg=14         guifg=cyan                                         cterm=standout     gui=undercurl
-   hi ansiBrightBlinkWhite        ctermfg=15         guifg=white                                        cterm=standout     gui=undercurl
+   hi ansiBrightBlinkBlack        ctermfg=8          guifg=#073642                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkRed          ctermfg=9          guifg=#cb4b16                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkGreen        ctermfg=10         guifg=#586e75                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkYellow       ctermfg=11         guifg=#657b83                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkBlue         ctermfg=12         guifg=#839496                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkMagenta      ctermfg=13         guifg=#6c71c4                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkCyan         ctermfg=14         guifg=#93a1a1                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkWhite        ctermfg=15         guifg=#fdf6e3                                      cterm=standout     gui=undercurl
 
-   hi ansiBrightRapidBlinkBlack   ctermfg=8          guifg=black                                        cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkRed     ctermfg=9          guifg=red                                          cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkGreen   ctermfg=10         guifg=green                                        cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkYellow  ctermfg=11         guifg=yellow                                       cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkBlue    ctermfg=12         guifg=blue                                         cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkMagenta ctermfg=13         guifg=magenta                                      cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkCyan    ctermfg=14         guifg=cyan                                         cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkWhite   ctermfg=15         guifg=white                                        cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkBlack   ctermfg=8          guifg=#073642                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkRed     ctermfg=9          guifg=#cb4b16                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkGreen   ctermfg=10         guifg=#586e75                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkYellow  ctermfg=11         guifg=#657b83                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkBlue    ctermfg=12         guifg=#839496                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkMagenta ctermfg=13         guifg=#6c71c4                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkCyan    ctermfg=14         guifg=#93a1a1                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkWhite   ctermfg=15         guifg=#fdf6e3                                      cterm=standout     gui=undercurl
 
    hi ansiBrightRV                                                                                      cterm=reverse      gui=reverse
-   hi ansiBrightRVBlack           ctermfg=8          guifg=black                                        cterm=reverse      gui=reverse
-   hi ansiBrightRVRed             ctermfg=9          guifg=red                                          cterm=reverse      gui=reverse
-   hi ansiBrightRVGreen           ctermfg=10         guifg=green                                        cterm=reverse      gui=reverse
-   hi ansiBrightRVYellow          ctermfg=11         guifg=yellow                                       cterm=reverse      gui=reverse
-   hi ansiBrightRVBlue            ctermfg=12         guifg=blue                                         cterm=reverse      gui=reverse
-   hi ansiBrightRVMagenta         ctermfg=13         guifg=magenta                                      cterm=reverse      gui=reverse
-   hi ansiBrightRVCyan            ctermfg=14         guifg=cyan                                         cterm=reverse      gui=reverse
-   hi ansiBrightRVWhite           ctermfg=15         guifg=white                                        cterm=reverse      gui=reverse
+   hi ansiBrightRVBlack           ctermfg=8          guifg=#073642                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVRed             ctermfg=9          guifg=#cb4b16                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVGreen           ctermfg=10         guifg=#586e75                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVYellow          ctermfg=11         guifg=#657b83                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVBlue            ctermfg=12         guifg=#839496                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVMagenta         ctermfg=13         guifg=#6c71c4                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVCyan            ctermfg=14         guifg=#93a1a1                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVWhite           ctermfg=15         guifg=#fdf6e3                                      cterm=reverse      gui=reverse
 
-   hi ansiBlackBlack        ctermfg=0          ctermbg=0          guifg=Black      guibg=Black    cterm=none         gui=none
-   hi ansiRedBlack          ctermfg=1          ctermbg=0          guifg=Red        guibg=Black    cterm=none         gui=none
-   hi ansiGreenBlack        ctermfg=2          ctermbg=0          guifg=Green      guibg=Black    cterm=none         gui=none
-   hi ansiYellowBlack       ctermfg=3          ctermbg=0          guifg=Yellow     guibg=Black    cterm=none         gui=none
-   hi ansiBlueBlack         ctermfg=4          ctermbg=0          guifg=Blue       guibg=Black    cterm=none         gui=none
-   hi ansiMagentaBlack      ctermfg=5          ctermbg=0          guifg=Magenta    guibg=Black    cterm=none         gui=none
-   hi ansiCyanBlack         ctermfg=6          ctermbg=0          guifg=Cyan       guibg=Black    cterm=none         gui=none
-   hi ansiWhiteBlack        ctermfg=7          ctermbg=0          guifg=White      guibg=Black    cterm=none         gui=none
+   hi ansiBlackBlack        ctermfg=0          ctermbg=0          guifg=#073642    guibg=#073642  cterm=none         gui=none
+   hi ansiRedBlack          ctermfg=1          ctermbg=0          guifg=#dc322f    guibg=#073642  cterm=none         gui=none
+   hi ansiGreenBlack        ctermfg=2          ctermbg=0          guifg=#859900    guibg=#073642  cterm=none         gui=none
+   hi ansiYellowBlack       ctermfg=3          ctermbg=0          guifg=#b58900    guibg=#073642  cterm=none         gui=none
+   hi ansiBlueBlack         ctermfg=4          ctermbg=0          guifg=#268bd2    guibg=#073642  cterm=none         gui=none
+   hi ansiMagentaBlack      ctermfg=5          ctermbg=0          guifg=#d33682    guibg=#073642  cterm=none         gui=none
+   hi ansiCyanBlack         ctermfg=6          ctermbg=0          guifg=#2aa198    guibg=#073642  cterm=none         gui=none
+   hi ansiWhiteBlack        ctermfg=7          ctermbg=0          guifg=#eee8d5    guibg=#073642  cterm=none         gui=none
 
-   hi ansiBlackRed          ctermfg=0          ctermbg=1          guifg=Black      guibg=Red      cterm=none         gui=none
-   hi ansiRedRed            ctermfg=1          ctermbg=1          guifg=Red        guibg=Red      cterm=none         gui=none
-   hi ansiGreenRed          ctermfg=2          ctermbg=1          guifg=Green      guibg=Red      cterm=none         gui=none
-   hi ansiYellowRed         ctermfg=3          ctermbg=1          guifg=Yellow     guibg=Red      cterm=none         gui=none
-   hi ansiBlueRed           ctermfg=4          ctermbg=1          guifg=Blue       guibg=Red      cterm=none         gui=none
-   hi ansiMagentaRed        ctermfg=5          ctermbg=1          guifg=Magenta    guibg=Red      cterm=none         gui=none
-   hi ansiCyanRed           ctermfg=6          ctermbg=1          guifg=Cyan       guibg=Red      cterm=none         gui=none
-   hi ansiWhiteRed          ctermfg=7          ctermbg=1          guifg=White      guibg=Red      cterm=none         gui=none
+   hi ansiBlackRed          ctermfg=0          ctermbg=1          guifg=#073642    guibg=#dc322f  cterm=none         gui=none
+   hi ansiRedRed            ctermfg=1          ctermbg=1          guifg=#dc322f    guibg=#dc322f  cterm=none         gui=none
+   hi ansiGreenRed          ctermfg=2          ctermbg=1          guifg=#859900    guibg=#dc322f  cterm=none         gui=none
+   hi ansiYellowRed         ctermfg=3          ctermbg=1          guifg=#b58900    guibg=#dc322f  cterm=none         gui=none
+   hi ansiBlueRed           ctermfg=4          ctermbg=1          guifg=#268bd2    guibg=#dc322f  cterm=none         gui=none
+   hi ansiMagentaRed        ctermfg=5          ctermbg=1          guifg=#d33682    guibg=#dc322f  cterm=none         gui=none
+   hi ansiCyanRed           ctermfg=6          ctermbg=1          guifg=#2aa198    guibg=#dc322f  cterm=none         gui=none
+   hi ansiWhiteRed          ctermfg=7          ctermbg=1          guifg=#eee8d5    guibg=#dc322f  cterm=none         gui=none
 
-   hi ansiBlackGreen        ctermfg=0          ctermbg=2          guifg=Black      guibg=Green    cterm=none         gui=none
-   hi ansiRedGreen          ctermfg=1          ctermbg=2          guifg=Red        guibg=Green    cterm=none         gui=none
-   hi ansiGreenGreen        ctermfg=2          ctermbg=2          guifg=Green      guibg=Green    cterm=none         gui=none
-   hi ansiYellowGreen       ctermfg=3          ctermbg=2          guifg=Yellow     guibg=Green    cterm=none         gui=none
-   hi ansiBlueGreen         ctermfg=4          ctermbg=2          guifg=Blue       guibg=Green    cterm=none         gui=none
-   hi ansiMagentaGreen      ctermfg=5          ctermbg=2          guifg=Magenta    guibg=Green    cterm=none         gui=none
-   hi ansiCyanGreen         ctermfg=6          ctermbg=2          guifg=Cyan       guibg=Green    cterm=none         gui=none
-   hi ansiWhiteGreen        ctermfg=7          ctermbg=2          guifg=White      guibg=Green    cterm=none         gui=none
+   hi ansiBlackGreen        ctermfg=0          ctermbg=2          guifg=#073642    guibg=#859900  cterm=none         gui=none
+   hi ansiRedGreen          ctermfg=1          ctermbg=2          guifg=#dc322f    guibg=#859900  cterm=none         gui=none
+   hi ansiGreenGreen        ctermfg=2          ctermbg=2          guifg=#859900    guibg=#859900  cterm=none         gui=none
+   hi ansiYellowGreen       ctermfg=3          ctermbg=2          guifg=#b58900    guibg=#859900  cterm=none         gui=none
+   hi ansiBlueGreen         ctermfg=4          ctermbg=2          guifg=#268bd2    guibg=#859900  cterm=none         gui=none
+   hi ansiMagentaGreen      ctermfg=5          ctermbg=2          guifg=#d33682    guibg=#859900  cterm=none         gui=none
+   hi ansiCyanGreen         ctermfg=6          ctermbg=2          guifg=#2aa198    guibg=#859900  cterm=none         gui=none
+   hi ansiWhiteGreen        ctermfg=7          ctermbg=2          guifg=#eee8d5    guibg=#859900  cterm=none         gui=none
 
-   hi ansiBlackYellow       ctermfg=0          ctermbg=3          guifg=Black      guibg=Yellow   cterm=none         gui=none
-   hi ansiRedYellow         ctermfg=1          ctermbg=3          guifg=Red        guibg=Yellow   cterm=none         gui=none
-   hi ansiGreenYellow       ctermfg=2          ctermbg=3          guifg=Green      guibg=Yellow   cterm=none         gui=none
-   hi ansiYellowYellow      ctermfg=3          ctermbg=3          guifg=Yellow     guibg=Yellow   cterm=none         gui=none
-   hi ansiBlueYellow        ctermfg=4          ctermbg=3          guifg=Blue       guibg=Yellow   cterm=none         gui=none
-   hi ansiMagentaYellow     ctermfg=5          ctermbg=3          guifg=Magenta    guibg=Yellow   cterm=none         gui=none
-   hi ansiCyanYellow        ctermfg=6          ctermbg=3          guifg=Cyan       guibg=Yellow   cterm=none         gui=none
-   hi ansiWhiteYellow       ctermfg=7          ctermbg=3          guifg=White      guibg=Yellow   cterm=none         gui=none
+   hi ansiBlackYellow       ctermfg=0          ctermbg=3          guifg=#073642    guibg=#b58900  cterm=none         gui=none
+   hi ansiRedYellow         ctermfg=1          ctermbg=3          guifg=#dc322f    guibg=#b58900  cterm=none         gui=none
+   hi ansiGreenYellow       ctermfg=2          ctermbg=3          guifg=#859900    guibg=#b58900  cterm=none         gui=none
+   hi ansiYellowYellow      ctermfg=3          ctermbg=3          guifg=#b58900    guibg=#b58900  cterm=none         gui=none
+   hi ansiBlueYellow        ctermfg=4          ctermbg=3          guifg=#268bd2    guibg=#b58900  cterm=none         gui=none
+   hi ansiMagentaYellow     ctermfg=5          ctermbg=3          guifg=#d33682    guibg=#b58900  cterm=none         gui=none
+   hi ansiCyanYellow        ctermfg=6          ctermbg=3          guifg=#2aa198    guibg=#b58900  cterm=none         gui=none
+   hi ansiWhiteYellow       ctermfg=7          ctermbg=3          guifg=#eee8d5    guibg=#b58900  cterm=none         gui=none
 
-   hi ansiBlackBlue         ctermfg=0          ctermbg=4          guifg=Black      guibg=Blue     cterm=none         gui=none
-   hi ansiRedBlue           ctermfg=1          ctermbg=4          guifg=Red        guibg=Blue     cterm=none         gui=none
-   hi ansiGreenBlue         ctermfg=2          ctermbg=4          guifg=Green      guibg=Blue     cterm=none         gui=none
-   hi ansiYellowBlue        ctermfg=3          ctermbg=4          guifg=Yellow     guibg=Blue     cterm=none         gui=none
-   hi ansiBlueBlue          ctermfg=4          ctermbg=4          guifg=Blue       guibg=Blue     cterm=none         gui=none
-   hi ansiMagentaBlue       ctermfg=5          ctermbg=4          guifg=Magenta    guibg=Blue     cterm=none         gui=none
-   hi ansiCyanBlue          ctermfg=6          ctermbg=4          guifg=Cyan       guibg=Blue     cterm=none         gui=none
-   hi ansiWhiteBlue         ctermfg=7          ctermbg=4          guifg=White      guibg=Blue     cterm=none         gui=none
+   hi ansiBlackBlue         ctermfg=0          ctermbg=4          guifg=#073642    guibg=#268bd2  cterm=none         gui=none
+   hi ansiRedBlue           ctermfg=1          ctermbg=4          guifg=#dc322f    guibg=#268bd2  cterm=none         gui=none
+   hi ansiGreenBlue         ctermfg=2          ctermbg=4          guifg=#859900    guibg=#268bd2  cterm=none         gui=none
+   hi ansiYellowBlue        ctermfg=3          ctermbg=4          guifg=#b58900    guibg=#268bd2  cterm=none         gui=none
+   hi ansiBlueBlue          ctermfg=4          ctermbg=4          guifg=#268bd2    guibg=#268bd2  cterm=none         gui=none
+   hi ansiMagentaBlue       ctermfg=5          ctermbg=4          guifg=#d33682    guibg=#268bd2  cterm=none         gui=none
+   hi ansiCyanBlue          ctermfg=6          ctermbg=4          guifg=#2aa198    guibg=#268bd2  cterm=none         gui=none
+   hi ansiWhiteBlue         ctermfg=7          ctermbg=4          guifg=#eee8d5    guibg=#268bd2  cterm=none         gui=none
 
-   hi ansiBlackMagenta      ctermfg=0          ctermbg=5          guifg=Black      guibg=Magenta  cterm=none         gui=none
-   hi ansiRedMagenta        ctermfg=1          ctermbg=5          guifg=Red        guibg=Magenta  cterm=none         gui=none
-   hi ansiGreenMagenta      ctermfg=2          ctermbg=5          guifg=Green      guibg=Magenta  cterm=none         gui=none
-   hi ansiYellowMagenta     ctermfg=3          ctermbg=5          guifg=Yellow     guibg=Magenta  cterm=none         gui=none
-   hi ansiBlueMagenta       ctermfg=4          ctermbg=5          guifg=Blue       guibg=Magenta  cterm=none         gui=none
-   hi ansiMagentaMagenta    ctermfg=5          ctermbg=5          guifg=Magenta    guibg=Magenta  cterm=none         gui=none
-   hi ansiCyanMagenta       ctermfg=6          ctermbg=5          guifg=Cyan       guibg=Magenta  cterm=none         gui=none
-   hi ansiWhiteMagenta      ctermfg=7          ctermbg=5          guifg=White      guibg=Magenta  cterm=none         gui=none
+   hi ansiBlackMagenta      ctermfg=0          ctermbg=5          guifg=#073642    guibg=#d33682  cterm=none         gui=none
+   hi ansiRedMagenta        ctermfg=1          ctermbg=5          guifg=#dc322f    guibg=#d33682  cterm=none         gui=none
+   hi ansiGreenMagenta      ctermfg=2          ctermbg=5          guifg=#859900    guibg=#d33682  cterm=none         gui=none
+   hi ansiYellowMagenta     ctermfg=3          ctermbg=5          guifg=#b58900    guibg=#d33682  cterm=none         gui=none
+   hi ansiBlueMagenta       ctermfg=4          ctermbg=5          guifg=#268bd2    guibg=#d33682  cterm=none         gui=none
+   hi ansiMagentaMagenta    ctermfg=5          ctermbg=5          guifg=#d33682    guibg=#d33682  cterm=none         gui=none
+   hi ansiCyanMagenta       ctermfg=6          ctermbg=5          guifg=#2aa198    guibg=#d33682  cterm=none         gui=none
+   hi ansiWhiteMagenta      ctermfg=7          ctermbg=5          guifg=#eee8d5    guibg=#d33682  cterm=none         gui=none
 
-   hi ansiBlackCyan         ctermfg=0          ctermbg=6          guifg=Black      guibg=Cyan     cterm=none         gui=none
-   hi ansiRedCyan           ctermfg=1          ctermbg=6          guifg=Red        guibg=Cyan     cterm=none         gui=none
-   hi ansiGreenCyan         ctermfg=2          ctermbg=6          guifg=Green      guibg=Cyan     cterm=none         gui=none
-   hi ansiYellowCyan        ctermfg=3          ctermbg=6          guifg=Yellow     guibg=Cyan     cterm=none         gui=none
-   hi ansiBlueCyan          ctermfg=4          ctermbg=6          guifg=Blue       guibg=Cyan     cterm=none         gui=none
-   hi ansiMagentaCyan       ctermfg=5          ctermbg=6          guifg=Magenta    guibg=Cyan     cterm=none         gui=none
-   hi ansiCyanCyan          ctermfg=6          ctermbg=6          guifg=Cyan       guibg=Cyan     cterm=none         gui=none
-   hi ansiWhiteCyan         ctermfg=7          ctermbg=6          guifg=White      guibg=Cyan     cterm=none         gui=none
+   hi ansiBlackCyan         ctermfg=0          ctermbg=6          guifg=#073642    guibg=#2aa198  cterm=none         gui=none
+   hi ansiRedCyan           ctermfg=1          ctermbg=6          guifg=#dc322f    guibg=#2aa198  cterm=none         gui=none
+   hi ansiGreenCyan         ctermfg=2          ctermbg=6          guifg=#859900    guibg=#2aa198  cterm=none         gui=none
+   hi ansiYellowCyan        ctermfg=3          ctermbg=6          guifg=#b58900    guibg=#2aa198  cterm=none         gui=none
+   hi ansiBlueCyan          ctermfg=4          ctermbg=6          guifg=#268bd2    guibg=#2aa198  cterm=none         gui=none
+   hi ansiMagentaCyan       ctermfg=5          ctermbg=6          guifg=#d33682    guibg=#2aa198  cterm=none         gui=none
+   hi ansiCyanCyan          ctermfg=6          ctermbg=6          guifg=#2aa198    guibg=#2aa198  cterm=none         gui=none
+   hi ansiWhiteCyan         ctermfg=7          ctermbg=6          guifg=#eee8d5    guibg=#2aa198  cterm=none         gui=none
 
-   hi ansiBlackWhite        ctermfg=0          ctermbg=7          guifg=Black      guibg=White    cterm=none         gui=none
-   hi ansiRedWhite          ctermfg=1          ctermbg=7          guifg=Red        guibg=White    cterm=none         gui=none
-   hi ansiGreenWhite        ctermfg=2          ctermbg=7          guifg=Green      guibg=White    cterm=none         gui=none
-   hi ansiYellowWhite       ctermfg=3          ctermbg=7          guifg=Yellow     guibg=White    cterm=none         gui=none
-   hi ansiBlueWhite         ctermfg=4          ctermbg=7          guifg=Blue       guibg=White    cterm=none         gui=none
-   hi ansiMagentaWhite      ctermfg=5          ctermbg=7          guifg=Magenta    guibg=White    cterm=none         gui=none
-   hi ansiCyanWhite         ctermfg=6          ctermbg=7          guifg=Cyan       guibg=White    cterm=none         gui=none
-   hi ansiWhiteWhite        ctermfg=7          ctermbg=7          guifg=White      guibg=White    cterm=none         gui=none
+   hi ansiBlackWhite        ctermfg=0          ctermbg=7          guifg=#073642    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiRedWhite          ctermfg=1          ctermbg=7          guifg=#dc322f    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiGreenWhite        ctermfg=2          ctermbg=7          guifg=#859900    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiYellowWhite       ctermfg=3          ctermbg=7          guifg=#b58900    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiBlueWhite         ctermfg=4          ctermbg=7          guifg=#268bd2    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiMagentaWhite      ctermfg=5          ctermbg=7          guifg=#d33682    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiCyanWhite         ctermfg=6          ctermbg=7          guifg=#2aa198    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiWhiteWhite        ctermfg=7          ctermbg=7          guifg=#eee8d5    guibg=#eee8d5  cterm=none         gui=none
 
    if v:version >= 700 && exists("+t_Co") && &t_Co == 256 && exists("g:ansiesc_256color")
     " ---------------------------
@@ -826,242 +826,242 @@ fun! AnsiEsc#AnsiEsc(rebuild)
    " not 8 or 256 color terminals (gui): {{{3
    " ----------------------------------
 "   call Decho("set up gui highlighting groups")
-   hi ansiBlack             ctermfg=0          guifg=black                                        cterm=none         gui=none
-   hi ansiRed               ctermfg=1          guifg=red                                          cterm=none         gui=none
-   hi ansiGreen             ctermfg=2          guifg=green                                        cterm=none         gui=none
-   hi ansiYellow            ctermfg=3          guifg=yellow                                       cterm=none         gui=none
-   hi ansiBlue              ctermfg=4          guifg=blue                                         cterm=none         gui=none
-   hi ansiMagenta           ctermfg=5          guifg=magenta                                      cterm=none         gui=none
-   hi ansiCyan              ctermfg=6          guifg=cyan                                         cterm=none         gui=none
-   hi ansiWhite             ctermfg=7          guifg=white                                        cterm=none         gui=none
+   hi ansiBlack             ctermfg=0          guifg=#073642                                      cterm=none         gui=none
+   hi ansiRed               ctermfg=1          guifg=#dc322f                                      cterm=none         gui=none
+   hi ansiGreen             ctermfg=2          guifg=#859900                                      cterm=none         gui=none
+   hi ansiYellow            ctermfg=3          guifg=#b58900                                      cterm=none         gui=none
+   hi ansiBlue              ctermfg=4          guifg=#268bd2                                      cterm=none         gui=none
+   hi ansiMagenta           ctermfg=5          guifg=#d33682                                      cterm=none         gui=none
+   hi ansiCyan              ctermfg=6          guifg=#2aa198                                      cterm=none         gui=none
+   hi ansiWhite             ctermfg=7          guifg=#eee8d5                                      cterm=none         gui=none
 
-   hi ansiBlackBg           ctermbg=0          guibg=black                                        cterm=none         gui=none
-   hi ansiRedBg             ctermbg=1          guibg=red                                          cterm=none         gui=none
-   hi ansiGreenBg           ctermbg=2          guibg=green                                        cterm=none         gui=none
-   hi ansiYellowBg          ctermbg=3          guibg=yellow                                       cterm=none         gui=none
-   hi ansiBlueBg            ctermbg=4          guibg=blue                                         cterm=none         gui=none
-   hi ansiMagentaBg         ctermbg=5          guibg=magenta                                      cterm=none         gui=none
-   hi ansiCyanBg            ctermbg=6          guibg=cyan                                         cterm=none         gui=none
-   hi ansiWhiteBg           ctermbg=7          guibg=white                                        cterm=none         gui=none
+   hi ansiBlackBg           ctermbg=0          guibg=#073642                                      cterm=none         gui=none
+   hi ansiRedBg             ctermbg=1          guibg=#dc322f                                      cterm=none         gui=none
+   hi ansiGreenBg           ctermbg=2          guibg=#859900                                      cterm=none         gui=none
+   hi ansiYellowBg          ctermbg=3          guibg=#b58900                                      cterm=none         gui=none
+   hi ansiBlueBg            ctermbg=4          guibg=#268bd2                                      cterm=none         gui=none
+   hi ansiMagentaBg         ctermbg=5          guibg=#d33682                                      cterm=none         gui=none
+   hi ansiCyanBg            ctermbg=6          guibg=#2aa198                                      cterm=none         gui=none
+   hi ansiWhiteBg           ctermbg=7          guibg=#eee8d5                                      cterm=none         gui=none
 
-   hi ansiBoldBlack         ctermfg=0          guifg=black                                        cterm=bold         gui=bold
-   hi ansiBoldRed           ctermfg=1          guifg=red                                          cterm=bold         gui=bold
-   hi ansiBoldGreen         ctermfg=2          guifg=green                                        cterm=bold         gui=bold
-   hi ansiBoldYellow        ctermfg=3          guifg=yellow                                       cterm=bold         gui=bold
-   hi ansiBoldBlue          ctermfg=4          guifg=blue                                         cterm=bold         gui=bold
-   hi ansiBoldMagenta       ctermfg=5          guifg=magenta                                      cterm=bold         gui=bold
-   hi ansiBoldCyan          ctermfg=6          guifg=cyan                                         cterm=bold         gui=bold
-   hi ansiBoldWhite         ctermfg=7          guifg=white                                        cterm=bold         gui=bold
+   hi ansiBoldBlack         ctermfg=0          guifg=#073642                                      cterm=bold         gui=bold
+   hi ansiBoldRed           ctermfg=1          guifg=#dc322f                                      cterm=bold         gui=bold
+   hi ansiBoldGreen         ctermfg=2          guifg=#859900                                      cterm=bold         gui=bold
+   hi ansiBoldYellow        ctermfg=3          guifg=#b58900                                      cterm=bold         gui=bold
+   hi ansiBoldBlue          ctermfg=4          guifg=#268bd2                                      cterm=bold         gui=bold
+   hi ansiBoldMagenta       ctermfg=5          guifg=#d33682                                      cterm=bold         gui=bold
+   hi ansiBoldCyan          ctermfg=6          guifg=#2aa198                                      cterm=bold         gui=bold
+   hi ansiBoldWhite         ctermfg=7          guifg=#eee8d5                                      cterm=bold         gui=bold
 
-   hi ansiStandoutBlack     ctermfg=0          guifg=black                                        cterm=standout     gui=standout
-   hi ansiStandoutRed       ctermfg=1          guifg=red                                          cterm=standout     gui=standout
-   hi ansiStandoutGreen     ctermfg=2          guifg=green                                        cterm=standout     gui=standout
-   hi ansiStandoutYellow    ctermfg=3          guifg=yellow                                       cterm=standout     gui=standout
-   hi ansiStandoutBlue      ctermfg=4          guifg=blue                                         cterm=standout     gui=standout
-   hi ansiStandoutMagenta   ctermfg=5          guifg=magenta                                      cterm=standout     gui=standout
-   hi ansiStandoutCyan      ctermfg=6          guifg=cyan                                         cterm=standout     gui=standout
-   hi ansiStandoutWhite     ctermfg=7          guifg=white                                        cterm=standout     gui=standout
+   hi ansiStandoutBlack     ctermfg=0          guifg=#073642                                      cterm=standout     gui=standout
+   hi ansiStandoutRed       ctermfg=1          guifg=#dc322f                                      cterm=standout     gui=standout
+   hi ansiStandoutGreen     ctermfg=2          guifg=#859900                                      cterm=standout     gui=standout
+   hi ansiStandoutYellow    ctermfg=3          guifg=#b58900                                      cterm=standout     gui=standout
+   hi ansiStandoutBlue      ctermfg=4          guifg=#268bd2                                      cterm=standout     gui=standout
+   hi ansiStandoutMagenta   ctermfg=5          guifg=#d33682                                      cterm=standout     gui=standout
+   hi ansiStandoutCyan      ctermfg=6          guifg=#2aa198                                      cterm=standout     gui=standout
+   hi ansiStandoutWhite     ctermfg=7          guifg=#eee8d5                                      cterm=standout     gui=standout
 
-   hi ansiItalicBlack       ctermfg=0          guifg=black                                        cterm=italic       gui=italic
-   hi ansiItalicRed         ctermfg=1          guifg=red                                          cterm=italic       gui=italic
-   hi ansiItalicGreen       ctermfg=2          guifg=green                                        cterm=italic       gui=italic
-   hi ansiItalicYellow      ctermfg=3          guifg=yellow                                       cterm=italic       gui=italic
-   hi ansiItalicBlue        ctermfg=4          guifg=blue                                         cterm=italic       gui=italic
-   hi ansiItalicMagenta     ctermfg=5          guifg=magenta                                      cterm=italic       gui=italic
-   hi ansiItalicCyan        ctermfg=6          guifg=cyan                                         cterm=italic       gui=italic
-   hi ansiItalicWhite       ctermfg=7          guifg=white                                        cterm=italic       gui=italic
+   hi ansiItalicBlack       ctermfg=0          guifg=#073642                                      cterm=italic       gui=italic
+   hi ansiItalicRed         ctermfg=1          guifg=#dc322f                                      cterm=italic       gui=italic
+   hi ansiItalicGreen       ctermfg=2          guifg=#859900                                      cterm=italic       gui=italic
+   hi ansiItalicYellow      ctermfg=3          guifg=#b58900                                      cterm=italic       gui=italic
+   hi ansiItalicBlue        ctermfg=4          guifg=#268bd2                                      cterm=italic       gui=italic
+   hi ansiItalicMagenta     ctermfg=5          guifg=#d33682                                      cterm=italic       gui=italic
+   hi ansiItalicCyan        ctermfg=6          guifg=#2aa198                                      cterm=italic       gui=italic
+   hi ansiItalicWhite       ctermfg=7          guifg=#eee8d5                                      cterm=italic       gui=italic
 
-   hi ansiUnderlineBlack    ctermfg=0          guifg=black                                        cterm=underline    gui=underline
-   hi ansiUnderlineRed      ctermfg=1          guifg=red                                          cterm=underline    gui=underline
-   hi ansiUnderlineGreen    ctermfg=2          guifg=green                                        cterm=underline    gui=underline
-   hi ansiUnderlineYellow   ctermfg=3          guifg=yellow                                       cterm=underline    gui=underline
-   hi ansiUnderlineBlue     ctermfg=4          guifg=blue                                         cterm=underline    gui=underline
-   hi ansiUnderlineMagenta  ctermfg=5          guifg=magenta                                      cterm=underline    gui=underline
-   hi ansiUnderlineCyan     ctermfg=6          guifg=cyan                                         cterm=underline    gui=underline
-   hi ansiUnderlineWhite    ctermfg=7          guifg=white                                        cterm=underline    gui=underline
+   hi ansiUnderlineBlack    ctermfg=0          guifg=#073642                                      cterm=underline    gui=underline
+   hi ansiUnderlineRed      ctermfg=1          guifg=#dc322f                                      cterm=underline    gui=underline
+   hi ansiUnderlineGreen    ctermfg=2          guifg=#859900                                      cterm=underline    gui=underline
+   hi ansiUnderlineYellow   ctermfg=3          guifg=#b58900                                      cterm=underline    gui=underline
+   hi ansiUnderlineBlue     ctermfg=4          guifg=#268bd2                                      cterm=underline    gui=underline
+   hi ansiUnderlineMagenta  ctermfg=5          guifg=#d33682                                      cterm=underline    gui=underline
+   hi ansiUnderlineCyan     ctermfg=6          guifg=#2aa198                                      cterm=underline    gui=underline
+   hi ansiUnderlineWhite    ctermfg=7          guifg=#eee8d5                                      cterm=underline    gui=underline
 
-   hi ansiBlinkBlack        ctermfg=0          guifg=black                                        cterm=standout     gui=undercurl
-   hi ansiBlinkRed          ctermfg=1          guifg=red                                          cterm=standout     gui=undercurl
-   hi ansiBlinkGreen        ctermfg=2          guifg=green                                        cterm=standout     gui=undercurl
-   hi ansiBlinkYellow       ctermfg=3          guifg=yellow                                       cterm=standout     gui=undercurl
-   hi ansiBlinkBlue         ctermfg=4          guifg=blue                                         cterm=standout     gui=undercurl
-   hi ansiBlinkMagenta      ctermfg=5          guifg=magenta                                      cterm=standout     gui=undercurl
-   hi ansiBlinkCyan         ctermfg=6          guifg=cyan                                         cterm=standout     gui=undercurl
-   hi ansiBlinkWhite        ctermfg=7          guifg=white                                        cterm=standout     gui=undercurl
+   hi ansiBlinkBlack        ctermfg=0          guifg=#073642                                      cterm=standout     gui=undercurl
+   hi ansiBlinkRed          ctermfg=1          guifg=#dc322f                                      cterm=standout     gui=undercurl
+   hi ansiBlinkGreen        ctermfg=2          guifg=#859900                                      cterm=standout     gui=undercurl
+   hi ansiBlinkYellow       ctermfg=3          guifg=#b58900                                      cterm=standout     gui=undercurl
+   hi ansiBlinkBlue         ctermfg=4          guifg=#268bd2                                      cterm=standout     gui=undercurl
+   hi ansiBlinkMagenta      ctermfg=5          guifg=#d33682                                      cterm=standout     gui=undercurl
+   hi ansiBlinkCyan         ctermfg=6          guifg=#2aa198                                      cterm=standout     gui=undercurl
+   hi ansiBlinkWhite        ctermfg=7          guifg=#eee8d5                                      cterm=standout     gui=undercurl
 
-   hi ansiRapidBlinkBlack   ctermfg=0          guifg=black                                        cterm=standout     gui=undercurl
-   hi ansiRapidBlinkRed     ctermfg=1          guifg=red                                          cterm=standout     gui=undercurl
-   hi ansiRapidBlinkGreen   ctermfg=2          guifg=green                                        cterm=standout     gui=undercurl
-   hi ansiRapidBlinkYellow  ctermfg=3          guifg=yellow                                       cterm=standout     gui=undercurl
-   hi ansiRapidBlinkBlue    ctermfg=4          guifg=blue                                         cterm=standout     gui=undercurl
-   hi ansiRapidBlinkMagenta ctermfg=5          guifg=magenta                                      cterm=standout     gui=undercurl
-   hi ansiRapidBlinkCyan    ctermfg=6          guifg=cyan                                         cterm=standout     gui=undercurl
-   hi ansiRapidBlinkWhite   ctermfg=7          guifg=white                                        cterm=standout     gui=undercurl
+   hi ansiRapidBlinkBlack   ctermfg=0          guifg=#073642                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkRed     ctermfg=1          guifg=#dc322f                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkGreen   ctermfg=2          guifg=#859900                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkYellow  ctermfg=3          guifg=#b58900                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkBlue    ctermfg=4          guifg=#268bd2                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkMagenta ctermfg=5          guifg=#d33682                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkCyan    ctermfg=6          guifg=#2aa198                                      cterm=standout     gui=undercurl
+   hi ansiRapidBlinkWhite   ctermfg=7          guifg=#eee8d5                                      cterm=standout     gui=undercurl
 
    hi ansiRV                                                                                      cterm=reverse      gui=reverse
-   hi ansiRVBlack           ctermfg=0          guifg=black                                        cterm=reverse      gui=reverse
-   hi ansiRVRed             ctermfg=1          guifg=red                                          cterm=reverse      gui=reverse
-   hi ansiRVGreen           ctermfg=2          guifg=green                                        cterm=reverse      gui=reverse
-   hi ansiRVYellow          ctermfg=3          guifg=yellow                                       cterm=reverse      gui=reverse
-   hi ansiRVBlue            ctermfg=4          guifg=blue                                         cterm=reverse      gui=reverse
-   hi ansiRVMagenta         ctermfg=5          guifg=magenta                                      cterm=reverse      gui=reverse
-   hi ansiRVCyan            ctermfg=6          guifg=cyan                                         cterm=reverse      gui=reverse
-   hi ansiRVWhite           ctermfg=7          guifg=white                                        cterm=reverse      gui=reverse
+   hi ansiRVBlack           ctermfg=0          guifg=#073642                                      cterm=reverse      gui=reverse
+   hi ansiRVRed             ctermfg=1          guifg=#dc322f                                      cterm=reverse      gui=reverse
+   hi ansiRVGreen           ctermfg=2          guifg=#859900                                      cterm=reverse      gui=reverse
+   hi ansiRVYellow          ctermfg=3          guifg=#b58900                                      cterm=reverse      gui=reverse
+   hi ansiRVBlue            ctermfg=4          guifg=#268bd2                                      cterm=reverse      gui=reverse
+   hi ansiRVMagenta         ctermfg=5          guifg=#d33682                                      cterm=reverse      gui=reverse
+   hi ansiRVCyan            ctermfg=6          guifg=#2aa198                                      cterm=reverse      gui=reverse
+   hi ansiRVWhite           ctermfg=7          guifg=#eee8d5                                      cterm=reverse      gui=reverse
 
-   hi ansiBrightBlack             ctermfg=8          guifg=black                                        cterm=none         gui=none
-   hi ansiBrightRed               ctermfg=9          guifg=red                                          cterm=none         gui=none
-   hi ansiBrightGreen             ctermfg=10         guifg=green                                        cterm=none         gui=none
-   hi ansiBrightYellow            ctermfg=11         guifg=yellow                                       cterm=none         gui=none
-   hi ansiBrightBlue              ctermfg=12         guifg=blue                                         cterm=none         gui=none
-   hi ansiBrightMagenta           ctermfg=13         guifg=magenta                                      cterm=none         gui=none
-   hi ansiBrightCyan              ctermfg=14         guifg=cyan                                         cterm=none         gui=none
-   hi ansiBrightWhite             ctermfg=15         guifg=white                                        cterm=none         gui=none
+   hi ansiBrightBlack             ctermfg=8          guifg=#073642                                      cterm=none         gui=none
+   hi ansiBrightRed               ctermfg=9          guifg=#cb4b16                                      cterm=none         gui=none
+   hi ansiBrightGreen             ctermfg=10         guifg=#586e75                                      cterm=none         gui=none
+   hi ansiBrightYellow            ctermfg=11         guifg=#657b83                                      cterm=none         gui=none
+   hi ansiBrightBlue              ctermfg=12         guifg=#839496                                      cterm=none         gui=none
+   hi ansiBrightMagenta           ctermfg=13         guifg=#6c71c4                                      cterm=none         gui=none
+   hi ansiBrightCyan              ctermfg=14         guifg=#93a1a1                                      cterm=none         gui=none
+   hi ansiBrightWhite             ctermfg=15         guifg=#fdf6e3                                      cterm=none         gui=none
 
-   hi ansiBrightBlackBg           ctermbg=8          guibg=black                                        cterm=none         gui=none
-   hi ansiBrightRedBg             ctermbg=9          guibg=red                                          cterm=none         gui=none
-   hi ansiBrightGreenBg           ctermbg=10         guibg=green                                        cterm=none         gui=none
-   hi ansiBrightYellowBg          ctermbg=11         guibg=yellow                                       cterm=none         gui=none
-   hi ansiBrightBlueBg            ctermbg=12         guibg=blue                                         cterm=none         gui=none
-   hi ansiBrightMagentaBg         ctermbg=13         guibg=magenta                                      cterm=none         gui=none
-   hi ansiBrightCyanBg            ctermbg=14         guibg=cyan                                         cterm=none         gui=none
-   hi ansiBrightWhiteBg           ctermbg=15         guibg=white                                        cterm=none         gui=none
+   hi ansiBrightBlackBg           ctermbg=8          guibg=#073642                                      cterm=none         gui=none
+   hi ansiBrightRedBg             ctermbg=9          guibg=#cb4b16                                      cterm=none         gui=none
+   hi ansiBrightGreenBg           ctermbg=10         guibg=#586e75                                      cterm=none         gui=none
+   hi ansiBrightYellowBg          ctermbg=11         guibg=#657b83                                      cterm=none         gui=none
+   hi ansiBrightBlueBg            ctermbg=12         guibg=#839496                                      cterm=none         gui=none
+   hi ansiBrightMagentaBg         ctermbg=13         guibg=#6c71c4                                      cterm=none         gui=none
+   hi ansiBrightCyanBg            ctermbg=14         guibg=#93a1a1                                      cterm=none         gui=none
+   hi ansiBrightWhiteBg           ctermbg=15         guibg=#fdf6e3                                      cterm=none         gui=none
 
-   hi ansiBrightBoldBlack         ctermfg=8          guifg=black                                        cterm=bold         gui=bold
-   hi ansiBrightBoldRed           ctermfg=9          guifg=red                                          cterm=bold         gui=bold
-   hi ansiBrightBoldGreen         ctermfg=10         guifg=green                                        cterm=bold         gui=bold
-   hi ansiBrightBoldYellow        ctermfg=11         guifg=yellow                                       cterm=bold         gui=bold
-   hi ansiBrightBoldBlue          ctermfg=12         guifg=blue                                         cterm=bold         gui=bold
-   hi ansiBrightBoldMagenta       ctermfg=13         guifg=magenta                                      cterm=bold         gui=bold
-   hi ansiBrightBoldCyan          ctermfg=14         guifg=cyan                                         cterm=bold         gui=bold
-   hi ansiBrightBoldWhite         ctermfg=15         guifg=white                                        cterm=bold         gui=bold
+   hi ansiBrightBoldBlack         ctermfg=8          guifg=#073642                                      cterm=bold         gui=bold
+   hi ansiBrightBoldRed           ctermfg=9          guifg=#cb4b16                                      cterm=bold         gui=bold
+   hi ansiBrightBoldGreen         ctermfg=10         guifg=#586e75                                      cterm=bold         gui=bold
+   hi ansiBrightBoldYellow        ctermfg=11         guifg=#657b83                                      cterm=bold         gui=bold
+   hi ansiBrightBoldBlue          ctermfg=12         guifg=#839496                                      cterm=bold         gui=bold
+   hi ansiBrightBoldMagenta       ctermfg=13         guifg=#6c71c4                                      cterm=bold         gui=bold
+   hi ansiBrightBoldCyan          ctermfg=14         guifg=#93a1a1                                      cterm=bold         gui=bold
+   hi ansiBrightBoldWhite         ctermfg=15         guifg=#fdf6e3                                      cterm=bold         gui=bold
 
-   hi ansiBrightStandoutBlack     ctermfg=8          guifg=black                                        cterm=standout     gui=standout
-   hi ansiBrightStandoutRed       ctermfg=9          guifg=red                                          cterm=standout     gui=standout
-   hi ansiBrightStandoutGreen     ctermfg=10         guifg=green                                        cterm=standout     gui=standout
-   hi ansiBrightStandoutYellow    ctermfg=11         guifg=yellow                                       cterm=standout     gui=standout
-   hi ansiBrightStandoutBlue      ctermfg=12         guifg=blue                                         cterm=standout     gui=standout
-   hi ansiBrightStandoutMagenta   ctermfg=13         guifg=magenta                                      cterm=standout     gui=standout
-   hi ansiBrightStandoutCyan      ctermfg=14         guifg=cyan                                         cterm=standout     gui=standout
-   hi ansiBrightStandoutWhite     ctermfg=15         guifg=white                                        cterm=standout     gui=standout
+   hi ansiBrightStandoutBlack     ctermfg=8          guifg=#073642                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutRed       ctermfg=9          guifg=#cb4b16                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutGreen     ctermfg=10         guifg=#586e75                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutYellow    ctermfg=11         guifg=#657b83                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutBlue      ctermfg=12         guifg=#839496                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutMagenta   ctermfg=13         guifg=#6c71c4                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutCyan      ctermfg=14         guifg=#93a1a1                                      cterm=standout     gui=standout
+   hi ansiBrightStandoutWhite     ctermfg=15         guifg=#fdf6e3                                      cterm=standout     gui=standout
 
-   hi ansiBrightItalicBlack       ctermfg=8          guifg=black                                        cterm=italic       gui=italic
-   hi ansiBrightItalicRed         ctermfg=9          guifg=red                                          cterm=italic       gui=italic
-   hi ansiBrightItalicGreen       ctermfg=10         guifg=green                                        cterm=italic       gui=italic
-   hi ansiBrightItalicYellow      ctermfg=11         guifg=yellow                                       cterm=italic       gui=italic
-   hi ansiBrightItalicBlue        ctermfg=12         guifg=blue                                         cterm=italic       gui=italic
-   hi ansiBrightItalicMagenta     ctermfg=13         guifg=magenta                                      cterm=italic       gui=italic
-   hi ansiBrightItalicCyan        ctermfg=14         guifg=cyan                                         cterm=italic       gui=italic
-   hi ansiBrightItalicWhite       ctermfg=15         guifg=white                                        cterm=italic       gui=italic
+   hi ansiBrightItalicBlack       ctermfg=8          guifg=#073642                                      cterm=italic       gui=italic
+   hi ansiBrightItalicRed         ctermfg=9          guifg=#cb4b16                                      cterm=italic       gui=italic
+   hi ansiBrightItalicGreen       ctermfg=10         guifg=#586e75                                      cterm=italic       gui=italic
+   hi ansiBrightItalicYellow      ctermfg=11         guifg=#657b83                                      cterm=italic       gui=italic
+   hi ansiBrightItalicBlue        ctermfg=12         guifg=#839496                                      cterm=italic       gui=italic
+   hi ansiBrightItalicMagenta     ctermfg=13         guifg=#6c71c4                                      cterm=italic       gui=italic
+   hi ansiBrightItalicCyan        ctermfg=14         guifg=#93a1a1                                      cterm=italic       gui=italic
+   hi ansiBrightItalicWhite       ctermfg=15         guifg=#fdf6e3                                      cterm=italic       gui=italic
 
-   hi ansiBrightUnderlineBlack    ctermfg=8          guifg=black                                        cterm=underline    gui=underline
-   hi ansiBrightUnderlineRed      ctermfg=9          guifg=red                                          cterm=underline    gui=underline
-   hi ansiBrightUnderlineGreen    ctermfg=10         guifg=green                                        cterm=underline    gui=underline
-   hi ansiBrightUnderlineYellow   ctermfg=11         guifg=yellow                                       cterm=underline    gui=underline
-   hi ansiBrightUnderlineBlue     ctermfg=12         guifg=blue                                         cterm=underline    gui=underline
-   hi ansiBrightUnderlineMagenta  ctermfg=13         guifg=magenta                                      cterm=underline    gui=underline
-   hi ansiBrightUnderlineCyan     ctermfg=14         guifg=cyan                                         cterm=underline    gui=underline
-   hi ansiBrightUnderlineWhite    ctermfg=15         guifg=white                                        cterm=underline    gui=underline
+   hi ansiBrightUnderlineBlack    ctermfg=8          guifg=#073642                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineRed      ctermfg=9          guifg=#cb4b16                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineGreen    ctermfg=10         guifg=#586e75                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineYellow   ctermfg=11         guifg=#657b83                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineBlue     ctermfg=12         guifg=#839496                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineMagenta  ctermfg=13         guifg=#6c71c4                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineCyan     ctermfg=14         guifg=#93a1a1                                      cterm=underline    gui=underline
+   hi ansiBrightUnderlineWhite    ctermfg=15         guifg=#fdf6e3                                      cterm=underline    gui=underline
 
-   hi ansiBrightBlinkBlack        ctermfg=8          guifg=black                                        cterm=standout     gui=undercurl
-   hi ansiBrightBlinkRed          ctermfg=9          guifg=red                                          cterm=standout     gui=undercurl
-   hi ansiBrightBlinkGreen        ctermfg=10         guifg=green                                        cterm=standout     gui=undercurl
-   hi ansiBrightBlinkYellow       ctermfg=11         guifg=yellow                                       cterm=standout     gui=undercurl
-   hi ansiBrightBlinkBlue         ctermfg=12         guifg=blue                                         cterm=standout     gui=undercurl
-   hi ansiBrightBlinkMagenta      ctermfg=13         guifg=magenta                                      cterm=standout     gui=undercurl
-   hi ansiBrightBlinkCyan         ctermfg=14         guifg=cyan                                         cterm=standout     gui=undercurl
-   hi ansiBrightBlinkWhite        ctermfg=15         guifg=white                                        cterm=standout     gui=undercurl
+   hi ansiBrightBlinkBlack        ctermfg=8          guifg=#073642                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkRed          ctermfg=9          guifg=#cb4b16                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkGreen        ctermfg=10         guifg=#586e75                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkYellow       ctermfg=11         guifg=#657b83                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkBlue         ctermfg=12         guifg=#839496                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkMagenta      ctermfg=13         guifg=#6c71c4                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkCyan         ctermfg=14         guifg=#93a1a1                                      cterm=standout     gui=undercurl
+   hi ansiBrightBlinkWhite        ctermfg=15         guifg=#fdf6e3                                      cterm=standout     gui=undercurl
 
-   hi ansiBrightRapidBlinkBlack   ctermfg=8          guifg=black                                        cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkRed     ctermfg=9          guifg=red                                          cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkGreen   ctermfg=10         guifg=green                                        cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkYellow  ctermfg=11         guifg=yellow                                       cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkBlue    ctermfg=12         guifg=blue                                         cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkMagenta ctermfg=13         guifg=magenta                                      cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkCyan    ctermfg=14         guifg=cyan                                         cterm=standout     gui=undercurl
-   hi ansiBrightRapidBlinkWhite   ctermfg=15         guifg=white                                        cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkBlack   ctermfg=8          guifg=#073642                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkRed     ctermfg=9          guifg=#cb4b16                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkGreen   ctermfg=10         guifg=#586e75                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkYellow  ctermfg=11         guifg=#657b83                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkBlue    ctermfg=12         guifg=#839496                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkMagenta ctermfg=13         guifg=#6c71c4                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkCyan    ctermfg=14         guifg=#93a1a1                                      cterm=standout     gui=undercurl
+   hi ansiBrightRapidBlinkWhite   ctermfg=15         guifg=#fdf6e3                                      cterm=standout     gui=undercurl
 
    hi ansiBrightRV                                                                                      cterm=reverse      gui=reverse
-   hi ansiBrightRVBlack           ctermfg=8          guifg=black                                        cterm=reverse      gui=reverse
-   hi ansiBrightRVRed             ctermfg=9          guifg=red                                          cterm=reverse      gui=reverse
-   hi ansiBrightRVGreen           ctermfg=10         guifg=green                                        cterm=reverse      gui=reverse
-   hi ansiBrightRVYellow          ctermfg=11         guifg=yellow                                       cterm=reverse      gui=reverse
-   hi ansiBrightRVBlue            ctermfg=12         guifg=blue                                         cterm=reverse      gui=reverse
-   hi ansiBrightRVMagenta         ctermfg=13         guifg=magenta                                      cterm=reverse      gui=reverse
-   hi ansiBrightRVCyan            ctermfg=14         guifg=cyan                                         cterm=reverse      gui=reverse
-   hi ansiBrightRVWhite           ctermfg=15         guifg=white                                        cterm=reverse      gui=reverse
+   hi ansiBrightRVBlack           ctermfg=8          guifg=#073642                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVRed             ctermfg=9          guifg=#cb4b16                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVGreen           ctermfg=10         guifg=#586e75                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVYellow          ctermfg=11         guifg=#657b83                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVBlue            ctermfg=12         guifg=#839496                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVMagenta         ctermfg=13         guifg=#6c71c4                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVCyan            ctermfg=14         guifg=#93a1a1                                      cterm=reverse      gui=reverse
+   hi ansiBrightRVWhite           ctermfg=15         guifg=#fdf6e3                                      cterm=reverse      gui=reverse
 
 
-   hi ansiBlackBlack        ctermfg=0          ctermbg=0          guifg=Black      guibg=Black    cterm=none         gui=none
-   hi ansiRedBlack          ctermfg=1          ctermbg=0          guifg=Red        guibg=Black    cterm=none         gui=none
-   hi ansiGreenBlack        ctermfg=2          ctermbg=0          guifg=Green      guibg=Black    cterm=none         gui=none
-   hi ansiYellowBlack       ctermfg=3          ctermbg=0          guifg=Yellow     guibg=Black    cterm=none         gui=none
-   hi ansiBlueBlack         ctermfg=4          ctermbg=0          guifg=Blue       guibg=Black    cterm=none         gui=none
-   hi ansiMagentaBlack      ctermfg=5          ctermbg=0          guifg=Magenta    guibg=Black    cterm=none         gui=none
-   hi ansiCyanBlack         ctermfg=6          ctermbg=0          guifg=Cyan       guibg=Black    cterm=none         gui=none
-   hi ansiWhiteBlack        ctermfg=7          ctermbg=0          guifg=White      guibg=Black    cterm=none         gui=none
+   hi ansiBlackBlack        ctermfg=0          ctermbg=0          guifg=#073642    guibg=#073642  cterm=none         gui=none
+   hi ansiRedBlack          ctermfg=1          ctermbg=0          guifg=#dc322f    guibg=#073642  cterm=none         gui=none
+   hi ansiGreenBlack        ctermfg=2          ctermbg=0          guifg=#859900    guibg=#073642  cterm=none         gui=none
+   hi ansiYellowBlack       ctermfg=3          ctermbg=0          guifg=#b58900    guibg=#073642  cterm=none         gui=none
+   hi ansiBlueBlack         ctermfg=4          ctermbg=0          guifg=#268bd2    guibg=#073642  cterm=none         gui=none
+   hi ansiMagentaBlack      ctermfg=5          ctermbg=0          guifg=#d33682    guibg=#073642  cterm=none         gui=none
+   hi ansiCyanBlack         ctermfg=6          ctermbg=0          guifg=#2aa198    guibg=#073642  cterm=none         gui=none
+   hi ansiWhiteBlack        ctermfg=7          ctermbg=0          guifg=#eee8d5    guibg=#073642  cterm=none         gui=none
 
-   hi ansiBlackRed          ctermfg=0          ctermbg=1          guifg=Black      guibg=Red      cterm=none         gui=none
-   hi ansiRedRed            ctermfg=1          ctermbg=1          guifg=Red        guibg=Red      cterm=none         gui=none
-   hi ansiGreenRed          ctermfg=2          ctermbg=1          guifg=Green      guibg=Red      cterm=none         gui=none
-   hi ansiYellowRed         ctermfg=3          ctermbg=1          guifg=Yellow     guibg=Red      cterm=none         gui=none
-   hi ansiBlueRed           ctermfg=4          ctermbg=1          guifg=Blue       guibg=Red      cterm=none         gui=none
-   hi ansiMagentaRed        ctermfg=5          ctermbg=1          guifg=Magenta    guibg=Red      cterm=none         gui=none
-   hi ansiCyanRed           ctermfg=6          ctermbg=1          guifg=Cyan       guibg=Red      cterm=none         gui=none
-   hi ansiWhiteRed          ctermfg=7          ctermbg=1          guifg=White      guibg=Red      cterm=none         gui=none
+   hi ansiBlackRed          ctermfg=0          ctermbg=1          guifg=#073642    guibg=#dc322f  cterm=none         gui=none
+   hi ansiRedRed            ctermfg=1          ctermbg=1          guifg=#dc322f    guibg=#dc322f  cterm=none         gui=none
+   hi ansiGreenRed          ctermfg=2          ctermbg=1          guifg=#859900    guibg=#dc322f  cterm=none         gui=none
+   hi ansiYellowRed         ctermfg=3          ctermbg=1          guifg=#b58900    guibg=#dc322f  cterm=none         gui=none
+   hi ansiBlueRed           ctermfg=4          ctermbg=1          guifg=#268bd2    guibg=#dc322f  cterm=none         gui=none
+   hi ansiMagentaRed        ctermfg=5          ctermbg=1          guifg=#d33682    guibg=#dc322f  cterm=none         gui=none
+   hi ansiCyanRed           ctermfg=6          ctermbg=1          guifg=#2aa198    guibg=#dc322f  cterm=none         gui=none
+   hi ansiWhiteRed          ctermfg=7          ctermbg=1          guifg=#eee8d5    guibg=#dc322f  cterm=none         gui=none
 
-   hi ansiBlackGreen        ctermfg=0          ctermbg=2          guifg=Black      guibg=Green    cterm=none         gui=none
-   hi ansiRedGreen          ctermfg=1          ctermbg=2          guifg=Red        guibg=Green    cterm=none         gui=none
-   hi ansiGreenGreen        ctermfg=2          ctermbg=2          guifg=Green      guibg=Green    cterm=none         gui=none
-   hi ansiYellowGreen       ctermfg=3          ctermbg=2          guifg=Yellow     guibg=Green    cterm=none         gui=none
-   hi ansiBlueGreen         ctermfg=4          ctermbg=2          guifg=Blue       guibg=Green    cterm=none         gui=none
-   hi ansiMagentaGreen      ctermfg=5          ctermbg=2          guifg=Magenta    guibg=Green    cterm=none         gui=none
-   hi ansiCyanGreen         ctermfg=6          ctermbg=2          guifg=Cyan       guibg=Green    cterm=none         gui=none
-   hi ansiWhiteGreen        ctermfg=7          ctermbg=2          guifg=White      guibg=Green    cterm=none         gui=none
+   hi ansiBlackGreen        ctermfg=0          ctermbg=2          guifg=#073642    guibg=#859900  cterm=none         gui=none
+   hi ansiRedGreen          ctermfg=1          ctermbg=2          guifg=#dc322f    guibg=#859900  cterm=none         gui=none
+   hi ansiGreenGreen        ctermfg=2          ctermbg=2          guifg=#859900    guibg=#859900  cterm=none         gui=none
+   hi ansiYellowGreen       ctermfg=3          ctermbg=2          guifg=#b58900    guibg=#859900  cterm=none         gui=none
+   hi ansiBlueGreen         ctermfg=4          ctermbg=2          guifg=#268bd2    guibg=#859900  cterm=none         gui=none
+   hi ansiMagentaGreen      ctermfg=5          ctermbg=2          guifg=#d33682    guibg=#859900  cterm=none         gui=none
+   hi ansiCyanGreen         ctermfg=6          ctermbg=2          guifg=#2aa198    guibg=#859900  cterm=none         gui=none
+   hi ansiWhiteGreen        ctermfg=7          ctermbg=2          guifg=#eee8d5    guibg=#859900  cterm=none         gui=none
 
-   hi ansiBlackYellow       ctermfg=0          ctermbg=3          guifg=Black      guibg=Yellow   cterm=none         gui=none
-   hi ansiRedYellow         ctermfg=1          ctermbg=3          guifg=Red        guibg=Yellow   cterm=none         gui=none
-   hi ansiGreenYellow       ctermfg=2          ctermbg=3          guifg=Green      guibg=Yellow   cterm=none         gui=none
-   hi ansiYellowYellow      ctermfg=3          ctermbg=3          guifg=Yellow     guibg=Yellow   cterm=none         gui=none
-   hi ansiBlueYellow        ctermfg=4          ctermbg=3          guifg=Blue       guibg=Yellow   cterm=none         gui=none
-   hi ansiMagentaYellow     ctermfg=5          ctermbg=3          guifg=Magenta    guibg=Yellow   cterm=none         gui=none
-   hi ansiCyanYellow        ctermfg=6          ctermbg=3          guifg=Cyan       guibg=Yellow   cterm=none         gui=none
-   hi ansiWhiteYellow       ctermfg=7          ctermbg=3          guifg=White      guibg=Yellow   cterm=none         gui=none
+   hi ansiBlackYellow       ctermfg=0          ctermbg=3          guifg=#073642    guibg=#b58900  cterm=none         gui=none
+   hi ansiRedYellow         ctermfg=1          ctermbg=3          guifg=#dc322f    guibg=#b58900  cterm=none         gui=none
+   hi ansiGreenYellow       ctermfg=2          ctermbg=3          guifg=#859900    guibg=#b58900  cterm=none         gui=none
+   hi ansiYellowYellow      ctermfg=3          ctermbg=3          guifg=#b58900    guibg=#b58900  cterm=none         gui=none
+   hi ansiBlueYellow        ctermfg=4          ctermbg=3          guifg=#268bd2    guibg=#b58900  cterm=none         gui=none
+   hi ansiMagentaYellow     ctermfg=5          ctermbg=3          guifg=#d33682    guibg=#b58900  cterm=none         gui=none
+   hi ansiCyanYellow        ctermfg=6          ctermbg=3          guifg=#2aa198    guibg=#b58900  cterm=none         gui=none
+   hi ansiWhiteYellow       ctermfg=7          ctermbg=3          guifg=#eee8d5    guibg=#b58900  cterm=none         gui=none
 
-   hi ansiBlackBlue         ctermfg=0          ctermbg=4          guifg=Black      guibg=Blue     cterm=none         gui=none
-   hi ansiRedBlue           ctermfg=1          ctermbg=4          guifg=Red        guibg=Blue     cterm=none         gui=none
-   hi ansiGreenBlue         ctermfg=2          ctermbg=4          guifg=Green      guibg=Blue     cterm=none         gui=none
-   hi ansiYellowBlue        ctermfg=3          ctermbg=4          guifg=Yellow     guibg=Blue     cterm=none         gui=none
-   hi ansiBlueBlue          ctermfg=4          ctermbg=4          guifg=Blue       guibg=Blue     cterm=none         gui=none
-   hi ansiMagentaBlue       ctermfg=5          ctermbg=4          guifg=Magenta    guibg=Blue     cterm=none         gui=none
-   hi ansiCyanBlue          ctermfg=6          ctermbg=4          guifg=Cyan       guibg=Blue     cterm=none         gui=none
-   hi ansiWhiteBlue         ctermfg=7          ctermbg=4          guifg=White      guibg=Blue     cterm=none         gui=none
+   hi ansiBlackBlue         ctermfg=0          ctermbg=4          guifg=#073642    guibg=#268bd2  cterm=none         gui=none
+   hi ansiRedBlue           ctermfg=1          ctermbg=4          guifg=#dc322f    guibg=#268bd2  cterm=none         gui=none
+   hi ansiGreenBlue         ctermfg=2          ctermbg=4          guifg=#859900    guibg=#268bd2  cterm=none         gui=none
+   hi ansiYellowBlue        ctermfg=3          ctermbg=4          guifg=#b58900    guibg=#268bd2  cterm=none         gui=none
+   hi ansiBlueBlue          ctermfg=4          ctermbg=4          guifg=#268bd2    guibg=#268bd2  cterm=none         gui=none
+   hi ansiMagentaBlue       ctermfg=5          ctermbg=4          guifg=#d33682    guibg=#268bd2  cterm=none         gui=none
+   hi ansiCyanBlue          ctermfg=6          ctermbg=4          guifg=#2aa198    guibg=#268bd2  cterm=none         gui=none
+   hi ansiWhiteBlue         ctermfg=7          ctermbg=4          guifg=#eee8d5    guibg=#268bd2  cterm=none         gui=none
 
-   hi ansiBlackMagenta      ctermfg=0          ctermbg=5          guifg=Black      guibg=Magenta  cterm=none         gui=none
-   hi ansiRedMagenta        ctermfg=1          ctermbg=5          guifg=Red        guibg=Magenta  cterm=none         gui=none
-   hi ansiGreenMagenta      ctermfg=2          ctermbg=5          guifg=Green      guibg=Magenta  cterm=none         gui=none
-   hi ansiYellowMagenta     ctermfg=3          ctermbg=5          guifg=Yellow     guibg=Magenta  cterm=none         gui=none
-   hi ansiBlueMagenta       ctermfg=4          ctermbg=5          guifg=Blue       guibg=Magenta  cterm=none         gui=none
-   hi ansiMagentaMagenta    ctermfg=5          ctermbg=5          guifg=Magenta    guibg=Magenta  cterm=none         gui=none
-   hi ansiCyanMagenta       ctermfg=6          ctermbg=5          guifg=Cyan       guibg=Magenta  cterm=none         gui=none
-   hi ansiWhiteMagenta      ctermfg=7          ctermbg=5          guifg=White      guibg=Magenta  cterm=none         gui=none
+   hi ansiBlackMagenta      ctermfg=0          ctermbg=5          guifg=#073642    guibg=#d33682  cterm=none         gui=none
+   hi ansiRedMagenta        ctermfg=1          ctermbg=5          guifg=#dc322f    guibg=#d33682  cterm=none         gui=none
+   hi ansiGreenMagenta      ctermfg=2          ctermbg=5          guifg=#859900    guibg=#d33682  cterm=none         gui=none
+   hi ansiYellowMagenta     ctermfg=3          ctermbg=5          guifg=#b58900    guibg=#d33682  cterm=none         gui=none
+   hi ansiBlueMagenta       ctermfg=4          ctermbg=5          guifg=#268bd2    guibg=#d33682  cterm=none         gui=none
+   hi ansiMagentaMagenta    ctermfg=5          ctermbg=5          guifg=#d33682    guibg=#d33682  cterm=none         gui=none
+   hi ansiCyanMagenta       ctermfg=6          ctermbg=5          guifg=#2aa198    guibg=#d33682  cterm=none         gui=none
+   hi ansiWhiteMagenta      ctermfg=7          ctermbg=5          guifg=#eee8d5    guibg=#d33682  cterm=none         gui=none
 
-   hi ansiBlackCyan         ctermfg=0          ctermbg=6          guifg=Black      guibg=Cyan     cterm=none         gui=none
-   hi ansiRedCyan           ctermfg=1          ctermbg=6          guifg=Red        guibg=Cyan     cterm=none         gui=none
-   hi ansiGreenCyan         ctermfg=2          ctermbg=6          guifg=Green      guibg=Cyan     cterm=none         gui=none
-   hi ansiYellowCyan        ctermfg=3          ctermbg=6          guifg=Yellow     guibg=Cyan     cterm=none         gui=none
-   hi ansiBlueCyan          ctermfg=4          ctermbg=6          guifg=Blue       guibg=Cyan     cterm=none         gui=none
-   hi ansiMagentaCyan       ctermfg=5          ctermbg=6          guifg=Magenta    guibg=Cyan     cterm=none         gui=none
-   hi ansiCyanCyan          ctermfg=6          ctermbg=6          guifg=Cyan       guibg=Cyan     cterm=none         gui=none
-   hi ansiWhiteCyan         ctermfg=7          ctermbg=6          guifg=White      guibg=Cyan     cterm=none         gui=none
+   hi ansiBlackCyan         ctermfg=0          ctermbg=6          guifg=#073642    guibg=#2aa198  cterm=none         gui=none
+   hi ansiRedCyan           ctermfg=1          ctermbg=6          guifg=#dc322f    guibg=#2aa198  cterm=none         gui=none
+   hi ansiGreenCyan         ctermfg=2          ctermbg=6          guifg=#859900    guibg=#2aa198  cterm=none         gui=none
+   hi ansiYellowCyan        ctermfg=3          ctermbg=6          guifg=#b58900    guibg=#2aa198  cterm=none         gui=none
+   hi ansiBlueCyan          ctermfg=4          ctermbg=6          guifg=#268bd2    guibg=#2aa198  cterm=none         gui=none
+   hi ansiMagentaCyan       ctermfg=5          ctermbg=6          guifg=#d33682    guibg=#2aa198  cterm=none         gui=none
+   hi ansiCyanCyan          ctermfg=6          ctermbg=6          guifg=#2aa198    guibg=#2aa198  cterm=none         gui=none
+   hi ansiWhiteCyan         ctermfg=7          ctermbg=6          guifg=#eee8d5    guibg=#2aa198  cterm=none         gui=none
 
-   hi ansiBlackWhite        ctermfg=0          ctermbg=7          guifg=Black      guibg=White    cterm=none         gui=none
-   hi ansiRedWhite          ctermfg=1          ctermbg=7          guifg=Red        guibg=White    cterm=none         gui=none
-   hi ansiGreenWhite        ctermfg=2          ctermbg=7          guifg=Green      guibg=White    cterm=none         gui=none
-   hi ansiYellowWhite       ctermfg=3          ctermbg=7          guifg=Yellow     guibg=White    cterm=none         gui=none
-   hi ansiBlueWhite         ctermfg=4          ctermbg=7          guifg=Blue       guibg=White    cterm=none         gui=none
-   hi ansiMagentaWhite      ctermfg=5          ctermbg=7          guifg=Magenta    guibg=White    cterm=none         gui=none
-   hi ansiCyanWhite         ctermfg=6          ctermbg=7          guifg=Cyan       guibg=White    cterm=none         gui=none
-   hi ansiWhiteWhite        ctermfg=7          ctermbg=7          guifg=White      guibg=White    cterm=none         gui=none
+   hi ansiBlackWhite        ctermfg=0          ctermbg=7          guifg=#073642    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiRedWhite          ctermfg=1          ctermbg=7          guifg=#dc322f    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiGreenWhite        ctermfg=2          ctermbg=7          guifg=#859900    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiYellowWhite       ctermfg=3          ctermbg=7          guifg=#b58900    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiBlueWhite         ctermfg=4          ctermbg=7          guifg=#268bd2    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiMagentaWhite      ctermfg=5          ctermbg=7          guifg=#d33682    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiCyanWhite         ctermfg=6          ctermbg=7          guifg=#2aa198    guibg=#eee8d5  cterm=none         gui=none
+   hi ansiWhiteWhite        ctermfg=7          ctermbg=7          guifg=#eee8d5    guibg=#eee8d5  cterm=none         gui=none
   endif
 "  call Dret("AnsiEsc#AnsiEsc")
 endfun
