@@ -1837,10 +1837,10 @@ call s:SneakMaps()
 " }}}
 
 " {{{ VimFiler settings
-nnoremap <silent> - :VimFilerBufferDir -force-quit -find<CR>
+nnoremap <silent> - :VimFilerBufferDir -find<CR>
 nnoremap <silent> <Leader>- :VimFilerExplorer -find <C-r>=
     \ vimfiler#helper#_get_buffer_directory(bufnr('%'))<CR><CR>
-nnoremap <silent> <C-_> :VimFilerCurrentDir -force-quit -find<CR>
+nnoremap <silent> <C-_> :VimFilerCurrentDir -find<CR>
 nnoremap <silent> <Leader><C-_> :VimFilerExplorer -find <C-r>=getcwd()<CR><CR>
 let g:vimfiler_as_default_explorer=1
 if stridx($VIMBLACKLIST, 'vimfiler') == -1
