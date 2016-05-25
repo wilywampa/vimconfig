@@ -6,4 +6,6 @@ legend.handlelength : 3
 figure.autolayout : True
 figure.max_open_warning : 100
 figure.facecolor : white
+figure.figsize : 10, 7.5
 axes.formatter.useoffset : False
+axes.prop_cycle : cycler(linestyle=('-', '--', '-.', ':')) * cycler(color='bgrcmyk')
