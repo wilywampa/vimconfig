@@ -3,7 +3,7 @@ if [[ -z "$SOLARIZED_TOGGLE" ]]; then
 fi
 
 if [ $SOLARIZED_TOGGLE = "1" ]; then
-  xtermcontrol -f --bg='#012833' --fg='#839496' \
+  xtermcontrol -f --bg='#002b36' --fg='#839496' \
     --mouse-bg='#586e75' --mouse-fg='#93a1a1' --highlight='#000000'
   echo 'set background=dark' > $HOME/.vim/after/plugin/bg.vim
   [[ -n $TMUX ]] && tmux run-shell "cut -c3- $HOME/.tmux.conf | sh -s status_dark"
