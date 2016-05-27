@@ -582,8 +582,8 @@ function! FixImports()
     while 1
       PymodePython code_check()
       Python2or3 << EOF
-messages = [(m['lnum'], m['text']) for m in
-            vim.eval('copy(g:PymodeLocList.current()._loclist)')]
+messages = set([(m['lnum'], m['text']) for m in
+                vim.eval('copy(g:PymodeLocList.current()._loclist)')])
 missing = sorted([m.split("'")[1] for _, m in messages if 'E0602' in m])
 redefined = sorted([m.split("'")[1] for _, m in messages if 'W0404' in m])
 unused = sorted([m.split("'")[1] for _, m in messages if 'W0611' in m])
