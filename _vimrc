@@ -1365,12 +1365,12 @@ else
     map! <F20> <M-Left>
 
     " Shifted function key codes
-    exe "set <S-F1>=\e[25~"    | exe "set <S-F2>=\e[26~"
-    exe "set <S-F3>=\e[28~"    | exe "set <S-F4>=\e[29~"
-    exe "set <S-F5>=\e[31~"    | exe "set <S-F6>=\e[32~"
-    exe "set <S-F7>=\e[33~"    | exe "set <S-F8>=\e[34~"
-    exe "set <S-F9>=\e[20;2~"  | exe "set <S-F10>=\e[21;2~"
-    exe "set <S-F11>=\e[23;2~" | exe "set <S-F12>=\e[24;2~"
+    execute "set <S-F1>=\e[1;2P"   | execute "set <S-F2>=\e[1;2Q"
+    execute "set <S-F3>=\e[1;2R"   | execute "set <S-F4>=\e[1;2S"
+    execute "set <S-F5>=\e[15;2~"  | execute "set <S-F6>=\e[17;2~"
+    execute "set <S-F7>=\e[18;2~"  | execute "set <S-F8>=\e[19;2~"
+    execute "set <S-F9>=\e[20;2~"  | execute "set <S-F10>=\e[21;2~"
+    execute "set <S-F11>=\e[23;2~" | execute "set <S-F12>=\e[24;2~"
 
     " Shift + arrow keys
     exe "set <S-Left>=\<Esc>[1;2D <S-Right>=\<Esc>[1;2C <S-Down>=\<Esc>[1;2B <S-Up>=\<Esc>[1;2A"
