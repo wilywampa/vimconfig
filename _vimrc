@@ -540,6 +540,7 @@ cm <C-n> <Down>
 
 " - is used for file browser
 nn _ -
+xn _ -
 
 " Go to most recent text change
 nn <silent> g. m':silent! execute "buffer".g:last_change_buf<CR>:keepjumps normal! `.<CR>
