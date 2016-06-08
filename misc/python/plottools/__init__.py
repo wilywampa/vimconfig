@@ -85,7 +85,7 @@ def fig(num=1):
 
 def figdo(*args):
     """Apply functions to all open figures."""
-    [func(plt.figure(n)) for n in plt.get_fignums() for func in args]
+    return [func(plt.figure(n)) for n in plt.get_fignums() for func in args]
 
 
 def resize(width, height):
