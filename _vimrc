@@ -2587,6 +2587,11 @@ let g:neomru#update_interval = hasMac ? 0 : 1.0
 
 " gitgutter configuration " {{{
 let g:gitgutter_async = 0
+let g:gitgutter_sign_added = '✚'
+let g:gitgutter_sign_modified = '✹'
+let g:gitgutter_sign_removed = '✖'
+let g:gitgutter_sign_removed_first_line = '➜'
+let g:gitgutter_sign_modified_removed = '✗'
 nnoremap <silent> ,gg :<C-u>GitGutter<CR>
 function! s:hunk(mode, sign, ...) abort
     if gitgutter#utility#is_active()
