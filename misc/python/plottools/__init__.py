@@ -163,6 +163,10 @@ def varinfo(var):
     print(type(var))
     if isinstance(var, numpy.ndarray):
         print(var.shape, var.dtype)
+        print('min = {} max = {}'.format(
+            numpy.nanmin(var), numpy.nanmax(var)))
+        print('mean = {} std = {}'.format(
+            numpy.nanmean(var), numpy.nanstd(var)))
     elif isinstance(var, (dict, list, tuple, set)):
         print('n = %d' % len(var))
 
