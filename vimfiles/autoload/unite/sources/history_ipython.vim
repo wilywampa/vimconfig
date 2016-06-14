@@ -13,6 +13,7 @@ let s:source = {
     \ 'default_action' : 'send',
     \ 'default_kind' : 'word',
     \ 'syntax' : 'uniteSource__Python',
+    \ 'max_candidates' : 100,
     \}
 
 function! s:source.hooks.on_syntax(args, context)
