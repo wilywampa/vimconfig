@@ -86,6 +86,15 @@ def props_repr(value):
     return repr(value)
 
 
+def dict_repr(d, top=True):
+    if isinstance(d, dict):
+        return ('{}' if top else 'dict({})').format(', '.join(
+            ['{}={}'.format(k, dict_repr(v, False)) for k, v in d.items()]))
+    elif isinstance(d, string_types):
+        return repr(str(d))
+    return repr(d)
+
+
 def _delete_word(self, event, parent, lineEdit):
     if lineEdit.selectionStart() == -1:
         lineEdit.cursorWordBackward(True)
@@ -498,16 +507,18 @@ class DataObj(object):
             self.labels = self._labels
 
     def guess_ndim(self, obj, kwargs):
+        if isinstance(kwargs.get('ndim', None), int):
+            return kwargs['ndim']
+        for key in 'yname', 'xname':
+            try:
+                return obj[kwargs[key]].ndim
+            except (AttributeError, KeyError, IndexError):
+                pass
         try:
             return min(v.ndim for v in obj.values()
                        if isinstance(v, np.ndarray))
         except ValueError:
-            pass
-        for key in 'xname', 'yname':
-            try:
-                return obj[kwargs[key]].ndim
-            except (AttributeError, KeyError, IndexError):
-                return None
+            return None
 
     def set_xname(self, xname):
         index = self.menu.findText(xname)
@@ -750,7 +761,7 @@ class Interact(QtGui.QMainWindow):
         add_widget(data.xscale_box, 'x')
 
     def warn(self, message):
-        self.warnings = [message]
+        self.warnings = {message}
         self.draw_warnings()
         self.canvas.draw()
 
@@ -779,14 +790,14 @@ class Interact(QtGui.QMainWindow):
         try:
             return eval(text, CONSTANTS.copy())
         except Exception as e:
-            self.warnings.append('Error setting scale: ' + text_type(e))
+            self.warnings.add('Error setting scale: ' + text_type(e))
             return 1.0
 
     def get_key(self, menu):
         key = text_type(menu.itemText(menu.currentIndex()))
         text = text_type(menu.lineEdit().text())
         if key != text:
-            self.warnings.append(
+            self.warnings.add(
                 'Plotted key (%s) does not match typed key (%s)' %
                 (key, text))
         return key
@@ -802,25 +813,35 @@ class Interact(QtGui.QMainWindow):
             [p.disable() for p in self.pickers]
             self.pickers = None
 
-    def plot(self, axes, data, xname, xscale, yname, yscale, i, label):
+    def plot(self, axes, data):
+        xscale = self.get_scale(data.xscale_box, data.xscale_compl)
+        yscale = self.get_scale(data.scale_box, data.scale_compl)
+        xname = self.get_key(data.xmenu)
+        yname = self.get_key(data.menu)
+
         if xname in data.obj:
-            x = data.obj[xname][..., i] * xscale
-        y = data.obj[yname][..., i] * yscale
+            x = data.obj[xname] * xscale
+        y = data.obj[yname] * yscale
 
-        def plot(y):
+        if xname in data.obj and x.shape[0] in y.shape:
+            xaxis = y.shape.index(x.shape[0])
+            lines = axes.plot(x, np.rollaxis(y, xaxis))
+        else:
             if xname in data.obj:
-                return axes.plot(x, y, label=label)
+                self.warnings.add(
+                    '{} {} and {} {} have incompatible dimensions'.format(
+                        xname, x.shape, yname, y.shape))
+            lines = axes.plot(y)
+
+        if not isiterable(data.labels):
+            if len(lines) > 1:
+                data.labels = ['%s %d' % (data.labels, i)
+                               for i in range(len(lines))]
             else:
-                return axes.plot(y, label=label)
+                data.labels = [data.labels]
 
-        try:
-            lines = plot(y)
-        except ValueError:
-            lines = plot(y.T)
-
-        if isinstance(i, slice):
-            i = 0
-        for line in lines:
+        for i, (line, label) in enumerate(zip(lines, data.labels)):
+            line.set_label(label)
             if hasattr(data, 'cdata'):
                 line.set_color(data.cmap(data.norm(data.cdata[i])))
                 self.handles[(label,)] = line
@@ -869,7 +890,7 @@ class Interact(QtGui.QMainWindow):
         ylabel = []
         xlabel2 = []
         ylabel2 = []
-        self.warnings = []
+        self.warnings = set()
         self.handles = OrderedDict()
         self.styles = cycle(product(linestyle_cycle, color_cycle))
         for d in self.datas:
@@ -877,20 +898,9 @@ class Interact(QtGui.QMainWindow):
                 axes, x, y = self.axes2, xlabel2, ylabel2
             else:
                 axes, x, y = self.axes, xlabel, ylabel
-            scale = self.get_scale(d.scale_box, d.scale_compl)
-            xscale = self.get_scale(d.xscale_box, d.xscale_compl)
+            self.plot(axes, d)
             text = self.get_key(d.menu)
             xtext = self.get_key(d.xmenu)
-            args = axes, d, xtext, xscale, text, scale
-            if isiterable(d.labels):
-                for i, label in enumerate(d.labels):
-                    self.plot(*args + (i, label))
-            else:
-                n = self.plot(*args + (slice(None), d.labels))
-                if n > 1:
-                    d.labels = ['%s %d' % (d.labels, i) for i in range(n)]
-                    return self.draw()
-            axes.set_xlabel('')
             if xtext:
                 x.append(xtext + ' (' + d.name + ')')
             y.append(text + ' (' + d.name + ')')
@@ -1015,18 +1025,8 @@ class Interact(QtGui.QMainWindow):
         return kwargs
 
     def data_dicts(self):
-        return "\n".join(text_type(self.dict_repr(self.data_dict(d)))
+        return "\n".join(text_type(dict_repr(self.data_dict(d)))
                          for d in self.datas)
-
-    @classmethod
-    def dict_repr(cls, d, top=True):
-        if isinstance(d, dict):
-            return ('{}' if top else 'dict({})').format(', '.join(
-                ['{}={}'.format(k, cls.dict_repr(v, False))
-                 for k, v in d.items()]))
-        elif isinstance(d, string_types):
-            return repr(str(d))
-        return repr(d)
 
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
@@ -1083,7 +1083,7 @@ def merge_dicts(*dicts):
 def dataobj(data, name='',
             xname=None, xscale=None,
             yname=None, yscale=None,
-            labels=None, props=None,
+            labels=None, props=None, ndim=None,
             cdata=None, cmap=None, norm=None, **kwargs):
     locals().update(kwargs)
     return [data, name,
