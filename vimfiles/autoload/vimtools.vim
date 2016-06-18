@@ -497,7 +497,6 @@ endfunction " }}}
 
 function! vimtools#SourceMotion(type) " {{{
   let input = vimtools#opfunc(a:type)
-  let tmpfile = tempname()
   let lines = split(input, '\n')
   if exists('*scriptease#scriptid')
     let sid = scriptease#scriptid('%')
@@ -512,9 +511,13 @@ function! vimtools#SourceMotion(type) " {{{
       endfor
     endif
   endif
+  let tmpfile = tempname()
   call writefile(lines, tmpfile)
-  execute "source ".tmpfile
-  call delete(tmpfile)
+  try
+    execute "source" tmpfile
+  finally
+    call delete(tmpfile)
+  endtry
 endfunction " }}}
 
 " Turn off diffs automatically
