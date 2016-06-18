@@ -2063,7 +2063,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name="
 nn <silent> <M-p> :<C-u>Unite neomru/directory<CR>
 nn <silent> <C-o> :<C-u>Unite file<CR>
 nn <silent> <M-/> :<C-u>Unite line:all<CR>
-nn <silent> <M-?> :<C-u>Unite line:backward<CR>
+nn <silent> <M-?> :<C-u>Unite line:all -input=`expand('<lt>cword>')`<CR>
 nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
 nn <silent> <expr> <Leader>o ':<C-u>Unite -direction=' .
