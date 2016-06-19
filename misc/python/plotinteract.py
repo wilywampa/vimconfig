@@ -17,12 +17,9 @@ from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as
 from matplotlib.figure import Figure
 from mplpicker import picker
 from six import string_types, text_type
-try:
-    from PyQt4.QtCore import QString
-except ImportError:
-    QString = str
 
 
+QString = str if text_type is str else QtCore.QString
 PROPERTIES = ('color', 'linestyle', 'linewidth', 'alpha', 'marker',
               'markersize', 'markerfacecolor', 'markevery', 'antialiased',
               'dash_capstyle', 'dash_joinstyle', 'drawstyle', 'fillstyle',
@@ -95,107 +92,94 @@ def dict_repr(d, top=True):
     return repr(d)
 
 
-def _delete_word(self, event, parent, lineEdit):
-    if lineEdit.selectionStart() == -1:
-        lineEdit.cursorWordBackward(True)
-        lineEdit.backspace()
+class KeyHandlerMixin(object):
 
+    def __init__(self, *args, **kwargs):
+        self.parent = kwargs['parent']
+        super(KeyHandlerMixin, self).__init__(*args, **kwargs)
+        self._lineEdit = self.lineEdit() if hasattr(self, 'lineEdit') else self
 
-def _select_all(self, event, parent, lineEdit):
-    lineEdit.selectAll()
+    def select_all(self, event):
+        return self._lineEdit.selectAll()
 
-
-def _quit(self, event, parent, lineEdit):
-    self.emit(SIGNAL('closed()'))
-    self.window().close()
-    while not isinstance(self, Interact):
-        try:
-            self = self.parent
-        except AttributeError:
-            return
-    self._close()
-
-
-control_actions = {
-    QtCore.Qt.Key_A: _select_all,
-    QtCore.Qt.Key_D: lambda self, *args: self.emit(SIGNAL('remove()')),
-    QtCore.Qt.Key_E: lambda self, *args: self.emit(SIGNAL('axisequal()')),
-    QtCore.Qt.Key_L: lambda self, *args: self.emit(SIGNAL('relabel()')),
-    QtCore.Qt.Key_N: lambda self, *args: self.emit(SIGNAL('duplicate()')),
-    QtCore.Qt.Key_P: lambda self, *args: self.emit(SIGNAL('edit_props()')),
-    QtCore.Qt.Key_Q: _quit,
-    QtCore.Qt.Key_Return: lambda self, *args: self.emit(SIGNAL('sync()')),
-    QtCore.Qt.Key_S: lambda self, *args: self.emit(SIGNAL('sync()')),
-    QtCore.Qt.Key_T: lambda self, *args: self.emit(SIGNAL('twin()')),
-    QtCore.Qt.Key_X: lambda self, *args: self.emit(SIGNAL('xlim()')),
-    QtCore.Qt.Key_Y: lambda self, *args: self.emit(SIGNAL('ylim()')),
-    QtCore.Qt.Key_W: _delete_word,
-}
-
-
-def handle_key(self, event, parent, lineEdit):
-    if event.type() == QtCore.QEvent.KeyPress:
-        if (event.modifiers() == CONTROL_MODIFIER and
-                event.key() in control_actions):
-            control_actions[event.key()](self, event, parent, lineEdit)
-            return True
-        elif (event.modifiers() & CONTROL_MODIFIER and
-              event.modifiers() & QtCore.Qt.ShiftModifier and
-              event.key() == QtCore.Qt.Key_S):
-            self.emit(SIGNAL('sync_axis()'))
-        elif event.key() in (QtCore.Qt.Key_Home,
-                             QtCore.Qt.Key_End):
-            return _move_cursor(event, parent, lineEdit)
-        elif self.completer.popup().viewport().isVisible():
-            if event.key() == QtCore.Qt.Key_Tab:
-                self.emit(SIGNAL('tabPressed(int)'), 1)
-                return True
-            elif event.key() == QtCore.Qt.Key_Backtab:
-                self.emit(SIGNAL('tabPressed(int)'), -1)
-                return True
-            elif event.key() == QtCore.Qt.Key_Return:
-                self.emit(SIGNAL('returnPressed()'))
-
-    try:
-        return parent.event(self, event)
-    except AttributeError:
-        return False
-
-
-def _move_cursor(event, parent, lineEdit):
-    if event.key() == QtCore.Qt.Key_Home:
-        if event.modifiers() & QtCore.Qt.ShiftModifier:
-            lineEdit.cursorBackward(True, len(lineEdit.text()))
-        else:
-            lineEdit.setCursorPosition(0)
-        return True
-    elif event.key() == QtCore.Qt.Key_End:
-        if event.modifiers() & QtCore.Qt.ShiftModifier:
-            lineEdit.cursorForward(True, len(lineEdit.text()))
-        else:
-            lineEdit.setCursorPosition(len(lineEdit.text()))
-        return True
-    return False
-
-
-def KeyHandler(parent):
-    class KeyHandlerClass(parent):
-
-        def __init__(self, *args, **kwargs):
-            self.parent = kwargs.get('parent', None)
-            parent.__init__(self, *args, **kwargs)
-
-        def set_completer(self, completer):
-            self.completer = completer
-
-        def event(self, event):
+    def quit(self, event):
+        self.emit(SIGNAL('closed()'))
+        self.window().close()
+        while not isinstance(self, Interact):
             try:
-                lineEdit = self.lineEdit()
+                self = self.parent
             except AttributeError:
-                lineEdit = self
-            return handle_key(self, event, parent, lineEdit)
+                return
+        self._close()
 
-    return KeyHandlerClass
+    def move_cursor(self, event):
+        if event.key() == QtCore.Qt.Key_Home:
+            if event.modifiers() == QtCore.Qt.ShiftModifier:
+                self._lineEdit.cursorBackward(True, len(self._lineEdit.text()))
+            else:
+                self._lineEdit.setCursorPosition(0)
+        elif event.key() == QtCore.Qt.Key_End:
+            if event.modifiers() == QtCore.Qt.ShiftModifier:
+                self._lineEdit.cursorForward(True, len(self._lineEdit.text()))
+            else:
+                self._lineEdit.setCursorPosition(len(self._lineEdit.text()))
+        else:
+            return False
+        return True
+
+    def delete_word(self, event):
+        if self._lineEdit.selectionStart() == -1:
+            self._lineEdit.cursorWordBackward(True)
+            self._lineEdit.backspace()
+
+    def event(self, event):
+        control_actions = {
+            QtCore.Qt.Key_A: self.select_all,
+            QtCore.Qt.Key_D: 'remove()',
+            QtCore.Qt.Key_E: 'axisequal()',
+            QtCore.Qt.Key_L: 'relabel()',
+            QtCore.Qt.Key_N: 'duplicate()',
+            QtCore.Qt.Key_P: 'edit_props()',
+            QtCore.Qt.Key_Q: self.quit,
+            QtCore.Qt.Key_S: 'sync()',
+            QtCore.Qt.Key_T: 'twin()',
+            QtCore.Qt.Key_W: self.delete_word,
+            QtCore.Qt.Key_X: 'xlim()',
+            QtCore.Qt.Key_Y: 'ylim()',
+            QtCore.Qt.Key_Return: 'sync()',
+        }
+
+        if event.type() == QtCore.QEvent.KeyPress:
+            if (event.modifiers() == CONTROL_MODIFIER and
+                    event.key() in control_actions):
+                action = control_actions[event.key()]
+                try:
+                    action(event)
+                except TypeError:
+                    self.emit(SIGNAL(action))
+                return True
+            elif (event.modifiers() ==
+                  CONTROL_MODIFIER | QtCore.Qt.ShiftModifier and
+                  event.key() == QtCore.Qt.Key_S):
+                self.emit(SIGNAL('sync_axis()'))
+            elif event.key() in (QtCore.Qt.Key_Home,
+                                 QtCore.Qt.Key_End):
+                return self.move_cursor(event)
+            elif self.completer.popup().viewport().isVisible():
+                if event.key() == QtCore.Qt.Key_Tab:
+                    self.emit(SIGNAL('tabPressed(int)'), 1)
+                    return True
+                elif event.key() == QtCore.Qt.Key_Backtab:
+                    self.emit(SIGNAL('tabPressed(int)'), -1)
+                    return True
+                elif event.key() == QtCore.Qt.Key_Return:
+                    self.emit(SIGNAL('returnPressed()'))
+
+        return super(KeyHandlerMixin, self).event(event)
+
+
+class KeyHandlerLineEdit(KeyHandlerMixin, QtGui.QLineEdit):
+    pass
 
 
 class TabCompleter(QtGui.QCompleter):
@@ -320,6 +304,10 @@ class AutoCompleteComboBox(QtGui.QComboBox):
         self.completer.setModel(self.model())
 
 
+class KeyHandlerComboBox(KeyHandlerMixin, AutoCompleteComboBox):
+    pass
+
+
 class PropertyEditor(QtGui.QTableWidget):
 
     def __init__(self, parent, *args, **kwargs):
@@ -348,7 +336,14 @@ class PropertyEditor(QtGui.QTableWidget):
             self.currentRow() + (1 if next else - 1)) % self.rowCount(), 1)
         return True
 
+    def confirm(self):
+        cell = self.currentRow(), self.currentColumn()
+        self.setCurrentItem(None)
+        self.setCurrentCell(*cell)
+        self.parent.draw()
+
     def cycle_editors(self, direction):
+        self.confirm()
         try:
             index = (self.parent.datas.index(
                 self.dataobj) + direction) % len(self.parent.datas)
@@ -359,16 +354,22 @@ class PropertyEditor(QtGui.QTableWidget):
     control_actions = {
         QtCore.Qt.Key_J: lambda self: self.focusNextPrevChild(True),
         QtCore.Qt.Key_K: lambda self: self.focusNextPrevChild(False),
-        QtCore.Qt.Key_L: lambda self: self.parent.draw(),
+        QtCore.Qt.Key_L: lambda self: self.confirm(),
         QtCore.Qt.Key_N: lambda self: self.cycle_editors(1),
         QtCore.Qt.Key_P: lambda self: self.cycle_editors(-1),
         QtCore.Qt.Key_Q: lambda self: self.close(),
         QtCore.Qt.Key_W: lambda self: self.close(),
     }
 
+    def keyPressEvent(self, e):
+        if self.state() == self.EditingState:
+            if e.key() in (QtCore.Qt.Key_Down, QtCore.Qt.Key_Up):
+                return self.focusNextPrevChild(e.key() == QtCore.Qt.Key_Down)
+        return super(PropertyEditor, self).keyPressEvent(e)
+
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
-            event.modifiers() & CONTROL_MODIFIER and
+            event.modifiers() == CONTROL_MODIFIER and
                 event.key() in self.control_actions):
             self.control_actions[event.key()](self)
             return True
@@ -412,7 +413,7 @@ class DataObj(object):
         words.sort(key=parent.sortkey)
 
         def new_text_box():
-            menu = KeyHandler(AutoCompleteComboBox)(parent=self.parent)
+            menu = KeyHandlerComboBox(parent=self.parent)
             menu.setMinimumWidth(100)
             menu.setModel(words)
             menu.setMaxVisibleItems(50)
@@ -436,8 +437,8 @@ class DataObj(object):
 
         def new_scale_box():
             scale_compl = TabCompleter(words, parent=self.parent)
-            scale_box = KeyHandler(QtGui.QLineEdit)(parent=self.parent)
-            scale_box.set_completer(scale_compl)
+            scale_box = KeyHandlerLineEdit(parent=self.parent)
+            scale_box.completer = scale_compl
             scale_box.setMinimumWidth(100)
             scale_compl.setWidget(scale_box)
             scale_box.setText('1.0')
@@ -627,7 +628,7 @@ class DataObj(object):
                 return
             elif value == '' and key in self.props:
                 del self.props[key]
-            elif value != '':
+            elif value:
                 self.props[key] = value
                 self.parent.props_editor.setItem(
                     row, 1, QtGui.QTableWidgetItem(props_repr(value)))
@@ -659,10 +660,8 @@ class Interact(QtGui.QMainWindow):
                  parent=None, **kwargs):
         self.app = app
         QtGui.QMainWindow.__init__(self, parent)
-        if title is not None:
-            self.setWindowTitle(title)
-        else:
-            self.setWindowTitle(', '.join(d[1] for d in data))
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        self.setWindowTitle(title or ', '.join(d[1] for d in data))
         if sortkey is not None:
             self.sortkey = sortkey
         else:
@@ -809,7 +808,7 @@ class Interact(QtGui.QMainWindow):
         axes._tight, axes._xmargin, axes._ymargin = tight, xmargin, ymargin
 
     def clear_pickers(self):
-        if self.pickers is not None:
+        if self.pickers:
             [p.disable() for p in self.pickers]
             self.pickers = None
 
@@ -961,9 +960,6 @@ class Interact(QtGui.QMainWindow):
         self.margins = 0 if self.margins else 0.05
         self.draw()
 
-    def _options(self):
-        self.edit_parameters()
-
     def _close(self):
         self.app.references.discard(self)
         self.window().close()
@@ -995,12 +991,6 @@ class Interact(QtGui.QMainWindow):
         if draw:
             self.draw()
 
-    control_actions = {
-        QtCore.Qt.Key_M: _margins,
-        QtCore.Qt.Key_O: _options,
-        QtCore.Qt.Key_Q: _close,
-    }
-
     @staticmethod
     def data_dict(d):
         kwargs = OrderedDict((
@@ -1029,24 +1019,30 @@ class Interact(QtGui.QMainWindow):
                          for d in self.datas)
 
     def event(self, event):
+        control_actions = {
+            QtCore.Qt.Key_M: self._margins,
+            QtCore.Qt.Key_O: self.edit_parameters,
+            QtCore.Qt.Key_Q: self._close,
+        }
+
         if (event.type() == QtCore.QEvent.KeyPress and
-            event.modifiers() & CONTROL_MODIFIER and
-                event.key() in self.control_actions):
-            self.control_actions[event.key()](self)
+            event.modifiers() == CONTROL_MODIFIER and
+                event.key() in control_actions):
+            control_actions[event.key()]()
             return True
 
         # Create duplicate of entire GUI with Ctrl+Shift+N
         elif (event.type() == QtCore.QEvent.KeyPress and
-              event.modifiers() & CONTROL_MODIFIER and
-              event.modifiers() & QtCore.Qt.ShiftModifier and
+              event.modifiers() ==
+              CONTROL_MODIFIER | QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_N):
             create(*[[d.obj, d.name, self.data_dict(d)] for d in self.datas])
             return True
 
         # Print dictionaries of keys and scales for all data with Ctrl+Shift+P
         elif (event.type() == QtCore.QEvent.KeyPress and
-              event.modifiers() & CONTROL_MODIFIER and
-              event.modifiers() & QtCore.Qt.ShiftModifier and
+              event.modifiers() ==
+              CONTROL_MODIFIER | QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_P):
             print(self.data_dicts())
             sys.stdout.flush()
@@ -1071,10 +1067,10 @@ def merge_dicts(*dicts):
 
     merged = {}
     for key in keys:
-        if all(map(validate, [d[key] for d in dicts])):
-            length = max(map(len, [d[key] for d in dicts]))
+        if all(validate(d[key]) for d in dicts):
+            length = max(len(d[key]) for d in dicts)
             merged[key] = np.array([pad(d[key]) for d in dicts]).T
-        elif all(map(lambda x: isinstance(x, dict), [d[key] for d in dicts])):
+        elif all(isinstance(d[key], dict) for d in dicts):
             merged[key] = merge_dicts(*[d[key] for d in dicts])
 
     return merged
