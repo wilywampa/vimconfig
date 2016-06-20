@@ -337,6 +337,16 @@ def savemat(filename, obj, **kwargs):
     return scipy.io.savemat(filename, obj, **kwargs)
 
 
+def minmax(a, **kwargs):
+    """Return a tuple (min, max) of `a`."""
+    return np.amin(a, **kwargs), np.amax(a, **kwargs)
+
+
+def nanminmax(a, **kwargs):
+    """Return a tuple (min, max) of `a` ignoring NaNs."""
+    return np.nanmin(a, **kwargs), np.nanmax(a, **kwargs)
+
+
 class Conversion(float):
 
     """Callable unit conversion."""
@@ -441,6 +451,8 @@ __all__ = [
     'loadmat',
     'map_dict',
     'merge_dicts',
+    'minmax',
+    'nanminmax',
     'pad',
     'picker',
     'product_items',
