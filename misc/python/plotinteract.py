@@ -628,7 +628,7 @@ class DataObj(object):
                 return
             elif value == '' and key in self.props:
                 del self.props[key]
-            elif value:
+            elif str(value):
                 self.props[key] = value
                 self.parent.props_editor.setItem(
                     row, 1, QtGui.QTableWidgetItem(props_repr(value)))
