@@ -386,6 +386,19 @@ class Conversion(float):
         return g
 
 
+class SymmetricMaxNLocator(mpl.ticker.MaxNLocator):
+
+    """Select around N intervals symmetric about zero."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs['symmetric'] = True
+        super(SymmetricMaxNLocator, self).__init__(*args, **kwargs)
+
+    def bin_boundaries(self, vmin, vmax):
+        v = max(map(abs, (vmin, vmax)))
+        return super(SymmetricMaxNLocator, self).bin_boundaries(-v, v)
+
+
 r2d = Conversion(np.rad2deg(1.0))
 d2r = Conversion(np.deg2rad(1.0))
 
@@ -427,6 +440,7 @@ except ImportError:
 __all__ = [
     'ArrayBunch',
     'Conversion',
+    'SymmetricMaxNLocator',
     'angle2dcm',
     'angle_difference',
     'array_bunchify',
