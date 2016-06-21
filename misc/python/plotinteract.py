@@ -336,14 +336,15 @@ class PropertyEditor(QtGui.QTableWidget):
             self.currentRow() + (1 if next else - 1)) % self.rowCount(), 1)
         return True
 
-    def confirm(self):
+    def confirm(self, draw=True):
         cell = self.currentRow(), self.currentColumn()
         self.setCurrentItem(None)
         self.setCurrentCell(*cell)
-        self.parent.draw()
+        if draw:
+            self.parent.draw()
 
     def cycle_editors(self, direction):
-        self.confirm()
+        self.confirm(draw=False)
         try:
             index = (self.parent.datas.index(
                 self.dataobj) + direction) % len(self.parent.datas)
