@@ -2,6 +2,14 @@
 " Language: Man page
 " Author: Jacob Niehus
 
+if exists('b:did_my_ftplugin')
+    finish
+endif
+let b:did_my_ftplugin = 1
+
+runtime! ftplugin/man.vim
+silent! nunmap <buffer> q
+
 function! s:ManSectionJump(b, count)
     let cnt = a:count
     normal! 0
