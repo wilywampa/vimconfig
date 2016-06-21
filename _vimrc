@@ -635,9 +635,9 @@ cno          <expr> <C-x>d strftime('%Y_%m_%d_%H%M%Z')
 " Copy all differences from other buffer
 nn <Leader>do <C-\><C-n>gg:diffget<bar>1,$+diffget<CR>
 
-" Shortcut for t_
+" Shortcuts for t_ and T_
 omap _ t_
-xmap _ t_
+omap - T_
 " }}}
 
 " {{{ Abbreviations to open help
