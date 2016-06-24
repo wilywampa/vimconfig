@@ -238,8 +238,8 @@ class Picker(object):
         label = self.artist.get_label()
         return '\n'.join(filter(None, [
             ('' if label.startswith('_') else label),
-            ('%.6g' % point[0]),
-            ('%.6g' % point[1]),
+            ('x: %.6g' % point[0]),
+            ('y: %.6g' % point[1]),
             ('[%d]' % point[2]),
         ]))
 
