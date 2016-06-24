@@ -13,8 +13,8 @@ local fmt='#{pane_current_command},,#{pane_id}'
 [[ $# == 3 ]] && [[ "$1" == "-d" ]] && dodiff=1 || dodiff=0
 
 remote() {
-  local line=
-  local file="$1"
+  local cmd line=
+  local file=${~1}
   if [[ "$1" =~ ':([0-9]+)$' ]]; then
     line=$match
     [[ "$1" =~ '^(.*):' ]] && file="$match"
@@ -22,14 +22,11 @@ remote() {
     line=$match
     [[ "$1" =~ '^(.*)\(' ]] && file="$match"
   fi
-  if [[ -d $file ]]; then
-    vim --servername ${VIMSERVER:-VIM} --remote-send \
-      '<C-\><C-n>:edit '"${(q)file:A}"'<CR>'
-  elif [[ -n $line ]]; then
-    vim --servername ${VIMSERVER:-VIM} --remote +"${line}|sil! foldo!" "$file"
-  else
-    vim --servername ${VIMSERVER:-VIM} --remote "$file"
+  cmd='<C-\><C-n>:edit '"${(q)file:A}"'<CR>'
+  if [[ -n $line ]]; then
+    cmd="${cmd}${line}Gzv"
   fi
+  vim --servername ${VIMSERVER:-VIM} --remote-send $cmd
 }
 
 vim --serverlist | grep -q "\b${VIMSERVER:-VIM}\b" 2>&1 > /dev/null
