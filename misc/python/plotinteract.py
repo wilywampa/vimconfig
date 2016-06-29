@@ -1082,8 +1082,8 @@ def merge_dicts(*dicts):
 
 
 def dataobj(data, name='',
-            xname=None, xscale=None,
-            yname=None, yscale=None,
+            xname=None, yname=None,
+            xscale=None, yscale=None,
             labels=None, props=None, ndim=None,
             cdata=None, cmap=None, norm=None, **kwargs):
     locals().update(kwargs)
