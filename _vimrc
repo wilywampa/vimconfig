@@ -2273,6 +2273,8 @@ let g:surround_101 = "\\%(\r\\)"
 let g:surround_116 = "(\r,)"
 " list() with l
 let g:surround_108 = "list(\r)"
+" zip() with z
+let g:surround_122 = "zip(\r)"
 
 " Syntastic settings
 let g:syntastic_filetype_map = {'arduino': 'cpp'}
@@ -2480,6 +2482,7 @@ if stridx($VIMBLACKLIST, 'clang_complete') == -1
     let g:clang_make_default_keymappings = 0
     function! s:clang_setup()
         nnoremap <silent> <buffer> <M-]> :<C-u>call ClangGotoDeclaration()<CR>
+        nnoremap <silent> <buffer> gd :<C-u>call ClangGotoDeclaration()<CR>
         nnoremap <silent> <buffer> <C-w><M-]> :<C-u>call ClangGotoDeclarationPreview()<CR>
     endfunction
     autocmd VimrcAutocmds FileType c,cpp,objc,objcpp call s:clang_setup()
