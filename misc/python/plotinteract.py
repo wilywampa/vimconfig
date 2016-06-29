@@ -334,7 +334,6 @@ class PropertyEditor(QtGui.QTableWidget):
     def focusNextPrevChild(self, next):
         self.setCurrentCell((
             self.currentRow() + (1 if next else - 1)) % self.rowCount(), 1)
-        return True
 
     def confirm(self, draw=True):
         cell = self.currentRow(), self.currentColumn()
@@ -381,6 +380,11 @@ class PropertyEditor(QtGui.QTableWidget):
             self.setItem(self.currentRow(),
                          self.currentColumn(),
                          QtGui.QTableWidgetItem(''))
+            return True
+        elif (event.type() == QtCore.QEvent.ShortcutOverride and
+              self.state() == self.EditingState and
+              event.key() in (QtCore.Qt.Key_Down, QtCore.Qt.Key_Up)):
+            self.focusNextPrevChild(event.key() == QtCore.Qt.Key_Down)
             return True
         try:
             return super(PropertyEditor, self).event(event)
