@@ -147,7 +147,8 @@ froms = {
     'bs4': ['BeautifulSoup'],
     'bunch': ['Bunch', 'bunchify', 'unbunchify'],
     'collections':
-        ['Mapping', 'OrderedDict', 'defaultdict', 'deque', 'namedtuple'],
+        ['Counter', 'Mapping', 'OrderedDict', 'defaultdict', 'deque',
+         'namedtuple'],
     'contextlib': ['closing', 'contextmanager', 'suppress'],
     'copy': ['deepcopy'],
     'datetime': ['date', 'datetime', 'timedelta'],

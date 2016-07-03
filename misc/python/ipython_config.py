@@ -48,7 +48,7 @@ except ImportError:  # python2
     from IPython.external.path import Path # python2
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
-from collections import defaultdict, namedtuple
+from collections import Counter, defaultdict, namedtuple
 from contextlib import suppress  # python3
 from functools import reduce
 from ipython_config import *
