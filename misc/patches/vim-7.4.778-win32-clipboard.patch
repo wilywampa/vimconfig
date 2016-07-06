@@ -67,6 +67,51 @@ diff --git a/src/ui.c b/src/ui.c
  # include "winclip.pro"
  #endif
  
+@@ -1454,7 +1460,7 @@
+ clip_gen_own_selection(cbd)
+     VimClipboard	*cbd;
+ {
+-#ifdef FEAT_XCLIPBOARD
++#if defined(FEAT_XCLIPBOARD) && !defined(FEAT_CYGWIN_WIN32_CLIPBOARD)
+ # ifdef FEAT_GUI
+     if (gui.in_use)
+ 	return clip_mch_own_selection(cbd);
+@@ -1470,7 +1476,7 @@
+ clip_gen_lose_selection(cbd)
+     VimClipboard	*cbd;
+ {
+-#ifdef FEAT_XCLIPBOARD
++#if defined(FEAT_XCLIPBOARD) && !defined(FEAT_CYGWIN_WIN32_CLIPBOARD)
+ # ifdef FEAT_GUI
+     if (gui.in_use)
+ 	clip_mch_lose_selection(cbd);
+@@ -1497,7 +1503,7 @@
+ 	    return;
+ 	}
+     }
+-#ifdef FEAT_XCLIPBOARD
++#if defined(FEAT_XCLIPBOARD) && !defined(FEAT_CYGWIN_WIN32_CLIPBOARD)
+ # ifdef FEAT_GUI
+     if (gui.in_use)
+ 	clip_mch_set_selection(cbd);
+@@ -1513,7 +1519,7 @@
+ clip_gen_request_selection(cbd)
+     VimClipboard	*cbd;
+ {
+-#ifdef FEAT_XCLIPBOARD
++#if defined(FEAT_XCLIPBOARD) && !defined(FEAT_CYGWIN_WIN32_CLIPBOARD)
+ # ifdef FEAT_GUI
+     if (gui.in_use)
+ 	clip_mch_request_selection(cbd);
+@@ -1529,7 +1535,7 @@
+ clip_gen_owner_exists(cbd)
+     VimClipboard	*cbd UNUSED;
+ {
+-#ifdef FEAT_XCLIPBOARD
++#if defined(FEAT_XCLIPBOARD) && !defined(FEAT_CYGWIN_WIN32_CLIPBOARD)
+ # ifdef FEAT_GUI_GTK
+     if (gui.in_use)
+ 	return clip_gtk_owner_exists(cbd);
 diff --git a/src/version.c b/src/version.c
 --- a/src/version.c
 +++ b/src/version.c
