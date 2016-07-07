@@ -1014,13 +1014,13 @@ function! s:SearchComplete(...) abort " {{{
 endfunction " }}}
 
 " Paste in visual mode without overwriting clipboard
-func! s:VisualPaste() " {{{
+function! s:VisualPaste(register) " {{{
     call SaveRegs()
-    normal! gvp
+    execute 'normal! gv"' . a:register . 'p'
     call RestoreRegs()
-endfunc " }}}
-vnoremap <silent> p :<C-u>call <SID>VisualPaste()<CR>
-vnoremap <silent> <C-p> :<C-u>call <SID>VisualPaste()<CR>=']
+endfunction " }}}
+vnoremap <expr> <silent> p ':<C-u>call <SID>VisualPaste("' . v:register . '")<CR>'
+vnoremap <expr> <silent> <C-p> ':<C-u>call <SID>VisualPaste("' . v:register . '")<CR>' . "=']"
 vnoremap <M-p> p
 vnoremap <M-P> p=']
 
