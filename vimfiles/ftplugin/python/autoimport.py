@@ -301,7 +301,7 @@ aliases.update(vim.eval('get(g:, "python_autoimport_aliases", {})'))
 froms_as.update(vim.eval('get(g:, "python_autoimport_froms_as", {})'))
 vim_froms = reduce(set.union, (
     set(v) for v in
-    vim.eval('get(g:, "python_autoimport_froms", {})').values()))
+    vim.eval('get(g:, "python_autoimport_froms", {})').values()), set())
 for k, v in froms.items():
     froms[k] = set(f for f in v if f not in vim_froms)
 for k, v in vim.eval('get(g:, "python_autoimport_froms", {})').items():
