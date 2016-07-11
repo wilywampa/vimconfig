@@ -76,7 +76,7 @@ while not connected:
                 kc.stop_channels()
 
 if len(sys.argv) > 1:
-    term = open(sys.argv[1], 'w+')
+    term = open(sys.argv[1], 'w')
     sys.stdout = term
 
 
