@@ -3,7 +3,6 @@ import ast
 import matplotlib as mpl
 import numpy as np
 import re
-import scipy.constants as const
 import sys
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import SIGNAL
@@ -27,14 +26,20 @@ PROPERTIES = ('color', 'linestyle', 'linewidth', 'alpha', 'marker',
               'pickradius', 'solid_capstyle', 'solid_joinstyle')
 ALIASES = dict(aa='antialiased', c='color', ec='edgecolor', fc='facecolor',
                ls='linestyle', lw='linewidth', mew='markeredgewidth')
-CONSTANTS = {k: v for k, v in const.__dict__.items() if isinstance(v, float)}
-CONSTANTS.update(dict(d2r=const.degree,
-                      nmi=const.nautical_mile,
-                      r2d=1.0 / const.degree,
-                      psf=const.pound_force / (const.foot ** 2)))
 try:
-    color_cycle = list(OrderedDict.fromkeys([
-        x['color'] for x in mpl.rcParams['axes.prop_cycle']]))
+    import scipy.constants as const
+except ImportError:
+    CONSTANTS = dict(r2d=np.rad2deg(1), d2r=np.deg2rad(1))
+else:
+    CONSTANTS = {k: v for k, v in const.__dict__.items()
+                 if isinstance(v, float)}
+    CONSTANTS.update(dict(d2r=const.degree,
+                          nmi=const.nautical_mile,
+                          r2d=1.0 / const.degree,
+                          psf=const.pound_force / (const.foot ** 2)))
+try:
+    color_cycle = list(OrderedDict.fromkeys(
+        x['color'] for x in mpl.rcParams['axes.prop_cycle']))
 except KeyError:
     color_cycle = mpl.rcParams['axes.color_cycle']
 linestyle_cycle = '-', '--', '-.', ':'
