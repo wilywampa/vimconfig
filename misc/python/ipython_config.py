@@ -266,7 +266,6 @@ def configure(c):
     c.TerminalInteractiveShell.colors = 'Linux'
     c.TerminalInteractiveShell.autocall = 1
     c.TerminalInteractiveShell.confirm_exit = False
-    c.PromptManager.color_scheme = 'Linux'
     c.IPCompleter.greedy = True
     try:
         import pygments.styles
