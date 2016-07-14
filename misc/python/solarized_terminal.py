@@ -88,7 +88,7 @@ solarized_styles = {
     Comment.Special:        ('green',     'green'),
 
     Keyword:                ('darkgreen', 'darkgreen'),
-    Keyword.Constant:       ('darkgreen', 'darkgreen'),
+    Keyword.Constant:       ('brown',     'brown'),
     Keyword.Declaration:    ('darkgreen', 'darkgreen'),
     Keyword.Namespace:      ('red',       'red'),
     Keyword.Pseudo:         ('*red*',     'red'),
