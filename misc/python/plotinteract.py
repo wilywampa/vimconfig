@@ -336,10 +336,6 @@ class PropertyEditor(QtGui.QTableWidget):
     def hideEvent(self, event):
         self.parent.draw()
 
-    def focusNextPrevChild(self, next):
-        self.setCurrentCell((
-            self.currentRow() + (1 if next else - 1)) % self.rowCount(), 1)
-
     def confirm(self, draw=True):
         cell = self.currentRow(), self.currentColumn()
         self.setCurrentItem(None)
@@ -365,12 +361,6 @@ class PropertyEditor(QtGui.QTableWidget):
         QtCore.Qt.Key_Q: lambda self: self.close(),
         QtCore.Qt.Key_W: lambda self: self.close(),
     }
-
-    def keyPressEvent(self, e):
-        if self.state() == self.EditingState:
-            if e.key() in (QtCore.Qt.Key_Down, QtCore.Qt.Key_Up):
-                return self.focusNextPrevChild(e.key() == QtCore.Qt.Key_Down)
-        return super(PropertyEditor, self).keyPressEvent(e)
 
     def event(self, event):
         if (event.type() == QtCore.QEvent.KeyPress and
