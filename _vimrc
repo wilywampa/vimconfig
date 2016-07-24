@@ -239,6 +239,7 @@ let g:file_dict = {
     \ 'H': '$HOME/.haskeline',
     \ 'h': ['$HOME/.histfile', '$HOME/.directory_history'],
     \ 'i': '$HOME/.inputrc',
+    \ 'j': '$HOME/.jupyter/jupyter_console_config.py',
     \ 'l': '$HOME/.zshrclocal',
     \ 'M': '$HOME/.minttyrc',
     \ 'm': '$HOME/.matplotlib/matplotlibrc',

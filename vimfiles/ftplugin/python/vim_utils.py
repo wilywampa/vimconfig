@@ -33,6 +33,8 @@ def get_ipython_file():
                 if re.match('^(.*/)?kernel-[0-9]+\.json$', arg):
                     vim.command('let g:ipython_connected = 1')
                     return arg
+        elif 'jupyter-console' in proc:
+            return 'kernel-{}.json'.format(proc.split()[0])
 
     return ''
 
