@@ -130,7 +130,7 @@ function! s:source.action_table.session_info.func(candidate)
         \ "    return val",
         \ ]
     let g:ipy_input = join(session_info, "\n")
-    silent call IPyRunIPyInput('{"silent": True}')
+    silent Python2or3 run_ipy_input(silent=True)
     let g:ipy_input = printf('_session_info(%d)', a:candidate.source__session)
     silent! unlet g:ipy_result
     execute ('python' . (has('python3') ? '3' : ''))

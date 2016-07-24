@@ -2622,6 +2622,9 @@ endif
 xmap <C-t> <Plug>(neosnippet_expand_target)
 imap <C-x><C-t> <Plug>(neosnippet_start_unite_snippet)
 
+" vim-ipython settings
+let g:loaded_history_ipython = 1
+
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
 if filereadable(expand('$HOME/.plugged'))
