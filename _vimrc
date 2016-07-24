@@ -1787,7 +1787,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         inoremap <silent> <expr> <C-x><C-x> <SID>ResetCompletion()
         inoremap <silent> <expr> _ '_' .
             \ (&filetype ==# 'python' && &l:omnifunc ==# 'CompleteIPython' &&
-            \  neocomplete#get_cur_text()[-1:] == '.' ? <SID>ResetCompletion() : '')
+            \  neocomplete#helper#get_cur_text()[-1:] == '.' ? <SID>ResetCompletion() : '')
     endif
 else
     call add(g:pathogen_disabled, 'neocomplete')
