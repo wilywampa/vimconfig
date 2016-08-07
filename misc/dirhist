@@ -3,9 +3,10 @@ from __future__ import print_function
 import sys
 import os
 
-histsize = 10000
-HISTFILE = ".directory_history"
-home = os.environ['HOME']
+histsize = 100000
+histname = ".directory_history"
+home = os.path.expanduser('~')
+histfile = os.path.join(home, histname)
 
 
 def remove_duplicates(commands):
@@ -13,15 +14,15 @@ def remove_duplicates(commands):
     for cmd in reversed(commands):
         if cmd not in cmds:
             cmds.append(cmd)
-    return [cmd for cmd in reversed(cmds)]
+    return list(reversed(cmds))
 
 
 def get_commands(directory):
     commands = []
     try:
-        with open(home + "/" + HISTFILE, "r") as f:
+        with open(histfile, "r") as f:
             continued = False
-            for line in f.readlines():
+            for i, line in enumerate(f.readlines()):
                 line = line.rstrip('\n')
                 if not continued and not line.endswith('\\'):
                     try:
@@ -47,15 +48,13 @@ def get_commands(directory):
                 if cmd_dir == directory and len(commands) < histsize:
                     commands.append(command)
     except IOError:
-        open(home + "/" + HISTFILE, 'a').close()
+        open(histfile, 'a').close()
 
-    commands = remove_duplicates(commands)
-
-    return "\n".join(commands)
+    return remove_duplicates(commands)
 
 
 if __name__ == '__main__':
     try:
-        print(get_commands(sys.argv[1]))
+        print('\n'.join(get_commands(sys.argv[1])))
     except IndexError:
-        print(get_commands(os.getcwd()))
+        print('\n'.join(get_commands(os.getcwd())))
