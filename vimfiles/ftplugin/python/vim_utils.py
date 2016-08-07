@@ -26,6 +26,8 @@ def get_ipython_file():
         procs = subprocess.getoutput(args)
     except AttributeError:
         procs = subprocess.check_output(args=args)
+    except UnicodeDecodeError:
+        return get_ipython_file()
 
     for proc in procs.splitlines():
         if 'ipython-console' in proc or 'ipykernel' in proc:
