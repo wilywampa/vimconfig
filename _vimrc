@@ -74,7 +74,7 @@ set tags-=./tags tags^=./tags;  " Search upwards for tags
 set complete=.,w,t              " Don't complete from non-visible buffers
 
 " Ignore system files
-set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi,*.pkl
+set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi,*.pkl,*.ipynbc
 set suffixes&vim
 let &suffixes .= ','.substitute(&wildignore, '*', '', 'g')
 
@@ -1853,7 +1853,7 @@ if v:version > 704 || (v:version == 704 && has('patch651'))
 endif
 let g:vimfiler_marked_file_icon='✓'
 let g:vimfiler_ignore_pattern = '^\.\|.*\.'.
-    \ '\(DS_Store\|a\|bak\|d\|dll\|exe\|hi\|info\|lib\|o\|obj\|pyc\|so\|spi\|swp\)$'
+    \ '\(DS_Store\|a\|bak\|d\|dll\|exe\|hi\|info\|ipynbc\lib\|o\|obj\|pyc\|so\|spi\|swp\)$'
 let g:vimfiler_restore_alternate_file=0
 let g:vimfiler_time_format='%a %d%b%Y %H:%M'
 let g:vimfiler_force_overwrite_statusline=0
