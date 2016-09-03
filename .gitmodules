@@ -138,6 +138,10 @@
 	path = vimfiles/bundle/syntastic
 	url = https://github.com/scrooloose/syntastic.git
 	branch = master
+[submodule "vimfiles/bundle/targets"]
+	path = vimfiles/bundle/targets
+	url = https://github.com/wellle/targets.vim.git
+	branch = master
 [submodule "vimfiles/bundle/tmux-complete"]
 	path = vimfiles/bundle/tmux-complete
 	url = https://github.com/wilywampa/tmux-complete.vim.git
