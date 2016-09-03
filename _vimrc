@@ -2668,7 +2668,7 @@ Plug 'wilywampa/vim-colors-solarized', {'dir': '$VIMCONFIG/vimfiles/bundle/solar
 Plug 'ervandew/supertab'
 Plug 'wilywampa/vim-surround'
 Plug 'scrooloose/syntastic', {'on': ['SyntasticInfo', 'SyntasticCheck']}
-Plug 'wellle/targets.vim', {'branch': 'improve-quotes'}
+Plug 'wellle/targets.vim'
 Plug 'wilywampa/tmux-complete.vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'wilywampa/vim-unimpaired'
