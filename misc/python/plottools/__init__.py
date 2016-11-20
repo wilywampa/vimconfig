@@ -195,7 +195,8 @@ def styles(order=('-', '--', '-.', ':')):
 def fix_angles(angles, pi=np.pi, axis=0):
     """Limit angle changes to within +/- pi to remove discontinuities."""
     start = np.take(angles, [0], axis=axis)
-    delta = np.unwrap(np.diff(angles, axis=axis), discont=pi, axis=axis)
+    delta = np.unwrap(np.diff(
+        angles * np.pi / pi, axis=axis), axis=axis) * pi / np.pi
     return start + np.concatenate((np.zeros(start.shape),
                                    np.cumsum(delta, axis=axis)))
 
