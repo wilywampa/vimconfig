@@ -36,6 +36,7 @@ def get_ipython_file():
                     vim.command('let g:ipython_connected = 1')
                     return arg
         elif 'jupyter-console' in proc:
+            vim.command('let g:ipython_connected = 1')
             return 'kernel-{}.json'.format(proc.split()[0])
 
     return ''
