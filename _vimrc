@@ -2166,7 +2166,7 @@ func! s:UniteSetup() " {{{
         \ }
     function! s:jump_open.func(candidate)
         let unite = unite#get_current_unite()
-        call unite#take_action(bufwinnr(unite.bufnr) == winnr() ?
+        call unite#take_action(bufwinnr(get(unite, 'bufnr', -1)) == winnr() ?
             \ 'persist_open' : 'open', a:candidate)
     endfunction
     call unite#custom#action('jump_list', 'jump_open', s:jump_open)
