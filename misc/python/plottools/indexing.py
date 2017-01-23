@@ -206,7 +206,7 @@ def where_first(cond, *out, **kwargs):
     else:
         ix = ma.argmax(cond, axis=0)
         mask = Ellipsis, (ix == 0) & ~cond[0]
-    ix = Ellipsis, ix, np.arange(ix.size)
+    ix = (Ellipsis, ix) + tuple(np.indices(cond.shape[1:]))
     if not out:
         return ix, mask
     out = [ma.masked_array(a[ix], **kwargs) for a in out]
