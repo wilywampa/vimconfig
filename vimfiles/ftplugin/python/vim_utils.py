@@ -25,7 +25,8 @@ def get_ipython_file():
     try:
         procs = subprocess.getoutput(args)
     except AttributeError:
-        procs = subprocess.check_output(args=args)
+        proc = subprocess.Popen(args, stdout=subprocess.PIPE)
+        procs, err = proc.communicate()
     except UnicodeDecodeError:
         return get_ipython_file()
 
