@@ -19,7 +19,6 @@ set expandtab                   " Use spaces instead of tabs
 set softtabstop=4
 set autoindent                  " Automatic indentation
 set cinoptions+=N-s             " Don't indent namespaces in C++
-set cinoptions+=(0              " Line up function arguments
 set cinoptions+=:0              " Don't indent inside switch statement
 set nowrap                      " Don't wrap lines
 set lazyredraw                  " Don't update display during macro execution
