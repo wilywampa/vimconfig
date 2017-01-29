@@ -1,5 +1,6 @@
 from __future__ import division, print_function
 import ast
+import collections
 import matplotlib as mpl
 import numpy as np
 import re
@@ -54,24 +55,23 @@ def flatten(d, ndim=None, prefix=''):
     """Join nested keys with '.' and unstack arrays."""
     if ndim is None:
         ndim = next(iter(sorted(
-            v.ndim for v in d.values()
-            if isinstance(v, np.ndarray))), None)
+            len(v.shape) for v in d.values() if hasattr(v, 'dtype'))), None)
     out = {}
     for key, value in d.items():
         key = (prefix + '.' if prefix else '') + key
-        if isinstance(value, dict):
+        if isinstance(value, collections.Mapping):
             out.update(flatten(value, ndim=ndim, prefix=key))
         else:
             out[key] = value
-            if isinstance(value, np.ndarray) and value.ndim > ndim:
+            if hasattr(value, 'dtype') and len(value.shape) > ndim:
                 queue = [key]
                 while queue:
                     key = queue.pop()
                     array = out.pop(key)
-                    new = {key + '[%d]' % i: a
-                           for i, a in enumerate(array)}
+                    new = {key + '[%d]' % i: a for i, a in enumerate(array)}
                     out.update(new)
-                    queue.extend(q for q in new.keys() if new[q].ndim > ndim)
+                    queue.extend(q for q in new.keys()
+                                 if len(new[q].shape) > ndim)
     return out
 
 
@@ -395,7 +395,7 @@ class DataObj(object):
         self.widgets = []
         self.twin = False
         self.props = kwargs.get('props', {}).copy()
-        if isinstance(obj, np.ndarray):
+        if hasattr(obj, 'dtype'):
             obj = {n: obj[n] for n in obj.dtype.names}
         self.obj = flatten(obj, ndim=self.guess_ndim(obj, kwargs))
         self.label = QtGui.QLabel('', parent=self.parent)
@@ -408,8 +408,7 @@ class DataObj(object):
         self.scale_label = QtGui.QLabel('scale:', parent=self.parent)
         self.xscale_label = QtGui.QLabel('scale:', parent=self.parent)
 
-        words = [k for k in self.obj.keys()
-                 if isinstance(self.obj[k], np.ndarray)]
+        words = [k for k in self.obj.keys() if hasattr(self.obj[k], 'dtype')]
         words.sort(key=parent.sortkey)
 
         def new_text_box():
@@ -512,12 +511,12 @@ class DataObj(object):
             return kwargs['ndim']
         for key in 'yname', 'xname':
             try:
-                return obj[kwargs[key]].ndim
+                return len(obj[kwargs[key]].shape)
             except (AttributeError, KeyError, IndexError):
                 pass
         try:
-            return min(v.ndim for v in obj.values()
-                       if isinstance(v, np.ndarray))
+            return min(len(v.shape) for v in obj.values()
+                       if hasattr(v, 'dtype'))
         except ValueError:
             return None
 
@@ -819,8 +818,8 @@ class Interact(QtGui.QMainWindow):
         yname = self.get_key(data.menu)
 
         if xname in data.obj:
-            x = data.obj[xname] * xscale
-        y = data.obj[yname] * yscale
+            x = data.obj[xname][:] * xscale
+        y = data.obj[yname][:] * yscale
 
         if xname in data.obj and x.shape[0] in y.shape:
             xaxis = y.shape.index(x.shape[0])
@@ -1056,7 +1055,7 @@ def merge_dicts(*dicts):
     keys = sets[0].intersection(*sets)
 
     def validate(array):
-        return (isinstance(array, np.ndarray) and
+        return (hasattr(array, 'dtype') and
                 (np.issubdtype(array.dtype, np.number) or
                  np.issubdtype(array.dtype, np.bool_))
                 and np.squeeze(array).ndim == 1)
@@ -1070,7 +1069,7 @@ def merge_dicts(*dicts):
         if all(validate(d[key]) for d in dicts):
             length = max(len(d[key]) for d in dicts)
             merged[key] = np.array([pad(d[key]) for d in dicts]).T
-        elif all(isinstance(d[key], dict) for d in dicts):
+        elif all(isinstance(d[key], collections.Mapping) for d in dicts):
             merged[key] = merge_dicts(*[d[key] for d in dicts])
 
     return merged
@@ -1120,7 +1119,7 @@ def create(*data, **kwargs):
     for i, d in enumerate(data):
         if isinstance(d, dict):
             data[i] = [d, '']
-        elif isinstance(d, np.ndarray) and isiterable(d.dtype.names):
+        elif hasattr(d, 'dtype') and isiterable(d.dtype.names):
             data[i] = [{n: d[n] for n in d.dtype.names}, '']
         elif isiterable(d[-1]) and len(d) == 4:
             d[-2] = {'xname': d[-2], 'labels': list(d[-1])}
