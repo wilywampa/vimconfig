@@ -2451,7 +2451,7 @@ let g:neocomplete#force_omni_input_patterns.python =
     \ 'subprocess|sys)(\.\h\w*)*\.(\h\w*)?'
 
 " DirDiff settings
-let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,'.&wildignore
+let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,__pycache__,'.&wildignore
 let g:DirDiffEnableMappings = 1
 
 " EasyAlign settings
