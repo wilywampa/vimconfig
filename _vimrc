@@ -2408,6 +2408,10 @@ let g:pymode_doc_bind = 'gK'
 let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
 let g:pymode_lint_checkers = ['pyflakes', 'pep8', 'mccabe', 'callable']
+if has('python3')
+    let g:pymode_python = 'python3'
+    let g:pymode_syntax_print_as_function = 1
+endif
 
 " VCSCommand settings
 let VCSCommandCVSExec = ''
