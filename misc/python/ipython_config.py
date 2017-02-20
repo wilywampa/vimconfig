@@ -43,9 +43,13 @@ import sys
 from IPython.core.display import display
 from IPython.lib.pretty import pretty
 try:  # python2
-    from IPython.external.path import path as Path  # python2
+    from path import Path  # python2
 except ImportError:  # python2
-    from IPython.external.path import Path # python2
+    try:  # python2
+        from IPython.external.path import path as Path  # python2
+    except ImportError:  # python2
+        from IPython.external.path import Path # python2
+from path import Path  # python3
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import Counter, defaultdict, namedtuple
@@ -63,7 +67,6 @@ from numpy import (arccos as acos, arccosh as acosh, arcsin as asin,
                    arctanh as atanh, rad2deg as deg, deg2rad as rad)
 from numpy.ma import (getdata, getmaskarray, masked, masked_all,
                       masked_array as marray)
-from path import Path  # python3
 from subprocess import PIPE, Popen, call, check_output
 from __builtin__ import abs, all, any, max, min, round, sum  # python2
 from builtins    import abs, all, any, max, min, round, sum  # python3
