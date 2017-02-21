@@ -1,3 +1,4 @@
+import collections
 import copy
 import numpy as np
 import six
@@ -9,6 +10,8 @@ except ImportError:
 
 class no_index(object):
     __repr__ = __str__ = lambda self: type(self).__name__
+
+
 no_index = no_index()
 
 
@@ -60,6 +63,16 @@ class ArrayBunch(Bunch):
             return super(ArrayBunch, self).__getitem__(key)
         return index_all(self, copy=self._copy, ignore=self._ignore,
                          types=self._types, callback=self._callback)[key]
+
+
+class DefaultBunch(Bunch, collections.defaultdict):
+
+    """A defaultdict which behaves like a Bunch."""
+
+
+def BunchBunch():
+    """A recursive DefaultBunch."""
+    return DefaultBunch(BunchBunch)
 
 
 def array_bunchify(mapping, **kwargs):

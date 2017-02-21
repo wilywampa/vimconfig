@@ -6,6 +6,7 @@ from plotinteract import create, dataobj, flatten, merge_dicts
 from plottools.angle2dcm import angle2dcm
 from plottools.dcm2angle import dcm2angle
 from plottools.indexing import (ArrayBunch, array_bunchify, azip,
+                                DefaultBunch, BunchBunch,
                                 index_all, map_dict, product_items,
                                 shift, unmask, where_first, where_last)
 
@@ -440,6 +441,7 @@ except ImportError:
 
 __all__ = [
     'ArrayBunch',
+    'BunchBunch',
     'Conversion',
     'SymmetricMaxNLocator',
     'angle2dcm',
@@ -456,6 +458,7 @@ __all__ = [
     'dataobj',
     'dcm2angle',
     'dcm2quat',
+    'DefaultBunch',
     'dict2obj',
     'fg',
     'fig',

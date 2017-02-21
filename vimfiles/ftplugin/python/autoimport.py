@@ -219,7 +219,9 @@ froms = {
         'svd', 'tensorinv', 'tensorsolve'],
     'plottools': [
         'ArrayBunch',
+        'BunchBunch',
         'Conversion',
+        'DefaultBunch',
         'SymmetricMaxNLocator',
         'angle2dcm',
         'angle_difference',
