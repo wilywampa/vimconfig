@@ -108,13 +108,14 @@ if int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
     end += add if found else 0
 
 messages = [(m['lnum'], m['text']) for m in vim.eval('messages')]
-unused = {int(k): v.split("'")[1] for k, v in messages
+unused = {int(k): v.split("'")[1].split()[-1] for k, v in messages
           if start <= int(k) <= end and 'W0611' in v}
 missing = [m.split("'")[1] for _, m in messages if 'E0602' in m]
 redefined = {int(k): v.split("'")[1] for k, v in messages
              if start <= int(k) <= end and 'W0404' in v}
 
 aliases = dict(
+    cf='concurrent.futures',
     cm='matplotlib.cm',
     colors='matplotlib.colors',
     it='itertools',
@@ -343,13 +344,8 @@ for ttype, token, _, _, _ in tokenize.generate_tokens(code.readline):
         tokens.add(token)
 
 for i in imports:
-    if any(n.split('.')[0] in unused.values() for n in i.asnames):
-        remove_unused(i)
-        for i2 in imports:
-            if i.lrange[-1] == i2.lrange[0]:
-                remove_unused(i2)
-
-imports = [i for i in imports if i.asnames and i.alias not in unused.values()]
+    remove_unused(i)
+imports = [i for i in imports if i.asnames]
 
 
 def check_exists(miss):
