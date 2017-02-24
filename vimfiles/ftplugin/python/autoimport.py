@@ -344,7 +344,8 @@ for ttype, token, _, _, _ in tokenize.generate_tokens(code.readline):
         tokens.add(token)
 
 for i in imports:
-    remove_unused(i)
+    if i.module != '__future__':
+        remove_unused(i)
 imports = [i for i in imports if i.asnames]
 
 
