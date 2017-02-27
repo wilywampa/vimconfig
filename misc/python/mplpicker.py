@@ -114,7 +114,7 @@ class Picker(object):
         artist = event.artist
         axes = artist.axes
         if (self.control and self.point and self.annotation and
-                axes == self.axes):
+                axes == self.axes and hasattr(artist, 'get_xdata')):
             # Measure to another point
             self.remove_measurement()
             point = self.snap(event)
@@ -188,8 +188,10 @@ class Picker(object):
     def remove_measurement(self, draw=True):
         if self.measure_line:
             self.measure_line.set_visible(False)
+            self.measure_line = None
         if self.measure_box:
             self.measure_box.set_visible(False)
+            self.measure_box = None
         if draw:
             self.canvas.draw()
 
