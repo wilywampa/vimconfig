@@ -12,8 +12,9 @@ from collections import namedtuple
 from functools import reduce
 
 PY3 = sys.version_info[0] == 3
-Import = namedtuple('Import',
-                    ['module', 'names', 'asnames', 'alias', 'lrange'])
+Import = namedtuple(
+    'Import', [
+        'module', 'names', 'asnames', 'alias', 'lrange', 'level'])
 
 imports = []
 start = 0                      # Start of import block near top of file
@@ -66,11 +67,13 @@ for node in ast.iter_child_nodes(root):
         if not first:
             first = node.lineno
         last = node.lineno
+        level = None
     elif isinstance(node, ast.ImportFrom):
         module = node.module
         if not first_from:
             first_from = node.lineno
         last_from = node.lineno
+        level = node.level
     elif start:
         break
     else:
@@ -92,7 +95,8 @@ for node in ast.iter_child_nodes(root):
                           asnames=[n.asname or n.name for n in node.names],
                           alias=next((n.asname for n in node.names
                                       if n.asname), None),
-                          lrange=(node.lineno, end)))
+                          lrange=(node.lineno, end),
+                          level=level))
 
 if int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
     add = -1
@@ -372,7 +376,8 @@ not_found = set()
 for miss in set(missing):
     if miss in aliases:
         imports.append(Import(module=[], names=[aliases[miss]],
-                              asnames=[aliases[miss]], alias=miss, lrange=()))
+                              asnames=[aliases[miss]], alias=miss, lrange=(),
+                              level=None))
     elif miss in itertools.chain(*froms.values()):
         m = [m for m, v in froms.items() if miss in v][0]
         i = [i for i in imports if m == i.module]
@@ -381,7 +386,7 @@ for miss in set(missing):
             i[0].asnames.append(miss)
         else:
             imports.append(Import(module=m, names=[miss], asnames=[miss],
-                                  alias=None, lrange=()))
+                                  alias=None, lrange=(), level=None))
     elif miss in froms_as:
         m, n = froms_as[miss]
         i = [i for i in imports if m == i.module]
@@ -390,10 +395,10 @@ for miss in set(missing):
             i[0].asnames.append(miss)
         else:
             imports.append(Import(module=m, names=[n], asnames=[miss],
-                                  alias=None, lrange=()))
+                                  alias=None, lrange=(), level=None))
     elif check_exists(miss):
         imports.append(Import(module=[], names=[miss], asnames=[miss],
-                              alias=None, lrange=()))
+                              alias=None, lrange=(), level=None))
     else:
         not_found.add(miss)
 
@@ -404,7 +409,8 @@ if not_found and int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
         i.asnames.append('get_ipython')
     else:
         imports.append(Import(module='IPython', names=['get_ipython'],
-                              asnames=['get_ipython'], alias=None, lrange=()))
+                              asnames=['get_ipython'], alias=None, lrange=(),
+                              level=None))
 
 
 def duplicates(imports):
@@ -425,7 +431,7 @@ def combine_duplicates(name):
     new = Import(module=name,
                  names=[n for i in duplicates for n in imports[i].names],
                  asnames=[a for i in duplicates for a in imports[i].asnames],
-                 alias=None, lrange=())
+                 alias=None, lrange=(), level=None)
     return [i for index, i in enumerate(imports)
             if index not in duplicates] + [new]
 
@@ -437,15 +443,15 @@ lines = []
 for i in imports:
     names = set(zip(i.names, i.asnames))
     i.names[:], i.asnames[:] = zip(*names) if names else ([], [])
-    if not i.module:
+    if not i.module and not i.level:
         if i.alias:
             lines.append(['import {module} as {alias}'.format(
                 module=i.names[0], alias=i.alias)])
         else:
             lines.append(['import {module}'.format(module=i.names[0])])
     else:
-        newline = 'from {module} import ({names})'.format(
-            module=i.module, names=', '.join(sorted(
+        newline = 'from {level}{module} import ({names})'.format(
+            module=i.module or '', level='.' * i.level, names=', '.join(sorted(
                 [('{0}' if name[0] == name[1] else '{0} as {1}').format(*name)
                  for name in names], key=lambda s: s.split()[-1])))
         if len(newline) <= 80:
