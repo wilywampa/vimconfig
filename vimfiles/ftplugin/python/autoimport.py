@@ -443,15 +443,10 @@ lines = []
 for i in imports:
     names = set(zip(i.names, i.asnames))
     i.names[:], i.asnames[:] = zip(*names) if names else ([], [])
-    if not i.module and not i.level:
-        if i.alias:
-            lines.append(['import {module} as {alias}'.format(
-                module=i.names[0], alias=i.alias)])
-        else:
-            lines.append(['import {module}'.format(module=i.names[0])])
-    else:
+    if i.module or i.level:
+        level = ('.' * i.level) if i.level else ''
         newline = 'from {level}{module} import ({names})'.format(
-            module=i.module or '', level='.' * i.level, names=', '.join(sorted(
+            module=i.module or '', level=level, names=', '.join(sorted(
                 [('{0}' if name[0] == name[1] else '{0} as {1}').format(*name)
                  for name in names], key=lambda s: s.split()[-1])))
         if len(newline) <= 80:
@@ -461,6 +456,11 @@ for i in imports:
                                        subsequent_indent=" " * (
                                            newline.index('(') + 1),
                                        break_long_words=False))
+    elif i.alias:
+        lines.append(['import {module} as {alias}'.format(
+            module=i.names[0], alias=i.alias)])
+    else:
+        lines.append(['import {module}'.format(module=i.names[0])])
 
 
 def key(item):
