@@ -559,7 +559,7 @@ xno g] g_h
 nn <silent> du :<C-u>diffupdate<CR>
 
 " Insert home directory after typing $~
-ino <expr> ~ getline('.')[virtcol('.')-2] == '$' ? "\<BS>".$HOME : '~'
+ino <expr> ~ getline('.')[col('.')-2] == '$' ? "\<BS>".$HOME : '~'
 cno <expr> ~ getcmdline()[getcmdpos()-2] == '$' ? "\<BS>".$HOME : '~'
 
 " Discard changes and reload undofile for current file
@@ -611,8 +611,8 @@ im <C-b> <Home>
 im <C-e> <End>
 
 " Remove trailing whitespace with <CR> (<BS> can delete multiple characters so use <Del>)
-ino <expr> <CR> (getline('.')[:virtcol('.')-2] =~ '\(\S\\|^\)\s\+$' ?
-    \ repeat('<Left><Del>', len(matchstr(getline('.')[:virtcol('.')-2], '\s\+$'))) : '').
+ino <expr> <CR> (getline('.')[:col('.')-2] =~ '\(\S\\|^\)\s\+$' ?
+    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) : '').
     \ (pumvisible() ? '<C-y>' : '') . '<CR>'
 ino \<CR> \<CR>
 
@@ -1069,9 +1069,9 @@ inoremap <C-@> <Esc>"_dT/"_s
 cnoremap – <C-\>e<SID>DeleteUntilChar('_')<CR>
 inoremap – <Esc>"_dT_"_s
 cnoremap <M-w> <C-\>e<SID>DeleteUntilChar(' ')<CR>
-inoremap <expr> <M-w> getline('.')[:virtcol('.')-1] =~ '^\S*\s*$' ? '<C-u>' :
-    \ (virtcol('.') == 0 ? '<BS>' : (getline('.')[virtcol('.')-2] =~ '\s' ?
-    \ repeat('<Left><Del>', len(matchstr(getline('.')[:virtcol('.')-2], '\s\+$'))) :
+inoremap <expr> <M-w> getline('.')[:col('.')-1] =~ '^\S*\s*$' ? '<C-u>' :
+    \ (col('.') == 0 ? '<BS>' : (getline('.')[col('.')-2] =~ '\s' ?
+    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) :
     \ '<Esc>"_dT<Space>"_s'))
 
 " !$ inserts last WORD of previous command
@@ -1732,7 +1732,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
             \ .'\|{\d*\}\?\)\?'
         func! s:StartManualComplete(dir)
             " Indent if only whitespace behind cursor
-            if pumvisible() || getline('.')[virtcol('.')-2] =~ '\S'
+            if pumvisible() || getline('.')[col('.')-2] =~ '\S'
                 return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
                     \: (neocomplete#helper#get_force_omni_complete_pos(
                     \   neocomplete#get_cur_text(1)) >= 0 ?
@@ -1745,7 +1745,7 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         inoremap <silent> <expr> <Tab>   <SID>StartManualComplete(1)
         inoremap <silent> <expr> <S-Tab> <SID>StartManualComplete(0)
         inoremap <silent> <expr> <C-f>   pumvisible() ? neocomplete#close_popup()
-            \ : matchstr(getline(line('.')+1),'\%'.virtcol('.').'v\%(\S\+\\|\s*\)')
+            \ : matchstr(getline(line('.')+1),'\%'.col('.').'v\%(\S\+\\|\s*\)')
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
             \ "\<Plug>(neosnippet_expand_or_jump)":
             \ (pumvisible() ? neocomplete#close_popup() : "\<C-d>")
@@ -1971,7 +1971,7 @@ func! s:UniteSettings() " {{{
     inor <buffer> . \.
     inor <buffer> \. .
     inor <buffer> <expr> <BS>
-        \ getline('.')[virtcol('.')-3:virtcol('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
+        \ getline('.')[col('.')-3:col('.')-2] == '\.' ? '<BS><BS>' : '<BS>'
     inor <buffer> <C-r>% <C-r>#
     inor <buffer> <expr> <C-r>$ expand('#:t')
     nmap <buffer> a <Plug>(unite_append_enter)
