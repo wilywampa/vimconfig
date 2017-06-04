@@ -14,6 +14,8 @@ reduces mouse usage with Tmux.
 It works even better when paired with
 [tmux yank](https://github.com/tmux-plugins/tmux-yank).
 
+Tested and working on Linux, OSX and Cygwin.
+
 **Note:** new version 2.0 uses extended regexes! Regex character escaping with
 backslashes `\ ` isn't required anymore.
 
@@ -62,43 +64,6 @@ Copying a highlighted match will take you "out" of copycat mode. Paste with
 Copying highlighted matches can be enhanced with
 [tmux yank](https://github.com/tmux-plugins/tmux-yank).
 
-### Customization
-
-Most of the behavior of tmux-copycat can be customized via tmux options.<br/>
-Check the full options list on
-[the wiki page](https://github.com/tmux-plugins/tmux-copycat/wiki/Customizations).
-
-#### Defining new stored searches
-
-To speed up the workflow you can define new bindings in `.tmux.conf` for
-searches you use often.
-
-How to + useful searches
-[in this wiki page](https://github.com/tmux-plugins/tmux-copycat/wiki/Defining-new-stored-searches).
-
-### Limitations
-
-- This plugin tries hard to consistently enable "marketed" features. It uses some
-  hacks to go beyond the APIs Tmux provides. Because of this, it might have some
-  "rough edges" and there's nothing that can be done.
-
-  Examples: non-perfect file and url matching and selection. That said, usage
-  should be fine in +90% cases.
-
-- feel free to report search cases you think should work, but are not
-  (provide examples pls!). I'm open to the idea of adding more saved searches.
-
-- Tmux `vi` copy mode works faster than `emacs`. If you don't have a preference
-  yet and to speed up `tmux_copycat`, I recommend putting this in `.tmux.conf`
-  to set Tmux copy mode to `vi`:
-
-      set -g mode-keys vi
-
-- remapping `Escape` key in copy mode will break the plugin. If you have this
-  in your `.tmux.conf`, please consider removing it:
-
-      bind -t vi-copy Escape cancel
-
 ### Installation with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm) (recommended)
 
 Add plugin to the list of TPM plugins in `.tmux.conf`:
@@ -121,15 +86,23 @@ Add this line to the bottom of `.tmux.conf`:
 
     run-shell ~/clone/path/copycat.tmux
 
-Reload TMUX environment:
-
-    # type this in terminal
-    $ tmux source-file ~/.tmux.conf
-
-You should now be able to use the plugin.
+Reload TMUX environment with: `$ tmux source-file ~/.tmux.conf`. You should now
+be able to use the plugin.
 
 Optional (but recommended) install `gawk` via your package manager of choice
 for better UTF-8 character support.
+
+### Limitations
+
+This plugin has some known limitations. Please read about it
+[here](docs/limitations.md).
+
+### Docs
+
+- Most of the behavior of tmux-copycat can be customized via tmux options.
+  [Check out the full options list](docs/customizations.md).
+- To speed up the workflow you can define new bindings in `.tmux.conf` for
+  searches you use often, more info [here](docs/defining_new_stored_searches.md)
 
 ### Other goodies
 

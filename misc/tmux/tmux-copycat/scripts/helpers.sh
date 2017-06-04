@@ -148,14 +148,14 @@ copycat_prev_key() {
 	echo "$(get_tmux_option "$tmux_option_prev" "$default_prev_key")"
 }
 
-# function expected output: 'C-c C-j Enter q'
+# function expected output: 'C-c Enter q'
 copycat_quit_copy_mode_keys() {
-	local commands_that_quit_copy_mode="cancel\|copy-selection\|copy-pipe"
-	local copy_mode="$(tmux_copy_mode)-copy"
-	tmux list-keys -t "$copy_mode" |
+	local commands_that_quit_copy_mode="cancel"
+	tmux list-keys -T copy-mode-vi |
 		\grep "$commands_that_quit_copy_mode" |
 		$AWK_CMD '{ print $4}' |
 		sort -u |
+		sed 's/C-j//g' |
 		xargs echo
 }
 
