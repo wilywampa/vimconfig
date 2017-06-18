@@ -249,3 +249,6 @@
 [submodule "vimfiles/bundle/mundo"]
 	path = vimfiles/bundle/mundo
 	url = https://github.com/wilywampa/vim-mundo.git
+[submodule "misc/python/neovim-remote"]
+	path = misc/python/neovim-remote
+	url = https://github.com/mhinz/neovim-remote.git
