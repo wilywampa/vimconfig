@@ -6,6 +6,18 @@ fi
 
 local fmt='#{pane_current_command},,#{pane_id}'
 
+# Choose between Neovim and vim
+vim --serverlist | grep -q "\b${VIMSERVER:-VIM}\b" 2>&1 > /dev/null
+if [ $? -eq 0 ]; then
+  EXEC="vim"
+  SERVER="${VIMSERVER:-VIM}"
+  VIM="vim"
+else
+  EXEC="nvr"
+  SERVER="${NVIM_LISTEN_ADDRESS:-"$HOME"/NVIM}"
+  VIM="nvim"
+fi
+
 # Read from stdin when used from copy-pane in tmux
 [ -t 0 ] || read stdin
 
@@ -26,10 +38,10 @@ remote() {
   if [[ -n $line ]]; then
     cmd="${cmd}${line}Gzv"
   fi
-  vim --servername ${VIMSERVER:-VIM} --remote-send $cmd
+  ${EXEC} --servername ${SERVER} --remote-send $cmd
 }
 
-vim --serverlist | grep -q "\b${VIMSERVER:-VIM}\b" 2>&1 > /dev/null
+${EXEC} --serverlist | grep -q "^\s*${SERVER}\s*$" 2>&1 > /dev/null
 if [ $? -eq 0 ]; then
   if [[ $# == 0 ]] && [[ -n "$stdin" ]]; then
     panepwd=$(tmux display-message -p "#{pane_current_path}")
@@ -48,7 +60,7 @@ if [ $? -eq 0 ]; then
     for pane in $(tmux list-panes -t$win -F "$fmt"); do
       command=$pane[(ws:,,:)1]
       pane_id=$pane[(ws:,,:)2]
-      if [[ "$command" = 'vim' ]]; then
+      if [[ "$command" = ${VIM} ]]; then
         tmux select-window -t$win
         if [[ $(tmux display-message -p '#{pane_id}') != $pane_id ]]; then
           tmux select-pane -t$pane_id
@@ -65,5 +77,5 @@ if [ $? -eq 0 ]; then
   done
 fi
 
-exec vim --servername ${VIMSERVER:-VIM} "$@"
+exec ${EXEC} --servername ${SERVER} "$@"
 exit 0

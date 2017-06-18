@@ -1083,7 +1083,8 @@ export KEYTIMEOUT=5
 export FPATH
 export EDITOR=vim
 export DATEFMT='%a %d%b%Y %T'
-export VIMSERVER=VIM
+export VIMSERVER=${VIMSERVER:-VIM}
+export NVIM_LISTEN_ADDRESS=${NVIM_LISTEN_ADDRESS:-"$HOME"/NVIM}
 export TAR_OPTIONS='-k'
 export INPUTRC=$HOME/.inputrc
 _vim_maps=(
