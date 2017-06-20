@@ -104,7 +104,11 @@ if !s:readonly && !exists('g:no_session')
 endif
 
 " Enable matchit plugin
-runtime! macros/matchit.vim
+if has('nvim')
+    runtime! plugin/matchit.vim
+else
+    runtime! macros/matchit.vim
+endif
 execute 'onoremap <silent> V%'  substitute(maparg('%',  'o'), '^v', 'V', '')
 execute 'onoremap <silent> Vg%' substitute(maparg('g%', 'o'), '^v', 'V', '')
 
@@ -248,7 +252,8 @@ let g:file_dict = {
     \ 's': '$HOME/.screenrc',
     \ 't': ['$HOME/.tmux.conf', '$HOME/.tmux-local.conf'],
     \ 'u': '$HOME/.muttrc',
-    \ 'v': ['$MYVIMRC', '$HOME/.vim/after/plugin/after.vim'],
+    \ 'v': [has('nvim') ? '$HOME/.vimrc' : '$MYVIMRC',
+    \       '$HOME/.vim/after/plugin/after.vim'],
     \ 'x': '$HOME/.Xdefaults',
     \ 'z': ['$HOME/.zshrc', '$HOME/.zshrclocal'],
     \ }
@@ -707,7 +712,7 @@ func! s:KeyCodes() " {{{
     endfor
 endfunc " }}}
 nnoremap <silent> <Leader>k :call <SID>KeyCodes()<CR>
-if mobileSSH | call s:KeyCodes() | endif
+if mobileSSH && !has('nvim') | call s:KeyCodes() | endif
 
 func! s:CmdwinMappings() " {{{
     " Make gf/<C-]> work in command window
@@ -1392,6 +1397,19 @@ else
     " Disable italics (set italics mode = italics end)
     let &t_ZH = &t_ZR
 
+    if has('nvim')
+        " Map extended ASCII characters to meta keys
+        for n in range(193, 218) + range(225, 250)
+            for bang in ['!', '']
+                execute 'map' . bang nr2char(n) '<M-' . nr2char(n - 128) . '>'
+            endfor
+        endfor
+
+        " <C-Space> = <C-@>
+        map <C-Space> <C-@>
+        map! <C-Space> <C-@>
+    endif
+
     " Enable mouse for scrolling and window selection
     set mouse=nir
     noremap <F22> <NOP>
@@ -1668,6 +1686,12 @@ snoremap \| <C-g>"_c\|
 for c in range(33, 124) + [126]
     execute "snoremap ".escape(nr2char(c), '|')." <C-g>\"_c".escape(nr2char(c), '|')
 endfor
+
+" neovim-specific settings
+if has('nvim')
+    autocmd TermOpen term://* setlocal nonumber norelativenumber
+endif
+
 " }}}
 
 " {{{ Plugin configuration
@@ -1787,6 +1811,13 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         inoremap <silent> <expr> _ '_' .
             \ (&filetype ==# 'python' && &l:omnifunc ==# 'CompleteIPython' &&
             \  neocomplete#helper#get_cur_text()[-1:] == '.' ? <SID>ResetCompletion() : '')
+
+        " deoplete settings
+        let g:deoplete#enable_at_startup = 1
+        let deoplete#sources#clang#sort_algo = 'alphabetical'
+        let g:deoplete#enable_smart_case = 1
+        let g:deoplete#max_list = 200
+        inoremap <expr> <C-l> deoplete#refresh()
     endif
 else
     call add(g:pathogen_disabled, 'neocomplete')
@@ -2326,6 +2357,9 @@ let g:ag_flags = get(g:, 'ag_flags', '')
 let g:tmux_navigator_no_mappings = 1
 for dir in ['Left', 'Down', 'Up', 'Right'] | for mod in ['S-', 'M-']
     execute 'nnoremap <silent> <'.mod.dir.'> :<C-u>TmuxNavigate'.dir.'<CR>'
+    if has('nvim')
+        execute 'tnoremap <silent> <'.mod.dir.'> <C-\><C-n>:TmuxNavigate'.dir.'<CR>'
+    endif
 endfor | endfor
 
 " Vimux settings
@@ -2695,13 +2729,26 @@ Plug 'eagletmt/neco-ghc'
 Plug 'Shougo/neco-vim', {'dir': '$VIMCONFIG/vimfiles/bundle/neco-vim'}
 Plug 'Shougo/neco-syntax'
 Plug 'Shougo/neoyank.vim'
+Plug 'Shougo/denite.nvim'
+Plug 'Shougo/echodoc.vim'
 Plug 'neovimhaskell/haskell-vim'
 Plug 'ujihisa/unite-haskellimport'
 Plug 'vim-scripts/CSApprox', {'for': 'fugitiveblame'}
 Plug 'airblade/vim-gitgutter'
+Plug 'tmux-plugins/vim-tmux', {'dir': '$VIMCONFIG/vimfiles/bundle/vim-tmux'}
 Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
+if has('nvim')
+    call add(g:pathogen_disabled, 'neocomplete')
+    call add(g:pathogen_disabled, 'libclang')
+    Plug 'Shougo/deoplete.nvim'
+    Plug 'zchee/deoplete-clang'
+    Plug 'zchee/deoplete-jedi'
+    Plug 'zchee/deoplete-zsh'
+    Plug 'zchee/libclang-python3'
+    Plug 'neomake/neomake'
+endif
 call plug#end()
 endif " }}}
 
