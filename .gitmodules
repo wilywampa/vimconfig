@@ -252,3 +252,30 @@
 [submodule "misc/python/neovim-remote"]
 	path = misc/python/neovim-remote
 	url = https://github.com/mhinz/neovim-remote.git
+[submodule "vimfiles/bundle/deoplete-clang"]
+	path = vimfiles/bundle/deoplete-clang
+	url = https://github.com/zchee/deoplete-clang.git
+[submodule "vimfiles/bundle/denite.nvim"]
+	path = vimfiles/bundle/denite.nvim
+	url = https://github.com/Shougo/denite.nvim.git
+[submodule "vimfiles/bundle/libclang-python3"]
+	path = vimfiles/bundle/libclang-python3
+	url = https://github.com/zchee/libclang-python3.git
+[submodule "vimfiles/bundle/deoplete.nvim"]
+	path = vimfiles/bundle/deoplete.nvim
+	url = https://github.com/Shougo/deoplete.nvim.git
+[submodule "vimfiles/bundle/echodoc"]
+	path = vimfiles/bundle/echodoc
+	url = https://github.com/Shougo/echodoc.vim.git
+[submodule "vimfiles/bundle/neomake"]
+	path = vimfiles/bundle/neomake
+	url = https://github.com/neomake/neomake.git
+[submodule "vimfiles/bundle/vim-tmux"]
+	path = vimfiles/bundle/vim-tmux
+	url = https://github.com/tmux-plugins/vim-tmux.git
+[submodule "vimfiles/bundle/deoplete-jedi"]
+	path = vimfiles/bundle/deoplete-jedi
+	url = https://github.com/zchee/deoplete-jedi.git
+[submodule "vimfiles/bundle/deoplete-zsh"]
+	path = vimfiles/bundle/deoplete-zsh
+	url = https://github.com/zchee/deoplete-zsh.git
