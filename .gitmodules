@@ -279,3 +279,15 @@
 [submodule "vimfiles/bundle/deoplete-zsh"]
 	path = vimfiles/bundle/deoplete-zsh
 	url = https://github.com/zchee/deoplete-zsh.git
+[submodule "vimfiles/bundle/vim-man"]
+	path = vimfiles/bundle/vim-man
+	url = https://github.com/vim-utils/vim-man.git
+[submodule "vimfiles/bundle/man"]
+	path = vimfiles/bundle/man
+	url = https://github.com/vim-utils/vim-man.git
+[submodule "vimfiles/bundle/manatee"]
+	path = vimfiles/bundle/manatee
+	url = https://github.com/vim-utils/vim-man.git
+[submodule "vimfiles/bundle/--name"]
+	path = vimfiles/bundle/--name
+	url = https://github.com/vim-utils/vim-man.git
