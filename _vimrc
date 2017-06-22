@@ -71,6 +71,7 @@ set isfname-==                  " but not =
 sil! set breakindent            " Indent wrapped lines
 set tags-=./tags tags^=./tags;  " Search upwards for tags
 set complete=.,w,t              " Don't complete from non-visible buffers
+set diffopt+=vertical           " Open diffs in vertical splits
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi,*.pkl,*.ipynbc
@@ -246,6 +247,7 @@ let g:file_dict = {
     \ 'l': '$HOME/.zshrclocal',
     \ 'M': '$HOME/.minttyrc',
     \ 'm': '$HOME/.matplotlib/matplotlibrc',
+    \ 'n': '$HOME/.config/nvim/init.vim',
     \ 'P': '$HOME/.plugged',
     \ 'p': ['$HOME/.ipython/profile_default/ipython_config.py',
     \       '$VIMCONFIG/misc/python/ipython_config.py'],
@@ -1399,7 +1401,7 @@ else
 
     if has('nvim')
         " Map extended ASCII characters to meta keys
-        for n in range(193, 218) + range(225, 250)
+        for n in range(161, 175) + range(193, 218) + range(225, 250)
             for bang in ['!', '']
                 execute 'map' . bang nr2char(n) '<M-' . nr2char(n - 128) . '>'
             endfor
@@ -1735,11 +1737,69 @@ autocmd VimrcAutocmds CursorMovedI,InsertLeave c,cpp
 let g:commentary_map_backslash=0
 
 " {{{ Completion settings
-if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
+if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
     call add(g:pathogen_disabled, 'supertab')
 
+    " deoplete settings {{{
+    let g:deoplete#enable_at_startup = 1
+    let g:deoplete#sources#clang#sort_algo = 'alphabetical'
+    let g:deoplete#enable_smart_case = 1
+    let g:deoplete#max_list = 200
+    let g:tmuxcomplete#trigger = ''
+    if !exists('g:deoplete#keyword_patterns')
+        let g:deoplete#keyword_patterns = {}
+    endif
+    let g:deoplete#keyword_patterns._ = '\k\w*'
+    let g:deoplete#keyword_patterns['default'] = '\k\w*'
+    let g:deoplete#keyword_patterns.matlab =
+        \ '\k\w*((\.((''?)?\w*('')?)?)+'
+        \ .'|{\d+}(\.((''?)?\w*('')?)?)+'
+        \ .'|{\d*\}?)?'
+    function! s:StartManualComplete(dir)
+        " Indent if only whitespace behind cursor
+        if pumvisible() || getline('.')[col('.')-2] =~ '\S'
+            return pumvisible() ? (a:dir ? "\<C-n>" : "\<C-p>")
+                \: deoplete#manual_complete()
+        else
+            return a:dir ? "\<Tab>" : "\<BS>"
+        endif
+    endfunction
+    inoremap <silent> <expr> <Tab>   <SID>StartManualComplete(1)
+    inoremap <silent> <expr> <S-Tab> <SID>StartManualComplete(0)
+    inoremap <silent> <expr> <C-f>   pumvisible() ? deoplete#close_popup()
+        \ : matchstr(getline(line('.')+1),'\%'.col('.').'v\%(\S\+\\|\s*\)')
+    imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
+        \ "\<Plug>(neosnippet_expand_or_jump)":
+        \ (pumvisible() ? deoplete#close_popup() : "\<C-d>")
+    smap <C-d> <Plug>(neosnippet_expand_or_jump)
+    imap <C-x><C-h> <Plug>(complete_ipython_history)
+    imap <C-h> <Plug>(insert_ipython_history)
+    inoremap <silent> <expr> <C-x><C-w> deoplete#manual_complete(['words'])
+    inoremap <silent> <expr> <C-x><C-l> deoplete#manual_complete(['lines'])
+    inoremap <expr> <C-l> deoplete#refresh()
+    nnoremap <silent> ,d :<C-u>call deoplete#toggle()<CR>
+    " Make <BS> delete letter instead of clearing completion
+    inoremap <BS> <BS>
+    execute 'inoremap <C-Tab> '.repeat('<C-n>', 10)
+    execute 'inoremap <C-S-Tab> '.repeat('<C-p>', 10)
+    augroup VimrcAutocmds
+        autocmd CmdwinEnter * inoremap <silent> <buffer> <expr> <Tab>
+            \ pumvisible() ? "\<C-n>" : deoplete#manual_complete()
+        autocmd CmdwinEnter * inoremap <silent> <buffer> <expr> <S-Tab>
+            \ pumvisible() ? "\<C-p>" : deoplete#manual_complete()
+        autocmd VimrcAutocmds CmdwinEnter : let b:deoplete_sources =
+            \ ['vim', 'file', 'words', 'syntax', 'buffer']
+    augroup END
+    inoremap <silent> <expr> <C-x><C-x> deoplete#manual_complete()
+    inoremap <silent> <expr> <C-^> <C-y>
+    " }}}
+
+elseif has('lua') && $VIMBLACKLIST !~? 'neocomplete'
+    call add(g:pathogen_disabled, 'supertab')
+    call add(g:pathogen_disabled, 'deoplete')
+
     if !s:readonly
-        " NeoComplete settings
+        " NeoComplete settings {{{
         let g:neocomplete#enable_at_startup=1
         let g:neocomplete#enable_smart_case=1
         let g:neocomplete#max_list=200
@@ -1811,15 +1871,10 @@ if has('lua') && $VIMBLACKLIST !~? 'neocomplete'
         inoremap <silent> <expr> _ '_' .
             \ (&filetype ==# 'python' && &l:omnifunc ==# 'CompleteIPython' &&
             \  neocomplete#helper#get_cur_text()[-1:] == '.' ? <SID>ResetCompletion() : '')
-
-        " deoplete settings
-        let g:deoplete#enable_at_startup = 1
-        let deoplete#sources#clang#sort_algo = 'alphabetical'
-        let g:deoplete#enable_smart_case = 1
-        let g:deoplete#max_list = 200
-        inoremap <expr> <C-l> deoplete#refresh()
+        " }}}
     endif
 else
+    call add(g:pathogen_disabled, 'deoplete')
     call add(g:pathogen_disabled, 'neocomplete')
     let g:SuperTabDefaultCompletionType="context"
     imap <C-d> <Plug>(neosnippet_expand_or_jump)
@@ -2274,6 +2329,24 @@ func! s:UniteSetup() " {{{
 endfunc " }}}
 " }}}
 
+" Denite settings {{{
+function! s:DeniteSettings() abort " {{{
+    call denite#custom#map(
+        \ 'insert',
+        \ '<C-j>',
+        \ '<denite:move_to_next_line>',
+        \ 'noremap'
+        \)
+    call denite#custom#map(
+        \ 'insert',
+        \ '<C-k>',
+        \ '<denite:move_to_previous_line>',
+        \ 'noremap'
+        \)
+endfunction " }}}
+autocmd VimrcAutocmds VimEnter * if exists(':Denite') | call s:DeniteSettings() | endif
+" }}}
+
 " mundo settings
 if has('python') || has('python3')
     nnoremap <silent> <Leader>u :<C-u>MundoToggle<CR>
@@ -2487,6 +2560,7 @@ let g:neocomplete#force_omni_input_patterns.python =
     \ '\v<(cm|collections|colors|copy|ein|inspect|it|itertools|logging|ma|mathtools|matplotlib|'.
     \ 'mpl|mt|np|numpy|op|operator|opt|os|pickle|plottools|plt|pt|px|re|sc|scipy|si|sio|six|'.
     \ 'subprocess|sys)(\.\h\w*)*\.(\h\w*)?'
+let g:deoplete#omni_patterns = g:neocomplete#sources#omni#input_patterns
 
 " DirDiff settings
 let g:DirDiffExcludes = '.*.un~,.svn,.git,.hg,__pycache__,'.&wildignore
