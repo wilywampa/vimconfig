@@ -433,7 +433,7 @@ function! s:add(repo, ...)
 
   try
     let repo = s:trim(a:repo)
-    let name = fnamemodify(repo, ':t:s?\.git$??:s?^vim-??:s?\.vim$??:s?colors-??')
+    let name = fnamemodify(repo, ':t:s?\.git$??:s?^vim-??:s?[.-]vim$??:s?colors-??')
     let spec = extend(s:infer_properties(name, repo),
                     \ a:0 == 1 ? s:parse_options(a:1) : s:base_spec)
     if !has_key(g:plugs, name)
