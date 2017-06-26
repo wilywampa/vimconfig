@@ -143,7 +143,7 @@ function! s:IPyScratchBuffer()
   endtry
   if &filetype !=# 'python'
     setfiletype python
-    IPythonConsole
+    silent! IPythonConsole
   endif
   if line('$') == 1 && getline(1) ==# ''
     silent put! = ['# pylama: ignore=C9,E1,E2,E3,E401,E402,E5,E7,W0,W2,W3',
@@ -154,7 +154,11 @@ function! s:IPyScratchBuffer()
   setfiletype python
   syntax clear pythonError
   setlocal buftype=nowrite bufhidden=hide noswapfile
-  setlocal omnifunc=CompleteIPython
+  if exists('*CompleteIPython')
+    setlocal omnifunc=CompleteIPython
+  elseif exists('*jedi#completions')
+    setlocal omnifunc=jedi#completions
+  endif
   setlocal foldmethod=manual foldexpr=
   let b:ipython_user_ns = 1
   nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
