@@ -81,6 +81,13 @@ let &suffixes .= ','.substitute(&wildignore, '*', '', 'g')
 " Configure display of whitespace
 sil! set listchars=tab:▸\ ,trail:·,extends:»,precedes:«,nbsp:×,eol:¬
 
+" Cursor: block in normal/visual, vertical in insert/command, horizontal in replace/operator pending
+if has('nvim')
+    let &guicursor = 'n-v-c-sm:block-blinkwait1000-blinkon500-blinkoff500,'
+        \          . 'i-c-ci-ve:ver25-blinkwait1000-blinkon500-blinkoff500,'
+        \          . 'r-cr-o:hor20-blinkwait1000-blinkon500-blinkoff500'
+endif
+
 " Get return code from make command in v:shell_error
 let &shellpipe='2>&1 | tee %s;echo ${pipestatus[1]} > $HOME/.exit;exit ${pipestatus[1]}'
 
@@ -1776,6 +1783,7 @@ if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
     imap <C-h> <Plug>(insert_ipython_history)
     inoremap <silent> <expr> <C-x><C-w> deoplete#manual_complete(['words'])
     inoremap <silent> <expr> <C-x><C-l> deoplete#manual_complete(['lines'])
+    inoremap <silent> <expr> <C-x><C-j> deoplete#manual_complete(['jedi'])
     inoremap <expr> <C-l> deoplete#refresh()
     nnoremap <silent> ,d :<C-u>call deoplete#toggle()<CR>
     " Make <BS> delete letter instead of clearing completion
@@ -1791,10 +1799,10 @@ if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
             \ ['vim', 'file', 'words', 'syntax', 'buffer']
     augroup END
     inoremap <silent> <expr> <C-x><C-x> deoplete#manual_complete()
-    inoremap <silent> <expr> <C-^> <C-y>
+    inoremap <silent> <C-^> <C-y>
     " }}}
 
-elseif has('lua') && $VIMBLACKLIST !~? 'neocomplete'
+elseif $VIMBLACKLIST !~? 'neocomplete'
     call add(g:pathogen_disabled, 'supertab')
     call add(g:pathogen_disabled, 'deoplete')
 
@@ -2343,6 +2351,7 @@ function! s:DeniteSettings() abort " {{{
         \ '<denite:move_to_previous_line>',
         \ 'noremap'
         \)
+    call denite#custom#source('_', 'matchers', ['matcher_substring'])
 endfunction " }}}
 autocmd VimrcAutocmds VimEnter * if exists(':Denite') | call s:DeniteSettings() | endif
 " }}}
@@ -2590,6 +2599,8 @@ if stridx($VIMBLACKLIST, 'clang_complete') == -1
     let g:clang_use_library = 1
     let g:clang_sort_algo = 'alpha'
     let g:clang_make_default_keymappings = 0
+    " Use deoplete-clang instead if has('nvim')
+    let g:clang_omnicppcomplete_compliance = has('nvim')
     function! s:clang_setup()
         nnoremap <silent> <buffer> <M-]> :<C-u>call ClangGotoDeclaration()<CR>
         nnoremap <silent> <buffer> gd :<C-u>call ClangGotoDeclaration()<CR>
