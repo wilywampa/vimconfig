@@ -252,9 +252,6 @@
 [submodule "misc/python/neovim-remote"]
 	path = misc/python/neovim-remote
 	url = https://github.com/mhinz/neovim-remote.git
-[submodule "vimfiles/bundle/deoplete-clang"]
-	path = vimfiles/bundle/deoplete-clang
-	url = https://github.com/zchee/deoplete-clang.git
 [submodule "vimfiles/bundle/denite.nvim"]
 	path = vimfiles/bundle/denite.nvim
 	url = https://github.com/Shougo/denite.nvim.git
@@ -291,3 +288,6 @@
 [submodule "vimfiles/bundle/--name"]
 	path = vimfiles/bundle/--name
 	url = https://github.com/vim-utils/vim-man.git
+[submodule "vimfiles/bundle/deoplete-clang2"]
+	path = vimfiles/bundle/deoplete-clang2
+	url = https://github.com/tweekmonster/deoplete-clang2.git

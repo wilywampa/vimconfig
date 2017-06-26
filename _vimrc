@@ -2829,7 +2829,7 @@ if has('nvim')
     call add(g:pathogen_disabled, 'neocomplete')
     call add(g:pathogen_disabled, 'libclang')
     Plug 'Shougo/deoplete.nvim'
-    Plug 'zchee/deoplete-clang'
+    Plug 'tweekmonster/deoplete-clang2'
     Plug 'zchee/deoplete-jedi'
     Plug 'zchee/deoplete-zsh'
     Plug 'zchee/libclang-python3'
