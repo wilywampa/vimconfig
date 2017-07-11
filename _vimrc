@@ -2443,6 +2443,9 @@ for dir in ['Left', 'Down', 'Up', 'Right'] | for mod in ['S-', 'M-']
         execute 'tnoremap <silent> <'.mod.dir.'> <C-\><C-n>:TmuxNavigate'.dir.'<CR>'
     endif
 endfor | endfor
+if has('nvim')
+    tnoremap <M-[> <C-\><C-n>
+endif
 
 " Vimux settings
 function! VimuxCompletionPrompt() abort " {{{
