@@ -72,6 +72,7 @@ sil! set breakindent            " Indent wrapped lines
 set tags-=./tags tags^=./tags;  " Search upwards for tags
 set complete=.,w,t              " Don't complete from non-visible buffers
 set diffopt+=vertical           " Open diffs in vertical splits
+sil! set inccommand=nosplit     " Preview substitute commands
 
 " Ignore system files
 set wildignore=*.a,*.lib,*.spi,*.sys,*.dll,*.so,*.o,.DS_Store,*.pyc,*.d,*.exe,*.hi,*.pkl,*.ipynbc
@@ -119,6 +120,9 @@ else
 endif
 execute 'onoremap <silent> V%'  substitute(maparg('%',  'o'), '^v', 'V', '')
 execute 'onoremap <silent> Vg%' substitute(maparg('g%', 'o'), '^v', 'V', '')
+
+" Disable built-in man plugin
+let g:loaded_man = 1
 
 " {{{ Switch to last active tab/window
 let g:lastTab=1
@@ -1698,7 +1702,11 @@ endfor
 
 " neovim-specific settings
 if has('nvim')
-    autocmd TermOpen term://* setlocal nonumber norelativenumber
+    augroup VimrcAutocmds
+        autocmd TermOpen term://* setlocal nonumber norelativenumber
+        autocmd BufEnter term://* startinsert
+        autocmd BufLeave term://* stopinsert
+    augroup END
 endif
 
 " }}}
