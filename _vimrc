@@ -2826,6 +2826,7 @@ Plug 'Shougo/neco-vim', {'dir': '$VIMCONFIG/vimfiles/bundle/neco-vim'}
 Plug 'Shougo/neco-syntax'
 Plug 'Shougo/neoyank.vim'
 Plug 'Shougo/denite.nvim'
+Plug 'chemzqm/denite-extra'
 Plug 'Shougo/echodoc.vim'
 Plug 'neovimhaskell/haskell-vim'
 Plug 'ujihisa/unite-haskellimport'
@@ -2844,7 +2845,7 @@ if has('nvim')
     Plug 'zchee/deoplete-jedi'
     Plug 'zchee/deoplete-zsh'
     Plug 'zchee/libclang-python3'
-    Plug 'neomake/neomake'
+    Plug 'w0rp/ale'
 endif
 call plug#end()
 endif " }}}

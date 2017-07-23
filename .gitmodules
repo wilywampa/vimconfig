@@ -291,3 +291,9 @@
 [submodule "vimfiles/bundle/deoplete-clang2"]
 	path = vimfiles/bundle/deoplete-clang2
 	url = https://github.com/tweekmonster/deoplete-clang2.git
+[submodule "vimfiles/bundle/ale"]
+	path = vimfiles/bundle/ale
+	url = https://github.com/w0rp/ale.git
+[submodule "vimfiles/bundle/denite-extra"]
+	path = vimfiles/bundle/denite-extra
+	url = https://github.com/chemzqm/denite-extra.git
