@@ -161,6 +161,10 @@ function! s:IPyScratchBuffer()
   endif
   setlocal foldmethod=manual foldexpr=
   let b:ipython_user_ns = 1
+  if !exists('b:ale_linters')
+    let b:ale_linters = {}
+  endif
+  let b:ale_linters.python = []
   nnoremap <buffer> <silent> <F5>      :<C-u>call <SID>IPyRunScratchBuffer()<CR>
   inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
