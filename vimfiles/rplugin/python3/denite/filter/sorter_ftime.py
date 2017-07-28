@@ -17,5 +17,5 @@ class Filter(Base):
 def key(candidate):
     try:
         return -os.path.getmtime(candidate['action__path'])
-    except KeyError:
+    except Exception:
         return 1
