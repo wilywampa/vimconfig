@@ -605,6 +605,7 @@ class DataObj(object):
         for i, k in enumerate(PROPERTIES):
             item = QtGui.QTableWidgetItem(k)
             item.setFlags(QtCore.Qt.ItemIsEditable)
+            item.setForeground(QtGui.QColor(0, 0, 0))
             props_editor.setItem(i, 0, item)
             props_editor.setItem(i, 1, QtGui.QTableWidgetItem(
                 props_repr(self.props[k]) if k in self.props else ''))
