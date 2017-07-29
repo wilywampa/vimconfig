@@ -250,8 +250,8 @@ def colored_line(x, y, c, norm=None, ax=None, **kwargs):
     y = np.squeeze(y)
     xmid = (x[1:] + x[:-1]) / 2.0
     ymid = (y[1:] + y[:-1]) / 2.0
-    x = np.r_[np.array([x[:-1], xmid, xmid]).T.ravel(), x[-1]]
-    y = np.r_[np.array([y[:-1], ymid, ymid]).T.ravel(), y[-1]]
+    x = np.append(np.array([x[:-1], xmid, xmid]).T.ravel(), x[-1])
+    y = np.append(np.array([y[:-1], ymid, ymid]).T.ravel(), y[-1])
     pairs = np.array([x, y]).T
     segments = np.array([pairs[:-1], pairs[1:]]).swapaxes(0, 1)
     if norm and not callable(norm):
