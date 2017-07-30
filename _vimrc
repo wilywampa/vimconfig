@@ -2388,7 +2388,7 @@ nn <silent> g<C-h> :<C-u>Denite buffer:+<CR>
 nn <silent> <expr> <C-p> ":\<C-u>Denite ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." file_mru\<CR>"
 nn <silent> <M-P> :<C-u>Denite directory_mru -default-action=cd<CR>
-nn <silent> <C-o> :<C-u>Denite file<CR>
+nn <silent> <C-o> :<C-u>Denite files<CR>
 nn <silent> <M-f> :<C-u>Denite file_rec<CR>
 nn <silent> <M-/> :<C-u>Denite line:all<CR>
 nn <silent> <M-?> :<C-u>Denite line:all -input=`expand('<lt>cword>')`<CR>
@@ -2424,14 +2424,6 @@ function! SwitchOrQuit() abort " {{{
     else
         return '<denite:quit>'
     endif
-endfunction " }}}
-
-function! DotOrNot() abort " {{{
-    return denite#context#get('input') =~# '\\$' ? '<BS>.' : '\.'
-endfunction " }}}
-
-function! CloseOrDelete() abort " {{{
-    return ''
 endfunction " }}}
 
 function! s:DeniteSetupAg() abort " {{{
@@ -2499,6 +2491,7 @@ function! s:DeniteSetup() " {{{
     call s:ni_map('<C-g>',      '<C-g>',  'ModifyGrep()', 'noremap expr')
     call s:ni_map('<C-j>',      '<C-j>',  '<denite:move_to_next_line>')
     call s:ni_map('<C-k>',      '<C-k>',  '<denite:move_to_previous_line>')
+    call s:ni_map('<C-q>',      '<C-q>',  '<denite:do_action:mydelete>')
     call s:ni_map('<C-t>',      '<C-t>',  '<denite:preview>')
 
     call denite#custom#map('insert', '<C-@>', '<denite:toggle_select_down>')
@@ -2508,7 +2501,6 @@ function! s:DeniteSetup() " {{{
     call denite#custom#map('insert', '<C-d>', 'DeniteTogglePathSearch()', 'expr')
     call denite#custom#map('insert', '<C-f>',
         \ 'ToggleSorter("sorter_ftime")', 'noremap expr nowait')
-    call denite#custom#map('insert', '<C-q>', '<denite:do_action:mydelete>')
     call denite#custom#map('insert', '<C-r>$',
         \ 'fnamemodify(bufname(denite#context#get("bufnr")), ":t")', 'noremap expr')
     call denite#custom#map('insert', '<C-r>%',
@@ -2517,13 +2509,13 @@ function! s:DeniteSetup() " {{{
     call denite#custom#map('insert', '<C-z>',
         \ 'ToggleSorter("sorter_reverse")', 'noremap expr nowait')
     call denite#custom#map('insert', '<Esc>', '<denite:enter_mode:normal>')
-    call denite#custom#map('insert', '.', 'DotOrNot()', 'noremap expr')
+    call denite#custom#map('insert', '.', '\.', 'noremap')
+    call denite#custom#map('insert', '\.', '.', 'noremap')
 
     call denite#custom#map('normal', '<Bslash>w', '<denite:quit>')
     call denite#custom#map('normal', '<C-Space>', '<denite:toggle_select_up>')
     call denite#custom#map('normal', '<C-n>', '<denite:jump_to_next_by:path>')
     call denite#custom#map('normal', '<C-p>', '<denite:jump_to_previous_by:path>')
-    call denite#custom#map('normal', '<C-q>', '<denite:do_action:mydelete>')
     call denite#custom#map('normal', '<Esc>', '<denite:enter_mode:normal>')
     call denite#custom#map('normal', '<Up>', '<denite:wincmd:p>')
     call denite#custom#map('normal', 'M', '<denite:move_to_middle>')
@@ -2542,6 +2534,7 @@ function! s:DeniteSetup() " {{{
     call denite#custom#source('outline', 'sorters', [])
     call denite#custom#source('buffer', 'sorters', ['sorter_mru'])
     call denite#custom#source('buffer', 'matchers', ['matcher_regexp', 'filter_modified'])
+    call denite#custom#source('files', 'matchers', ['matcher_regexp', 'matcher_ignore_globs'])
     call denite#custom#filter('matcher_ignore_globs', 'ignore_globs',
         \ ['.*.un~', '*.mat', '*.pdf'])
     call denite#custom#source('file_rec', 'sorters', ['sorter_rank'])

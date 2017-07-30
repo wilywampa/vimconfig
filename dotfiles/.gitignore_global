@@ -3,3 +3,4 @@
 tags
 *.so
 *.un~
+__pycache__
