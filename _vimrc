@@ -1984,8 +1984,7 @@ endfunc " }}}
 " }}}
 
 " {{{ Unite settings
-let g:unite_source_history_yank_enable=1
-let g:unite_source_history_yank_limit=500
+let g:unite_source_history_yank_enable=0
 let g:unite_marked_icon='✓'
 let g:unite_cursor_line_highlight='CursorLine'
 if executable('ag')
@@ -2093,15 +2092,6 @@ func! s:UniteSettings() " {{{
     autocmd WinEnter <buffer> call s:prev_bufnr(+expand('<abuf>'))
 endfunc " }}}
 
-function! s:grep(source, ...) abort " {{{
-    let path = len(a:000) >= 1 ? a:1 :
-        \ join(vimtools#flatten(map(split(input('Path: ', '.', 'file')),
-        \                           'vimtools#glob(v:val)')), "\n")
-    let opts = len(a:000) >= 2 ? a:2 : input(
-        \ 'Options: ', a:source ==# 'grep' ? get(g:, 'ag_flags', '') : '')
-    let inp = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
-    if len(inp) | call histadd('/', inp) | call unite#start([[a:source, path, opts, inp]]) | endif
-endfunction
 function! s:modify_unite_options() abort
     let unite = unite#get_current_unite()
 
@@ -2137,38 +2127,17 @@ function! s:modify_unite_options() abort
     endif
     call unite#force_redraw()
 endfunction " }}}
-nn <silent> ,a         :<C-u>call <SID>grep('grep', '.', get(g:, 'ag_flags', ''))<CR>
-nn <silent> ,A         :<C-u>call <SID>grep('grep')<CR>
-nn <silent> ,<Leader>a :<C-u>call <SID>grep('grep/git', '.', '')<CR>
-nn <silent> ,<Leader>A :<C-u>call <SID>grep('grep/git')<CR>
 
-nn <silent> "" :<C-u>Unite -start-insert history/yank<CR>
-nn <silent> "' :<C-u>Unite -start-insert register<CR>
-nn ,<C-a> :<C-u>Unite -no-quit -auto-resize grep:
 com! -nargs=? -complete=file BookmarkAdd call unite#sources#bookmark#_append(<q-args>)
 nn <silent> ,b :<C-u>Unite bookmark<CR>
 nn <silent> ,vr :<C-u>Unite vimgrep:**/*<CR>
 nn <silent> ,vn :<C-u>Unite vimgrep:**<CR>
-nn <silent> <C-n> :<C-u>Unite -buffer-name=files file_rec/async<CR>
-nn <silent> <C-h> :<C-u>Unite -buffer-name=buffers buffer<CR>
-nn <silent> g<C-h> :<C-u>Unite -buffer-name=buffers buffer:+<CR>
-nn <silent> <expr> <C-p> ":\<C-u>Unite -buffer-name="
-    \ .(len(filter(range(1,bufnr('$')),'buflisted(v:val)')) > 1
-    \ ? "buffers/" : "")."neomru ".(len(filter(range(1,bufnr('$')),
-    \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." -unique neomru/file\<CR>"
-nn <silent> <M-p> :<C-u>Unite neomru/directory<CR>
-nn <silent> <C-o> :<C-u>Unite file<CR>
-nn <silent> <M-/> :<C-u>Unite line:all -input=\v<CR>
 nn <silent> <M-?> :<C-u>Unite line:all -input=`expand('<lt>cword>')`<CR>
-nn <silent> g<C-p> :<C-u>Unite -buffer-name=neomru neomru/file<CR>
 nn <silent> <F1> :<C-u>Unite mapping<CR>
-nn <silent> <expr> <Leader>o ':<C-u>Unite -direction=' .
-    \ (winnr() == 1 ? 'topleft' : 'botright') . ' -vertical -winwidth=60 outline<CR>'
 nn <silent> ,h :<C-u>Unite history/ipython -max-multi-lines=100 -no-split -no-resize<CR>
 xn <silent> ,h :<C-u>call SaveRegs()<CR>gvy:call unite#start([['history/ipython']], {
     \ 'input': @@, 'split': 0, 'auto_resize': 0, 'max_multi_lines': 100})<CR>
     \ <Esc>:call RestoreRegs()<CR>i
-nn <silent> <M-h> :<C-u>Unite history/command<CR>
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
 nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>
 nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<bar>silent! UniteClose<CR>
@@ -2345,23 +2314,333 @@ func! s:UniteSetup() " {{{
 endfunc " }}}
 " }}}
 
-" Denite settings {{{
-function! s:DeniteSettings() abort " {{{
-    call denite#custom#map(
-        \ 'insert',
-        \ '<C-j>',
-        \ '<denite:move_to_next_line>',
-        \ 'noremap'
-        \)
-    call denite#custom#map(
-        \ 'insert',
-        \ '<C-k>',
-        \ '<denite:move_to_previous_line>',
-        \ 'noremap'
-        \)
-    call denite#custom#source('_', 'matchers', ['matcher_substring'])
+" {{{ Denite settings
+let g:neoyank#limit = 500
+let g:neoyank#save_registers = ['"', '+', '*']
+function! s:windo_change_dir(context) abort " {{{
+    let s:target = a:context.targets[0]
+    execute 'Windo cd' s:target.action__path
 endfunction " }}}
-autocmd VimrcAutocmds VimEnter * if exists(':Denite') | call s:DeniteSettings() | endif
+call s:CreateAbbrev('D', 'Denite', ':')
+call s:CreateAbbrev('d', 'Denite', ':')
+augroup VimrcAutocmds
+    autocmd VimEnter * if exists(':Denite') | call s:DeniteSetup() | endif
+    autocmd WinEnter * if &filetype ==# 'denite' |
+        \ echo
+        \ | endif
+augroup END
+
+nnoremap ,d :<C-u>Denite -resume<CR>
+nnoremap <M-p> :<C-u>Denite directory_mru<CR>
+
+function! ToggleSorter(sorter) abort " {{{
+    let l:sorters = split(denite#context#get('sorters'), ',')
+    if index(l:sorters, a:sorter) == -1
+        call add(l:sorters, a:sorter)
+    else
+        call remove(l:sorters, index(l:sorters, a:sorter))
+    endif
+    call denite#context#set('sorters', join(l:sorters, ','))
+    return '<denite:redraw>'
+endfunction " }}}
+
+function! s:grep(source, ...) abort " {{{
+    call denite#custom#var('grep', 'recursive_opts', [])
+    call denite#custom#var('grep', 'pattern_opt', [])
+    call denite#custom#var('grep', 'separator', ['--'])
+    call denite#custom#var('grep', 'final_opts', [])
+    let l:is_git = stridx(a:source, 'git') != -1
+    if l:is_git
+        call denite#custom#var('grep', 'command', ['git', 'grep'])
+        call denite#custom#var('grep', 'default_opts', ['-n', '--no-color'])
+    else
+        call s:DeniteSetupAg()
+    endif
+    let s:grep_context = {
+        \ 'mode': 'normal',
+        \ 'quit': v:false,
+        \ 'auto_resize': v:true,
+        \ }
+    let s:grep_context.path = len(a:000) >= 1 ? a:1 :
+        \ join(vimtools#flatten(map(split(input('Path: ', '.', 'file')),
+        \                           'vimtools#glob(v:val)')), "\n")
+    let l:opts = split(len(a:000) >= 2 ? a:2 : input(
+        \ 'Options: ', l:is_git ? '' : get(g:, 'ag_flags', '')))
+    let l:pattern = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
+    let s:grep_context.args = [s:grep_context.path, l:opts, l:pattern]
+    " let s:grep_context.default_action = 'open_highlight'
+    if !empty(l:pattern)
+        call histadd('/', l:pattern)
+        call denite#start([{'name': 'grep', 'args': s:grep_context.args}], s:grep_context)
+    endif
+endfunction " }}}
+nnoremap <silent> ,a         :<C-u>call <SID>grep('grep', '.', get(g:, 'ag_flags', ''))<CR>
+nnoremap <silent> ,A         :<C-u>call <SID>grep('grep')<CR>
+nnoremap <silent> ,<Leader>a :<C-u>call <SID>grep('grep/git', '.', '')<CR>
+nnoremap <silent> ,<Leader>A :<C-u>call <SID>grep('grep/git')<CR>
+
+nn <silent> "" :<C-u>Denite neoyank<CR>
+nn <silent> "' :<C-u>Denite register<CR>
+nn ,<C-a> :<C-u>Denite -no-quit -auto-resize grep<CR>
+nn <silent> <C-n> :<C-u>Denite file_rec<CR>
+nn <silent> <C-h> :<C-u>Denite buffer<CR>
+nn <silent> g<C-h> :<C-u>Denite buffer:+<CR>
+nn <silent> <expr> <C-p> ":\<C-u>Denite ".(len(filter(range(1,bufnr('$')),
+    \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." file_mru\<CR>"
+nn <silent> <M-P> :<C-u>Denite directory_mru -default-action=cd<CR>
+nn <silent> <C-o> :<C-u>Denite file<CR>
+nn <silent> <M-f> :<C-u>Denite file_rec<CR>
+nn <silent> <M-/> :<C-u>Denite line:all<CR>
+nn <silent> <M-?> :<C-u>Denite line:all -input=`expand('<lt>cword>')`<CR>
+nn <silent> g<C-p> :<C-u>Denite file_mru<CR>
+nn <silent> <M-h> :<C-u>Denite command_history<CR>
+nn <silent> <Leader>o :<C-u>Denite outline -split=vertical -direction=topleft<CR>
+nn <silent> ,d :<C-u>Denite -resume<CR>
+nn ,<C-a> :<C-u>Unite -no-quit -auto-resize grep:
+
+nn <silent> [d :<C-u>Denite -resume -immediately -force-quit -cursor-pos=-<C-r>=v:count1<CR><CR>
+nn <silent> ]d :<C-u>Denite -resume -immediately -force-quit -cursor-pos=+<C-r>=v:count1<CR><CR>
+nn <silent> [D :<C-u>Denite -resume -immediately -force-quit -cursor-pos=0<CR>
+nn <silent> ]D :<C-u>Denite -resume -immediately -force-quit -cursor-pos=$<CR>
+
+if !exists('s:DenitePathSearchMode') | let s:DenitePathSearchMode=0 | endif
+
+function! DeniteTogglePathSearch() abort " {{{
+    if s:DenitePathSearchMode
+        call denite#custom#source('file', 'matchers', ['matcher_regexp'])
+        call denite#custom#source('_', 'sorters', [])
+        call denite#custom#source('buffer', 'converters', [])
+    else
+        call denite#custom#source('buffer', 'matchers', ['matcher_regexp'])
+        call denite#custom#source('buffer', 'converters', ['converter_tail'])
+    endif
+    let s:DenitePathSearchMode = !s:DenitePathSearchMode
+    return '<denite:restart>'
+endfunction " }}}
+
+function! SwitchOrQuit() abort " {{{
+    if index(map(denite#context#get('sources'), 'v:val.name'), 'grep') >= 0
+        return '<denite:wincmd:p>'
+    else
+        return '<denite:quit>'
+    endif
+endfunction " }}}
+
+function! DotOrNot() abort " {{{
+    return denite#context#get('input') =~# '\\$' ? '<BS>.' : '\.'
+endfunction " }}}
+
+function! CloseOrDelete() abort " {{{
+    return ''
+endfunction " }}}
+
+function! s:DeniteSetupAg() abort " {{{
+    call denite#custom#var('grep', 'command', ['ag'])
+    call denite#custom#var('grep', 'default_opts',
+        \ ['--follow', '--vimgrep', '--hidden', '-S',
+        \ '--ignore', '.hg',
+        \ '--ignore', '.git',
+        \ '--ignore', '.svn.',
+        \ '--ignore', '.bzr'])
+    call denite#custom#var('grep', 'recursive_opts', [])
+    call denite#custom#var('grep', 'pattern_opt', [])
+endfunction " }}}
+
+function! ModifyGrep() abort " {{{
+    try
+        let [l:path, l:args, l:pattern] = s:grep_context.args
+    catch
+        return '<denite:restart>'
+    endtry
+    let s:grep_context.args[0] = input(
+        \ 'Path: ', type(l:path) == type([]) ? join(l:path, ' ') : l:path, 'file')
+    let s:grep_context.args[1] = input(
+        \ 'Options: ', type(l:args) == type([]) ? join(l:args, ' ') : l:args)
+    let s:grep_context.args[2] = input(
+        \ 'Pattern: ', l:pattern, 'customlist,vimtools#CmdlineComplete')
+    let s:grep_context.input = denite#context#get('input')
+    let s:grep_context.mode = 'insert'
+    try
+        return '<denite:quit>'
+    finally
+        call denite#start([{'name': 'grep', 'args': s:grep_context.args}], s:grep_context)
+    endtry
+endfunction " }}}
+
+function! s:DeniteSetup() " {{{
+    call denite#custom#source('_', 'matchers', ['matcher_regexp'])
+    call denite#custom#option('_', {
+        \ 'auto_resume': v:true,
+        \ 'cursor_shape': v:true,
+        \ 'cursor_wrap': v:true,
+        \ 'highlight_matched_char': 'MoreMsg',
+        \ 'highlight_matched_range': 'Type',
+        \ 'selected_icon': '✓',
+        \ 'smartcase': v:true,
+        \ })
+    call denite#custom#action('directory', 'cd', function('s:windo_change_dir'))
+    if executable('ag')
+        call s:DeniteSetupAg()
+    endif
+    function! s:ni_map(key1, key2, action, ...) abort
+        let l:opts = a:0 ? a:1 : ''
+        for l:mode in ['normal', 'insert']
+            for l:key in [a:key1, a:key2]
+                call denite#custom#map(l:mode, l:key, a:action, l:opts)
+            endfor
+        endfor
+    endfunction
+    call s:ni_map('<C-o><C-d>', '<C-o>d',
+        \ '<denite:do_action:vsplit>:<C-u>call vimtools#ToggleDiff()<CR>')
+    call s:ni_map('<C-o><C-v>', '<C-o>v', '<denite:do_action:vsplit>')
+    call s:ni_map('<C-o><C-s>', '<C-o>s', '<denite:do_action:split>')
+    call s:ni_map('<C-o><C-t>', '<C-o>t', '<denite:do_action:tabopen>')
+    call s:ni_map('<C-^>',      '<C-^>',  '<denite:do_action:persist_open>')
+    call s:ni_map('<C-g>',      '<C-g>',  'ModifyGrep()', 'noremap expr')
+    call s:ni_map('<C-j>',      '<C-j>',  '<denite:move_to_next_line>')
+    call s:ni_map('<C-k>',      '<C-k>',  '<denite:move_to_previous_line>')
+    call s:ni_map('<C-t>',      '<C-t>',  '<denite:preview>')
+
+    call denite#custom#map('insert', '<C-@>', '<denite:toggle_select_down>')
+    call denite#custom#map('insert', '<C-Space>', '<denite:toggle_select_down>')
+    call denite#custom#map('insert', '<C-b>', '<denite:print_messages>')
+    call denite#custom#map('insert', '<C-d>', '<denite:quit>')
+    call denite#custom#map('insert', '<C-d>', 'DeniteTogglePathSearch()', 'expr')
+    call denite#custom#map('insert', '<C-f>',
+        \ 'ToggleSorter("sorter_ftime")', 'noremap expr nowait')
+    call denite#custom#map('insert', '<C-q>', '<denite:do_action:mydelete>')
+    call denite#custom#map('insert', '<C-r>$',
+        \ 'fnamemodify(bufname(denite#context#get("bufnr")), ":t")', 'noremap expr')
+    call denite#custom#map('insert', '<C-r>%',
+        \ 'bufname(denite#context#get("bufnr"))', 'noremap expr')
+    call denite#custom#map('insert', '<C-v>', '<denite:paste_from_default_register>')
+    call denite#custom#map('insert', '<C-z>',
+        \ 'ToggleSorter("sorter_reverse")', 'noremap expr nowait')
+    call denite#custom#map('insert', '<Esc>', '<denite:enter_mode:normal>')
+    call denite#custom#map('insert', '.', 'DotOrNot()', 'noremap expr')
+
+    call denite#custom#map('normal', '<Bslash>w', '<denite:quit>')
+    call denite#custom#map('normal', '<C-Space>', '<denite:toggle_select_up>')
+    call denite#custom#map('normal', '<C-n>', '<denite:jump_to_next_by:path>')
+    call denite#custom#map('normal', '<C-p>', '<denite:jump_to_previous_by:path>')
+    call denite#custom#map('normal', '<C-q>', '<denite:do_action:mydelete>')
+    call denite#custom#map('normal', '<Esc>', '<denite:enter_mode:normal>')
+    call denite#custom#map('normal', '<Up>', '<denite:wincmd:p>')
+    call denite#custom#map('normal', 'M', '<denite:move_to_middle>')
+    call denite#custom#map('normal', 'S', '<denite:change_line>')
+    call denite#custom#map('normal', 'ZZ', '<denite:quit>')
+    call denite#custom#map('normal', '`', 'SwitchOrQuit()', 'noremap expr')
+    call denite#custom#map('normal', 'gj', '<denite:jump_to_next_source>')
+    call denite#custom#map('normal', 'gk', '<denite:jump_to_previous_source>')
+    call denite#custom#map('normal', 'm', '<denite:toggle_select_down>')
+    call denite#custom#map('normal', 'yy', '<denite:do_action:yank>')
+    call denite#custom#map('normal', 'zj', '<denite:jump_to_next_by:path>')
+    call denite#custom#map('normal', 'zk', '<denite:jump_to_previous_by:path>')
+
+    call denite#custom#source('_', 'matchers', ['matcher_regexp'])
+    call denite#custom#source('_', 'sorters', [])
+    call denite#custom#source('outline', 'sorters', [])
+    call denite#custom#source('buffer', 'sorters', ['sorter_mru'])
+    call denite#custom#source('buffer', 'matchers', ['matcher_regexp', 'filter_modified'])
+    call denite#custom#filter('matcher_ignore_globs', 'ignore_globs',
+        \ ['.*.un~', '*.mat', '*.pdf'])
+    call denite#custom#source('file_rec', 'sorters', ['sorter_rank'])
+    if executable('ag')
+        call denite#custom#var('file_rec', 'command',
+            \ ['ag', '--follow', '--nocolor', '--nogroup', '-g', ''])
+    endif
+    call denite#custom#var('outline', 'options', ['--sort=no'])
+
+    function! s:action_replace(action, context) " {{{
+        for s:index in range(len(a:context.targets))
+            if s:index == 1 | silent wincmd o | endif
+            if s:index > 0 || len(a:context.targets) == 1
+                call unite#util#command_with_restore_cursor(
+                    \ substitute(a:action, '^split$', 'belowright &', ''))
+            endif
+            call denite#do_action(a:context, 'open', [a:context.targets[s:index]])
+            if s:index == 0 | let s:win = winnr() | endif
+        endfor
+        silent! execute s:win . 'wincmd w'
+    endfunction " }}}
+    for l:action in ['split', 'vsplit']
+        call denite#custom#action('buffer,file', l:action,
+            \ function('s:action_replace', [l:action]))
+    endfor
+
+    function! s:backup(context) " {{{
+        for l:target in a:context.targets
+            let l:time = strftime('%Y_%m_%d_%H%M%Z')
+            if !has_key(l:target, 'action__path')
+                let l:target = copy(l:target)
+                let l:target.action__path = bufname(l:target.action__bufnr)
+            endif
+            let l:filename = l:target.action__path . '.' . l:time
+
+            call unite#sources#file#copy_files(l:filename, [l:target])
+
+            if filereadable(undofile(l:target.action__path))
+                call unite#sources#file#copy_files(
+                    \ undofile(l:target.action__path . '.' . l:time),
+                    \ [{'action__path': undofile(l:target.action__path)}])
+            endif
+        endfor
+    endfunction " }}}
+    call denite#custom#action('buffer,file', 'backup', function('s:backup'))
+
+    function! s:open_highlight(context) abort " {{{
+        call denite#do_action(a:context, 'open', a:context.targets)
+        call denite#do_action(a:context, 'highlight', a:context.targets)
+    endfunction " }}}
+    call denite#custom#action('file', 'open_highlight',
+        \ function('s:open_highlight'))
+
+    function! s:buffer_preview(context) abort " {{{
+        let l:pwins = filter(range(1, winnr('$')),
+            \ 'getwinvar(v:val, ''&previewwindow'')')
+        execute 'silent' 'pedit!' bufname(a:context.targets[0].action__bufnr)
+    endfunction " }}}
+    call denite#custom#action('buffer', 'preview',
+        \ function('s:buffer_preview'), {'is_quit': v:false})
+
+    function! s:delete_file_mru(context) abort " {{{
+        call neomru#_get_mrus().file.delete(a:context.targets)
+    endfunction " }}}
+    call denite#custom#action('file', 'delete_file_mru',
+        \ function('s:delete_file_mru'), {'is_quit': v:false, 'is_redraw': v:true})
+
+    function! s:delete_directory_mru(context) abort " {{{
+        call neomru#_get_mrus().directory.delete(a:context.targets)
+    endfunction " }}}
+    call denite#custom#action('directory', 'delete_dir_mru',
+        \ function('s:delete_directory_mru'), {'is_quit': v:false, 'is_redraw': v:true})
+
+    function! s:help(context) abort " {{{
+        call vimtools#OpenHelp(a:context.targets[0].word)
+    endfunction " }}}
+    call denite#custom#action('_', 'help', function('s:help'))
+
+    function! s:delete(context) abort " {{{
+        let l:buffers = filter(copy(a:context.targets), "v:val.source ==# 'buffer'")
+        let l:files = filter(copy(a:context.targets), "v:val.source ==# 'file_mru'")
+        let l:directories = filter(copy(a:context.targets), "v:val.source ==# 'directory_mru'")
+        call denite#do_action(a:context, 'delete', l:buffers)
+        call denite#do_action(a:context, 'delete_file_mru', l:files)
+        call denite#do_action(a:context, 'delete_dir_mru', l:directories)
+    endfunction " }}}
+    call denite#custom#action('file,buffer,directory', 'mydelete',
+        \ function('s:delete'), {'is_quit': v:false, 'is_redraw': v:true})
+
+    function! s:search(context) abort " {{{
+        let @/ = a:context.targets[0].word
+        try
+            normal! nzv
+        catch
+            call denite#util#print_error(v:errmsg)
+        endtry
+    endfunction " }}}
+    call denite#custom#action('file,openable,word', 'search', function('s:search'))
+endfunction " }}}
 " }}}
 
 " mundo settings
@@ -2417,24 +2696,31 @@ cnoreabbrev <expr> A getcmdtype() == ':' && getcmdpos() <= 2 ?
     \ 'Ack!' . (len(g:ag_flags) ? ' ' . g:ag_flags : '') : 'A'
 cnoreabbrev <expr> a getcmdtype() == ':' && getcmdpos() <= 2 ?
     \ 'Ack!' . (len(g:ag_flags) ? ' ' . g:ag_flags : '') : 'a'
-func! s:AckCurrentSearch(ignorecase, visual, args) " {{{
-    let view = winsaveview() | call SaveRegs()
+function! s:AckCurrentSearch(ignorecase, visual, args) " {{{
+    let l:view = winsaveview() | call SaveRegs()
     execute printf('keepjumps normal! g%sy', a:visual ? 'v' : 'n')
-    let pattern = @@
-    call RestoreRegs() | call winrestview(view)
-    let args = split(a:args ? input('Options: ', g:ag_flags) : g:ag_flags)
-    if (a:visual && pattern ==# expand('<cword>')) || (@/ =~ '^\\v<.*>$' || @/ =~ '^\\<.*\\>$')
-        call add(args, '-w')
+    let l:pattern = @@
+    call RestoreRegs() | call winrestview(l:view)
+    let l:args = split(a:args ? input('Options: ', g:ag_flags) : g:ag_flags)
+    if (a:visual && l:pattern ==# expand('<cword>')) || (@/ =~# '^\\v<.*>$' || @/ =~# '^\\<.*\\>$')
+        call add(l:args, '-w')
     endif
-    if a:visual | call histadd('/', pattern) | endif
-    if a:visual && pattern =~? '[.^$*+?()[{\|]' | call add(args, '-Q') | endif
+    if a:visual | call histadd('/', l:pattern) | endif
+    if a:visual && l:pattern =~? '[.^$*+?()[{\|]' | call add(l:args, '-Q') | endif
     if !&ignorecase || !a:ignorecase
-        call add(args, '-s')
-    elseif index(args, '-s') == -1 && (a:visual || @/ !~ '\u')
-        let pattern = tolower(pattern)
+        call add(l:args, '-s')
+    elseif index(l:args, '-s') == -1 && (a:visual || @/ !~# '\u')
+        let l:pattern = tolower(l:pattern)
     endif
-    call unite#start([['grep', '.', join(args), pattern]], {'auto_resize': 1})
-endfunc " }}}
+    let s:grep_context = {
+        \ 'mode': 'normal',
+        \ 'quit': v:false,
+        \ 'auto_resize': v:true,
+        \ 'path': '.',
+        \ 'args': ['.', l:args, l:pattern],
+        \ }
+    call denite#start([{'name': 'grep', 'args': s:grep_context.args}], s:grep_context)
+endfunction " }}}
 nnoremap <silent> ga     :<C-u>call <SID>AckCurrentSearch(1, 0, 0)<CR>
 nnoremap <silent> gA     :<C-u>call <SID>AckCurrentSearch(0, 0, 0)<CR>
 nnoremap <silent> g<C-a> :<C-u>call <SID>AckCurrentSearch(1, 0, 1)<CR>
@@ -2825,7 +3111,7 @@ Plug 'eagletmt/neco-ghc'
 Plug 'Shougo/neco-vim', {'dir': '$VIMCONFIG/vimfiles/bundle/neco-vim'}
 Plug 'Shougo/neco-syntax'
 Plug 'Shougo/neoyank.vim'
-Plug 'Shougo/denite.nvim'
+Plug 'wilywampa/denite.nvim'
 Plug 'chemzqm/denite-extra'
 Plug 'Shougo/echodoc.vim'
 Plug 'neovimhaskell/haskell-vim'

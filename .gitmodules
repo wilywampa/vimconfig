@@ -254,7 +254,7 @@
 	url = https://github.com/mhinz/neovim-remote.git
 [submodule "vimfiles/bundle/denite.nvim"]
 	path = vimfiles/bundle/denite.nvim
-	url = https://github.com/Shougo/denite.nvim.git
+	url = https://github.com/wilywampa/denite.nvim.git
 [submodule "vimfiles/bundle/libclang-python3"]
 	path = vimfiles/bundle/libclang-python3
 	url = https://github.com/zchee/libclang-python3.git
