@@ -1792,6 +1792,7 @@ if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
     inoremap <silent> <expr> <C-x><C-w> deoplete#manual_complete(['words'])
     inoremap <silent> <expr> <C-x><C-l> deoplete#manual_complete(['lines'])
     inoremap <silent> <expr> <C-x><C-j> deoplete#manual_complete(['jedi'])
+    inoremap <silent> <expr> <C-x><C-i> deoplete#manual_complete(['ipython'])
     inoremap <expr> <C-l> deoplete#refresh()
     nnoremap <silent> ,d :<C-u>call deoplete#toggle()<CR>
     " Make <BS> delete letter instead of clearing completion
@@ -2092,7 +2093,7 @@ func! s:UniteSettings() " {{{
     autocmd WinEnter <buffer> call s:prev_bufnr(+expand('<abuf>'))
 endfunc " }}}
 
-function! s:modify_unite_options() abort
+function! s:modify_unite_options() abort " {{{
     let unite = unite#get_current_unite()
 
     if index(unite.source_names, 'buffer') != -1
@@ -2672,9 +2673,6 @@ let g:syntastic_filetype_map = {'arduino': 'cpp'}
 let g:syntastic_mode_map = {'mode': 'passive', 'active_filetypes': [], 'passive_filetypes': []}
 nnoremap <silent> ,sc :<C-u>execute "SyntasticCheck"<bar>execute "Errors"<bar>silent! lfirst<CR>
 nnoremap <silent> <Leader>sc :<C-u>SyntasticReset<CR>
-
-" Tabular settings
-let g:no_default_tabular_maps=1
 
 " Indent Guides settings
 let g:indent_guides_auto_colors=0
