@@ -536,10 +536,10 @@ augroup python_ftplugin
       \ let s:omni_patterns = get(g:, 'python_force_omni', 0) ?
       \     g:neocomplete#force_omni_input_patterns :
       \     g:neocomplete#sources#omni#input_patterns |
-      \ if &omnifunc == 'CompleteIPython' |
+      \ if !has('nvim') && &omnifunc == 'CompleteIPython' |
       \   let s:omni_patterns.python =
       \     '\%([^[(). \t]\.\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*\|\[["'']\w*' |
-      \ else |
+      \ elseif !has('nvim') |
       \   let s:omni_patterns.python =
       \     '\%([^[(). \t]\.\|^\s*@\|^\s*from\s.\+import \%(\w\+,\s\+\)*\|^\s*from \|^\s*import \)\w*' |
       \ endif
