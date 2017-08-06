@@ -2394,7 +2394,7 @@ nn <silent> <M-f> :<C-u>Denite file_rec<CR>
 nn <silent> <M-/> :<C-u>Denite line:all<CR>
 nn <silent> <M-?> :<C-u>Denite line:all -input=`expand('<lt>cword>')`<CR>
 nn <silent> g<C-p> :<C-u>Denite file_mru<CR>
-nn <silent> <M-h> :<C-u>Denite command_history<CR>
+nn <silent> <M-h> :<C-u>Denite command_history -default-action=execute_and_save<CR>
 nn <silent> <Leader>o :<C-u>Denite outline -split=vertical -direction=topleft<CR>
 nn <silent> ,d :<C-u>Denite -resume<CR>
 nn ,<C-a> :<C-u>Unite -no-quit -auto-resize grep:
@@ -2634,6 +2634,26 @@ function! s:DeniteSetup() " {{{
         endtry
     endfunction " }}}
     call denite#custom#action('file,openable,word', 'search', function('s:search'))
+
+    function! s:execute_and_save(context) abort " {{{
+        for l:target in a:context.targets
+            let l:command = l:target.action__command
+            call histadd(':', l:command)
+            let l:temp = tempname()
+            try
+                call writefile([l:command], l:temp)
+                execute 'source' fnameescape(l:temp)
+            catch /E486/
+                " Ignore search pattern error.
+            finally
+                if filereadable(l:temp)
+                    call delete(l:temp)
+                endif
+            endtry
+        endfor
+    endfunction " }}}
+    call denite#custom#action('command/history', 'execute_and_save',
+        \ function('s:execute_and_save'))
 endfunction " }}}
 " }}}
 
