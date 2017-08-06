@@ -9,3 +9,4 @@ figure.facecolor : white
 figure.figsize : 10, 6.25
 axes.formatter.useoffset : False
 axes.prop_cycle : cycler(linestyle=('-', '--', '-.', ':')) * cycler(color='bgrcmyk')
+grid.linestyle : --
