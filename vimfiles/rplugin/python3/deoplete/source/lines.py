@@ -1,5 +1,5 @@
 from .base import Base
-from path import Path
+from pathlib import Path
 
 
 class Source(Base):
@@ -24,7 +24,7 @@ class Source(Base):
 
         for n in [vim.current.buffer.number] + list(bufnums):
             buffer = vim.buffers[n]
-            bufname = Path(buffer.name).basename()
+            bufname = Path(buffer.name).name
             for line in buffer:
                 if line.strip().startswith(inp):
                     candidates.append({'word': line.strip(),

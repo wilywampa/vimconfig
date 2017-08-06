@@ -1,6 +1,6 @@
 import re
 from .base import Base
-from path import Path
+from pathlib import Path
 
 
 class Source(Base):
@@ -22,7 +22,7 @@ class Source(Base):
 
         for n in bufnums:
             buffer = vim.buffers[n]
-            bufname = Path(buffer.name).basename()
+            bufname = Path(buffer.name).name
             words.update(re.findall(r'\w{4,}', ' '.join(buffer)))
 
         return [{'word': w, 'menu': bufname}

@@ -49,7 +49,7 @@ except ImportError:  # python2
         from IPython.external.path import path as Path  # python2
     except ImportError:  # python2
         from IPython.external.path import Path # python2
-from path import Path  # python3
+from pathlib import Path  # python3
 from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import Counter, defaultdict, namedtuple
