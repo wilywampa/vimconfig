@@ -17,8 +17,8 @@ class Filter(Base):
             bufnr = candidate['action__bufnr']
             if bufnr == context['bufnr']:
                 return 0
-            if bufnr in buffer_list:
-                return buffer_list[bufnr]['source__time']
+            if str(bufnr) in buffer_list:
+                return buffer_list[str(bufnr)]['source__time']
             return 1
 
         return sorted(context['candidates'], key=key)
