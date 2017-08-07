@@ -2332,7 +2332,7 @@ augroup VimrcAutocmds
 augroup END
 
 nnoremap ,d :<C-u>Denite -resume<CR>
-nnoremap <M-p> :<C-u>Denite directory_mru<CR>
+nnoremap <M-p> :<C-u>Denite directory_mru -default-action=cd<CR>
 
 function! ToggleSorter(sorter) abort " {{{
     let l:sorters = split(denite#context#get('sorters'), ',')
@@ -2388,7 +2388,7 @@ nn <silent> <C-h> :<C-u>Denite buffer<CR>
 nn <silent> g<C-h> :<C-u>Denite buffer:+<CR>
 nn <silent> <expr> <C-p> ":\<C-u>Denite ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." file_mru\<CR>"
-nn <silent> <M-P> :<C-u>Denite directory_mru -default-action=cd<CR>
+nn <silent> <M-P> :<C-u>Denite directory_rec -default-action=cd<CR>
 nn <silent> <C-o> :<C-u>Denite files<CR>
 nn <silent> <M-f> :<C-u>Denite file_rec<CR>
 nn <silent> <M-/> :<C-u>Denite line:all<CR>
