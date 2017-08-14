@@ -1,3 +1,4 @@
+import re
 from .base import Base
 from pathlib import Path
 
@@ -25,9 +26,13 @@ class Source(Base):
         for n in [vim.current.buffer.number] + list(bufnums):
             buffer = vim.buffers[n]
             bufname = Path(buffer.name).name
-            for line in buffer:
-                if line.strip().startswith(inp):
-                    candidates.append({'word': line.strip(),
-                                       'menu': bufname})
+            for line in (x.strip() for x in buffer):
+                if line.startswith(inp) and line != inp:
+                    candidates.append({'word': line, 'menu': bufname})
 
         return candidates
+
+    def get_complete_position(self, context):
+        if re.match(r'^\s*$', context['input']):
+            return -1
+        return re.search(r'\S', context['input']).start()
