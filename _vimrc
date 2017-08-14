@@ -2493,7 +2493,7 @@ function! s:DeniteSetup() " {{{
     call s:ni_map('<C-j>',      '<C-j>',  '<denite:move_to_next_line>')
     call s:ni_map('<C-k>',      '<C-k>',  '<denite:move_to_previous_line>')
     call s:ni_map('<C-q>',      '<C-q>',  '<denite:do_action:mydelete>')
-    call s:ni_map('<C-t>',      '<C-t>',  '<denite:preview>')
+    call s:ni_map('<C-t>',      '<C-t>',  '<denite:do_action:preview>')
 
     call denite#custom#map('insert', '<C-@>', '<denite:toggle_select_down>')
     call denite#custom#map('insert', '<C-Space>', '<denite:toggle_select_down>')
@@ -2634,6 +2634,19 @@ function! s:DeniteSetup() " {{{
         endtry
     endfunction " }}}
     call denite#custom#action('file,openable,word', 'search', function('s:search'))
+
+    function! s:yank(context) abort " {{{
+        let l:key = has_key(a:context.targets[0], 'action__text') ? 'action__text' : 'word'
+        let l:text = join(map(copy(a:context.targets), 'v:val[l:key]'), "\n")
+        let @" = l:text
+        echohl Question | echo 'Yanked:' | echohl Normal
+        echo l:text
+        if has('clipboard')
+            let @* = l:text
+            let @+ = l:text
+        endif
+    endfunction " }}}
+    call denite#custom#action('file,openable,word', 'yank', function('s:yank'))
 
     function! s:execute_and_save(context) abort " {{{
         for l:target in a:context.targets
@@ -3054,6 +3067,7 @@ imap <C-x><C-t> <Plug>(neosnippet_start_unite_snippet)
 
 " vim-ipython settings
 let g:loaded_history_ipython = 1
+let g:ipython_run_flags = "-i -t"
 
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
