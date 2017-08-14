@@ -71,7 +71,9 @@ class Source(Base):
     def gather_candidates(self, context):
         if not client.has_connection:
             return []
-        client.waitfor(client.kc.complete(context['complete_str']))
+        client.waitfor(client.kc.complete(
+            context['input'] if imports.match(context['input'])
+            else context['complete_str']))
         reply = client.waitfor(client.kc.execute(
             request, silent=True,
             user_expressions={'_completions': '_completions'}))
