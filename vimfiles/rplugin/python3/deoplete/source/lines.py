@@ -17,6 +17,7 @@ class Source(Base):
         candidates = []
         bufnums = set((vim.current.buffer.number,))
         inp = context['input'].strip()
+        curline = vim.current.line.strip()
 
         for win in vim.current.tabpage.windows:
             bufnums.add(win.buffer.number)
@@ -26,8 +27,8 @@ class Source(Base):
         for n in [vim.current.buffer.number] + list(bufnums):
             buffer = vim.buffers[n]
             bufname = Path(buffer.name).name
-            for line in (x.strip() for x in buffer):
-                if line.startswith(inp) and line != inp:
+            for line in map(str.strip, buffer):
+                if line.startswith(inp) and line != curline:
                     candidates.append({'word': line, 'menu': bufname})
 
         return candidates
