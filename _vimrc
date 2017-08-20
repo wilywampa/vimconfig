@@ -2362,17 +2362,16 @@ function! s:grep(source, ...) abort " {{{
         \ 'quit': v:false,
         \ 'auto_resize': v:true,
         \ }
-    let s:grep_context.path = len(a:000) >= 1 ? a:1 :
-        \ join(vimtools#flatten(map(split(input('Path: ', '.', 'file')),
-        \                           'vimtools#glob(v:val)')), "\n")
+    let l:path = len(a:000) >= 1 ? a:1 :
+        \ vimtools#flatten(map(split(input('Path: ', '.', 'file')), 'vimtools#glob(v:val)'))
     let l:opts = split(len(a:000) >= 2 ? a:2 : input(
         \ 'Options: ', l:is_git ? '' : get(g:, 'ag_flags', '')))
     let l:pattern = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
-    let s:grep_context.args = [s:grep_context.path, l:opts, l:pattern]
+    let s:grep_context.args = [l:path, l:opts, l:pattern]
     " let s:grep_context.default_action = 'open_highlight'
     if !empty(l:pattern)
         call histadd('/', l:pattern)
-        call denite#start([{'name': 'grep', 'args': s:grep_context.args}], s:grep_context)
+        call denite#start([{'name': 'grep', 'args': s:grep_context.args, 'path': l:path}], s:grep_context)
     endif
 endfunction " }}}
 nnoremap <silent> ,a         :<C-u>call <SID>grep('grep', '.', get(g:, 'ag_flags', ''))<CR>
