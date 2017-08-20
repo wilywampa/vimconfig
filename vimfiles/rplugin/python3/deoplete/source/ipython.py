@@ -5,7 +5,7 @@ from deoplete_ipyclient import client
 
 imports = re.compile(
     r'^\s*(from\s+\.*\w+(\.\w+)*\s+import\s+(\w+,\s+)*|import\s+)')
-split_pattern = re.compile('[^= \r\n*()@-]')
+split_pattern = re.compile(r'[^= \r\n*()@-]')
 keyword = re.compile('[A-Za-z0-9_]')
 
 request = '''
@@ -33,7 +33,8 @@ class Source(Base):
         # return immediately for imports
         if imports.match(context['input']):
             start = len(context['input'])
-            while start > 0 and re.match('[._A-Za-z0-9]', line[start - 1]):
+            while start > 0 and re.match('[._A-Za-z0-9]',
+                                         context['input'][start - 1]):
                 start -= 1
             return start
 
@@ -47,7 +48,6 @@ class Source(Base):
             start = -1
             return start
 
-        line = self.vim.funcs.getline('.')
         start = self.vim.funcs.strchars(line[:col]) - 1
         bracket_level = 0
         while start > 0 and (
