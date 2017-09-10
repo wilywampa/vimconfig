@@ -2489,6 +2489,7 @@ function! s:DeniteSetup() " {{{
     call s:ni_map('<C-k>',      '<C-k>',  '<denite:move_to_previous_line>')
     call s:ni_map('<C-q>',      '<C-q>',  '<denite:do_action:mydelete>')
     call s:ni_map('<C-t>',      '<C-t>',  '<denite:do_action:preview>')
+    call s:ni_map('<C-x>',      '<C-x>',  '<denite:quick_move>')
 
     call denite#custom#map('insert', '<C-@>', '<denite:toggle_select_down>')
     call denite#custom#map('insert', '<C-Space>', '<denite:toggle_select_down>')
