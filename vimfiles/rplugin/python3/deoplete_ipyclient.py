@@ -55,6 +55,7 @@ class IPythonClient(object):
 
     def __init__(self):
         self.has_connection = False
+        self.wrote_connected = False
         self.pending_shell_msgs = {}
         self.km = None
         self.kc = None
@@ -70,7 +71,7 @@ class IPythonClient(object):
         self.kc.hb_channel.call_handlers = Async(self).on_hb_msg
         self.kc.start_channels()
         self.has_connection = True
-        self.vim.out_write('IPython connected.\n')
+        self.wrote_connected = False
 
     def handle(self, msg_id, handler):
         debug('handle')
@@ -89,6 +90,9 @@ class IPythonClient(object):
 
     def on_shell_msg(self, m):
         debug('on_shell_msg')
+        if not self.wrote_connected:
+            self.vim.out_write('IPython connected.\n')
+            self.wrote_connected = True
         msg_id = m['parent_header']['msg_id']
         try:
             handler = self.pending_shell_msgs.pop(msg_id)
