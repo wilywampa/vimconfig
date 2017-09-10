@@ -1767,9 +1767,7 @@ if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
     let g:deoplete#keyword_patterns._ = '\k\w*'
     let g:deoplete#keyword_patterns['default'] = '\k\w*'
     let g:deoplete#keyword_patterns.matlab =
-        \ '\k\w*((\.((''?)?\w*('')?)?)+'
-        \ .'|{\d+}(\.((''?)?\w*('')?)?)+'
-        \ .'|{\d*\}?)?'
+        \ '\k\w*(?:(?:\.(?:(?:''?)?\w*(?:'')?)?)+|{\d+}(?:\.(?:(?:''?)?\w*(?:'')?)?)+|{\d*\}?)?'
     function! s:StartManualComplete(dir)
         " Indent if only whitespace behind cursor
         if pumvisible() || getline('.')[col('.')-2] =~ '\S'
@@ -1784,8 +1782,7 @@ if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
     inoremap <silent> <expr> <C-f>   pumvisible() ? deoplete#close_popup()
         \ : matchstr(getline(line('.')+1),'\%'.col('.').'v\%(\S\+\\|\s*\)')
     imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
-        \ "\<Plug>(neosnippet_expand_or_jump)":
-        \ (pumvisible() ? deoplete#close_popup() : "\<C-d>")
+        \ "\<Plug>(neosnippet_expand_or_jump)":"\<C-d>"
     smap <C-d> <Plug>(neosnippet_expand_or_jump)
     imap <C-x><C-h> <Plug>(complete_ipython_history)
     imap <C-h> <Plug>(insert_ipython_history)
@@ -1793,7 +1790,7 @@ if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
     inoremap <silent> <expr> <C-x><C-l> deoplete#manual_complete(['lines'])
     inoremap <silent> <expr> <C-x><C-j> deoplete#manual_complete(['jedi'])
     inoremap <silent> <expr> <C-x><C-i> deoplete#manual_complete(['ipython'])
-    inoremap <expr> <C-l> deoplete#refresh()
+    inoremap <expr> <C-l> deoplete#complete_common_string()
     nnoremap <silent> ,d :<C-u>call deoplete#toggle()<CR>
     " Make <BS> delete letter instead of clearing completion
     inoremap <BS> <BS>
@@ -1848,8 +1845,7 @@ elseif $VIMBLACKLIST !~? 'neocomplete'
         inoremap <silent> <expr> <C-f>   pumvisible() ? neocomplete#close_popup()
             \ : matchstr(getline(line('.')+1),'\%'.col('.').'v\%(\S\+\\|\s*\)')
         imap     <expr> <C-d>   neosnippet#expandable_or_jumpable()?
-            \ "\<Plug>(neosnippet_expand_or_jump)":
-            \ (pumvisible() ? neocomplete#close_popup() : "\<C-d>")
+            \ "\<Plug>(neosnippet_expand_or_jump)":"\<C-d>"
         smap <C-d> <Plug>(neosnippet_expand_or_jump)
         imap <C-x><C-h> <Plug>(complete_ipython_history)
         imap <C-h> <Plug>(insert_ipython_history)
@@ -2383,8 +2379,8 @@ nn <silent> "" :<C-u>Denite neoyank<CR>
 nn <silent> "' :<C-u>Denite register<CR>
 nn ,<C-a> :<C-u>Denite -no-quit -auto-resize grep<CR>
 nn <silent> <C-n> :<C-u>Denite file_rec<CR>
-nn <silent> <C-h> :<C-u>Denite buffer<CR>
-nn <silent> g<C-h> :<C-u>Denite buffer:+<CR>
+nn <silent> <C-h> :<C-u>Denite buffer -sorters=sorter_mru<CR>
+nn <silent> g<C-h> :<C-u>Denite buffer:+ -sorters=sorter_mru<CR>
 nn <silent> <expr> <C-p> ":\<C-u>Denite ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." file_mru\<CR>"
 nn <silent> <M-P> :<C-u>Denite directory_rec -default-action=cd<CR>
