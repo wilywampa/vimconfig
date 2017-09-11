@@ -3,6 +3,16 @@ from .base import Base
 from pathlib import Path
 
 
+def getbuflines(vim, buf=1, start=1, end='$'):
+    if end == '$':
+        end = len(vim.current.buffer)
+    max_len = min([end - start, 5000])
+    current = start
+    while current <= end:
+        yield from vim.call('getbufline', buf, current, current + max_len)
+        current += max_len + 1
+
+
 class Source(Base):
 
     def __init__(self, vim):
@@ -27,7 +37,7 @@ class Source(Base):
         for n in [vim.current.buffer.number] + list(bufnums):
             buffer = vim.buffers[n]
             bufname = Path(buffer.name).name
-            for line in map(str.strip, buffer):
+            for line in map(str.strip, getbuflines(vim, n)):
                 if line.startswith(inp) and line != curline:
                     candidates.append({'word': line, 'menu': bufname})
 
