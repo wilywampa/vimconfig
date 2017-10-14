@@ -171,8 +171,8 @@ froms = {
     'ipython_config': [
         'SliceIndex', 'dump', 'fields_dict', 'globn', 'items_dict', 'load',
         'sortn', 'sortnkey'],
-    'mathtools': ['angle_between', 'cat', 'derivative', 'ecat', 'norm', 'norm0',
-                  'projection', 'unit'],
+    'mathtools': ['angle_between', 'cat', 'derivative', 'ecat', 'norm',
+                  'norm0', 'projection', 'unit'],
     'matplotlib.backends.backend_pdf': ['PdfPages'],
     'matplotlib.pyplot': [
         'Line2D', 'Text', 'annotate', 'arrow', 'autoscale', 'axes', 'axis',
@@ -194,26 +194,26 @@ froms = {
     'mpl_toolkits.mplot3d': ['Axes3D'],
     'numpy': [
         'absolute', 'allclose', 'alltrue', 'arange', 'arccos', 'arccosh',
-        'arcsin', 'arcsinh', 'arctan', 'arctan2', 'arctanh', 'argmax', 'argmin',
-        'argpartition', 'argsort', 'argwhere', 'around', 'array', 'array_equal',
-        'asarray', 'average', 'c_', 'column_stack', 'complex128', 'complex256',
-        'complex64', 'concatenate', 'cos', 'cosh', 'cross', 'cumprod',
-        'cumproduct', 'cumsum', 'deg2rad', 'degrees', 'diff', 'dot', 'dstack',
-        'dtype', 'einsum', 'empty', 'exp', 'eye', 'float128', 'float16',
-        'float32', 'float64', 'fromfile', 'fromiter', 'genfromtxt', 'gradient',
-        'hstack', 'index_exp', 'inner', 'int16', 'int32', 'int64', 'int8',
-        'isinf', 'isnan', 'isreal', 'ix_', 'linspace', 'loadtxt', 'logical_and',
-        'logical_not', 'logical_or', 'logical_xor', 'mat', 'matrix', 'mean',
-        'median', 'meshgrid', 'mgrid', 'nan', 'nanargmax', 'nanargmin',
-        'nanmax', 'nanmean', 'nanmedian', 'nanmin', 'nanpercentile', 'nanstd',
-        'nansum', 'nanvar', 'ndarray', 'ndenumerate', 'ndfromtxt', 'ndim',
-        'nditer', 'newaxis', 'ones', 'outer', 'pad', 'pi', 'polyfit', 'polyval',
-        'r_', 'rad2deg', 'radians', 'random', 'ravel', 'ravel_multi_index',
-        'recarray', 'reshape', 'rollaxis', 'rot90', 's_', 'savez',
-        'savez_compressed', 'seterr', 'sin', 'sinc', 'sinh', 'sqrt', 'squeeze',
-        'std', 'take', 'tan', 'tanh', 'tile', 'trace', 'transpose', 'trapz',
-        'uint16', 'uint32', 'uint64', 'uint8', 'vectorize', 'void', 'vstack',
-        'where', 'zeros'],
+        'arcsin', 'arcsinh', 'arctan', 'arctan2', 'arctanh', 'argmax',
+        'argmin', 'argpartition', 'argsort', 'argwhere', 'around', 'array',
+        'array_equal', 'asarray', 'average', 'c_', 'column_stack',
+        'complex128', 'complex256', 'complex64', 'concatenate', 'cos', 'cosh',
+        'cross', 'cumprod', 'cumproduct', 'cumsum', 'deg2rad', 'degrees',
+        'diff', 'dot', 'dstack', 'dtype', 'einsum', 'empty', 'exp', 'eye',
+        'float128', 'float16', 'float32', 'float64', 'fromfile', 'fromiter',
+        'genfromtxt', 'gradient', 'hstack', 'index_exp', 'inner', 'int16',
+        'int32', 'int64', 'int8', 'isinf', 'isnan', 'isreal', 'ix_',
+        'linspace', 'loadtxt', 'logical_and', 'logical_not', 'logical_or',
+        'logical_xor', 'mat', 'matrix', 'mean', 'median', 'meshgrid', 'mgrid',
+        'nan', 'nanargmax', 'nanargmin', 'nanmax', 'nanmean', 'nanmedian',
+        'nanmin', 'nanpercentile', 'nanstd', 'nansum', 'nanvar', 'ndarray',
+        'ndenumerate', 'ndfromtxt', 'ndim', 'nditer', 'newaxis', 'ones',
+        'outer', 'pad', 'pi', 'polyfit', 'polyval', 'r_', 'rad2deg', 'radians',
+        'random', 'ravel', 'ravel_multi_index', 'recarray', 'reshape',
+        'rollaxis', 'rot90', 's_', 'savez', 'savez_compressed', 'seterr',
+        'sin', 'sinc', 'sinh', 'sqrt', 'squeeze', 'std', 'take', 'tan', 'tanh',
+        'tile', 'trace', 'transpose', 'trapz', 'uint16', 'uint32', 'uint64',
+        'uint8', 'vectorize', 'void', 'vstack', 'where', 'zeros'],
     'numpy.core.records': ['fromarrays'],
     'numpy.ma': [
         'getdata', 'getmaskarray', 'masked', 'masked_all', 'masked_array'],
@@ -325,7 +325,7 @@ def used(name):
     if name in unused.values():
         return False
     else:
-        return name in tokens
+        return all(name in tokens for name in name.split('.'))
 
 
 def remove_unused(i):
