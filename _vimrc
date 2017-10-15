@@ -2685,11 +2685,10 @@ let g:surround_input_complete = 'vimtools#CmdlineComplete'
 " Make d surround with ['...'] and D with ["..."]
 let g:surround_100 = "['\r']"
 let g:surround_68 = "[\"\r\"]"
-" Make e surround with \%(...\) and E with \(...\)
-let g:surround_69 = "\\(\r\\)"
-let g:surround_101 = "\\%(\r\\)"
 " Single-element tuple with t
 let g:surround_116 = "(\r,)"
+" enumerate() with e
+let g:surround_101 = "enumerate(\r)"
 " list() with l
 let g:surround_108 = "list(\r)"
 " zip() with z
