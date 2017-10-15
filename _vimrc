@@ -2373,8 +2373,8 @@ nnoremap <silent> ,A         :<C-u>call <SID>grep('grep')<CR>
 nnoremap <silent> ,<Leader>a :<C-u>call <SID>grep('grep/git', '.', '')<CR>
 nnoremap <silent> ,<Leader>A :<C-u>call <SID>grep('grep/git')<CR>
 
-nn <silent> "" :<C-u>Denite neoyank<CR>
-nn <silent> "' :<C-u>Denite register<CR>
+nn <silent> "" :<C-u>Denite neoyank --default_action=yank<CR>
+nn <silent> "' :<C-u>Denite register --default_action=yank<CR>
 nn ,<C-a> :<C-u>Denite -no-quit -auto-resize grep<CR>
 nn <silent> <C-n> :<C-u>Denite file_rec<CR>
 nn <silent> <C-h> :<C-u>Denite buffer -sorters=sorter_mru<CR>
