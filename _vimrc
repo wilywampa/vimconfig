@@ -2362,7 +2362,6 @@ function! s:grep(source, ...) abort " {{{
         \ 'Options: ', l:is_git ? '' : get(g:, 'ag_flags', '')))
     let l:pattern = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
     let s:grep_context.args = [l:path, l:opts, l:pattern]
-    " let s:grep_context.default_action = 'open_highlight'
     if !empty(l:pattern)
         call histadd('/', l:pattern)
         call denite#start([{'name': 'grep', 'args': s:grep_context.args, 'path': l:path}], s:grep_context)
@@ -2661,6 +2660,24 @@ function! s:DeniteSetup() " {{{
     endfunction " }}}
     call denite#custom#action('command/history', 'execute_and_save',
         \ function('s:execute_and_save'))
+
+    function! s:grepfiles(context) abort " {{{
+        let s:grep_context = {
+            \ 'mode': 'normal',
+            \ 'quit': v:false,
+            \ 'auto_resize': v:true,
+            \ }
+        let l:path = map(a:context.targets, 'v:val.action__path')
+        let l:opts = split(get(g:, 'ag_flags', ''))
+        let l:pattern = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
+        let s:grep_context.args = [l:path, l:opts, l:pattern]
+        if !empty(l:pattern)
+            call histadd('/', l:pattern)
+            call denite#start([{'name': 'grep', 'args': s:grep_context.args, 'path': l:path}],
+                \ s:grep_context)
+        endif
+    endfunction " }}}
+    call denite#custom#action('file,buffer', 'grep', function('s:grepfiles'))
 endfunction " }}}
 " }}}
 
