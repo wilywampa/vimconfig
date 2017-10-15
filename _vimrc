@@ -21,7 +21,6 @@ set autoindent                  " Automatic indentation
 set cinoptions+=N-s             " Don't indent namespaces in C++
 set cinoptions+=:0              " Don't indent inside switch statement
 set nowrap                      " Don't wrap lines
-set lazyredraw                  " Don't update display during macro execution
 set encoding=utf-8              " Set default file encoding
 set backspace=indent,eol,start  " Backspace through everything in insert mode
 set whichwrap+=<,>,[,]          " Cursor keys wrap to previous/next line
