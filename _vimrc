@@ -1703,7 +1703,6 @@ endfor
 if has('nvim')
     augroup VimrcAutocmds
         autocmd TermOpen term://* setlocal nonumber norelativenumber
-        autocmd BufEnter term://* startinsert
         autocmd BufLeave term://* stopinsert
     augroup END
 endif
