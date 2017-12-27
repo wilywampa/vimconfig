@@ -2372,8 +2372,8 @@ nnoremap <silent> ,A         :<C-u>call <SID>grep('grep')<CR>
 nnoremap <silent> ,<Leader>a :<C-u>call <SID>grep('grep/git', '.', '')<CR>
 nnoremap <silent> ,<Leader>A :<C-u>call <SID>grep('grep/git')<CR>
 
-nn <silent> "" :<C-u>Denite neoyank --default_action=yank<CR>
-nn <silent> "' :<C-u>Denite register --default_action=yank<CR>
+nn <silent> "" :<C-u>Denite neoyank -default_action=yank<CR>
+nn <silent> "' :<C-u>Denite register -default_action=yank<CR>
 nn ,<C-a> :<C-u>Denite -no-quit -auto-resize grep<CR>
 nn <silent> <C-n> :<C-u>Denite file_rec<CR>
 nn <silent> <C-h> :<C-u>Denite buffer -sorters=sorter_mru<CR>
@@ -2708,6 +2708,10 @@ let g:surround_116 = "(\r,)"
 let g:surround_101 = "enumerate(\r)"
 " list() with l
 let g:surround_108 = "list(\r)"
+" reversed() with r
+let g:surround_114 = "reversed(\r)"
+" sorted() with s
+let g:surround_115 = "sorted(\r)"
 " zip() with z
 let g:surround_122 = "zip(\r)"
 
@@ -2771,6 +2775,8 @@ for dir in ['Left', 'Down', 'Up', 'Right'] | for mod in ['S-', 'M-']
         execute 'tnoremap <silent> <'.mod.dir.'> <C-\><C-n>:TmuxNavigate'.dir.'<CR>'
     endif
 endfor | endfor
+noremap <M-[> <Esc>
+noremap! <M-[> <Esc>
 if has('nvim')
     tnoremap <M-[> <C-\><C-n>
 endif
