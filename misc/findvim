@@ -7,7 +7,7 @@ fi
 local fmt='#{pane_current_command},,#{pane_id}'
 
 # Choose between Neovim and vim
-vim --serverlist | grep -q "\b${VIMSERVER:-VIM}\b" 2>&1 > /dev/null
+vim --serverlist 2>/dev/null | grep -q "\b${VIMSERVER:-VIM}\b" 2>&1 > /dev/null
 if [ $? -eq 0 ]; then
   EXEC="vim"
   SERVER="${VIMSERVER:-VIM}"
