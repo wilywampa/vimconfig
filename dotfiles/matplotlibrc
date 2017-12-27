@@ -1,4 +1,4 @@
-backend : qt4agg
+backend : qt5agg
 axes.grid : True
 legend.loc : best
 legend.fontsize : small

@@ -5,12 +5,12 @@ import matplotlib as mpl
 import numpy as np
 import re
 import sys
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import SIGNAL
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import pyqtSignal
 from collections import OrderedDict
 from itertools import cycle, product
 from matplotlib.backend_bases import key_press_handler
-from matplotlib.backends.backend_qt4agg import (FigureCanvasQTAgg as
+from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as
                                                 FigureCanvas,
                                                 NavigationToolbar2QT
                                                 as NavigationToolbar)
@@ -18,8 +18,11 @@ from matplotlib.figure import Figure
 from mplpicker import picker
 from six import string_types, text_type
 
+try:
+    QString = unicode
+except NameError:
+    QString = str
 
-QString = str if text_type is str else QtCore.QString
 PROPERTIES = ('color', 'linestyle', 'linewidth', 'alpha', 'marker',
               'markersize', 'markerfacecolor', 'markevery', 'antialiased',
               'dash_capstyle', 'dash_joinstyle', 'drawstyle', 'fillstyle',
@@ -99,6 +102,20 @@ def dict_repr(d, top=True):
 
 class KeyHandlerMixin(object):
 
+    axisEqual = pyqtSignal()
+    closed = pyqtSignal()
+    duplicate = pyqtSignal()
+    editProps = pyqtSignal()
+    relabel = pyqtSignal()
+    remove = pyqtSignal()
+    returnPressed = pyqtSignal()
+    sync = pyqtSignal()
+    syncAxis = pyqtSignal()
+    tabPressed = pyqtSignal(int)
+    twin = pyqtSignal()
+    xlim = pyqtSignal()
+    ylim = pyqtSignal()
+
     def __init__(self, *args, **kwargs):
         self.parent = kwargs['parent']
         super(KeyHandlerMixin, self).__init__(*args, **kwargs)
@@ -108,7 +125,7 @@ class KeyHandlerMixin(object):
         return self._lineEdit.selectAll()
 
     def quit(self, event):
-        self.emit(SIGNAL('closed()'))
+        self.closed.emit()
         self.window().close()
         while not isinstance(self, Interact):
             try:
@@ -140,18 +157,18 @@ class KeyHandlerMixin(object):
     def event(self, event):
         control_actions = {
             QtCore.Qt.Key_A: self.select_all,
-            QtCore.Qt.Key_D: 'remove()',
-            QtCore.Qt.Key_E: 'axisequal()',
-            QtCore.Qt.Key_L: 'relabel()',
-            QtCore.Qt.Key_N: 'duplicate()',
-            QtCore.Qt.Key_P: 'edit_props()',
+            QtCore.Qt.Key_D: 'remove',
+            QtCore.Qt.Key_E: 'axisEqual',
+            QtCore.Qt.Key_L: 'relabel',
+            QtCore.Qt.Key_N: 'duplicate',
+            QtCore.Qt.Key_P: 'editProps',
             QtCore.Qt.Key_Q: self.quit,
-            QtCore.Qt.Key_S: 'sync()',
-            QtCore.Qt.Key_T: 'twin()',
+            QtCore.Qt.Key_S: 'sync',
+            QtCore.Qt.Key_T: 'twin',
             QtCore.Qt.Key_W: self.delete_word,
-            QtCore.Qt.Key_X: 'xlim()',
-            QtCore.Qt.Key_Y: 'ylim()',
-            QtCore.Qt.Key_Return: 'sync()',
+            QtCore.Qt.Key_X: 'xlim',
+            QtCore.Qt.Key_Y: 'ylim',
+            QtCore.Qt.Key_Return: 'sync',
         }
 
         if event.type() == QtCore.QEvent.KeyPress:
@@ -161,49 +178,47 @@ class KeyHandlerMixin(object):
                 try:
                     action(event)
                 except TypeError:
-                    self.emit(SIGNAL(action))
+                    getattr(self, action).emit()
                 return True
             elif (event.modifiers() ==
                   CONTROL_MODIFIER | QtCore.Qt.ShiftModifier and
                   event.key() == QtCore.Qt.Key_S):
-                self.emit(SIGNAL('sync_axis()'))
+                self.syncAxis.emit()
             elif event.key() in (QtCore.Qt.Key_Home,
                                  QtCore.Qt.Key_End):
                 return self.move_cursor(event)
             elif self.completer.popup().viewport().isVisible():
                 if event.key() == QtCore.Qt.Key_Tab:
-                    self.emit(SIGNAL('tabPressed(int)'), 1)
+                    self.tabPressed.emit(1)
                     return True
                 elif event.key() == QtCore.Qt.Key_Backtab:
-                    self.emit(SIGNAL('tabPressed(int)'), -1)
+                    self.tabPressed.emit(-1)
                     return True
                 elif event.key() == QtCore.Qt.Key_Return:
-                    self.emit(SIGNAL('returnPressed()'))
+                    self.returnPressed.emit()
 
         return super(KeyHandlerMixin, self).event(event)
 
 
-class KeyHandlerLineEdit(KeyHandlerMixin, QtGui.QLineEdit):
+class KeyHandlerLineEdit(KeyHandlerMixin, QtWidgets.QLineEdit):
     pass
 
 
-class TabCompleter(QtGui.QCompleter):
+class TabCompleter(QtWidgets.QCompleter):
 
     def __init__(self, words, *args, **kwargs):
-        QtGui.QCompleter.__init__(self, words, *args, **kwargs)
+        QtWidgets.QCompleter.__init__(self, words, *args, **kwargs)
         self.setMaxVisibleItems(50)
         self.words = words
         self.skip = False
         self.skip_text = None
-        self.connect(self.popup(), SIGNAL('activated(int)'), self.confirm)
+        self.popup().activated.connect(self.confirm)
 
     def set_textbox(self, textbox):
         self.textbox = textbox
-        self.connect(self.textbox, SIGNAL('tabPressed(int)'),
-                     self.select_completion)
-        self.connect(self.textbox, SIGNAL('activated(int)'), self.close_popup)
-        self.connect(self.textbox, SIGNAL('closed()'), self.close_popup)
-        self.connect(self.textbox, SIGNAL('returnPressed()'), self.confirm)
+        self.textbox.tabPressed.connect(self.select_completion)
+        self.textbox.closed.connect(self.close_popup)
+        self.textbox.returnPressed.connect(self.confirm)
 
     def select_completion(self, direction):
         if not self.popup().selectionModel().hasSelection():
@@ -227,13 +242,13 @@ class TabCompleter(QtGui.QCompleter):
         except AttributeError:
             if self.skip_text is not None:
                 self.skip = True
-                return self.emit(SIGNAL('activated(QString)'), self.skip_text)
+                return self.activated.emit(self.skip_text)
         else:
             if self.words.findText(text) == -1:
                 self.select_completion(0)
             else:
-                return self.emit(SIGNAL('activated(QString)'), text)
-        self.emit(SIGNAL('activated(QString)'), self.currentCompletion())
+                return self.activated.emit(text)
+        self.activated.emit(self.currentCompletion())
 
 
 class CustomQCompleter(TabCompleter):
@@ -243,12 +258,12 @@ class CustomQCompleter(TabCompleter):
         self.parent = kwargs.get('parent', None)
         self.local_completion_prefix = ''
         self.source_model = None
-        self.filterProxyModel = QtGui.QSortFilterProxyModel(self)
+        self.filterProxyModel = QtCore.QSortFilterProxyModel(self)
         self.usingOriginalModel = False
 
     def setModel(self, model):
         self.source_model = model
-        self.filterProxyModel = QtGui.QSortFilterProxyModel(self)
+        self.filterProxyModel = QtCore.QSortFilterProxyModel(self)
         self.filterProxyModel.setSourceModel(self.source_model)
         super(CustomQCompleter, self).setModel(self.filterProxyModel)
         self.usingOriginalModel = True
@@ -285,13 +300,13 @@ class CustomQCompleter(TabCompleter):
         if self.filterProxyModel.rowCount() == 0:
             self.usingOriginalModel = False
             self.filterProxyModel.setSourceModel(
-                QtGui.QStringListModel([path]))
+                QtCore.QStringListModel([path]))
             return [path]
 
         return []
 
 
-class AutoCompleteComboBox(QtGui.QComboBox):
+class AutoCompleteComboBox(QtWidgets.QComboBox):
 
     def __init__(self, *args, **kwargs):
         super(AutoCompleteComboBox, self).__init__(*args, **kwargs)
@@ -300,7 +315,7 @@ class AutoCompleteComboBox(QtGui.QComboBox):
         self.setInsertPolicy(self.NoInsert)
 
         self.completer = CustomQCompleter(self)
-        self.completer.setCompletionMode(QtGui.QCompleter.PopupCompletion)
+        self.completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
         self.setCompleter(self.completer)
 
     def setModel(self, strList):
@@ -313,20 +328,21 @@ class KeyHandlerComboBox(KeyHandlerMixin, AutoCompleteComboBox):
     pass
 
 
-class PropertyEditor(QtGui.QTableWidget):
+class PropertyEditor(QtWidgets.QTableWidget):
 
     def __init__(self, parent, *args, **kwargs):
         super(PropertyEditor, self).__init__(*args, **kwargs)
         self.setFixedSize(300, 400)
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                           QtGui.QSizePolicy.Expanding)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                           QtWidgets.QSizePolicy.Expanding)
         self.setColumnCount(2)
         self.setHorizontalHeaderLabels(['property', 'value'])
         self.parent = parent
         self.dataobj = None
         self.setRowCount(len(PROPERTIES))
         self.setCurrentCell(0, 1)
-        self.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        self.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.Stretch)
         self.horizontalHeader().setStretchLastSection(True)
         self.move(0, 0)
 
@@ -374,12 +390,13 @@ class PropertyEditor(QtGui.QTableWidget):
                               QtCore.Qt.Key_Backspace)):
             self.setItem(self.currentRow(),
                          self.currentColumn(),
-                         QtGui.QTableWidgetItem(''))
+                         QtWidgets.QTableWidgetItem(''))
             return True
         elif (event.type() == QtCore.QEvent.ShortcutOverride and
               self.state() == self.EditingState and
               event.key() in (QtCore.Qt.Key_Down, QtCore.Qt.Key_Up)):
             self.focusNextPrevChild(event.key() == QtCore.Qt.Key_Down)
+            self.focusNextPrevChild(event.key() != QtCore.Qt.Key_Down)
             return True
         try:
             return super(PropertyEditor, self).event(event)
@@ -398,15 +415,14 @@ class DataObj(object):
         if hasattr(obj, 'dtype'):
             obj = {n: obj[n] for n in obj.dtype.names}
         self.obj = flatten(obj, ndim=self.guess_ndim(obj, kwargs))
-        self.label = QtGui.QLabel('', parent=self.parent)
+        self.label = QtWidgets.QLabel('', parent=self.parent)
         self._labels = getattr(obj, 'labels', kwargs.get('labels', None))
         self.choose_label()
 
         draw = self.parent.draw
-        connect = self.parent.connect
 
-        self.scale_label = QtGui.QLabel('scale:', parent=self.parent)
-        self.xscale_label = QtGui.QLabel('scale:', parent=self.parent)
+        self.scale_label = QtWidgets.QLabel('scale:', parent=self.parent)
+        self.xscale_label = QtWidgets.QLabel('scale:', parent=self.parent)
 
         words = [k for k in self.obj.keys() if hasattr(self.obj[k], 'dtype')]
         words.sort(key=parent.sortkey)
@@ -419,8 +435,8 @@ class DataObj(object):
             completer = menu.completer
             completer.set_textbox(menu)
 
-            connect(menu, SIGNAL('activated(QString)'), draw)
-            connect(completer, SIGNAL('activated(int)'), draw)
+            menu.activated.connect(draw)
+            completer.activated.connect(draw)
 
             return completer, menu
 
@@ -430,7 +446,7 @@ class DataObj(object):
 
         self.menu.setCurrentIndex(0)
         self.xmenu.setCurrentIndex(0)
-        self.xlabel = QtGui.QLabel('x axis:', parent=self.parent)
+        self.xlabel = QtWidgets.QLabel('x axis:', parent=self.parent)
 
         words = sorted(CONSTANTS.keys(), key=lambda w: w.lower())
 
@@ -475,10 +491,10 @@ class DataObj(object):
             def highlight(text):
                 scale_compl.skip_text = text
 
-            connect(scale_box, SIGNAL('editingFinished()'), draw)
-            connect(scale_box, SIGNAL('textEdited(QString)'), text_edited)
-            connect(scale_compl, SIGNAL('activated(QString)'), complete_text)
-            connect(scale_compl, SIGNAL('highlighted(QString)'), highlight)
+            scale_box.editingFinished.connect(draw)
+            scale_box.textEdited.connect(text_edited)
+            scale_compl.activated.connect(complete_text)
+            scale_compl.highlighted.connect(highlight)
 
             return scale_box, scale_compl
 
@@ -585,9 +601,9 @@ class DataObj(object):
         self.parent.remove_data(self)
 
     def change_label(self):
-        text, ok = QtGui.QInputDialog.getText(
+        text, ok = QtWidgets.QInputDialog.getText(
             self.parent, 'Rename data object', 'New label:',
-            QtGui.QLineEdit.Normal, self.name)
+            QtWidgets.QLineEdit.Normal, self.name)
         if ok and text_type(text):
             self.name = text_type(text)
             self.choose_label()
@@ -603,11 +619,11 @@ class DataObj(object):
             pass
         props_editor.dataobj = self
         for i, k in enumerate(PROPERTIES):
-            item = QtGui.QTableWidgetItem(k)
+            item = QtWidgets.QTableWidgetItem(k)
             item.setFlags(QtCore.Qt.ItemIsEditable)
             item.setForeground(QtGui.QColor(0, 0, 0))
             props_editor.setItem(i, 0, item)
-            props_editor.setItem(i, 1, QtGui.QTableWidgetItem(
+            props_editor.setItem(i, 1, QtWidgets.QTableWidgetItem(
                 props_repr(self.props[k]) if k in self.props else ''))
         props_editor.setWindowTitle(text_type(self.label.text()))
         props_editor.itemChanged.connect(self.update_props)
@@ -631,7 +647,7 @@ class DataObj(object):
             elif str(value):
                 self.props[key] = value
                 self.parent.props_editor.setItem(
-                    row, 1, QtGui.QTableWidgetItem(props_repr(value)))
+                    row, 1, QtWidgets.QTableWidgetItem(props_repr(value)))
 
     def close(self):
         self.parent.props_editor.close()
@@ -654,21 +670,21 @@ class DataObj(object):
         self.parent.draw()
 
 
-class Interact(QtGui.QMainWindow):
+class Interact(QtWidgets.QMainWindow):
 
     def __init__(self, data, app, title=None, sortkey=None, axisequal=False,
                  parent=None, **kwargs):
         self.app = app
-        QtGui.QMainWindow.__init__(self, parent)
+        QtWidgets.QMainWindow.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowTitle(title or ', '.join(d[1] for d in data))
         if sortkey is not None:
             self.sortkey = sortkey
         else:
             self.sortkey = kwargs.get('key', lambda x: x.lower())
-        self.grid = QtGui.QGridLayout()
+        self.grid = QtWidgets.QGridLayout()
 
-        self.frame = QtGui.QWidget()
+        self.frame = QtWidgets.QWidget()
         self.dpi = 100
 
         self.fig = Figure(tight_layout=True)
@@ -690,7 +706,7 @@ class Interact(QtGui.QMainWindow):
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
         self.pickers = None
 
-        self.vbox = QtGui.QVBoxLayout()
+        self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.addWidget(self.mpl_toolbar)
 
         self.props_editor = PropertyEditor(self)
@@ -735,19 +751,19 @@ class Interact(QtGui.QMainWindow):
         def add_widget(w, axis=None):
             self.grid.addWidget(w, self.row, self.column)
             data.widgets.append(w)
-            self.connect(w, SIGNAL('duplicate()'), data.duplicate)
-            self.connect(w, SIGNAL('remove()'), data.remove)
-            self.connect(w, SIGNAL('closed()'), data.close)
-            self.connect(w, SIGNAL('axisequal()'), axisequal)
-            self.connect(w, SIGNAL('relabel()'), data.change_label)
-            self.connect(w, SIGNAL('edit_props()'), data.edit_props)
-            self.connect(w, SIGNAL('sync()'), data.sync)
-            self.connect(w, SIGNAL('twin()'), data.toggle_twin)
-            self.connect(w, SIGNAL('xlim()'), self.set_xlim)
-            self.connect(w, SIGNAL('ylim()'), self.set_ylim)
-            if axis:
-                self.connect(w, SIGNAL('sync_axis()'),
-                             lambda axes=[axis]: data.sync(axes))
+            if isinstance(w, KeyHandlerMixin):
+                w.duplicate.connect(data.duplicate)
+                w.remove.connect(data.remove)
+                w.closed.connect(data.close)
+                w.axisEqual.connect(axisequal)
+                w.relabel.connect(data.change_label)
+                w.editProps.connect(data.edit_props)
+                w.sync.connect(data.sync)
+                w.twin.connect(data.toggle_twin)
+                w.xlim.connect(self.set_xlim)
+                w.ylim.connect(self.set_ylim)
+                if axis:
+                    w.syncAxis.connect(lambda axes=[axis]: data.sync(axes))
             self.column += 1
 
         add_widget(data.label)
@@ -968,9 +984,9 @@ class Interact(QtGui.QMainWindow):
         default = text_type(default)
         if re.match(r'^\(.*\)$', default) or re.match(r'^\[.*\]$', default):
             default = default[1:-1]
-        text, ok = QtGui.QInputDialog.getText(
+        text, ok = QtWidgets.QInputDialog.getText(
             self, 'Set axis limits', '{} limits:'.format(axis),
-            QtGui.QLineEdit.Normal, default)
+            QtWidgets.QLineEdit.Normal, default)
         if ok:
             try:
                 return eval(text_type(text), CONSTANTS.copy())
@@ -1111,7 +1127,7 @@ def create(*data, **kwargs):
     app_created = False
     app = QtCore.QCoreApplication.instance()
     if app is None:
-        app = QtGui.QApplication(sys.argv)
+        app = QtWidgets.QApplication(sys.argv)
         app_created = True
     app.references = getattr(app, 'references', set())
 
