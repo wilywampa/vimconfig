@@ -20,6 +20,7 @@ except ImportError:
 import collections
 import copy
 import ein
+import functools
 import inspect
 import itertools as it
 import logging
@@ -54,7 +55,7 @@ from IPython.utils.text import LSString, SList
 from bunch import Bunch, bunchify, unbunchify
 from collections import Counter, defaultdict, namedtuple
 from contextlib import suppress  # python3
-from functools import reduce
+from functools import partial, reduce
 from ipython_config import *
 from itertools import (chain, count, cycle, dropwhile, groupby, islice,
                        starmap, takewhile, tee)
