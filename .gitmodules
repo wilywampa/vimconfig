@@ -101,7 +101,7 @@
 [submodule "vimfiles/bundle/python-mode"]
 	path = vimfiles/bundle/python-mode
 	url = https://github.com/wilywampa/python-mode.git
-	branch = develop
+	branch = patch2
 [submodule "vimfiles/bundle/repeat"]
 	path = vimfiles/bundle/repeat
 	url = https://github.com/wilywampa/vim-repeat.git
