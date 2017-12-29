@@ -136,7 +136,7 @@ def sortnkey(s):
         except ValueError:
             return s
 
-    return [tryint(c) for c in re.split('([0-9]+)', s)]
+    return [tryint(c) for c in re.split('([0-9]+)', str(s))]
 
 
 def sortn(xs):
@@ -175,6 +175,8 @@ class SliceIndex(object):
             if stop == -1:
                 stop = None
             return list(islice(self.iterator, start, stop, step))
+
+
 S = SliceIndex
 
 
