@@ -479,19 +479,27 @@ if not_found and int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
         [["{0} = get_ipython().user_ns['{0}']".format(name)]
          for name in sorted(not_found)])
 
+buf = vim.current.buffer
 lines = [l for ls in lines for l in ls]
+first = buf[0]
+shebang = [first] if first.startswith('#!') else []
 if unused or missing or redefined:
     if start:
-        if vim.current.buffer[start - 1:end] != lines:
-            if vim.current.buffer[end - 1] == '':
+        if buf[start - 1:end] != lines:
+            if buf[end - 1] == '':
                 end -= 1
-            vim.current.buffer[start - 1:end] = lines
+            buf[start - 1:end] = lines
     elif lines:
-        if re.match(r'^(@|class\s|def\s)', vim.current.buffer[0]):
+        if shebang:
+            del buf[0]
+            while buf[0].startswith('#'):
+                shebang.append(buf[0])
+                del buf[0]
+        if re.match(r'^(@|class\s|def\s)', buf[0]):
             lines.extend(['', ''])
-        elif re.search(r'\S', vim.current.buffer[0]):
+        elif re.search(r'\S', buf[0]):
             lines.append('')
-        vim.current.buffer[:] = lines + vim.current.buffer[:]
+        buf[:] = shebang + lines + buf[:]
 if not lines:
-    while re.match(r'^\s*$', vim.current.buffer[0]):
-        vim.current.buffer[:2] = [vim.current.buffer[1]]
+    while re.match(r'^\s*$', buf[0]) and buf[1:]:
+        buf[:2] = [buf[1]]
