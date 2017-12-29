@@ -577,7 +577,7 @@ function! FixImports()
   let s:select = g:pymode_lint_select
   try
     let g:pymode_lint_checkers = ['pyflakes']
-    let g:pymode_lint_select = 'E0602,W0404'
+    let g:pymode_lint_select = ['E0602', 'W0404']
     let l:count = 0
     while 1
       PymodePython code_check()
