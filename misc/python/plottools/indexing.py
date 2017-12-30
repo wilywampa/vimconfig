@@ -213,6 +213,7 @@ def where_first(cond, *out, **kwargs):
     """Return values from `out` where `cond` is first true along axis 0."""
     import numpy.ma as ma
     last = kwargs.pop('last', False)
+    cond = np.atleast_1d(cond)
     if last:
         ix = cond.shape[0] - ma.argmax(cond[::-1], axis=0) - 1
         mask = Ellipsis, (ix + 1 == cond.shape[0]) & ~cond[-1]
@@ -222,7 +223,7 @@ def where_first(cond, *out, **kwargs):
     ix = (Ellipsis, ix) + tuple(np.indices(cond.shape[1:]))
     if not out:
         return ix, mask
-    out = [ma.masked_array(a[ix], **kwargs) for a in out]
+    out = [ma.masked_array(np.atleast_1d(a)[ix], **kwargs) for a in out]
     if mask[-1].any():
         for o in out:
             o[mask] = ma.masked
