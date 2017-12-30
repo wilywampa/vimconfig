@@ -3085,6 +3085,10 @@ imap <C-x><C-t> <Plug>(neosnippet_start_unite_snippet)
 let g:loaded_history_ipython = 1
 let g:ipython_run_flags = "-i -t"
 
+" clang2 maps
+let g:clang2_placeholder_prev = '<C-x><C-p>'
+let g:clang2_placeholder_next = '<C-x><C-n>'
+
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
 if filereadable(expand('$HOME/.plugged'))
