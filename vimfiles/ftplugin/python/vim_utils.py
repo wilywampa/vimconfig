@@ -109,7 +109,7 @@ doc_end = re.compile('.*("""|' + (3 * "'") + ')' + '\s*$')
 def PEP8():
 
     class Options(object):
-        aggressive = vim.vars.get('pep8_aggressive', 1)
+        aggressive = int(vim.vars.get('pep8_aggressive', 1))
         diff = False
         experimental = True
         ignore = vim.vars.get('pymode_lint_ignore', ())
@@ -129,14 +129,14 @@ def PEP8():
     last_non_blank = int(vim.eval('prevnonblank(v:lnum + v:count - 1)')) - 1
 
     doc_string = False
-    if (first_non_blank >= 0
-            and doc_start.match(vim.current.buffer[first_non_blank])
-            and doc_end.match(vim.current.buffer[last_non_blank])):
+    if (first_non_blank >= 0 and
+            doc_start.match(vim.current.buffer[first_non_blank]) and
+            doc_end.match(vim.current.buffer[last_non_blank])):
         doc_string = True
     else:
         # Don't remove trailing blank lines except at end of file
-        while (end < len(vim.current.buffer)
-               and re.match('^\s*$', vim.current.buffer[end - 1])):
+        while (end < len(vim.current.buffer) and
+               re.match('^\s*$', vim.current.buffer[end - 1])):
             end += 1
 
     lines = vim.current.buffer[start:end]
