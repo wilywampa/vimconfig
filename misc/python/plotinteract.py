@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import ast
 import collections
+import copy
 import matplotlib as mpl
 import numpy as np
 import re
@@ -8,7 +9,6 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal
 from collections import OrderedDict
-from itertools import cycle, product
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as
                                                 FigureCanvas,
@@ -41,12 +41,6 @@ else:
                           nmi=const.nautical_mile,
                           r2d=1.0 / const.degree,
                           psf=const.pound_force / (const.foot ** 2)))
-try:
-    color_cycle = list(OrderedDict.fromkeys(
-        x['color'] for x in mpl.rcParams['axes.prop_cycle']))
-except KeyError:
-    color_cycle = mpl.rcParams['axes.color_cycle']
-linestyle_cycle = '-', '--', '-.', ':'
 
 if sys.platform == 'darwin':
     CONTROL_MODIFIER = QtCore.Qt.MetaModifier
@@ -411,7 +405,8 @@ class DataObj(object):
         self.name = name
         self.widgets = []
         self.twin = False
-        self.props = kwargs.get('props', {}).copy()
+        self.props = kwargs.get('props', {})
+        self.process_props()
         if hasattr(obj, 'dtype'):
             obj = {n: obj[n] for n in obj.dtype.names}
         self.obj = flatten(obj, ndim=self.guess_ndim(obj, kwargs))
@@ -558,35 +553,60 @@ class DataObj(object):
         for k, v in self.kwargs.items():
             k = ALIASES.get(k, k)
             if k in PROPERTIES:
-                self.props[k] = v
+                for p in self.props:
+                    p.setdefault(k, v)
             else:
                 getattr(self, 'set_' + k, lambda _: None)(v)
 
         for alias, prop in ALIASES.items():
-            if alias in self.props:
-                self.props[prop] = self.props.get(prop, self.props.pop(alias))
+            for p in self.props:
+                if alias in p:
+                    p[prop] = p.get(prop, p.pop(alias))
 
         for k in 'c', 'color', 'linestyle', 'ls':
             self.kwargs.pop(k, None)
 
         if 'cdata' in self.kwargs:
             self.cdata = np.squeeze(self.kwargs['cdata'])
-            self.norm = self.kwargs.get(
-                'norm', mpl.colors.Normalize(self.cdata.min(),
-                                             self.cdata.max()))
+            self.norm = self.kwargs.get('norm', None)
+            if not self.norm:
+                self.norm = mpl.colors.Normalize(np.nanmin(self.cdata),
+                                                 np.nanmax(self.cdata))
             if not isinstance(self.norm, mpl.colors.Normalize):
                 self.norm = mpl.colors.Normalize(*self.norm)
             self.cmap = mpl.cm.get_cmap(self.kwargs.get('cmap', 'rainbow'))
 
+    def process_props(self):
+        if isinstance(self.props, dict):
+            self.props = self.props.copy()
+            if self.props:
+                keys, values = zip(*self.props.items())
+                if all(isinstance(vs, collections.Sized)
+                       for vs in values) and all(len(vs) == len(values[0])
+                                                 for vs in values):
+                    self.props = [{} for v in values[0]]
+                    for k, vs in zip(keys, values):
+                        for p, v in zip(self.props, vs):
+                            p[k] = v
+                else:
+                    self.props = [self.props.copy()]
+            else:
+                self.props = [self.props.copy()]
+        else:
+            self.props = [p.copy() for p in self.props]
+
     def duplicate(self):
         kwargs = self.kwargs.copy()
-        kwargs['props'] = self.props.copy()
-        if kwargs['props'].get('linestyle', None) in linestyle_cycle:
-            kwargs['props']['linestyle'] = (2 * linestyle_cycle)[
-                linestyle_cycle.index(kwargs['props']['linestyle']) + 1]
-        elif kwargs['props'].get('color', None) in color_cycle:
-            kwargs['props']['color'] = (2 * color_cycle)[
-                color_cycle.index(kwargs['props']['color']) + 1]
+        kwargs['props'] = props = copy.deepcopy(self.props)
+        cycle_items = self.parent.cycle.by_key().items()
+        if all(all(p.get(prop, None) in values for p in props) and
+               all(p[prop] == props[0][prop] for p in props)
+               for prop, values in cycle_items):
+            for prop, values in cycle_items:
+                v = values[(values.index(props[0][prop]) + 1) %
+                           len(self.parent.cycle)]
+                for p in props:
+                    p[prop] = v
         self.parent.add_data(self.obj, self.name, kwargs=kwargs)
         data = self.parent.datas[-1]
         data.menu.setCurrentIndex(self.menu.currentIndex())
@@ -623,8 +643,12 @@ class DataObj(object):
             item.setFlags(QtCore.Qt.ItemIsEditable)
             item.setForeground(QtGui.QColor(0, 0, 0))
             props_editor.setItem(i, 0, item)
-            props_editor.setItem(i, 1, QtWidgets.QTableWidgetItem(
-                props_repr(self.props[k]) if k in self.props else ''))
+            props_editor.setItem(i, 1, QtWidgets.QTableWidgetItem(''))
+            if self.props and (all(k in p for p in self.props) and
+                               all(p[k] == self.props[0][k]
+                                   for p in self.props[1:])):
+                props_editor.setItem(i, 1, QtWidgets.QTableWidgetItem(
+                    props_repr(self.props[0][k])))
         props_editor.setWindowTitle(text_type(self.label.text()))
         props_editor.itemChanged.connect(self.update_props)
         props_editor.show()
@@ -640,14 +664,17 @@ class DataObj(object):
                 value = ast.literal_eval(text_type(value.text()))
             except (SyntaxError, ValueError):
                 value = text_type(value.text())
-            if key in self.props and self.props[key] == value:
+            if all(key in p and p[key] == value for p in self.props):
                 return
-            elif value == '' and key in self.props:
-                del self.props[key]
+            elif value == '' and any(key in p for p in self.props):
+                for p in self.props:
+                    p.pop(key, None)
             elif str(value):
-                self.props[key] = value
+                for p in self.props:
+                    p[key] = value
                 self.parent.props_editor.setItem(
                     row, 1, QtWidgets.QTableWidgetItem(props_repr(value)))
+        self.parent.draw()
 
     def close(self):
         self.parent.props_editor.close()
@@ -715,6 +742,10 @@ class Interact(QtWidgets.QMainWindow):
         for d in data:
             self.add_data(*d)
 
+        self.cycle = kwargs.get('prop_cycle', mpl.rcParams['axes.prop_cycle'])
+        if len(self.datas) > 1:
+            self.init_props()
+
         self.vbox.addLayout(self.grid)
         self.set_layout()
 
@@ -774,6 +805,17 @@ class Interact(QtWidgets.QMainWindow):
         add_widget(data.xmenu, 'x')
         add_widget(data.xscale_label)
         add_widget(data.xscale_box, 'x')
+
+    def init_props(self):
+        it = iter(self.cycle)
+        changed, props = False, next(it)
+        for data in self.datas:
+            for k, v in props.items():
+                for p in data.props:
+                    if p.setdefault(k, v) != v:
+                        changed = True
+            if changed:
+                props = next(it)
 
     def warn(self, message):
         self.warnings = {message}
@@ -855,27 +897,22 @@ class Interact(QtWidgets.QMainWindow):
             else:
                 data.labels = [data.labels]
 
-        for i, (line, label) in enumerate(zip(lines, data.labels)):
+        while len(data.props) < len(lines):
+            data.props.append(data.props[-1])
+
+        for i, (line, label, props) in enumerate(
+                zip(lines, data.labels, data.props)):
             line.set_label(label)
-            if hasattr(data, 'cdata'):
+            for key, value in props.items():
+                getattr(line, 'set_' + key, lambda _: None)(value)
+            if hasattr(data, 'cdata') and 'color' not in props:
                 line.set_color(data.cmap(data.norm(data.cdata[i])))
                 self.handles[(label,)] = line
-            elif 'color' not in data.props and 'linestyle' not in data.props:
-                style, color = next(self.styles)
-                line.set_color(color)
-                line.set_linestyle(style)
-                self.handles[(label, color, style)] = line
-            elif 'color' not in data.props:
-                line.set_color(color_cycle[i % len(color_cycle)])
-                self.handles[
-                    (label, line.get_color(), data.props['linestyle'])] = line
             else:
                 self.handles[
                     (label,
-                     data.props.get('color', line.get_color()),
-                     data.props.get('linestyle', line.get_linestyle()))] = line
-            for key, value in data.props.items():
-                getattr(line, 'set_' + key, lambda _: None)(value)
+                     props.get('color', line.get_color()),
+                     props.get('linestyle', line.get_linestyle()))] = line
 
         return len(lines)
 
@@ -907,7 +944,6 @@ class Interact(QtWidgets.QMainWindow):
         ylabel2 = []
         self.warnings = set()
         self.handles = OrderedDict()
-        self.styles = cycle(product(linestyle_cycle, color_cycle))
         for d in self.datas:
             if d.twin:
                 axes, x, y = self.axes2, xlabel2, ylabel2
@@ -1074,8 +1110,8 @@ def merge_dicts(*dicts):
     def validate(array):
         return (hasattr(array, 'dtype') and
                 (np.issubdtype(array.dtype, np.number) or
-                 np.issubdtype(array.dtype, np.bool_))
-                and np.squeeze(array).ndim == 1)
+                 np.issubdtype(array.dtype, np.bool_)) and
+                np.squeeze(array).ndim == 1)
 
     def pad(array):
         return np.pad(np.squeeze(array), (0, length - array.size),
@@ -1163,9 +1199,18 @@ def create(*data, **kwargs):
 
 
 def main():
-    time = np.linspace(0, 10)
-    d = {'time': time, 'x': np.cos(time), 'y': np.sin(time)}
-    create(dataobj(d, 'data', 'time', yname='x', yscale=3.0))
+    n = 10
+    time = np.tile(np.linspace(0, 10), (n, 1)).T
+    cdata = np.linspace(0, 1, n)
+    d = {'time': time, 'x': np.sin(time + cdata)}
+    props = {'linewidth': [1, 4]}
+    obj = dataobj(d, name='data', xname='time', yname='x', yscale=3.0,
+                  props=props, cdata=cdata)
+    create(obj)
+    d, name, data = copy.deepcopy(obj)
+    d['x'] = d['x'] * 1.3 + 0.2
+    del data['props']
+    create(obj, [d, 'other', data])
 
 
 if __name__ == '__main__':
