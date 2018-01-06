@@ -12,9 +12,7 @@ from collections import namedtuple
 from functools import reduce
 
 PY3 = sys.version_info[0] == 3
-Import = namedtuple(
-    'Import', [
-        'module', 'names', 'asnames', 'alias', 'lrange', 'level'])
+Import = namedtuple('Import', 'module names asnames alias lrange level')
 
 imports = []
 start = 0                      # Start of import block near top of file
