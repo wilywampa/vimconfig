@@ -66,6 +66,9 @@ class IPythonClient(object):
             client_class='jupyter_client.threaded.ThreadedKernelClient')
         self.km.load_connection_file(
             connection_file=find_connection_file(*argv))
+        if self.kc:
+            self.kc.stop_channels()
+            self.kc = None
         self.kc = self.km.client()
         self.kc.shell_channel.call_handlers = Async(self).on_shell_msg
         self.kc.hb_channel.call_handlers = Async(self).on_hb_msg
