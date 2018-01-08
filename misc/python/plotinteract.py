@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import ast
 import collections
 import copy
+import logging
 import matplotlib as mpl
 import numpy as np
 import re
@@ -9,6 +10,8 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal
 from collections import OrderedDict
+from cycler import cycler
+from itertools import chain, cycle
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as
                                                 FigureCanvas,
@@ -17,6 +20,7 @@ from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as
 from matplotlib.figure import Figure
 from mplpicker import picker
 from six import string_types, text_type
+logger = logging.getLogger('plotinteract')
 
 try:
     QString = unicode
@@ -443,7 +447,7 @@ class DataObj(object):
         self.xmenu.setCurrentIndex(0)
         self.xlabel = QtWidgets.QLabel('x axis:', parent=self.parent)
 
-        words = sorted(CONSTANTS.keys(), key=lambda w: w.lower())
+        words = sorted(CONSTANTS, key=lambda w: w.lower())
 
         def new_scale_box():
             scale_compl = TabCompleter(words, parent=self.parent)
@@ -570,8 +574,7 @@ class DataObj(object):
             self.cdata = np.squeeze(self.kwargs['cdata'])
             self.norm = self.kwargs.get('norm', None)
             if not self.norm:
-                self.norm = mpl.colors.Normalize(np.nanmin(self.cdata),
-                                                 np.nanmax(self.cdata))
+                self.norm = np.nanmin(self.cdata), np.nanmax(self.cdata)
             if not isinstance(self.norm, mpl.colors.Normalize):
                 self.norm = mpl.colors.Normalize(*self.norm)
             self.cmap = mpl.cm.get_cmap(self.kwargs.get('cmap', 'rainbow'))
@@ -598,16 +601,13 @@ class DataObj(object):
     def duplicate(self):
         kwargs = self.kwargs.copy()
         kwargs['props'] = props = copy.deepcopy(self.props)
-        cycle_items = self.parent.cycle.by_key().items()
-        if all(all(p.get(prop, None) in values for p in props) and
-               all(p[prop] == props[0][prop] for p in props)
-               for prop, values in cycle_items):
-            for prop, values in cycle_items:
-                v = values[(values.index(props[0][prop]) + 1) %
-                           len(self.parent.cycle)]
-                for p in props:
-                    p[prop] = v
+        if self.parent.in_cycle(self):
+            new_props = next(self.parent.props_iter)
+            for p in props:
+                p.update(new_props)
         self.parent.add_data(self.obj, self.name, kwargs=kwargs)
+        if len(self.parent.datas) == 2:
+            self.parent.init_props()
         data = self.parent.datas[-1]
         data.menu.setCurrentIndex(self.menu.currentIndex())
         data.scale_box.setText(self.scale_box.text())
@@ -743,8 +743,7 @@ class Interact(QtWidgets.QMainWindow):
             self.add_data(*d)
 
         self.cycle = kwargs.get('prop_cycle', mpl.rcParams['axes.prop_cycle'])
-        if len(self.datas) > 1:
-            self.init_props()
+        self.init_props()
 
         self.vbox.addLayout(self.grid)
         self.set_layout()
@@ -769,8 +768,8 @@ class Interact(QtWidgets.QMainWindow):
     def add_data(self, obj, name, kwargs=None):
         kwargs = kwargs or {}
         kwargs['name'] = kwargs.get('name', name) or 'data'
-        self.datas.append(DataObj(self, obj, **kwargs))
-        data = self.datas[-1]
+        data = DataObj(self, obj, **kwargs)
+        self.datas.append(data)
 
         self.row = self.grid.rowCount()
         self.column = 0
@@ -807,15 +806,14 @@ class Interact(QtWidgets.QMainWindow):
         add_widget(data.xscale_box, 'x')
 
     def init_props(self):
-        it = iter(self.cycle)
-        changed, props = False, next(it)
-        for data in self.datas:
-            for k, v in props.items():
-                for p in data.props:
-                    if p.setdefault(k, v) != v:
-                        changed = True
-            if changed:
-                props = next(it)
+        self.props_iter = cycle(self.cycle)
+        if len(self.datas) > 1:
+            for data, props in zip(self.datas, self.props_iter):
+                if hasattr(data, 'cdata') and 'color' in props:
+                    continue
+                for k, v in props.items():
+                    for p in data.props:
+                        p.setdefault(k, v)
 
     def warn(self, message):
         self.warnings = {message}
@@ -825,6 +823,12 @@ class Interact(QtWidgets.QMainWindow):
     def remove_data(self, data):
         if len(self.datas) < 2:
             return self.warn("Can't delete last row")
+
+        # Check if props can be reused
+        if self.in_cycle(data):
+            self.props_iter = chain([{p: data.props[0][p]
+                                      for p in self.cycle.keys}],
+                                    self.props_iter)
 
         index = self.datas.index(data)
         self.datas.pop(index)
@@ -840,6 +844,17 @@ class Interact(QtWidgets.QMainWindow):
         self.draw()
         self.datas[index - 1].menu.setFocus()
         self.datas[index - 1].menu.lineEdit().selectAll()
+
+    def in_cycle(self, data):
+        if not data.props:
+            return False
+        d0 = {k: v for k, v in data.props[0].items() if k in self.cycle.keys}
+        if d0 not in self.cycle:
+            return False
+        for props in data.props[1:]:
+            if any(props.get(k, None) != v for k, v in d0.items()):
+                return False
+        return True
 
     def get_scale(self, textbox, completer):
         completer.close_popup()
@@ -934,6 +949,10 @@ class Interact(QtWidgets.QMainWindow):
             self.axes2 = self.axes.twinx()
 
         for ax in self.axes, self.axes2:
+            if len(self.datas) > 1 and any(k in data.props
+                                           for k in self.cycle.keys
+                                           for data in self.datas):
+                ax.set_prop_cycle(cycler(color='b'))
             ax._tight = bool(self.margins)
             if self.margins:
                 ax.margins(self.margins)
@@ -1117,7 +1136,12 @@ def merge_dicts(*dicts):
         return np.pad(np.squeeze(array), (0, length - array.size),
                       mode='constant', constant_values=(float('nan'),))
 
-    merged = {}
+    # Preserve non-dict types
+    merged = copy.copy(dicts[0])
+    try:
+        merged.clear()
+    except Exception:
+        merged = {}
     for key in keys:
         if all(validate(d[key]) for d in dicts):
             length = max(len(d[key]) for d in dicts)
