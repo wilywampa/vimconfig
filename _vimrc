@@ -2383,8 +2383,8 @@ nn <silent> <expr> <C-p> ":\<C-u>Denite ".(len(filter(range(1,bufnr('$')),
 nn <silent> <M-P> :<C-u>Denite directory_rec -default-action=cd<CR>
 nn <silent> <C-o> :<C-u>Denite files<CR>
 nn <silent> <M-f> :<C-u>Denite file_rec<CR>
-nn <silent> <M-/> :<C-u>Denite line:all<CR>
-nn <silent> <M-?> :<C-u>Denite line:all -input=`expand('<lt>cword>')`<CR>
+nn <silent> <M-/> :<C-u>Denite line:all -noempty<CR>
+nn <silent> <M-?> :<C-u>Denite line:all -noempty -input=`expand('<lt>cword>')`<CR>
 nn <silent> g<C-p> :<C-u>Denite file_mru<CR>
 nn <silent> <M-h> :<C-u>Denite command_history -default-action=execute_and_save<CR>
 nn <silent> <Leader>o :<C-u>Denite outline -split=vertical -direction=topleft<CR>
