@@ -154,6 +154,7 @@ froms = {
          'namedtuple'],
     'contextlib': ['closing', 'contextmanager', 'suppress'],
     'copy': ['deepcopy'],
+    'cycler': ['cycler'],
     'datetime': ['date', 'datetime', 'timedelta'],
     'ein': ['eijk', 'mtimesm', 'mtimesv'],
     'fractions': ['Fraction', 'gcd'],
