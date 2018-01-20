@@ -2861,11 +2861,8 @@ let g:pymode_doc_bind = 'gK'
 let g:pymode_rope = 0
 let g:pymode_rope_completion = 0
 let g:pymode_lint_checkers = ['pyflakes', 'pycodestyle', 'mccabe', 'callable']
-let g:pymode_lint_select = ['E', 'W']
 let g:pymode_lint_options_pycodestyle = get(g:, 'pymode_lint_options_pycodestyle',
     \ {'max_line_length': 79})
-let g:pymode_lint_options_pycodestyle.select = g:pymode_lint_select
-let g:pymode_line_options_pep8 = copy(g:pymode_lint_options_pycodestyle)
 if has('python3')
     let g:pymode_python = 'python3'
     let g:pymode_syntax_print_as_function = 1

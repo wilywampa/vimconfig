@@ -131,6 +131,9 @@ if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
 from vim_utils import PEP8, get_ipython_file, select_docstring
+
+import pycodestyle
+pycodestyle.DEFAULT_IGNORE = ''
 EOF
 function! s:IPythonConsole(bang) abort " {{{
   let ipython_file = s:pyeval('get_ipython_file()')
