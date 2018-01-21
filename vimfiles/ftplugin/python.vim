@@ -406,8 +406,8 @@ endpython
         endif
         return "\<C-r>=g:ipy_result\<CR>"
       elseif a:mode == 1
-        call setreg(v:register, g:ipy_result)
-        normal! gvp
+        call setreg('"', g:ipy_result)
+        normal! gv""p
       elseif a:mode == 3
         normal! `>
         put = g:ipy_result
