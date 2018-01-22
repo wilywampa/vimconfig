@@ -626,6 +626,7 @@ class DataObj(object):
             QtWidgets.QLineEdit.Normal, self.name)
         if ok and text_type(text):
             self.name = text_type(text)
+            self._labels = None
             self.choose_label()
             if not isiterable(self.labels):
                 self.labels = self.name
@@ -905,16 +906,18 @@ class Interact(QtWidgets.QMainWindow):
                         xname, x.shape, yname, y.shape))
             lines = axes.plot(y)
 
+        auto = False
         if not isiterable(data.labels):
             if len(lines) > 1:
-                data.labels = ['%s %d' % (data.labels, i)
-                               for i in range(len(lines))]
+                auto = data.labels
+                data.labels = ['%s %d' % (auto, i) for i in range(len(lines))]
             else:
                 data.labels = [data.labels]
 
         while len(data.props) < len(lines):
             data.props.append(data.props[-1])
 
+        keys = set()
         for i, (line, label, props) in enumerate(
                 zip(lines, data.labels, data.props)):
             line.set_label(label)
@@ -922,12 +925,19 @@ class Interact(QtWidgets.QMainWindow):
                 getattr(line, 'set_' + key, lambda _: None)(value)
             if hasattr(data, 'cdata') and 'color' not in props:
                 line.set_color(data.cmap(data.norm(data.cdata[i])))
-                self.handles[(label,)] = line
-            else:
-                self.handles[
-                    (label,
-                     props.get('color', line.get_color()),
-                     props.get('linestyle', line.get_linestyle()))] = line
+            props = copy.copy(props)
+            props.update([('color', line.get_color()),
+                          ('linestyle', line.get_linestyle()),
+                          ('linewidth', line.get_linewidth())])
+            key = tuple(sorted(zip(*props.items())))
+            keys.add(key)
+            self.label_lists.setdefault(key, []).append(label)
+            self.handles.setdefault(key, line)
+
+        if auto and len(keys) == 1:
+            for line in lines:
+                line.set_label(auto)
+            self.label_lists[key] = [auto]
 
         return len(lines)
 
@@ -962,7 +972,7 @@ class Interact(QtWidgets.QMainWindow):
         xlabel2 = []
         ylabel2 = []
         self.warnings = set()
-        self.handles = OrderedDict()
+        self.label_lists, self.handles = OrderedDict(), OrderedDict()
         for d in self.datas:
             if d.twin:
                 axes, x, y = self.axes2, xlabel2, ylabel2
@@ -989,8 +999,9 @@ class Interact(QtWidgets.QMainWindow):
 
         for ax in self.axes, self.axes2:
             ax.set_aspect('equal' if self.axisequal else 'auto', 'box-forced')
-        legend = self.axes.legend(self.handles.values(),
-                                  [k[0] for k in self.handles.keys()])
+        legend = self.axes.legend(
+            self.handles.values(),
+            (', '.join(x) for x in self.label_lists.values()))
         legend.draggable(True)
         self.pickers = [picker(ax) for ax in [self.axes, self.axes2]]
 
