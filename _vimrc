@@ -2356,10 +2356,10 @@ function! s:grep(source, ...) abort " {{{
         \ 'quit': v:false,
         \ 'auto_resize': v:true,
         \ }
-    let l:path = len(a:000) >= 1 ? a:1 :
-        \ vimtools#flatten(map(split(input('Path: ', '.', 'file')), 'vimtools#glob(v:val)'))
-    let l:opts = split(len(a:000) >= 2 ? a:2 : input(
-        \ 'Options: ', l:is_git ? '' : get(g:, 'ag_flags', '')))
+    let l:path = join(len(a:000) >= 1 ? a:1 :
+        \ vimtools#flatten(map(split(input('Path: ', '.', 'file')), 'vimtools#glob(v:val)')))
+    let l:opts = len(a:000) >= 2 ? a:2 : input(
+        \ 'Options: ', l:is_git ? '' : get(g:, 'ag_flags', ''))
     let l:pattern = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
     let s:grep_context.args = [l:path, l:opts, l:pattern]
     if !empty(l:pattern)
@@ -2367,9 +2367,9 @@ function! s:grep(source, ...) abort " {{{
         call denite#start([{'name': 'grep', 'args': s:grep_context.args, 'path': l:path}], s:grep_context)
     endif
 endfunction " }}}
-nnoremap <silent> ,a         :<C-u>call <SID>grep('grep', '.', get(g:, 'ag_flags', ''))<CR>
+nnoremap <silent> ,a         :<C-u>call <SID>grep('grep', ['.'], get(g:, 'ag_flags', ''))<CR>
 nnoremap <silent> ,A         :<C-u>call <SID>grep('grep')<CR>
-nnoremap <silent> ,<Leader>a :<C-u>call <SID>grep('grep/git', '.', '')<CR>
+nnoremap <silent> ,<Leader>a :<C-u>call <SID>grep('grep/git', ['.'], '')<CR>
 nnoremap <silent> ,<Leader>A :<C-u>call <SID>grep('grep/git')<CR>
 
 nn <silent> "" :<C-u>Denite neoyank -default_action=yank<CR>
@@ -2608,9 +2608,9 @@ function! s:DeniteSetup() " {{{
     call denite#custom#action('_', 'help', function('s:help'))
 
     function! s:delete(context) abort " {{{
-        let l:buffers = filter(copy(a:context.targets), "v:val.source ==# 'buffer'")
-        let l:files = filter(copy(a:context.targets), "v:val.source ==# 'file_mru'")
-        let l:directories = filter(copy(a:context.targets), "v:val.source ==# 'directory_mru'")
+        let l:buffers = filter(copy(a:context.targets), "v:val.source_name ==# 'buffer'")
+        let l:files = filter(copy(a:context.targets), "v:val.source_name ==# 'file_mru'")
+        let l:directories = filter(copy(a:context.targets), "v:val.source_name ==# 'directory_mru'")
         call denite#do_action(a:context, 'delete', l:buffers)
         call denite#do_action(a:context, 'delete_file_mru', l:files)
         call denite#do_action(a:context, 'delete_dir_mru', l:directories)
@@ -2668,7 +2668,7 @@ function! s:DeniteSetup() " {{{
             \ 'auto_resize': v:true,
             \ }
         let l:path = map(a:context.targets, 'v:val.action__path')
-        let l:opts = split(get(g:, 'ag_flags', ''))
+        let l:opts = get(g:, 'ag_flags', '')
         let l:pattern = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
         let s:grep_context.args = [l:path, l:opts, l:pattern]
         if !empty(l:pattern)
@@ -2755,7 +2755,7 @@ function! s:AckCurrentSearch(ignorecase, visual, args) " {{{
         \ 'quit': v:false,
         \ 'auto_resize': v:true,
         \ 'path': '.',
-        \ 'args': ['.', l:args, l:pattern],
+        \ 'args': ['.', join(l:args), l:pattern],
         \ }
     call denite#start([{'name': 'grep', 'args': s:grep_context.args}], s:grep_context)
 endfunction " }}}
