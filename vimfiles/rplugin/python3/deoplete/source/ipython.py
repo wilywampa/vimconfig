@@ -130,5 +130,8 @@ class Source(Base):
         reply = client.waitfor(client.kc.execute(
             request, silent=True,
             user_expressions={'_completions': '_completions'}))
-        metadata = reply['content']['user_expressions']['_completions']
-        return ast.literal_eval(metadata['data']['text/plain'])
+        try:
+            metadata = reply['content']['user_expressions']['_completions']
+            return ast.literal_eval(metadata['data']['text/plain'])
+        except KeyError:
+            return []
