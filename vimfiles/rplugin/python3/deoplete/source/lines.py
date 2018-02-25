@@ -29,8 +29,9 @@ class Source(Base):
         inp = context['input'].strip()
         curline = vim.current.line.strip()
 
-        for win in vim.current.tabpage.windows:
-            bufnums.add(win.buffer.number)
+        bufnums.update(win.buffer.number
+                       for win in vim.current.tabpage.windows
+                       if vim.call('buflisted', win.buffer.number))
 
         bufnums.discard(vim.current.buffer.number)
 
