@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+from functools import wraps
 from plotinteract import create, dataobj, flatten, merge_dicts
 from plottools.angle2dcm import angle2dcm
 from plottools.dcm2angle import dcm2angle
@@ -371,6 +372,7 @@ class Conversion(float):
         if output in (True, False):
             output = Ellipsis if output else ()
 
+        @wraps(f)
         def g(*args, **kwargs):
             dtype = None if np.issubdtype(
                 np.asanyarray(args[0]).dtype, float) else np.float64
