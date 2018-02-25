@@ -12,7 +12,13 @@ function gendict
     fid = fopen(dict, 'w');
 
     for i = 1:length(vars)
-        gendictvar(fid, vars{i});
+        try
+            gendictvar(fid, vars{i});
+        catch ME
+            if !strfind(ME.message, 'scalar cannot be indexed with {')
+                rethrow(ME);
+            end
+        end
     end
 
     fclose(fid);
