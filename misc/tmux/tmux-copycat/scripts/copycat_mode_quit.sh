@@ -8,21 +8,20 @@ unbind_cancel_bindings() {
 	local cancel_mode_bindings=$(copycat_quit_copy_mode_keys)
 	local key
 	for key in $cancel_mode_bindings; do
-		tmux unbind-key -T copy-mode-vi "$key"
-		tmux bind-key -T copy-mode-vi "$key" send-keys -X cancel
+		tmux unbind-key -n "$key"
 	done
 }
 
 unbind_prev_next_bindings() {
-	tmux unbind-key -T copy-mode-vi "$(copycat_next_key)"
-	tmux bind-key -T copy-mode-vi "$(copycat_next_key)" send-keys -X search-again
-	tmux unbind-key -T copy-mode-vi "$(copycat_prev_key)"
-	tmux bind-key -T copy-mode-vi "$(copycat_prev_key)" send-keys -X search-reverse
+	tmux unbind-key -n "$(copycat_next_key)"
+	tmux unbind-key -n "$(copycat_prev_key)"
 }
 
 unbind_all_bindings() {
-	unbind_cancel_bindings
-	unbind_prev_next_bindings
+	grep -v copycat </tmp/copycat_$(whoami)_recover_keys | while read key_cmd; do
+		sh -c "tmux $key_cmd"
+	done < /dev/stdin
+	rm /tmp/copycat_$(whoami)_recover_keys
 }
 
 main() {

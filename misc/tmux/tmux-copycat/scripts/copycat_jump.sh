@@ -149,6 +149,7 @@ _copycat_create_padding_below_result() {
 # performs a jump to go to line
 _copycat_go_to_line_with_jump() {
 	local line_number="$1"
+	# first jumps to the "bottom" in copy mode so that jumps are consistent
 	tmux send-keys -X history-bottom
 	tmux send-keys -X start-of-line
 	tmux send-keys -X goto-line $line_number
@@ -212,7 +213,9 @@ _copycat_select() {
 	local length="${#match}"
 	tmux send-keys -X begin-selection
 	tmux send-keys -X -N "$length" cursor-right
-	tmux send-keys -X cursor-left
+	if [ "$TMUX_COPY_MODE" == "vi" ]; then
+		tmux send-keys -X cursor-left # selection correction for 1 char
+	fi
 }
 
 # all functions above are "private", called from `do_next_jump` function
