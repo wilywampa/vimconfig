@@ -1,3 +1,4 @@
+scriptencoding utf-8
 if !exists('g:lightline')
   let g:lightline = {}
 endif
@@ -78,14 +79,14 @@ function! LightLineInactiveFilename()
 endfunction
 
 function! LightLineFilename() abort
-  let name = &filetype ==# 'help' ? expand('%:t') : expand('%:~:.')
-  return stridx(name, '__Mundo') == 0 ? '' :
-      \ stridx(name, '--Python--') != -1 ? 'IPython' :
+  let l:name = &filetype ==# 'help' ? expand('%:t') : expand('%:~:.')
+  return stridx(l:name, '__Mundo') == 0 ? '' :
+      \ stridx(l:name, '--Python--') != -1 ? 'IPython' :
       \ &previewwindow ? 'Preview' :
       \ &filetype ==# 'vimfiler' ? vimfiler#get_status_string() :
       \ &filetype ==# 'unite' ? unite#get_status_string() :
       \ &filetype ==# 'qf' ? get(w:, 'quickfix_title', '') :
-      \ empty(name) ? '[No Name]' : name
+      \ empty(l:name) ? '[No Name]' : l:name
 endfunction
 
 function! LightLineFile() abort
@@ -97,9 +98,9 @@ function! LightLineFileModified() abort
 endfunction
 
 function! LightLineMode() abort
-  let name = expand('%:t')
-  return name ==# '__Mundo__' ? 'Mundo' :
-      \ name ==# '__Mundo_Preview__' ? 'Mundo Preview' :
+  let l:name = expand('%:t')
+  return l:name ==# '__Mundo__' ? 'Mundo' :
+      \ l:name ==# '__Mundo_Preview__' ? 'Mundo Preview' :
       \ &filetype ==# 'qf' ? (empty(getloclist(0)) ?
       \   'Quickfix' : 'Location List') :
       \ &filetype ==# 'help' ? 'Help' :
@@ -112,7 +113,7 @@ function! LightLineFlags() abort
   return printf('%s%s%s',
       \ &ignorecase ? '' : '↑',
       \ empty(&eventignore) ? '' : '!',
-      \ get(g:, "ipython_store_history", 1) ? '' : '☢')
+      \ get(g:, 'ipython_store_history', 1) ? '' : '☢')
 endfunction
 
 silent! call whitespace#init()
