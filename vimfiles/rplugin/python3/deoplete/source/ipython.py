@@ -4,13 +4,15 @@ import logging
 import os
 import re
 from .base import Base
-from deoplete_ipyclient import client
+from deoplete_ipyclient import IPythonClient
 
 logger = logging.getLogger(__name__)
 if 'DEOPLETE_IPY_LOG' in os.environ:
     logfile = os.environ['DEOPLETE_IPY_LOG'].strip()
-    logger.addHandler(logging.FileHandler(logfile, 'w'))
-    logger.level = logging.DEBUG
+    handler = logging.FileHandler(logfile, 'w')
+    handler.setFormatter(logging.Formatter('%(asctime)s: %(message)s'))
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
 
 imports = re.compile(
     r'^\s*(from\s+\.*\w+(\.\w+)*\s+import\s+(\w+,\s+)*|import\s+)')
@@ -65,6 +67,9 @@ class Source(Base):
         self.is_volatile = True
         self.rank = 2000
         self.input_pattern = r'\w+(\.\w+)*'
+        self._client = IPythonClient(vim)
+        self._client.vim = vim
+        self._kernel_file = None
 
     @log
     def get_complete_position(self, context):
@@ -122,14 +127,31 @@ class Source(Base):
         return start
 
     def gather_candidates(self, context):
+        # Check if connected or connect
+        kernel_file = context['vars'].get(
+            'deoplete#ipython_kernel', 'kernel-*.json')
+        client = self._client
+        if not client.has_connection or kernel_file != self._kernel_file:
+            self._kernel_file = kernel_file
+            client.connect(kernel_file)
         if not client.has_connection:
             return []
-        client.waitfor(client.kc.complete(
+
+        # Send the complete request
+        reply = client.waitfor(client.kc.complete(
             context['input'] if imports.match(context['input'])
             else context['complete_str']))
+        if not reply or reply.get('msg_type', '') != 'complete_reply':
+            return []
+
+        # Send the completion metadata request
         reply = client.waitfor(client.kc.execute(
             request, silent=True,
             user_expressions={'_completions': '_completions'}))
+        if not reply:
+            return []
+
+        # Try to read the metadata
         try:
             metadata = reply['content']['user_expressions']['_completions']
             return ast.literal_eval(metadata['data']['text/plain'])
