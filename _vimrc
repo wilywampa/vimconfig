@@ -1784,7 +1784,7 @@ if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
     smap <C-d> <Plug>(neosnippet_expand_or_jump)
     imap <C-x><C-h> <Plug>(complete_ipython_history)
     imap <C-h> <Plug>(insert_ipython_history)
-    inoremap <silent> <expr> <C-x><C-w> deoplete#manual_complete(['words'])
+    inoremap <silent> <expr> <C-x><C-w> deoplete#manual_complete(['around', 'words'])
     inoremap <silent> <expr> <C-x><C-l> deoplete#manual_complete(['lines'])
     inoremap <silent> <expr> <C-x><C-j> deoplete#manual_complete(['jedi'])
     inoremap <silent> <expr> <C-x><C-i> deoplete#manual_complete(['ipython'])

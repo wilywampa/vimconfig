@@ -125,6 +125,17 @@ else
     call VimuxSendKeys("\<CR>")
   endfunc
 
+  func! s:InterruptMATLAB()
+    if !exists("g:VimuxRunnerIndex")
+      echohl WarningMsg
+      echomsg "'g:VimuxRunnerIndex' does not exist"
+      echohl None
+      return
+    endif
+    call VimuxSendKeys("\<C-c>")
+    echo '^C'
+  endfunc
+
   func! s:ClearWorkspaceMATLAB()
     call VimuxSendKeys("\<C-e>\<C-u>")
     call VimuxSendText("fclose all; close all; clear all;")
@@ -196,6 +207,7 @@ else
   nnoremap <silent> <buffer> <Leader>cf :<C-u>call <SID>CloseFiguresMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cl :<C-u>call <SID>CloseFiguresMATLAB()<CR>
   nnoremap <silent> <buffer> <Leader>cw :<C-u>call <SID>ClearWorkspaceMATLAB()<CR>
+  nnoremap          <buffer> <C-c> :<C-u>call <SID>InterruptMATLAB()<CR>
   nnoremap <silent>                 ,ms :<C-u>call <SID>ScratchBufferMATLAB()<CR>
 endif
 
