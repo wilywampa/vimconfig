@@ -3056,24 +3056,25 @@ let g:gitgutter_sign_removed_first_line = '➜'
 let g:gitgutter_sign_modified_removed = '✗'
 nnoremap <silent> ,gg :<C-u>GitGutter<CR>
 function! s:hunk(mode, sign, ...) abort
-    if gitgutter#utility#is_active()
-        let hunks = filter(copy(gitgutter#hunk#hunks()), 'v:val[2]' . a:sign . 'line(".")')
-        if empty(hunks) && a:0 | let hunks = gitgutter#hunk#hunks() | endif
-        if empty(hunks) | return | endif
+    let l:bufnr = bufnr('%')
+    if gitgutter#utility#is_active(l:bufnr)
+        let l:hunks = filter(copy(gitgutter#hunk#hunks(l:bufnr)), 'v:val[2]' . a:sign . 'line(".")')
+        if empty(l:hunks) && a:0 | let l:hunks = gitgutter#hunk#hunks(l:bufnr) | endif
+        if empty(l:hunks) | return | endif
         let l:count = a:0 ? get(g:, 'gitgutter_max_signs', 500) : v:count1
-        if a:sign == '<'
-            let hunk = get(hunks, -l:count, hunks[0])
+        if a:sign ==# '<'
+            let l:hunk = get(l:hunks, -l:count, l:hunks[0])
         else
-            let hunk = get(hunks, l:count - 1, hunks[-1])
+            let l:hunk = get(l:hunks, l:count - 1, l:hunks[-1])
         endif
-        execute 'normal! ' . (a:mode == 'n' ? '' : 'V') . max([1, hunk[2]]) . 'G'
+        execute 'normal! ' . (a:mode ==# 'n' ? '' : 'V') . max([1, l:hunk[2]]) . 'G'
     endif
 endfunction
-for mode in ['n', 'x', 'o']
-    execute mode.'noremap <silent> [h :<C-u>call <SID>hunk("'.mode.'", "<")<CR>zv'
-    execute mode.'noremap <silent> ]h :<C-u>call <SID>hunk("'.mode.'", ">")<CR>zv'
-    execute mode.'noremap <silent> [H :<C-u>call <SID>hunk("'.mode.'", "<", 1)<CR>zv'
-    execute mode.'noremap <silent> ]H :<C-u>call <SID>hunk("'.mode.'", ">", 1)<CR>zv'
+for s:mode in ['n', 'x', 'o']
+    execute s:mode.'noremap <silent> [h :<C-u>call <SID>hunk("'.s:mode.'", "<")<CR>zv'
+    execute s:mode.'noremap <silent> ]h :<C-u>call <SID>hunk("'.s:mode.'", ">")<CR>zv'
+    execute s:mode.'noremap <silent> [H :<C-u>call <SID>hunk("'.s:mode.'", "<", 1)<CR>zv'
+    execute s:mode.'noremap <silent> ]H :<C-u>call <SID>hunk("'.s:mode.'", ">", 1)<CR>zv'
 endfor " }}}
 
 " neosnippet configuration
