@@ -496,27 +496,27 @@ function! vimtools#opfunc(type) abort " {{{
 endfunction " }}}
 
 function! vimtools#SourceMotion(type) " {{{
-  let input = vimtools#opfunc(a:type)
-  let lines = split(input, '\n')
+  let l:input = vimtools#opfunc(a:type)
+  let l:lines = split(l:input, '\n')
   if exists('*scriptease#scriptid')
-    let sid = scriptease#scriptid('%')
-    if sid
-      let pat = '\v(<s:|\<%(SID|sid)\>)\h(\w*#)*\w*\ze\('
-      for line in filter(copy(lines), 'v:val =~ pat')
-        let name = substitute(matchstr(line, pat),
+    let l:sid = scriptease#scriptid('%')
+    if l:sid
+      let l:pat = '\v(<s:|\<%(SID|sid)\>)\h(\w*#)*\w*\ze\('
+      for l:line in filter(copy(l:lines), 'v:val =~ l:pat')
+        let l:name = substitute(matchstr(l:line, l:pat),
             \ '^\%(s:\|<\%(SID\|sid\)>\)', '', '')
-        call map(lines,
-            \ "substitute(v:val, '\\V\\C\\(s:\\|<\\%(SID\\|sid\\)>\\)'.name,
-            \             '<SNR>'.sid.'_'.name, 'g')")
+        call map(l:lines,
+            \ "substitute(v:val, '\\V\\C\\(s:\\|<\\%(SID\\|sid\\)>\\)'.l:name,
+            \             '<SNR>'.l:sid.'_'.l:name, 'g')")
       endfor
     endif
   endif
-  let tmpfile = tempname()
-  call writefile(lines, tmpfile)
+  let l:tmpfile = tempname()
+  call writefile(l:lines, l:tmpfile)
   try
-    execute "source" tmpfile
+    execute 'source' l:tmpfile
   finally
-    call delete(tmpfile)
+    call delete(l:tmpfile)
   endtry
 endfunction " }}}
 
