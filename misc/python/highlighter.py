@@ -222,7 +222,6 @@ class LogHighlighter(logging.Formatter):
 
 
 def add_handler(file_or_stream, logger=None, level=logging.INFO):
-    import highlighter
     if not isinstance(logger, logging.Logger):
         logger = logging.getLogger(logger)
     if level is not None:
@@ -231,7 +230,7 @@ def add_handler(file_or_stream, logger=None, level=logging.INFO):
         handler = logging.FileHandler(file_or_stream)
     else:
         handler = logging.StreamHandler(file_or_stream)
-    handler.setFormatter(highlighter.LogHighlighter())
+    handler.setFormatter(LogHighlighter())
     logger.addHandler(handler)
     return handler
 
