@@ -1,6 +1,7 @@
 import autopep8
 import docformatter
 import io
+import os
 import re
 import subprocess
 import tokenize
@@ -14,31 +15,19 @@ except NameError:
 
 
 def get_ipython_file():
-    if vim.eval('executable("procps")') == '1':
-        args = ['procps', '--user', getuser(), '-o', 'args']
-    elif vim.eval('has("win16") || has("win32") || '
-                  'has("win64") || has("win32unix")') == '1':
-        return ''
-    else:
-        args = ['ps', '-u', getuser(), '-o', 'args']
-
-    try:
-        procs = subprocess.getoutput(args)
-    except AttributeError:
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE)
-        procs, err = proc.communicate()
-    except UnicodeDecodeError:
-        return get_ipython_file()
+    proc = subprocess.Popen(['ps', '-u', getuser(), '-o', 'args'],
+                            stdout=subprocess.PIPE)
+    procs, err = proc.communicate()
+    procs = procs.decode('utf-8')
 
     for proc in procs.splitlines():
-        if 'ipython-console' in proc or 'ipykernel' in proc:
+        if '-console' in proc or 'ipykernel' in proc:
             for arg in proc.split():
                 if re.match('^(.*/)?kernel-[0-9]+\.json$', arg):
-                    vim.command('let g:ipython_connected = 1')
-                    return arg
-        elif 'jupyter-console' in proc:
-            vim.command('let g:ipython_connected = 1')
-            return 'kernel-{}.json'.format(proc.split()[0])
+                    if os.path.exists(arg):
+                        vim.vars['ipython_connected'] = 1
+                        vim.vars['deoplete#ipython_kernel'] = arg
+                        return arg
 
     return ''
 
