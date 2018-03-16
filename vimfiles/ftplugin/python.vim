@@ -586,7 +586,7 @@ function! FixImports()
       PymodePython code_check()
       Python2or3 << EOF
 messages = set([(m['lnum'], m['text']) for m in
-                vim.eval('copy(g:PymodeLocList.current()._loclist)')])
+                vim.eval('copy(g:PymodeLocList.current().loclist())')])
 missing = sorted([m.split("'")[1] for _, m in messages if 'E0602' in m])
 redefined = sorted([m.split("'")[1] for _, m in messages if 'W0404' in m])
 unused = sorted([m.split("'")[1] for _, m in messages if 'W0611' in m])
@@ -602,7 +602,7 @@ EOF
       let redefined = s:pyeval('redefined')
       let unused = s:pyeval('unused')
       let loclist = g:PymodeLocList.current()
-      let messages = copy(loclist._loclist)
+      let messages = copy(loclist.loclist())
       let module_cache = s:module_cache
       let pyfile = get(g:, 'python_autoimport_debug_file',
           \ s:python_script_dir . '/autoimport.py')
