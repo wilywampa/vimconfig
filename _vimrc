@@ -2699,21 +2699,14 @@ nmap gs <Plug>Ysurround
 nmap gss <Plug>Yssurround
 imap <C-g><C-s> <Plug>Isurround
 let g:surround_input_complete = 'vimtools#CmdlineComplete'
-" Make d surround with ['...'] and D with ["..."]
-let g:surround_100 = "['\r']"
-let g:surround_68 = "[\"\r\"]"
-" Single-element tuple with t
-let g:surround_116 = "(\r,)"
-" enumerate() with e
-let g:surround_101 = "enumerate(\r)"
-" list() with l
-let g:surround_108 = "list(\r)"
-" reversed() with r
-let g:surround_114 = "reversed(\r)"
-" sorted() with s
-let g:surround_115 = "sorted(\r)"
-" zip() with z
-let g:surround_122 = "zip(\r)"
+let g:surround_{char2nr('d')} = "['\r']"
+let g:surround_{char2nr('D')} = "[\"\r\"]"
+let g:surround_{char2nr('t')} = "(\r,)"
+let g:surround_{char2nr('e')} = "enumerate(\r)"
+let g:surround_{char2nr('l')} = "list(\r)"
+let g:surround_{char2nr('r')} = "reversed(\r)"
+let g:surround_{char2nr('s')} = "sorted(\r)"
+let g:surround_{char2nr('z')} = "zip(\r)"
 
 " Syntastic settings
 let g:syntastic_filetype_map = {'arduino': 'cpp'}
