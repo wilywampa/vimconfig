@@ -132,9 +132,11 @@ class Source(Base):
             'deoplete#ipython_kernel', 'kernel-*.json')
         client = self._client
         if not client.has_connection or kernel_file != self._kernel_file:
+            logger.debug('connecting')
             self._kernel_file = kernel_file
             client.connect(kernel_file)
         if not client.has_connection:
+            logger.debug('no connection')
             return []
 
         # Send the complete request
@@ -142,6 +144,7 @@ class Source(Base):
             context['input'] if imports.match(context['input'])
             else context['complete_str']))
         if not reply or reply.get('msg_type', '') != 'complete_reply':
+            logger.debug('bad complete response')
             return []
 
         # Send the completion metadata request
@@ -149,6 +152,7 @@ class Source(Base):
             request, silent=True,
             user_expressions={'_completions': '_completions'}))
         if not reply:
+            logger.debug('bad metadata response')
             return []
 
         # Try to read the metadata
@@ -156,4 +160,5 @@ class Source(Base):
             metadata = reply['content']['user_expressions']['_completions']
             return ast.literal_eval(metadata['data']['text/plain'])
         except KeyError:
+            logger.debug('KeyError')
             return []

@@ -33,6 +33,7 @@ class IPythonClient(object):
         self.km = None
         self.kc = None
         self.vim = vim
+        self.timeout = float(self.vim.vars.get('ipython_timeout', 1))
 
     def connect(self, connection_file=None):
         debug('connect')
@@ -41,7 +42,10 @@ class IPythonClient(object):
             client_class='jupyter_client.blocking.BlockingKernelClient')
         if isinstance(connection_file, str) and not os.path.isfile(
                 connection_file):
-            connection_file = find_connection_file(connection_file)
+            try:
+                connection_file = find_connection_file(connection_file)
+            except OSError:
+                return
         try:
             self.km.load_connection_file(connection_file=connection_file)
         except OSError:
@@ -63,8 +67,7 @@ class IPythonClient(object):
 
     def waitfor(self, msg_id, timeout=None):
         debug('waitfor')
-        if not timeout:
-            timeout = float(self.vim.vars.get('ipython_timeout', 1))
+        timeout = timeout or self.timeout
         while 1:
             try:
                 reply = self.kc.shell_channel.get_msg(timeout=timeout)
