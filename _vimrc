@@ -2356,8 +2356,8 @@ function! s:grep(source, ...) abort " {{{
         \ 'quit': v:false,
         \ 'auto_resize': v:true,
         \ }
-    let l:path = join(len(a:000) >= 1 ? a:1 :
-        \ vimtools#flatten(map(split(input('Path: ', '.', 'file')), 'vimtools#glob(v:val)')))
+    let l:path = len(a:000) >= 1 ? a:1 :
+        \ vimtools#flatten(map(split(input('Path: ', '.', 'file')), 'vimtools#glob(v:val)'))
     let l:opts = len(a:000) >= 2 ? a:2 : input(
         \ 'Options: ', l:is_git ? '' : get(g:, 'ag_flags', ''))
     let l:pattern = input('Pattern: ', '', 'customlist,vimtools#CmdlineComplete')
