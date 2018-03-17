@@ -2034,7 +2034,7 @@ func! s:UniteSettings() " {{{
     call s:ni_map('<C-o><C-v>', '<C-o>v', 'vsplit')
     call s:ni_map('<C-o><C-s>', '<C-o>s', 'split')
     call s:ni_map('<C-o><C-t>', '<C-o>t', 'tabopen')
-    call s:ni_map('<C-^>',      '<C-^>',  'persist_open')
+    call s:ni_map('<C-^>',      '<C-^>',  'preview')
 
     nmap <buffer> <expr> <silent> ` stridx(join(b:unite.source_names), 'grep') == -1
         \ ? '<Plug>(unite_exit)'
@@ -2354,7 +2354,6 @@ function! s:grep(source, ...) abort " {{{
     let s:grep_context = {
         \ 'mode': 'normal',
         \ 'quit': v:false,
-        \ 'auto_resize': v:true,
         \ }
     let l:path = len(a:000) >= 1 ? a:1 :
         \ vimtools#flatten(map(split(input('Path: ', '.', 'file')), 'vimtools#glob(v:val)'))
@@ -2396,21 +2395,6 @@ nn <silent> ]d :<C-u>Denite -resume -immediately -force-quit -cursor-pos=+<C-r>=
 nn <silent> [D :<C-u>Denite -resume -immediately -force-quit -cursor-pos=0<CR>
 nn <silent> ]D :<C-u>Denite -resume -immediately -force-quit -cursor-pos=$<CR>
 
-if !exists('s:DenitePathSearchMode') | let s:DenitePathSearchMode=0 | endif
-
-function! DeniteTogglePathSearch() abort " {{{
-    if s:DenitePathSearchMode
-        call denite#custom#source('file', 'matchers', ['matcher_regexp'])
-        call denite#custom#source('_', 'sorters', [])
-        call denite#custom#source('buffer', 'converters', [])
-    else
-        call denite#custom#source('buffer', 'matchers', ['matcher_regexp'])
-        call denite#custom#source('buffer', 'converters', ['converter_tail'])
-    endif
-    let s:DenitePathSearchMode = !s:DenitePathSearchMode
-    return '<denite:restart>'
-endfunction " }}}
-
 function! SwitchOrQuit() abort " {{{
     if index(map(denite#context#get('sources'), 'v:val.name'), 'grep') >= 0
         return '<denite:wincmd:p>'
@@ -2437,8 +2421,9 @@ function! ModifyGrep() abort " {{{
     catch
         return '<denite:restart>'
     endtry
-    let s:grep_context.args[0] = input(
-        \ 'Path: ', type(l:path) == type([]) ? join(l:path, ' ') : l:path, 'file')
+    let l:path = vimtools#flatten(map(split(input('Path: ',
+        \ type(l:path) == type([]) ? join(l:path, ' ') : l:path, 'file')), 'vimtools#glob(v:val)'))
+    let s:grep_context.args[0] = l:path
     let s:grep_context.args[1] = input(
         \ 'Options: ', type(l:args) == type([]) ? join(l:args, ' ') : l:args)
     let s:grep_context.args[2] = input(
@@ -2448,7 +2433,8 @@ function! ModifyGrep() abort " {{{
     try
         return '<denite:quit>'
     finally
-        call denite#start([{'name': 'grep', 'args': s:grep_context.args}], s:grep_context)
+        call denite#start([{'name': 'grep', 'args': s:grep_context.args,
+            \ 'path': l:path}], s:grep_context)
     endtry
 endfunction " }}}
 
@@ -2481,7 +2467,7 @@ function! s:DeniteSetup() " {{{
     call s:ni_map('<C-o><C-v>', '<C-o>v', '<denite:do_action:vsplit>')
     call s:ni_map('<C-o><C-s>', '<C-o>s', '<denite:do_action:split>')
     call s:ni_map('<C-o><C-t>', '<C-o>t', '<denite:do_action:tabopen>')
-    call s:ni_map('<C-^>',      '<C-^>',  '<denite:do_action:persist_open>')
+    call s:ni_map('<C-^>',      '<C-^>',  '<denite:do_action:preview>')
     call s:ni_map('<C-g>',      '<C-g>',  'ModifyGrep()', 'noremap expr')
     call s:ni_map('<C-j>',      '<C-j>',  '<denite:move_to_next_line>')
     call s:ni_map('<C-k>',      '<C-k>',  '<denite:move_to_previous_line>')
@@ -2493,7 +2479,10 @@ function! s:DeniteSetup() " {{{
     call denite#custom#map('insert', '<C-Space>', '<denite:toggle_select_down>')
     call denite#custom#map('insert', '<C-b>', '<denite:print_messages>')
     call denite#custom#map('insert', '<C-d>', '<denite:quit>')
-    call denite#custom#map('insert', '<C-d>', 'DeniteTogglePathSearch()', 'expr')
+    call denite#custom#map('insert', '<C-d>',
+        \ 'ToggleSorter("converter_tail")', 'noremap expr nowait')
+    call denite#custom#map('insert', '<C-e>',
+        \ 'ToggleSorter("converter_abbr_word")', 'noremap expr nowait')
     call denite#custom#map('insert', '<C-f>',
         \ 'ToggleSorter("sorter_ftime")', 'noremap expr nowait')
     call denite#custom#map('insert', '<C-r>$',
@@ -2666,7 +2655,6 @@ function! s:DeniteSetup() " {{{
         let s:grep_context = {
             \ 'mode': 'normal',
             \ 'quit': v:false,
-            \ 'auto_resize': v:true,
             \ }
         let l:path = map(a:context.targets, 'v:val.action__path')
         let l:opts = get(g:, 'ag_flags', '')
@@ -2747,7 +2735,6 @@ function! s:AckCurrentSearch(ignorecase, visual, args) " {{{
     let s:grep_context = {
         \ 'mode': 'normal',
         \ 'quit': v:false,
-        \ 'auto_resize': v:true,
         \ 'path': '.',
         \ 'args': ['.', join(l:args), l:pattern],
         \ }
