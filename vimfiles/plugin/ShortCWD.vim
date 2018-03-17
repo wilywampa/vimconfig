@@ -31,6 +31,8 @@ function! ShortCWD()
   if &filetype ==# 'unite'
     return substitute(get(unite#get_context(), 'buffer_name', ''),
         \ '^default$', '', '')
+  elseif &filetype ==# 'denite'
+    return denite#get_status('path')
   endif
   if getcwd() == s:cwdPrev && @% == s:bufNamePrev &&
       \ winwidth(0) == s:winWidthPrev && &mod == s:bufModPrev &&

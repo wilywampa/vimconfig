@@ -2453,6 +2453,7 @@ function! ModifyGrep() abort " {{{
 endfunction " }}}
 
 function! s:DeniteSetup() " {{{
+    call denite#custom#option('default', 'statusline', v:false)
     call denite#custom#source('_', 'matchers', ['matcher_regexp'])
     call denite#custom#option('_', {
         \ 'auto_resume': v:true,

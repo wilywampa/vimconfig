@@ -35,7 +35,6 @@ endif
 
 let g:lightline.colorscheme = 'solarized_custom'
 let g:lightline.component = {
-    \   'lineinfo': '%3p%% ' . g:airline_symbols.linenr . '%3l:%-2v',
     \   'filetype': '%{&filetype}',
     \ }
 let g:lightline.component_function = {
@@ -47,6 +46,7 @@ let g:lightline.component_expand = {
     \   'info': 'LightLineInfo',
     \   'whitespace': 'whitespace#check',
     \   'inactive_filename': 'LightLineInactiveFilename',
+    \   'lineinfo': 'LightLineLineInfo',
     \ }
 let g:lightline.component_type = {'whitespace': 'error'}
 let g:lightline.active = {
@@ -74,6 +74,11 @@ function! LightLineInfo() abort
       \  '%#StatusFlag#%{&readonly?"  '.g:airline_symbols.readonly.'":""}'
 endfunction
 
+function! LightLineLineInfo() abort
+  return &filetype ==# 'denite' ? '%{denite#get_status("linenr")}' :
+      \ ('%3p%% ' . g:airline_symbols.linenr . '%3l:%-2v')
+endfunction
+
 function! LightLineInactiveFilename()
   return '%<%{LightLineFile()}%#StatusModified#%{LightLineFileModified()}'
 endfunction
@@ -83,6 +88,7 @@ function! LightLineFilename() abort
   return stridx(l:name, '__Mundo') == 0 ? '' :
       \ stridx(l:name, '--Python--') != -1 ? 'IPython' :
       \ &previewwindow ? 'Preview' :
+      \ &filetype ==# 'denite' ? denite#get_status('sources') :
       \ &filetype ==# 'vimfiler' ? vimfiler#get_status_string() :
       \ &filetype ==# 'unite' ? unite#get_status_string() :
       \ &filetype ==# 'qf' ? get(w:, 'quickfix_title', '') :
@@ -97,12 +103,19 @@ function! LightLineFileModified() abort
   return &modified ? LightLineFilename() . '[+]' : ''
 endfunction
 
+function! s:DeniteMode() abort
+  let l:mode_str = denite#get_status('raw_mode')
+  call lightline#link(tolower(l:mode_str[0]))
+  return l:mode_str
+endfunction
+
 function! LightLineMode() abort
   let l:name = expand('%:t')
   return l:name ==# '__Mundo__' ? 'Mundo' :
       \ l:name ==# '__Mundo_Preview__' ? 'Mundo Preview' :
       \ &filetype ==# 'qf' ? (empty(getloclist(0)) ?
       \   'Quickfix' : 'Location List') :
+      \ &filetype ==# 'denite' ? s:DeniteMode() :
       \ &filetype ==# 'help' ? 'Help' :
       \ &filetype ==# 'unite' ? 'Unite' :
       \ &filetype ==# 'vimfiler' ? 'vimfiler' :
