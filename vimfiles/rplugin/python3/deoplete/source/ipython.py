@@ -52,7 +52,7 @@ def log(f):
         line = self.vim.current.line
         col = self.vim.funcs.col('.')
         logger.debug('start: %d', start)
-        logger.debug('base: %s', line[start:col])
+        logger.debug('base: %r', line[start:col])
         return start
     return g
 
@@ -63,22 +63,26 @@ class Source(Base):
         super().__init__(vim)
         self.name = 'ipython'
         self.mark = '[IPy]'
-        self.filetypes = ['python']
+        self.filetypes = ['cython', 'python']
         self.is_volatile = True
         self.rank = 2000
-        self.input_pattern = r'\w+(\.\w+)*'
+        self.input_pattern = (
+            r'[\w\)\]\}\'\"]+\.(\w*.*)?$|'
+            r'^\s*@\w*$|'
+            r'^\s*from\s+[\w\.]*(?:\s+import\s+(?:\w*(?:,\s*)?)*)?|'
+            r'^\s*import\s+(?:[\w\.]*(?:,\s*)?)*')
         self._client = IPythonClient(vim)
-        self._client.vim = vim
         self._kernel_file = None
 
     @log
     def get_complete_position(self, context):
         line = self.vim.current.line
         col = self.vim.funcs.col('.')
-        logger.debug('line: %s', line[:col])
+        logger.debug('line: %r', line[:col])
 
         # return immediately for imports
         if imports.match(context['input']):
+            logger.debug('matches imports')
             start = len(context['input'])
             while start > 0 and re.match('[._A-Za-z0-9]',
                                          context['input'][start - 1]):
@@ -117,11 +121,16 @@ class Source(Base):
         while bracket_level > 0 and opening.match(line[start:col]):
             prefix = parses(line[start:col])
             if prefix:
-                logger.debug('removing %s at %d', prefix, start)
+                logger.debug('removing %r at %d', prefix, start)
                 start += len(prefix)
                 bracket_level -= 1
             else:
                 break
+
+        base = line[start:col]
+        if not bracket_level and base.endswith(' '):
+            if not re.match(r'^\s*(?:from|import).*\s+$', line):
+                return -1
 
         logger.debug('bracket level: %d', bracket_level)
         return start
@@ -139,10 +148,33 @@ class Source(Base):
             logger.debug('no connection')
             return []
 
+        # Handle special inputs (imports, magics)
+        base = context['complete_str']
+        line = context['input']
+        pos = context['complete_position'] + len(base)
+        logger.debug('completing %r at %d from %r', base, pos, line)
+        match = re.match('^\s*(import|from\s*)', line)
+        if match:
+            line = line.lstrip()
+            pos = len(line)
+        else:
+            match = imports.match(line)
+            if match:
+                module = match.string.strip().split()[1]
+                line = 'from {module} import {base}'.format(
+                    module=module, base=base)
+                pos = len(line)
+            else:
+                line = line[pos - len(base):pos]
+                pos = len(base)
+
         # Send the complete request
-        reply = client.waitfor(client.kc.complete(
-            context['input'] if imports.match(context['input'])
-            else context['complete_str']))
+        logger.debug('sending code=%r cursor_pos=%d', line, pos)
+        try:
+            msg_id = client.kc.complete(code=line, cursor_pos=pos)
+        except TypeError:
+            msg_id = client.kc.complete(text=base, line=line, cursor_pos=pos)
+        reply = client.waitfor(msg_id)
         if not reply or reply.get('msg_type', '') != 'complete_reply':
             logger.debug('bad complete response')
             return []
@@ -158,7 +190,17 @@ class Source(Base):
         # Try to read the metadata
         try:
             metadata = reply['content']['user_expressions']['_completions']
-            return ast.literal_eval(metadata['data']['text/plain'])
+            matches = ast.literal_eval(metadata['data']['text/plain'])
         except KeyError:
             logger.debug('KeyError')
             return []
+
+        logger.debug('got %d completions', len(matches))
+        for candidate in matches:
+            if match:
+                candidate['word'] = candidate['word'].rstrip('(')
+            candidate['word'] = candidate['word'].rstrip()
+            if not candidate['word'].startswith(base):
+                candidate['word'] = base + candidate['word']
+                candidate['abbr'] = base + candidate['abbr']
+        return matches
