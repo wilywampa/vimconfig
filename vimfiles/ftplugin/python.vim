@@ -146,10 +146,13 @@ endif
 
 if !exists('*IPyRunPrompt') && (has('python') || has('python3'))
   function! IPyRunIPyInput(...)
-    if exists('b:did_ipython') || get(g:, 'ipython_connected', 0)
-      redraw
-      " Dedent text in case first non-blank line is indented
-      Python2or3 << endpython
+    if !exists('b:did_ipython') && !get(g:, 'ipython_connected', 0)
+      echo 'Not connected to IPython'
+      return
+    endif
+    redraw
+    " Dedent text in case first non-blank line is indented
+    Python2or3 << endpython
 import textwrap
 import vim
 ipy_input = vim.vars['ipy_input']
@@ -158,10 +161,10 @@ if not isinstance(ipy_input, str):
 ipy_input = textwrap.dedent(ipy_input).strip()
 vim.vars['ipy_input'] = ipy_input
 endpython
-      if g:ipython_write_all || bufnr('%') == bufnr(s:scratch_name)
-        call s:WriteScratch(g:ipy_input)
-      endif
-      Python2or3 << endpython
+    if g:ipython_write_all || bufnr('%') == bufnr(s:scratch_name)
+      call s:WriteScratch(g:ipy_input)
+    endif
+    Python2or3 << endpython
 import ast
 try:
     kwargs = ast.literal_eval(vim.eval('a:1'))
@@ -180,10 +183,7 @@ except SyntaxError:
         vim.vars['ipy_input'] = '%%' + second
 run_ipy_input(**kwargs)
 endpython
-      unlet g:ipy_input
-    else
-      echo 'Not connected to IPython'
-    endif
+    unlet g:ipy_input
   endfunction
 
   function! IPyRunSilent(text)
