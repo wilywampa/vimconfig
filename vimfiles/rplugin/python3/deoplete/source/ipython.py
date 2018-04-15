@@ -197,10 +197,13 @@ class Source(Base):
 
         logger.debug('got %d completions', len(matches))
         for candidate in matches:
-            if match:
-                candidate['word'] = candidate['word'].rstrip('(')
-            candidate['word'] = candidate['word'].rstrip()
-            if not candidate['word'].startswith(base):
-                candidate['word'] = base + candidate['word']
-                candidate['abbr'] = base + candidate['abbr']
+            try:
+                if match:
+                    candidate['word'] = candidate['word'].rstrip('(')
+                candidate['word'] = candidate['word'].rstrip()
+                if not candidate['word'].startswith(base):
+                    candidate['word'] = base + candidate['word']
+                    candidate['abbr'] = base + candidate['abbr']
+            except KeyError:
+                pass
         return matches
