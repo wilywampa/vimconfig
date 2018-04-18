@@ -447,7 +447,7 @@ class DataObj(object):
         self.xmenu.setCurrentIndex(0)
         self.xlabel = QtWidgets.QLabel('x axis:', parent=self.parent)
 
-        words = sorted(CONSTANTS, key=lambda w: w.lower())
+        words = sorted(CONSTANTS, key=str.lower)
 
         def new_scale_box():
             scale_compl = TabCompleter(words, parent=self.parent)
@@ -929,7 +929,7 @@ class Interact(QtWidgets.QMainWindow):
             props.update([('color', line.get_color()),
                           ('linestyle', line.get_linestyle()),
                           ('linewidth', line.get_linewidth())])
-            key = tuple(sorted(zip(*props.items())))
+            key = tuple(sorted(zip(*(map(str, x) for x in props.items()))))
             keys.add(key)
             self.label_lists.setdefault(key, []).append(label)
             self.handles.setdefault(key, line)
