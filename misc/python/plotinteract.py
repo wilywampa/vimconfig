@@ -71,8 +71,7 @@ def flatten(d, ndim=None, prefix=''):
                     array = out.pop(key)
                     new = {key + '[%d]' % i: a for i, a in enumerate(array)}
                     out.update(new)
-                    queue.extend(q for q in new.keys()
-                                 if len(new[q].shape) > ndim)
+                    queue.extend(q for q in new if len(new[q].shape) > ndim)
     return out
 
 
@@ -81,6 +80,14 @@ def isiterable(obj):
     if isinstance(obj, string_types):
         return False
     return hasattr(obj, '__iter__')
+
+
+def unique(seq):
+    seen = set()
+    for item in seq:
+        if item not in seen:
+            seen.add(item)
+            yield item
 
 
 def props_repr(value):
@@ -423,7 +430,7 @@ class DataObj(object):
         self.scale_label = QtWidgets.QLabel('scale:', parent=self.parent)
         self.xscale_label = QtWidgets.QLabel('scale:', parent=self.parent)
 
-        words = [k for k in self.obj.keys() if hasattr(self.obj[k], 'dtype')]
+        words = [k for k in self.obj if hasattr(self.obj[k], 'dtype')]
         words.sort(key=parent.sortkey)
 
         def new_text_box():
@@ -1001,7 +1008,7 @@ class Interact(QtWidgets.QMainWindow):
             ax.set_aspect('equal' if self.axisequal else 'auto', 'box-forced')
         legend = self.axes.legend(
             self.handles.values(),
-            (', '.join(x) for x in self.label_lists.values()))
+            (', '.join(unique(x)) for x in self.label_lists.values()))
         legend.draggable(True)
         self.pickers = [picker(ax) for ax in [self.axes, self.axes2]]
 
@@ -1134,7 +1141,7 @@ class Interact(QtWidgets.QMainWindow):
 
 def merge_dicts(*dicts):
     """Pad and concatenate arrays present in all input dictionaries."""
-    sets = [set(d.keys()) for d in dicts]
+    sets = [set(d) for d in dicts]
     keys = sets[0].intersection(*sets)
 
     def validate(array):
