@@ -90,10 +90,25 @@ def unique(seq):
             yield item
 
 
+def nth_color_value(c):
+    prop_cycler = mpl.rcParams['axes.prop_cycle']
+    colors = prop_cycler.by_key().get('color', ['k'])
+    return colors[int(c[1]) % len(colors)]
+
+
 def props_repr(value):
     if isinstance(value, text_type) and not isinstance(value, str):
         value = str(value)
     return repr(value)
+
+
+def process_props_format(props):
+    props = dict(zip(('linestyle', 'marker', 'color'),
+                     mpl.axes._base._process_plot_format(props)))
+    for key, value in list(props.items()):
+        if value is None or value == 'None':
+            del props[key]
+    return props
 
 
 def dict_repr(d, top=True):
@@ -509,6 +524,7 @@ class DataObj(object):
 
         self.kwargs = kwargs
         self.process_kwargs()
+        self.process_cdata()
 
     def choose_label(self):
         names = [d.name for d in self.parent.datas if d is not self]
@@ -577,6 +593,11 @@ class DataObj(object):
         for k in 'c', 'color', 'linestyle', 'ls':
             self.kwargs.pop(k, None)
 
+        for p in self.props:
+            if mpl.colors._is_nth_color(p.get('color', None)):
+                p['color'] = nth_color_value(p['color'])
+
+    def process_cdata(self):
         if 'cdata' in self.kwargs:
             self.cdata = np.squeeze(self.kwargs['cdata'])
             self.norm = self.kwargs.get('norm', None)
@@ -604,11 +625,10 @@ class DataObj(object):
             else:
                 self.props = [self.props.copy()]
         elif isinstance(self.props, text_type):
-            self.props = [dict(zip(
-                ('linestyle', 'marker', 'color'),
-                mpl.axes._base._process_plot_format(self.props)))]
+            self.props = [process_props_format(self.props)]
         else:
-            self.props = [p.copy() for p in self.props]
+            self.props = [process_props_format(p) if isinstance(p, text_type)
+                          else p.copy() for p in self.props]
 
     def duplicate(self):
         kwargs = self.kwargs.copy()
@@ -677,6 +697,8 @@ class DataObj(object):
                 value = ast.literal_eval(text_type(value.text()))
             except (SyntaxError, ValueError):
                 value = text_type(value.text())
+            if key == 'color' and mpl.colors._is_nth_color(value):
+                value = nth_color_value(value)
             if all(key in p and p[key] == value for p in self.props):
                 return
             elif value == '' and any(key in p for p in self.props):
