@@ -605,7 +605,8 @@ class DataObj(object):
                 self.norm = np.nanmin(self.cdata), np.nanmax(self.cdata)
             if not isinstance(self.norm, mpl.colors.Normalize):
                 self.norm = mpl.colors.Normalize(*self.norm)
-            self.cmap = mpl.cm.get_cmap(self.kwargs.get('cmap', 'rainbow'))
+            self.cmap = mpl.cm.get_cmap(
+                self.kwargs.get('cmap', mpl.rcParams['image.cmap']))
 
     def process_props(self):
         logger.debug('processing props: %s', self.props)
@@ -932,13 +933,13 @@ class Interact(QtWidgets.QMainWindow):
 
         if xname in data.obj and x.shape[0] in y.shape:
             xaxis = y.shape.index(x.shape[0])
-            lines = axes.plot(x, np.rollaxis(y, xaxis))
+            lines = self.lines(axes, data, x, np.rollaxis(y, xaxis))
         else:
             if xname in data.obj:
                 self.warnings.add(
                     '{} {} and {} {} have incompatible dimensions'.format(
                         xname, x.shape, yname, y.shape))
-            lines = axes.plot(y)
+            lines = self.lines(axes, data, mpl.cbook.index_of(y), y)
 
         auto = False
         if not isiterable(data.labels):
@@ -957,12 +958,15 @@ class Interact(QtWidgets.QMainWindow):
             line.set_label(label)
             for key, value in props.items():
                 getattr(line, 'set_' + key, lambda _: None)(value)
-            if hasattr(data, 'cdata') and 'color' not in props:
-                line.set_color(data.cmap(data.norm(data.cdata[i])))
             props = copy.copy(props)
             props.update([('color', line.get_color()),
                           ('linestyle', line.get_linestyle()),
                           ('linewidth', line.get_linewidth())])
+
+            # Don't add multi-colored lines to legend
+            if isinstance(line, mpl.collections.LineCollection):
+                continue
+
             key = tuple(sorted(zip(*(map(str, x) for x in props.items()))))
             keys.add(key)
             self.label_lists.setdefault(key, []).append(label)
@@ -974,6 +978,35 @@ class Interact(QtWidgets.QMainWindow):
             self.label_lists[key] = [auto]
 
         return len(lines)
+
+    def lines(self, axes, data, x, y):
+        colors = [p.get('color', None) for p in data.props]
+        if hasattr(data, 'cdata') and not any(colors):
+            x, y = np.ma.filled(x, np.nan), np.ma.filled(y, np.nan)
+            if data.cdata.shape == y.shape:
+                lines = []
+                x, y, cdata = map(np.atleast_2d,
+                                  map(np.transpose, (x, y, data.cdata)))
+                for x, y, c in zip(x, y, cdata):
+                    x = np.r_[x[0], (x[1:] + x[:-1]) / 2.0, x[-1]]
+                    y = np.r_[y[0], (y[1:] + y[:-1]) / 2.0, y[-1]]
+                    points = np.array([x, y]).T.reshape(-1, 1, 2)
+                    segments = np.concatenate(
+                        [points[:-1], points[1:]], axis=1)
+                    line = mpl.collections.LineCollection(
+                        segments, norm=data.norm, cmap=data.cmap)
+                    line.set_array(c)
+                    axes.add_collection(line)
+                    axes.autoscale_view()
+                    lines.append(line)
+                return lines
+            else:
+                lines = axes.plot(x, y)
+                for line, c in zip(lines, data.cdata):
+                    line.set_color(data.cmap(data.norm(c)))
+                return lines
+        else:
+            return axes.plot(x, y)
 
     def draw(self):
         self.mpl_toolbar.home = self.draw
@@ -989,6 +1022,7 @@ class Interact(QtWidgets.QMainWindow):
             self.mappable.set_array(color_data.cdata)
             self.colorbar = self.fig.colorbar(
                 self.mappable, ax=self.axes, fraction=0.1, pad=0.02)
+            self.colorbar.set_label(color_data.name)
         elif twin:
             self.axes2 = self.axes.twinx()
 
