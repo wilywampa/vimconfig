@@ -167,6 +167,8 @@ class Source(Base):
             else:
                 line = line[pos - len(base):pos]
                 pos = len(base)
+        if not line:
+            return []
 
         # Send the complete request
         logger.debug('sending code=%r cursor_pos=%d', line, pos)
