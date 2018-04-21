@@ -15,7 +15,7 @@ function gendict
         try
             gendictvar(fid, vars{i});
         catch ME
-            if !strfind(ME.message, 'scalar cannot be indexed with {')
+            if not strfind(ME.message, 'scalar cannot be indexed with {')
                 rethrow(ME);
             end
         end
