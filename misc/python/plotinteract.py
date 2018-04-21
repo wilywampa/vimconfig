@@ -1076,6 +1076,9 @@ class Interact(QtWidgets.QMainWindow):
         self.margins = 0 if self.margins else 0.05
         self.draw()
 
+    def closeEvent(self, event):
+        self._close()
+
     def _close(self):
         self.app.references.discard(self)
         self.window().close()
