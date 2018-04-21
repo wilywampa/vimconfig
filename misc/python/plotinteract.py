@@ -587,6 +587,7 @@ class DataObj(object):
             self.cmap = mpl.cm.get_cmap(self.kwargs.get('cmap', 'rainbow'))
 
     def process_props(self):
+        logger.debug('processing props: %s', self.props)
         if isinstance(self.props, dict):
             self.props = self.props.copy()
             if self.props:
@@ -602,6 +603,10 @@ class DataObj(object):
                     self.props = [self.props.copy()]
             else:
                 self.props = [self.props.copy()]
+        elif isinstance(self.props, text_type):
+            self.props = [dict(zip(
+                ('linestyle', 'marker', 'color'),
+                mpl.axes._base._process_plot_format(self.props)))]
         else:
             self.props = [p.copy() for p in self.props]
 
