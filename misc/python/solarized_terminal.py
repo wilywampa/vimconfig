@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylama: ignore=E241
 import sys
 from pygments.formatter import Formatter
 from pygments.token import (Comment, Error, Generic, Keyword, Literal,
@@ -117,6 +118,7 @@ solarized_styles = {
     Name.Variable.Class:    ('darkblue',  'darkblue'),
     Name.Variable.Global:   ('darkblue',  'darkblue'),
     Name.Variable.Instance: ('darkblue',  'darkblue'),
+    Name.Variable.Magic:    ('brown',     'brown'),
 
     Number:                 ('teal',      'teal'),
     Number.Float:           ('teal',      'teal'),
