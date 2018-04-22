@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal
 from collections import OrderedDict
 from cycler import cycler
-from itertools import chain, cycle
+from itertools import chain, count, cycle
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as
                                                 FigureCanvas,
@@ -901,14 +901,42 @@ class Interact(QtWidgets.QMainWindow):
             self.warnings.add('Error setting scale: ' + text_type(e))
             return 1.0
 
-    def get_key(self, menu):
+    def get_key(self, data, menu):
         key = text_type(menu.itemText(menu.currentIndex()))
         text = text_type(menu.lineEdit().text())
-        if key != text:
+        if key == text:
+            return key
+        if not self.eval_key(data, text)[1]:
             self.warnings.add(
                 'Plotted key (%s) does not match typed key (%s)' %
                 (key, text))
-        return key
+        return text
+
+    def eval_key(self, data, text):
+        if text in data.obj:
+            return data.obj[text], True
+        identifier = re.compile('^[A-Za-z_][A-Za-z0-9_]*$')
+        keys = set(data.obj)
+        replace = {}
+        for key, value in data.obj.items():
+            if identifier.match(key) or key not in text:
+                continue
+            pattern = re.compile(r'\b' + re.escape(key) +
+                                 r'(\b|(?=[^A-Za-z0-9_])|$)')
+            var = '__' + str(next(i for i in count()
+                                  if '__' + str(i) not in keys))
+            keys.add(var)
+            text = pattern.sub('(' + var + ')', text)
+            replace[var] = value
+        try:
+            return eval(
+                text, {'np': np, 'numpy': np}, collections.ChainMap(
+                    replace, data.obj, CONSTANTS, np.__dict__)), True
+        except Exception as e:
+            self.warnings.add('Error evaluating key: ' + text_type(e))
+            menu = data.menu
+            return data.obj[text_type(
+                menu.itemText(menu.currentIndex()))], False
 
     @staticmethod
     def cla(axes):
@@ -924,18 +952,19 @@ class Interact(QtWidgets.QMainWindow):
     def plot(self, axes, data):
         xscale = self.get_scale(data.xscale_box, data.xscale_compl)
         yscale = self.get_scale(data.scale_box, data.scale_compl)
-        xname = self.get_key(data.xmenu)
-        yname = self.get_key(data.menu)
+        xname = self.get_key(data, data.xmenu)
+        yname = self.get_key(data, data.menu)
 
-        if xname in data.obj:
-            x = data.obj[xname][:] * xscale
-        y = data.obj[yname][:] * yscale
+        value, ok = self.eval_key(data, xname)
+        if ok:
+            x = value[:] * xscale
+        y = self.eval_key(data, yname)[0][:] * yscale
 
-        if xname in data.obj and x.shape[0] in y.shape:
+        if ok and x.shape[0] in y.shape:
             xaxis = y.shape.index(x.shape[0])
             lines = self.lines(axes, data, x, np.rollaxis(y, xaxis))
         else:
-            if xname in data.obj:
+            if ok:
                 self.warnings.add(
                     '{} {} and {} {} have incompatible dimensions'.format(
                         xname, x.shape, yname, y.shape))
@@ -1047,8 +1076,8 @@ class Interact(QtWidgets.QMainWindow):
             else:
                 axes, x, y = self.axes, xlabel, ylabel
             self.plot(axes, d)
-            text = self.get_key(d.menu)
-            xtext = self.get_key(d.xmenu)
+            text = self.get_key(d, d.menu)
+            xtext = self.get_key(d, d.xmenu)
             if xtext:
                 x.append(xtext + ' (' + d.name + ')')
             y.append(text + ' (' + d.name + ')')
