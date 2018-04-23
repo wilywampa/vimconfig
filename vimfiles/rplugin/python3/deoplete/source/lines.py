@@ -1,5 +1,6 @@
 import re
 from .base import Base
+from itertools import chain
 from pathlib import Path
 
 
@@ -9,7 +10,8 @@ def getbuflines(vim, buf=1, start=1, end='$'):
     max_len = min([end - start, 5000])
     current = start
     while current <= end:
-        yield from vim.call('getbufline', buf, current, current + max_len)
+        yield from enumerate(vim.call(
+            'getbufline', buf, current, current + max_len), current)
         current += max_len + 1
 
 
@@ -25,20 +27,22 @@ class Source(Base):
     def gather_candidates(self, context):
         vim = self.vim
         candidates = []
-        bufnums = set((vim.current.buffer.number,))
+        bufnr = vim.current.buffer.number
+        pos = vim.current.buffer.mark('.')
         inp = context['input'].strip()
         curline = vim.current.line.strip()
 
-        bufnums.update(win.buffer.number
-                       for win in vim.current.tabpage.windows
-                       if vim.call('buflisted', win.buffer.number))
+        bufnums = set(win.buffer.number
+                      for win in vim.current.tabpage.windows
+                      if vim.call('buflisted', win.buffer.number))
 
-        bufnums.discard(vim.current.buffer.number)
-
-        for n in [vim.current.buffer.number] + list(bufnums):
+        for n in chain([bufnr], bufnums.difference({bufnr})):
             buffer = vim.buffers[n]
             bufname = Path(buffer.name).name
-            for line in map(str.strip, getbuflines(vim, n)):
+            for linenr, line in getbuflines(vim, n):
+                if n == bufnr and linenr == pos[0]:
+                    continue
+                line = line.strip()
                 if line.startswith(inp) and line != curline:
                     candidates.append({'word': line, 'menu': bufname})
 
