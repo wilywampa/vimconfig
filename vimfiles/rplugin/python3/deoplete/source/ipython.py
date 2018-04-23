@@ -115,6 +115,8 @@ class Source(Base):
                 bracket_level += 1
             elif line[start - 1] == ']':
                 bracket_level -= 1
+            elif line[start - 1] == '{':
+                break
             start -= 1
 
         logger.debug('bracket level: %d', bracket_level)
