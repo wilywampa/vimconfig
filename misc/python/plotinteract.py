@@ -634,6 +634,8 @@ class DataObj(object):
     def duplicate(self):
         kwargs = self.kwargs.copy()
         kwargs['props'] = props = copy.deepcopy(self.props)
+        kwargs.update({k: getattr(self, k, None)
+                       for k in ('cdata', 'cmap', 'norm')})
         if self.parent.in_cycle(self):
             new_props = next(self.parent.props_iter)
             for p in props:
