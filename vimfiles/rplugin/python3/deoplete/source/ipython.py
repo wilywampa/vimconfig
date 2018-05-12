@@ -19,6 +19,7 @@ imports = re.compile(
 split_pattern = re.compile(r'[^= \r\n*()@-]')
 keyword = re.compile('[A-Za-z0-9_]')
 opening = re.compile('^(.*\[)[A-Za-z_''".]')
+splitchars = frozenset('= \r\n*()@-')
 
 request = '''
 try:
@@ -100,41 +101,38 @@ class Source(Base):
             return start
 
         start = self.vim.funcs.strchars(line[:col]) - 1
-        bracket_level = 0
-        while start > 0 and (
-            split_pattern.match(line[start - 1]) or
-            ((line[start - 1] == '.' and
-              start >= 2 and keyword.match(line[start - 2])) or
-             (line[start - 1] in '-[' and
-              start >= 2 and line[start - 2] == '[') or
-             ''.join(line[start - 2:start]) == '].')):
-            if line[start - 1] == '[':
-                if (start == 1 or not re.match(
-                        '[A-Za-z0-9_[\]]', line[start - 2])):
+        # Check if the cursor is in an incomplete string
+        for char in ("'", '"'):
+            bracket = line[:start].rfind('[' + char)
+            # Make sure the quote next to the bracket is the last
+            # quote before the cursor
+            if bracket > 0 and bracket + 1 == line[:start].rfind(char):
+                logger.debug('starts with %r', char)
+                start = bracket
+                break
+
+        stack = []
+        while start > 0:
+            char = line[start - 1]
+            logger.debug('start=%r char=%r stack=%r', start, char, stack)
+            if stack and stack[-1] in ("'", '"') and char == stack[-1]:
+                stack.pop()
+            elif char in '''"'])}''':
+                stack.append(char)
+            elif char in '[({':
+                if not stack or stack.pop() != '])}'['[({'.index(char)]:
                     break
-                bracket_level += 1
-            elif line[start - 1] == ']':
-                bracket_level -= 1
-            elif line[start - 1] == '{':
+            elif not stack and char in splitchars:
                 break
             start -= 1
 
-        logger.debug('bracket level: %d', bracket_level)
-        while bracket_level > 0 and opening.match(line[start:col]):
-            prefix = parses(line[start:col])
-            if prefix:
-                logger.debug('removing %r at %d', prefix, start)
-                start += len(prefix)
-                bracket_level -= 1
-            else:
-                break
-
         base = line[start:col]
-        if not bracket_level and base.endswith(' '):
+        if not base:
+            return -1
+        elif not stack and base.endswith(' '):
             if not re.match(r'^\s*(?:from|import).*\s+$', line):
                 return -1
 
-        logger.debug('bracket level: %d', bracket_level)
         return start
 
     def gather_candidates(self, context):
