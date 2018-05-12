@@ -599,7 +599,7 @@ class DataObj(object):
 
     def process_cdata(self):
         if 'cdata' in self.kwargs:
-            self.cdata = np.squeeze(self.kwargs['cdata'])
+            self.cdata = self.kwargs['cdata']
             self.norm = self.kwargs.get('norm', None)
             if not self.norm:
                 self.norm = np.nanmin(self.cdata), np.nanmax(self.cdata)
