@@ -22,7 +22,7 @@ class Source(Base):
         self.name = 'lines'
         self.mark = '[L]'
         self.rank = 1
-        self.input_pattern = '.*'
+        self.input_pattern = r'\S+'
 
     def gather_candidates(self, context):
         vim = self.vim
