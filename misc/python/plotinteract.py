@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import division, print_function
 import ast
 import collections
@@ -549,7 +550,7 @@ class DataObj(object):
             return kwargs['ndim']
         for key in 'yname', 'xname':
             try:
-                return len(obj[kwargs[key]].shape)
+                return len(self.eval_key(key)[0].shape)
             except (AttributeError, KeyError, IndexError):
                 pass
         try:
@@ -558,20 +559,66 @@ class DataObj(object):
         except ValueError:
             return None
 
-    def set_xname(self, xname):
-        index = self.menu.findText(xname)
+    def eval_key(self, text, cache=collections.OrderedDict()):
+        logger.debug('eval_key text = %s', text)
+        if text in self.obj:
+            return self.obj[text], True, []
+
+        cache_key = text
+        try:
+            return cache[cache_key]
+        except KeyError:
+            pass
+
+        identifier = re.compile('^[A-Za-z_][A-Za-z0-9_]*$')
+        keys = set(self.obj)
+        replace = {}
+        for key, value in self.obj.items():
+            if identifier.match(key) or key not in text:
+                continue
+            pattern = re.compile(r'\b' + re.escape(key) +
+                                 r'(\b|(?=[^A-Za-z0-9_])|$)')
+            var = '__' + str(next(i for i in count()
+                                  if '__' + str(i) not in keys))
+            keys.add(var)
+            text = pattern.sub('(' + var + ')', text)
+            replace[var] = value
+        logger.debug('eval_key after text = %s', text)
+
+        try:
+            value = eval(
+                text, {'np': np, 'numpy': np}, collections.ChainMap(
+                    replace, self.obj, CONSTANTS, np.__dict__)), True, []
+        except Exception as e:
+            warning = 'Error evaluating key: ' + text_type(e)
+            value = (self.obj[text_type(
+                self.menu.itemText(self.menu.currentIndex()))],
+                False, [warning])
+
+        cache[cache_key] = value
+        while len(cache) > 100:
+            cache.popitem(last=False)
+        return value
+
+    def set_name(self, menu, name):
+        index = self.menu.findText(name)
         if index >= 0:
-            self.xmenu.setCurrentIndex(index)
-        return index >= 0
+            menu.setCurrentIndex(index)
+        value, ok, warnings = self.eval_key(name)
+        if ok:
+            menu.setCurrentText(name)
+        return ok
+
+    def set_xname(self, xname):
+        logger.debug('set_xname %r', xname)
+        return self.set_name(self.xmenu, xname)
 
     def set_xscale(self, xscale):
         self.xscale_box.setText(text_type(xscale))
 
     def set_yname(self, yname):
-        index = self.menu.findText(yname)
-        if index >= 0:
-            self.menu.setCurrentIndex(index)
-        return index >= 0
+        logger.debug('set_yname %r', yname)
+        return self.set_name(self.menu, yname)
 
     def set_yscale(self, yscale):
         self.scale_box.setText(text_type(yscale))
@@ -598,8 +645,8 @@ class DataObj(object):
                 p['color'] = nth_color_value(p['color'])
 
     def process_cdata(self):
-        if 'cdata' in self.kwargs:
-            self.cdata = self.kwargs['cdata']
+        self.cdata = self.kwargs.get('cdata', None)
+        if self.cdata is not None:
             self.norm = self.kwargs.get('norm', None)
             if not self.norm:
                 self.norm = np.nanmin(self.cdata), np.nanmax(self.cdata)
@@ -738,7 +785,7 @@ class DataObj(object):
 class Interact(QtWidgets.QMainWindow):
 
     def __init__(self, data, app, title=None, sortkey=None, axisequal=False,
-                 parent=None, **kwargs):
+                 parent=None, max_label_len=None, **kwargs):
         self.app = app
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
@@ -752,7 +799,7 @@ class Interact(QtWidgets.QMainWindow):
         self.frame = QtWidgets.QWidget()
         self.dpi = 100
 
-        self.fig = Figure(tight_layout=True)
+        self.fig = Figure(tight_layout=False)
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self.frame)
         self.canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
@@ -766,6 +813,7 @@ class Interact(QtWidgets.QMainWindow):
         self.xlogscale = 'linear'
         self.ylogscale = 'linear'
         self.axisequal = axisequal
+        self.max_label_len = max_label_len
         self.margins = 0
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
@@ -847,7 +895,7 @@ class Interact(QtWidgets.QMainWindow):
         self.props_iter = cycle(self.cycle)
         if len(self.datas) > 1:
             for data, props in zip(self.datas, self.props_iter):
-                if hasattr(data, 'cdata') and 'color' in props:
+                if data.cdata is not None and 'color' in props:
                     continue
                 for k, v in props.items():
                     for p in data.props:
@@ -908,37 +956,11 @@ class Interact(QtWidgets.QMainWindow):
         text = text_type(menu.lineEdit().text())
         if key == text:
             return key
-        if not self.eval_key(data, text)[1]:
-            self.warnings.add(
-                'Plotted key (%s) does not match typed key (%s)' %
-                (key, text))
+        value, ok, warnings = data.eval_key(text)
+        if not ok:
+            self.warnings.update(warnings)
+            return key
         return text
-
-    def eval_key(self, data, text):
-        if text in data.obj:
-            return data.obj[text], True
-        identifier = re.compile('^[A-Za-z_][A-Za-z0-9_]*$')
-        keys = set(data.obj)
-        replace = {}
-        for key, value in data.obj.items():
-            if identifier.match(key) or key not in text:
-                continue
-            pattern = re.compile(r'\b' + re.escape(key) +
-                                 r'(\b|(?=[^A-Za-z0-9_])|$)')
-            var = '__' + str(next(i for i in count()
-                                  if '__' + str(i) not in keys))
-            keys.add(var)
-            text = pattern.sub('(' + var + ')', text)
-            replace[var] = value
-        try:
-            return eval(
-                text, {'np': np, 'numpy': np}, collections.ChainMap(
-                    replace, data.obj, CONSTANTS, np.__dict__)), True
-        except Exception as e:
-            self.warnings.add('Error evaluating key: ' + text_type(e))
-            menu = data.menu
-            return data.obj[text_type(
-                menu.itemText(menu.currentIndex()))], False
 
     @staticmethod
     def cla(axes):
@@ -957,10 +979,16 @@ class Interact(QtWidgets.QMainWindow):
         xname = self.get_key(data, data.xmenu)
         yname = self.get_key(data, data.menu)
 
-        value, ok = self.eval_key(data, xname)
+        value, ok, warnings = data.eval_key(xname)
+        logger.debug('eval_key x %r ok = %s', xname, ok)
         if ok:
-            x = value[:] * xscale
-        y = self.eval_key(data, yname)[0][:] * yscale
+            x = np.asarray(value) * xscale
+            y, ok, warnings = data.eval_key(yname)
+            logger.debug('eval_key y %r ok = %s', yname, ok)
+            if ok:
+                y = np.asarray(y) * yscale
+        if not ok:
+            self.warnings.update(warnings)
 
         if ok and x.shape[0] in y.shape:
             xaxis = y.shape.index(x.shape[0])
@@ -970,7 +998,7 @@ class Interact(QtWidgets.QMainWindow):
                 self.warnings.add(
                     '{} {} and {} {} have incompatible dimensions'.format(
                         xname, x.shape, yname, y.shape))
-            lines = self.lines(axes, data, mpl.cbook.index_of(y), y)
+            lines = self.lines(axes, data, None, y)
 
         auto = False
         if not isiterable(data.labels):
@@ -1012,10 +1040,10 @@ class Interact(QtWidgets.QMainWindow):
 
     def lines(self, axes, data, x, y):
         colors = [p.get('color', None) for p in data.props]
-        if hasattr(data, 'cdata') and not any(colors):
-            x, y = np.ma.filled(x, np.nan), np.ma.filled(y, np.nan)
-            if data.cdata.shape == y.shape:
+        if data.cdata is not None and not any(colors):
+            if x is not None and data.cdata.shape == y.shape:
                 lines = []
+                x, y = np.ma.filled(x, np.nan), np.ma.filled(y, np.nan)
                 x, y, cdata = map(np.atleast_2d,
                                   map(np.transpose, (x, y, data.cdata)))
                 for x, y, c in zip(x, y, cdata):
@@ -1032,21 +1060,22 @@ class Interact(QtWidgets.QMainWindow):
                     lines.append(line)
                 return lines
             else:
-                lines = axes.plot(x, y)
+                lines = axes.plot(y)
                 for line, c in zip(lines, data.cdata):
                     line.set_color(data.cmap(data.norm(c)))
                 return lines
         else:
-            return axes.plot(x, y)
+            return axes.plot(y) if x is None else axes.plot(x, y)
 
     def draw(self):
+        logger.debug('Interact.draw')
         self.mpl_toolbar.home = self.draw
         twin = any(d.twin for d in self.datas)
         self.clear_pickers()
         self.fig.clear()
         self.axes = self.fig.add_subplot(111)
 
-        color_data = next((d for d in self.datas if hasattr(d, 'cdata')), None)
+        color_data = next((d for d in self.datas if d.cdata is not None), None)
         if color_data and not twin:
             self.mappable = mpl.cm.ScalarMappable(norm=color_data.norm,
                                                   cmap=color_data.cmap)
@@ -1061,7 +1090,7 @@ class Interact(QtWidgets.QMainWindow):
             if len(self.datas) > 1 and any(k in data.props
                                            for k in self.cycle.keys
                                            for data in self.datas):
-                ax.set_prop_cycle(cycler(color='b'))
+                ax.set_prop_cycle(cycler(color='C0'))
             ax._tight = bool(self.margins)
             if self.margins:
                 ax.margins(self.margins)
@@ -1072,7 +1101,8 @@ class Interact(QtWidgets.QMainWindow):
         ylabel2 = []
         self.warnings = set()
         self.label_lists, self.handles = OrderedDict(), OrderedDict()
-        for d in self.datas:
+        for i, d in enumerate(self.datas, 1):
+            logger.debug('plotting data %s of %s', i, len(self.datas))
             if d.twin:
                 axes, x, y = self.axes2, xlabel2, ylabel2
             else:
@@ -1097,16 +1127,23 @@ class Interact(QtWidgets.QMainWindow):
         self.axes.set_yscale(self.ylogscale)
 
         for ax in self.axes, self.axes2:
-            ax.set_aspect('equal' if self.axisequal else 'auto', 'box-forced')
-        legend = self.axes.legend(
-            self.handles.values(),
-            (', '.join(unique(x)) for x in self.label_lists.values()))
-        legend.draggable(True)
+            ax.set_aspect('equal' if self.axisequal else 'auto', 'box')
+        labels = [', '.join(unique(x)) for x in self.label_lists.values()]
+        for i, label in enumerate(labels):
+            if self.max_label_len and len(label) > self.max_label_len:
+                labels[i] = label[:self.max_label_len] + '…'
         self.pickers = [picker(ax) for ax in [self.axes, self.axes2]]
+
+        # Ignore the legend in in tight_layout
+        self.fig.tight_layout()
+        self.axes.legend(self.handles.values(), labels,
+                         ncol=1 + len(labels) // 10,
+                         handlelength=1.5).draggable(True)
 
         self.canvas.draw()
 
     def draw_warnings(self):
+        logger.debug('drawing warnings = %s', self.warnings)
         self.axes.text(0.05, 0.05, '\n'.join(self.warnings),
                        transform=self.axes.transAxes, color='red')
 
