@@ -52,6 +52,8 @@ if sys.platform == 'darwin':
 else:
     CONTROL_MODIFIER = QtCore.Qt.ControlModifier
 
+KEYWORDS_RE = re.compile(r'\b[a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*\.?')
+
 
 def flatten(d, ndim=None, prefix=''):
     """Join nested keys with '.' and unstack arrays."""
@@ -193,6 +195,9 @@ class KeyHandlerMixin(object):
         }
 
         if event.type() == QtCore.QEvent.KeyPress:
+            logger.debug('KeyPress %s', next(
+                (k for k, v in QtCore.Qt.__dict__.items() if v == event.key()),
+                None))
             if (event.modifiers() == CONTROL_MODIFIER and
                     event.key() in control_actions):
                 action = control_actions[event.key()]
@@ -208,6 +213,8 @@ class KeyHandlerMixin(object):
             elif event.key() in (QtCore.Qt.Key_Home,
                                  QtCore.Qt.Key_End):
                 return self.move_cursor(event)
+            elif event.key() == QtCore.Qt.Key_Return:
+                self.returnPressed.emit()
             elif self.completer.popup().viewport().isVisible():
                 if event.key() == QtCore.Qt.Key_Tab:
                     self.tabPressed.emit(1)
@@ -215,8 +222,6 @@ class KeyHandlerMixin(object):
                 elif event.key() == QtCore.Qt.Key_Backtab:
                     self.tabPressed.emit(-1)
                     return True
-                elif event.key() == QtCore.Qt.Key_Return:
-                    self.returnPressed.emit()
 
         return super(KeyHandlerMixin, self).event(event)
 
@@ -258,29 +263,30 @@ class TabCompleter(QtWidgets.QCompleter):
             popup.close()
 
     def confirm(self):
+        logger.debug('TabCompleter confirm')
         try:
             text = text_type(self.textbox.currentText())
         except AttributeError:
             if self.skip_text is not None:
                 self.skip = True
-                return self.activated.emit(self.skip_text)
+                self.activated.emit(self.skip_text)
         else:
-            if self.words.findText(text) == -1:
-                self.select_completion(0)
-            else:
-                return self.activated.emit(text)
-        self.activated.emit(self.currentCompletion())
+            self.activated.emit(text)
 
 
 class CustomQCompleter(TabCompleter):
 
-    def __init__(self, *args, **kwargs):
-        super(CustomQCompleter, self).__init__(*args, **kwargs)
-        self.parent = kwargs.get('parent', None)
+    def __init__(self, parent, *args, **kwargs):
+        super(CustomQCompleter, self).__init__(parent, *args, **kwargs)
+        self.parent = parent
         self.local_completion_prefix = ''
         self.source_model = None
         self.filterProxyModel = QtCore.QSortFilterProxyModel(self)
         self.usingOriginalModel = False
+        try:
+            self.sortkey = parent.parent.sortkey
+        except AttributeError:
+            self.sortkey = str.lower
 
     def setModel(self, model):
         self.source_model = model
@@ -314,15 +320,35 @@ class CustomQCompleter(TabCompleter):
         self.local_completion_prefix = QString(
             '^' + ''.join('(?=.*%s)' % word for word in includes) +
             ''.join('(?!.*%s)' % word for word in excludes) + '.+')
-
         self.updateModel()
+
         if self.completionCount() == 0:
             self.local_completion_prefix = path
+
         if self.filterProxyModel.rowCount() == 0:
+            logger.debug('rowCount == 0')
+            completions = []
+            model = self.source_model
+            if model:
+                # Find keys that complete any partial key in path
+                keys = [model.data(model.index(i, 0))
+                        for i in range(model.rowCount())]
+                for m in KEYWORDS_RE.finditer(path):
+                    word = m[0]
+                    logger.debug('word = %s', m[0])
+                    if word in keys:
+                        continue
+                    for key in keys:
+                        if key.lower().startswith(word.lower()):
+                            c = path[:m.start()] + key + path[m.end():]
+                            completions.append(c)
+                logger.debug('completions = %r', completions)
             self.usingOriginalModel = False
+            completions.sort(key=self.sortkey)
             self.filterProxyModel.setSourceModel(
-                QtCore.QStringListModel([path]))
-            return [path]
+                QtCore.QStringListModel(completions))
+            self.filterProxyModel.setFilterRegExp(QtCore.QRegExp('.*'))
+            return []
 
         return []
 
@@ -451,8 +477,10 @@ class DataObj(object):
 
         def new_text_box():
             menu = KeyHandlerComboBox(parent=self.parent)
-            menu.setMinimumWidth(100)
             menu.setModel(words)
+            menu.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.MinimumExpanding,
+                QtWidgets.QSizePolicy.Fixed))
             menu.setMaxVisibleItems(50)
             completer = menu.completer
             completer.set_textbox(menu)
@@ -476,7 +504,7 @@ class DataObj(object):
             scale_compl = TabCompleter(words, parent=self.parent)
             scale_box = KeyHandlerLineEdit(parent=self.parent)
             scale_box.completer = scale_compl
-            scale_box.setMinimumWidth(100)
+            scale_box.setFixedWidth(100)
             scale_compl.setWidget(scale_box)
             scale_box.setText('1.0')
             scale_compl.set_textbox(scale_box)
@@ -513,7 +541,7 @@ class DataObj(object):
             def highlight(text):
                 scale_compl.skip_text = text
 
-            scale_box.editingFinished.connect(draw)
+            scale_box.returnPressed.connect(draw)
             scale_box.textEdited.connect(text_edited)
             scale_compl.activated.connect(complete_text)
             scale_compl.highlighted.connect(highlight)
@@ -560,7 +588,6 @@ class DataObj(object):
             return None
 
     def eval_key(self, text, cache=collections.OrderedDict()):
-        logger.debug('eval_key text = %s', text)
         if text in self.obj:
             return self.obj[text], True, []
 
@@ -681,6 +708,10 @@ class DataObj(object):
     def duplicate(self):
         kwargs = self.kwargs.copy()
         kwargs['props'] = props = copy.deepcopy(self.props)
+        kwargs['xname'] = self.xmenu.lineEdit().text()
+        kwargs['xscale'] = self.xscale_box.text()
+        kwargs['yname'] = self.menu.lineEdit().text()
+        kwargs['yscale'] = self.scale_box.text()
         kwargs.update({k: getattr(self, k, None)
                        for k in ('cdata', 'cmap', 'norm')})
         if self.parent.in_cycle(self):
@@ -691,10 +722,6 @@ class DataObj(object):
         if len(self.parent.datas) == 2:
             self.parent.init_props()
         data = self.parent.datas[-1]
-        data.menu.setCurrentIndex(self.menu.currentIndex())
-        data.scale_box.setText(self.scale_box.text())
-        data.xmenu.setCurrentIndex(self.xmenu.currentIndex())
-        data.xscale_box.setText(self.xscale_box.text())
         self.parent.set_layout()
         data.menu.setFocus()
         data.menu.lineEdit().selectAll()
@@ -790,10 +817,10 @@ class Interact(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.setWindowTitle(title or ', '.join(d[1] for d in data))
-        if sortkey is not None:
-            self.sortkey = sortkey
+        if sortkey is None:
+            self.sortkey = kwargs.get('key', str.lower)
         else:
-            self.sortkey = kwargs.get('key', lambda x: x.lower())
+            self.sortkey = sortkey
         self.grid = QtWidgets.QGridLayout()
 
         self.frame = QtWidgets.QWidget()
