@@ -16,7 +16,7 @@ if 'DEOPLETE_IPY_LOG' in os.environ:
 
 imports = re.compile(
     r'^\s*(from\s+\.*\w+(\.\w+)*\s+import\s+(\w+,\s+)*|import\s+)')
-split_pattern = re.compile(r'[^= \r\n*()@-]')
+split_pattern = re.compile(r'[^= \r\n*(@-]|(\)(?!\.))')
 keyword = re.compile('[A-Za-z0-9_]')
 opening = re.compile('^(.*\[)[A-Za-z_''".]')
 splitchars = frozenset('= \r\n*()@-')
@@ -103,10 +103,10 @@ class Source(Base):
         start = self.vim.funcs.strchars(line[:col]) - 1
         # Check if the cursor is in an incomplete string
         for char in ("'", '"'):
-            bracket = line[:start].rfind('[' + char)
+            bracket = line[:start + 1].rfind('[' + char)
             # Make sure the quote next to the bracket is the last
             # quote before the cursor
-            if bracket > 0 and bracket + 1 == line[:start].rfind(char):
+            if bracket > 0 and bracket + 1 == line[:start + 1].rfind(char):
                 logger.debug('starts with %r', char)
                 start = bracket
                 break
@@ -129,7 +129,7 @@ class Source(Base):
         base = line[start:col]
         if not base:
             return -1
-        elif not stack and base.endswith(' '):
+        elif not stack and not line[col:] and base.endswith(' '):
             if not re.match(r'^\s*(?:from|import).*\s+$', line):
                 return -1
 
