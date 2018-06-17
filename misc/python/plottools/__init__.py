@@ -16,6 +16,8 @@ def fg(fig=None):
     """Raise figure to foreground."""
     plt.figure((fig or plt.gcf()).number)
     if plt.get_backend()[0:2].lower() == 'qt':
+        plt.get_current_fig_manager().window.hide()
+        plt.get_current_fig_manager().window.show()
         plt.get_current_fig_manager().window.activateWindow()
         plt.get_current_fig_manager().window.raise_()
     elif plt.get_backend()[0:2].lower() == 'wx':
@@ -152,8 +154,12 @@ def savehtml(file_or_name, html_attrs=None, header=None, footer=None,
 def varinfo(var):
     """Pretty print information about a variable."""
     import numpy
+    from IPython import get_ipython
     from IPython.lib.pretty import pretty
     from highlighter import highlight
+    ip = get_ipython()
+    if ip:
+        print(ip.inspector._get_info(var)['text/plain'])
     try:
         s = pretty(var, max_seq_length=20)
     except TypeError:
@@ -219,7 +225,7 @@ def axis_equal_3d(axes=None, xlim=None, ylim=None, zlim=None):
     radii = []
     for ax in np.atleast_1d(axes).ravel():
         ax.set_aspect('equal')
-        radii.append(max(np.abs(lim - lim.mean()).max()
+        radii.append(max(np.abs(lim - np.mean(lim)).max()
                          for lim in (getattr(ax, 'get_%slim3d' % axis)()
                                      for axis in 'xyz')))
         for axis, lim in zip('xyz', (xlim, ylim, zlim)):
