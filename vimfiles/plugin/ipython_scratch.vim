@@ -106,12 +106,14 @@ endfunction
 
 " Add '## ' escape to magic lines automatically
 function! s:CommentMagic() abort
-  if getline('.') =~ '\v^\s*(# )?##|^\s*$'
-    return
-  elseif string(map(synstack(line('.'),
-      \ strlen(substitute(getline('.'), '\v^.{-}[!%]\zs.*$', '', ''))),
-      \ 'synIDattr(v:val, "name")')) !~? '\vmagic(bang|pct)|cythonMagic|shellMagic'
-    return
+  if getline('.') !~? '\v^\s*[!%]'
+    if getline('.') =~ '\v^\s*(# )?##|^\s*$'
+      return
+    elseif string(map(synstack(line('.'),
+        \ strlen(substitute(getline('.'), '\v^.{-}[!%]\zs.*$', '', ''))),
+        \ 'synIDattr(v:val, "name")')) !~? '\vmagic(bang|pct)|cythonMagic|shellMagic'
+      return
+    endif
   endif
   let pos = getpos('.')
   try
