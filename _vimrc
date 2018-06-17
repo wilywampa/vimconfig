@@ -332,8 +332,8 @@ map! <F15> <C-Tab>
 map! <F16> <C-S-Tab>
 
 " Open new tab
-nn <silent> <M-t> :tabnew<CR>
-nn <silent> <M-T> :tab split<CR>
+nn <silent> <M-t> <C-u>:$tabnew<CR>
+nn <silent> <M-T> <C-u>:$tab split<CR>
 
 " Delete without yank by default, and <M-d> or \\d for delete with yank
 if maparg('c', 'n') == ''
@@ -3029,7 +3029,7 @@ let g:neomru#file_mru_limit = 2000
 let g:neomru#update_interval = hasMac ? 0 : 1.0
 
 " gitgutter configuration " {{{
-let g:gitgutter_async = 0
+let g:gitgutter_async = 1
 let g:gitgutter_sign_added = '✚'
 let g:gitgutter_sign_modified = '✹'
 let g:gitgutter_sign_removed = '✖'
@@ -3072,6 +3072,9 @@ let g:ipython_run_flags = "-i -t"
 " clang2 maps
 let g:clang2_placeholder_prev = '<C-x><C-p>'
 let g:clang2_placeholder_next = '<C-x><C-n>'
+
+" Hack to speed up ALE
+let g:ale_virtualenv_dir_names = []
 
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
