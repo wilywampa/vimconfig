@@ -2848,6 +2848,7 @@ if has('python3')
     let g:pymode_python = 'python3'
     let g:pymode_syntax_print_as_function = 1
 endif
+let g:pymode_folding = 1
 
 " VCSCommand settings
 let VCSCommandCVSExec = ''
@@ -3075,6 +3076,12 @@ let g:clang2_placeholder_next = '<C-x><C-n>'
 
 " Hack to speed up ALE
 let g:ale_virtualenv_dir_names = []
+
+" Customize vim-dispatch maps
+if !exists('g:nremap')
+    let g:nremap = {}
+endif
+let g:nremap['`'] = ''
 
 " Import scripts {{{
 silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
