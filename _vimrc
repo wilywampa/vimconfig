@@ -88,9 +88,6 @@ if has('nvim')
         \          . 'r-cr-o:hor20-blinkwait1000-blinkon500-blinkoff500'
 endif
 
-" Get return code from make command in v:shell_error
-let &shellpipe='2>&1 | tee %s;echo ${pipestatus[1]} > $HOME/.exit;exit ${pipestatus[1]}'
-
 " Turn on filetype plugins and indent settings
 filetype plugin indent on
 
@@ -1475,12 +1472,6 @@ augroup VimrcAutocmds " {{{
 
     " Disable paste mode after leaving insert mode
     autocmd InsertLeave * set nopaste
-
-    " Open quickfix window automatically if not empty
-    autocmd QuickFixCmdPost * cwindow |
-        \ if substitute(system('< $HOME/.exit'), '\d\+', '&', '') != 0 |
-        \     redraw! | echohl ErrorMsg | echomsg "Shell command failed" | echohl None |
-        \ endif | call system('[[ -f $HOME/.exit ]] && command rm $HOME/.exit')
 
     " Always make quickfix full-width on the bottom
     autocmd FileType qf wincmd J
