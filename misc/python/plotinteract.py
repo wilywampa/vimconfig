@@ -327,7 +327,7 @@ class CustomQCompleter(TabCompleter):
 
         if self.filterProxyModel.rowCount() == 0:
             logger.debug('rowCount == 0')
-            completions = []
+            completions = set()
             model = self.source_model
             if model:
                 # Find keys that complete any partial key in path
@@ -341,10 +341,14 @@ class CustomQCompleter(TabCompleter):
                     for key in keys:
                         if key.lower().startswith(word.lower()):
                             c = path[:m.start()] + key + path[m.end():]
-                            completions.append(c)
+                            while '.' in c and len(c) >= len(word):
+                                completions.add(c)
+                                c = c.rpartition('.')[0]
+                            if len(c) >= len(word):
+                                completions.add(c)
                 logger.debug('completions = %r', completions)
             self.usingOriginalModel = False
-            completions.sort(key=self.sortkey)
+            completions = sorted(completions, key=self.sortkey)
             self.filterProxyModel.setSourceModel(
                 QtCore.QStringListModel(completions))
             self.filterProxyModel.setFilterRegExp(QtCore.QRegExp('.*'))
