@@ -129,6 +129,7 @@ class KeyHandlerMixin(object):
     closed = pyqtSignal()
     duplicate = pyqtSignal()
     editProps = pyqtSignal()
+    editCdata = pyqtSignal()
     relabel = pyqtSignal()
     remove = pyqtSignal()
     returnPressed = pyqtSignal()
@@ -206,6 +207,10 @@ class KeyHandlerMixin(object):
                 except TypeError:
                     getattr(self, action).emit()
                 return True
+            elif (event.modifiers() ==
+                  CONTROL_MODIFIER | QtCore.Qt.ShiftModifier and
+                  event.key() == QtCore.Qt.Key_C):
+                self.editCdata.emit()
             elif (event.modifiers() ==
                   CONTROL_MODIFIER | QtCore.Qt.ShiftModifier and
                   event.key() == QtCore.Qt.Key_S):
@@ -455,6 +460,24 @@ class PropertyEditor(QtWidgets.QTableWidget):
             return False
 
 
+class ComboBoxDialog(QtWidgets.QInputDialog):
+
+    @staticmethod
+    def getComboBoxItem(parent, title, label, items,
+                        text='', editable=True, flags=0, hints=0):
+        dialog = QtWidgets.QInputDialog(
+            parent, QtCore.Qt.WindowFlags(flags))
+        dialog.setWindowTitle(title)
+        dialog.setLabelText(label)
+        dialog.setComboBoxItems(items)
+        dialog.setTextValue(text)
+        dialog.setComboBoxEditable(editable)
+        dialog.setInputMethodHints(QtCore.Qt.InputMethodHints(hints))
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            return dialog.textValue(), True
+        return text, False
+
+
 class DataObj(object):
 
     def __init__(self, parent, obj, name, **kwargs):
@@ -476,12 +499,12 @@ class DataObj(object):
         self.scale_label = QtWidgets.QLabel('scale:', parent=self.parent)
         self.xscale_label = QtWidgets.QLabel('scale:', parent=self.parent)
 
-        words = [k for k in self.obj if hasattr(self.obj[k], 'dtype')]
-        words.sort(key=parent.sortkey)
+        self.words = [k for k in self.obj if hasattr(self.obj[k], 'dtype')]
+        self.words.sort(key=parent.sortkey)
 
         def new_text_box():
             menu = KeyHandlerComboBox(parent=self.parent)
-            menu.setModel(words)
+            menu.setModel(self.words)
             menu.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.MinimumExpanding,
                 QtWidgets.QSizePolicy.Fixed))
@@ -496,7 +519,7 @@ class DataObj(object):
 
         self.completer, self.menu = new_text_box()
         self.xcompleter, self.xmenu = new_text_box()
-        self.xmenu.setModel(words + ['_'])
+        self.xmenu.setModel(self.words + ['_'])
 
         self.menu.setCurrentIndex(0)
         self.xmenu.setCurrentIndex(0)
@@ -631,6 +654,24 @@ class DataObj(object):
             cache.popitem(last=False)
         return value
 
+    @property
+    def cdata(self):
+        if isinstance(self._cdata, str):
+            if not self._cdata:
+                return None
+            value, ok, _ = self.eval_key(self._cdata)
+            if not ok:
+                logger.warning('invalid cdata key: %r', self._cdata)
+                self._cdata = None
+                return
+            return value
+        return self._cdata
+
+    @cdata.setter
+    def cdata(self, value):
+        logger.debug('cdata.setter %r', value)
+        self._cdata = value
+
     def set_name(self, menu, name):
         index = self.menu.findText(name)
         if index >= 0:
@@ -747,6 +788,52 @@ class DataObj(object):
             self.choose_label()
             if not isiterable(self.labels):
                 self.labels = self.name
+            self.parent.draw()
+
+    def edit_cdata(self):
+        logger.debug('edit_cdata')
+        text, ok = ComboBoxDialog.getComboBoxItem(
+            parent=self.parent,
+            title='Set color data',
+            label='Color data key:',
+            items=self.words,
+            flags=QtWidgets.QLineEdit.Normal,
+            text=self.cdata if isinstance(self.cdata, str) else '',
+        )
+        if not ok:
+            return
+
+        try:
+            self.cdata = text
+            self.props[0].pop('color', None)
+            norm = getattr(self, 'norm', (np.nanmin(self.cdata),
+                                          np.nanmax(self.cdata)))
+            if not isinstance(norm, mpl.colors.Normalize):
+                norm = mpl.colors.Normalize(*norm)
+            text, ok = QtWidgets.QInputDialog.getText(
+                self.parent, 'Set color limits', 'Color limits:',
+                QtWidgets.QLineEdit.Normal, str((norm.vmin, norm.vmax)))
+            if not ok:
+                return
+            try:
+                self.norm = mpl.colors.Normalize(*ast.literal_eval(text))
+            except Exception:
+                self.norm = norm
+
+            cmap = mpl.cm.get_cmap(
+                getattr(self, 'cmap', mpl.rcParams['image.cmap']))
+            text, ok = QtWidgets.QInputDialog.getText(
+                self.parent, 'Set colormap', 'Colormap:',
+                QtWidgets.QLineEdit.Normal, cmap.name)
+            if not ok:
+                return
+            try:
+                self.cmap = mpl.cm.get_cmap(text)
+            except Exception:
+                self.cmap = cmap
+        finally:
+            if not hasattr(self, 'norm') or not hasattr(self, 'cdata'):
+                self.cdata = None
             self.parent.draw()
 
     def edit_props(self):
@@ -908,6 +995,7 @@ class Interact(QtWidgets.QMainWindow):
                 w.closed.connect(data.close)
                 w.axisEqual.connect(axisequal)
                 w.relabel.connect(data.change_label)
+                w.editCdata.connect(data.edit_cdata)
                 w.editProps.connect(data.edit_props)
                 w.sync.connect(data.sync)
                 w.twin.connect(data.toggle_twin)
@@ -1076,11 +1164,12 @@ class Interact(QtWidgets.QMainWindow):
     def lines(self, axes, data, x, y):
         colors = [p.get('color', None) for p in data.props]
         if data.cdata is not None and not any(colors):
-            if x is not None and data.cdata.shape == y.shape:
+            cdata = data.cdata
+            if x is not None and cdata.shape == y.shape:
                 lines = []
                 x, y = np.ma.filled(x, np.nan), np.ma.filled(y, np.nan)
                 x, y, cdata = map(np.atleast_2d,
-                                  map(np.transpose, (x, y, data.cdata)))
+                                  map(np.transpose, (x, y, cdata)))
                 for x, y, c in zip(x, y, cdata):
                     x = np.r_[x[0], (x[1:] + x[:-1]) / 2.0, x[-1]]
                     y = np.r_[y[0], (y[1:] + y[:-1]) / 2.0, y[-1]]
@@ -1096,7 +1185,7 @@ class Interact(QtWidgets.QMainWindow):
                 return lines
             else:
                 lines = axes.plot(y)
-                for line, c in zip(lines, data.cdata):
+                for line, c in zip(lines, cdata):
                     line.set_color(data.cmap(data.norm(c)))
                 return lines
         else:
@@ -1110,14 +1199,15 @@ class Interact(QtWidgets.QMainWindow):
         self.fig.clear()
         self.axes = self.fig.add_subplot(111)
 
-        color_data = next((d for d in self.datas if d.cdata is not None), None)
-        if color_data and not twin:
-            self.mappable = mpl.cm.ScalarMappable(norm=color_data.norm,
-                                                  cmap=color_data.cmap)
-            self.mappable.set_array(color_data.cdata)
+        data = next((d for d in self.datas if d.cdata is not None), None)
+        if data and not twin:
+            self.mappable = mpl.cm.ScalarMappable(norm=data.norm,
+                                                  cmap=data.cmap)
+            self.mappable.set_array(data.cdata)
             self.colorbar = self.fig.colorbar(
                 self.mappable, ax=self.axes, fraction=0.1, pad=0.02)
-            self.colorbar.set_label(color_data.name)
+            self.colorbar.set_label(data._cdata if isinstance(data._cdata, str)
+                                    else data.name)
         elif twin:
             self.axes2 = self.axes.twinx()
 
