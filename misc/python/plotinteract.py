@@ -705,20 +705,24 @@ class DataObj(object):
             self.props = [process_props_format(p) if isinstance(p, text_type)
                           else p.copy() for p in self.props]
 
-    def duplicate(self):
+    def copy(self):
         kwargs = self.kwargs.copy()
-        kwargs['props'] = props = copy.deepcopy(self.props)
+        kwargs['props'] = copy.deepcopy(self.props)
         kwargs['xname'] = self.xmenu.lineEdit().text()
         kwargs['xscale'] = self.xscale_box.text()
         kwargs['yname'] = self.menu.lineEdit().text()
         kwargs['yscale'] = self.scale_box.text()
         kwargs.update({k: getattr(self, k, None)
                        for k in ('cdata', 'cmap', 'norm')})
+        return dataobj(self.obj, name=self.name, **kwargs)
+
+    def duplicate(self):
+        data = self.copy()
         if self.parent.in_cycle(self):
             new_props = next(self.parent.props_iter)
-            for p in props:
+            for p in data[-1]['props']:
                 p.update(new_props)
-        self.parent.add_data(self.obj, self.name, kwargs=kwargs)
+        self.parent.add_data(*data)
         if len(self.parent.datas) == 2:
             self.parent.init_props()
         data = self.parent.datas[-1]
@@ -1284,7 +1288,7 @@ class Interact(QtWidgets.QMainWindow):
               event.modifiers() ==
               CONTROL_MODIFIER | QtCore.Qt.ShiftModifier and
               event.key() == QtCore.Qt.Key_N):
-            create(*[[d.obj, d.name, self.data_dict(d)] for d in self.datas])
+            create(*[d.copy() for d in self.datas])
             return True
 
         # Print dictionaries of keys and scales for all data with Ctrl+Shift+P
