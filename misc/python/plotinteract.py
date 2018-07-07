@@ -1117,7 +1117,7 @@ class Interact(QtWidgets.QMainWindow):
             if len(self.datas) > 1 and any(k in data.props
                                            for k in self.cycle.keys
                                            for data in self.datas):
-                ax.set_prop_cycle(cycler(color='C0'))
+                ax.set_prop_cycle(cycler(color=['C0']))
             ax._tight = bool(self.margins)
             if self.margins:
                 ax.margins(self.margins)
