@@ -625,10 +625,30 @@ im <C-b> <Home>
 im <C-e> <End>
 
 " Remove trailing whitespace with <CR> (<BS> can delete multiple characters so use <Del>)
-ino <expr> <CR> (getline('.')[:col('.')-2] =~ '\(\S\\|^\)\s\+$' ?
-    \ repeat('<Left><Del>', len(matchstr(getline('.')[:col('.')-2], '\s\+$'))) : '').
-    \ (pumvisible() ? '<C-y>' : '') . '<CR>'
-ino \<CR> \<CR>
+augroup insert_cr
+    autocmd!
+    autocmd InsertEnter,InsertLeave,VimEnter * let g:insert_cr_valid = 1
+    autocmd InsertCharPre * let g:insert_cr_valid = g:insert_cr_valid && v:char == "\<CR>"
+augroup END
+function! s:InsertCR(repeat) abort " {{{
+    if a:repeat && !exists('s:insert_cr_after')
+        let s:insert_cr_after = @.[stridx(@., "\n") + 1:]
+    elseif !a:repeat
+        silent! unlet s:insert_cr_after
+    endif
+    if getline('.')[:col('.') - 2] =~? '\v(\S|^)\s+$'
+        let l:dels = repeat("\<Left>\<Del>", len(matchstr(getline('.')[:col('.') - 2], '\s\+$')))
+    else
+        let l:dels = ''
+    endif
+    let g:insert_cr_valid = 0
+    silent! call repeat#set("\<Plug>InsertCR")
+    return l:dels . "\<CR>" . (a:repeat ? s:insert_cr_after : '')
+endfunction " }}}
+inoremap <expr> <Plug>InsertCR g:insert_cr_valid ? <SID>InsertCR(0) : "\<CR>"
+nnoremap <expr> <Plug>InsertCR g:insert_cr_valid ? 'i' . <SID>InsertCR(1) . "\<Esc>zv" : "\<CR>zv"
+imap <CR> <Plug>InsertCR
+inoremap \<CR> \<CR>
 
 " Make * and # use 'smartcase'
 nn * /\<<C-r>=expand('<cword>')<CR>\><CR>zv
@@ -1693,7 +1713,7 @@ endfor
 " neovim-specific settings
 if has('nvim')
     augroup VimrcAutocmds
-        autocmd TermOpen term://* setlocal nonumber norelativenumber
+        autocmd TermOpen term://* setlocal nonumber norelativenumber | normal G
         autocmd BufLeave term://* stopinsert
     augroup END
 endif
@@ -3019,6 +3039,16 @@ let g:exchange_indent = '=='
 let g:neomru#do_validate = hasMac
 let g:neomru#file_mru_limit = 2000
 let g:neomru#update_interval = hasMac ? 0 : 1.0
+if !exists('g:neomru#file_mru_ignore_pattern')
+    let g:neomru#file_mru_ignore_pattern =
+        \ '\~$\|\.\%(o\|exe\|dll\|bak\|zwc\|pyc\|sw[po]\)$\|' .
+        \ '\%(^\|/\)\.\%(hg\|git\|bzr\|svn\)\%($\|/\)\|' .
+        \ '^\%(\\\\\|/mnt/\|/media/\|/temp/\|/tmp/\|\%(/private\)\=/var/folders/\)\|' .
+        \ '\%(^\%(fugitive\)://\)\|' .
+        \ '\%(^\%(term\)://\)\|'
+elseif stridx(g:neomru#file_mru_ignore_pattern, '(term\):') < 0
+    let g:neomru#file_mru_ignore_pattern .= '\%(^\%(term\)://\)\|'
+endif
 
 " gitgutter configuration " {{{
 let g:gitgutter_async = 1
