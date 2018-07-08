@@ -128,10 +128,13 @@ function! Return_key ()
     normal! j^
   endif
 
+  silent! call repeat#set("\<Plug>Return_key")
+
 endfunction
 
-nnoremap <expr> <silent> <CR> g:inCmdwin && g:cmdwinType =~ '[/?]' ?
+nnoremap <expr> <silent> <Plug>Return_key g:inCmdwin && g:cmdwinType =~ '[/?]' ?
     \ "\<CR>zv" : ":call Return_key()\<CR>"
+nmap <CR> <Plug>Return_key
 nnoremap <silent> <DEL> :call Delete_key()<CR>
 "nnoremap <silent> <CR> :call Return_key()<CR>
 "nnoremap <silent> <SPACE> i<SPACE><ESC>l
