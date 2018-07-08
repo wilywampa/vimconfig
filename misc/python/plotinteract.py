@@ -258,8 +258,8 @@ class TabCompleter(QtWidgets.QCompleter):
             direction = 0
         self.setCurrentRow((self.currentRow() + direction) %
                            self.completionCount())
-        self.popup().setCurrentIndex(self.completionModel().
-                                     index(self.currentRow(), 0))
+        self.popup().setCurrentIndex(
+            self.completionModel().index(self.currentRow(), 0))
 
     def close_popup(self):
         popup = self.popup()
@@ -470,9 +470,9 @@ class ComboBoxDialog(QtWidgets.QInputDialog):
         dialog.setWindowTitle(title)
         dialog.setLabelText(label)
         dialog.setComboBoxItems(items)
-        dialog.setTextValue(text)
         dialog.setComboBoxEditable(editable)
         dialog.setInputMethodHints(QtCore.Qt.InputMethodHints(hints))
+        dialog.setTextValue(text)
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
             return dialog.textValue(), True
         return text, False
@@ -605,8 +605,8 @@ class DataObj(object):
             return kwargs['ndim']
         for key in 'yname', 'xname':
             try:
-                return len(self.eval_key(key)[0].shape)
-            except (AttributeError, KeyError, IndexError):
+                return np.ndim(obj[kwargs[key]])
+            except KeyError:
                 pass
         try:
             return min(len(v.shape) for v in obj.values()
@@ -645,9 +645,12 @@ class DataObj(object):
                     replace, self.obj, CONSTANTS, np.__dict__)), True, []
         except Exception as e:
             warning = 'Error evaluating key: ' + text_type(e)
-            value = (self.obj[text_type(
-                self.menu.itemText(self.menu.currentIndex()))],
-                False, [warning])
+            try:
+                return (self.obj[text_type(
+                    self.menu.itemText(self.menu.currentIndex()))],
+                    False, [warning])
+            except Exception:
+                return None, False, [warning]
 
         cache[cache_key] = value
         while len(cache) > 100:
@@ -759,6 +762,8 @@ class DataObj(object):
         kwargs['yscale'] = self.scale_box.text()
         kwargs.update({k: getattr(self, k, None)
                        for k in ('cdata', 'cmap', 'norm')})
+        if isinstance(getattr(self, '_cdata', None), str):
+            kwargs['cdata'] = self._cdata
         return dataobj(self.obj, name=self.name, **kwargs)
 
     def duplicate(self):
@@ -791,14 +796,16 @@ class DataObj(object):
             self.parent.draw()
 
     def edit_cdata(self):
-        logger.debug('edit_cdata')
+        logger.debug('edit_cdata %r', getattr(self, '_cdata', None))
         text, ok = ComboBoxDialog.getComboBoxItem(
             parent=self.parent,
             title='Set color data',
             label='Color data key:',
             items=self.words,
             flags=QtWidgets.QLineEdit.Normal,
-            text=self.cdata if isinstance(self.cdata, str) else '',
+            text=self._cdata
+            if isinstance(getattr(self, '_cdata', None), str)
+            else '',
         )
         if not ok:
             return
@@ -1075,15 +1082,24 @@ class Interact(QtWidgets.QMainWindow):
             return 1.0
 
     def get_key(self, data, menu):
-        key = text_type(menu.itemText(menu.currentIndex()))
-        text = text_type(menu.lineEdit().text())
-        if key == text:
-            return key
+        text = menu.currentText()
         value, ok, warnings = data.eval_key(text)
-        if not ok:
+        if ok:
+            return text
+
+        model = menu.completer.completionModel()
+        for row in range(model.rowCount()):
+            key = model.data(model.index(row, 0))
+            _, ok, _ = data.eval_key(key)
+            if ok:
+                logger.debug('replacing %r with %r', text, key)
+                menu.focusNextChild()
+                menu.lineEdit().setText(key)
+                menu.setFocus()
+                return key
+        else:
             self.warnings.update(warnings)
-            return key
-        return text
+            return text
 
     @staticmethod
     def cla(axes):
