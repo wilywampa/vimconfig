@@ -151,7 +151,6 @@ def PEP8():
         fixed = autopep8.fix_lines(text.splitlines(), options)
         new_lines = textwrap.indent(fixed, indent)
 
-    new_lines = new_lines.splitlines()[: None if doc_string else -1]
-
+    new_lines = new_lines.splitlines()
     if new_lines != lines:
         vim.current.buffer[start:end] = new_lines
