@@ -16,10 +16,11 @@ if 'DEOPLETE_IPY_LOG' in os.environ:
 
 imports = re.compile(
     r'^\s*(from\s+\.*\w+(\.\w+)*\s+import\s+(\w+,\s+)*|import\s+)')
+magic = re.compile(r'^(\s|#)*%%?([A-Za-z]\w*)?$')
 split_pattern = re.compile(r'[^= \r\n*(@-]|(\)(?!\.))')
 keyword = re.compile('[A-Za-z0-9_]')
 opening = re.compile('^(.*\[)[A-Za-z_''".]')
-splitchars = frozenset('= \r\n*()@-')
+splitchars = frozenset('= \r\n*()@-:')
 
 request = '''
 try:
@@ -46,7 +47,7 @@ def parses(code):
     return ''
 
 
-def log(f):
+def _log(f):
     @functools.wraps(f)
     def g(self, context):
         start = f(self, context)
@@ -55,6 +56,17 @@ def log(f):
         logger.debug('start: %d', start)
         logger.debug('base: %r', line[start:col])
         return start
+    return g
+
+
+def _catch_exceptions(f):
+    @functools.wraps(f)
+    def g(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            logger.exception('Exception: %s', e)
+            return []
     return g
 
 
@@ -75,7 +87,7 @@ class Source(Base):
         self._client = IPythonClient(vim)
         self._kernel_file = None
 
-    @log
+    @_log
     def get_complete_position(self, context):
         line = self.vim.current.line
         col = self.vim.funcs.col('.')
@@ -90,15 +102,18 @@ class Source(Base):
                 start -= 1
             return start
 
+        # return immediately for magics
+        if magic.match(context['input']):
+            return line.index('%')
+
         # locate the start of the word
         start = col - 1
         if start == 0 or (len(line) == start and
                           not split_pattern.match(line[start - 2]) and
-                          not (start >= 2 and
+                          not (start >= 3 and
                                keyword.match(line[start - 3])) and
                           line[start - 3:start - 1] != '].'):
-            start = -1
-            return start
+            return -1
 
         start = self.vim.funcs.strchars(line[:col]) - 1
         # Check if the cursor is in an incomplete string
@@ -110,6 +125,9 @@ class Source(Base):
                 logger.debug('starts with %r', char)
                 start = bracket
                 break
+        else:
+            if len(line) > start and line[start] in splitchars:
+                return -1
 
         stack = []
         while start > 0:
@@ -135,6 +153,7 @@ class Source(Base):
 
         return start
 
+    @_catch_exceptions
     def gather_candidates(self, context):
         # Check if connected or connect
         kernel_file = context['vars'].get(
@@ -193,9 +212,11 @@ class Source(Base):
         try:
             metadata = reply['content']['user_expressions']['_completions']
             matches = ast.literal_eval(metadata['data']['text/plain'])
-        except KeyError:
-            logger.debug('KeyError')
-            return []
+        except ValueError:
+            # Check if max_seq_length was exceeded
+            if metadata['data']['text/plain'].endswith('...]'):
+                matches = ast.literal_eval(
+                    metadata['data']['text/plain'][:-4] + ']')
 
         logger.debug('got %d completions', len(matches))
         for candidate in matches:
