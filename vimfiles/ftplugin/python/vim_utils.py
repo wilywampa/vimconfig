@@ -4,6 +4,7 @@ import io
 import os
 import re
 import subprocess
+import textwrap
 import tokenize
 import vim
 from getpass import getuser
@@ -143,9 +144,14 @@ def PEP8():
         options = Options()
         if vim.vars['pep8_indent_only']:
             options.select = ['E1', 'W1']
-        new_lines = autopep8.fix_lines(lines, options).lstrip()
+        line = lines[0] if lines else ''
+        indent = line[:len(line) - len(line.lstrip())]
+        options.max_line_length -= len(indent)
+        text = textwrap.dedent('\n'.join(lines))
+        fixed = autopep8.fix_lines(text.splitlines(), options)
+        new_lines = textwrap.indent(fixed, indent)
 
-    new_lines = new_lines.split('\n')[: None if doc_string else -1]
+    new_lines = new_lines.splitlines()[: None if doc_string else -1]
 
     if new_lines != lines:
         vim.current.buffer[start:end] = new_lines
