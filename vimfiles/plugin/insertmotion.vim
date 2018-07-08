@@ -74,9 +74,11 @@ function! s:forward_word(big) abort " {{{
 endfunction " }}}
 
 function! s:kill_line() " {{{
-  let before = strchars(getline('.')[:col('.')-1]) - 1
-  let blanks = strchars(matchstr(getline('.'), '^\s*'))
-  let s:killed = join(split(getline('.'), '\zs')[(blanks):(before)], '')
+  if !pumvisible()
+    let before = strchars(getline('.')[:col('.')-1]) - 1
+    let blanks = strchars(matchstr(getline('.'), '^\s*'))
+    let s:killed = join(split(getline('.'), '\zs')[(blanks):(before)], '')
+  endif
   return "\<C-u>"
 endfunction " }}}
 
