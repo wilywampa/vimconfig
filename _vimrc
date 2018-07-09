@@ -641,11 +641,15 @@ function! s:InsertCR(repeat) abort " {{{
     else
         let l:dels = ''
     endif
-    let g:insert_cr_valid = 0
-    silent! call repeat#set("\<Plug>InsertCR")
-    return l:dels . "\<CR>" . (a:repeat ? s:insert_cr_after : '')
+    if g:insert_cr_valid
+        let g:insert_cr_valid = 0
+        silent! call repeat#set("\<Plug>InsertCR")
+        return l:dels . "\<CR>" . (a:repeat ? s:insert_cr_after : '')
+    else
+        return l:dels . (pumvisible() ? "\<C-y>" : '') . "\<CR>"
+    endif
 endfunction " }}}
-inoremap <expr> <Plug>InsertCR g:insert_cr_valid ? <SID>InsertCR(0) : "\<CR>"
+inoremap <expr> <Plug>InsertCR <SID>InsertCR(0)
 nnoremap <expr> <Plug>InsertCR g:insert_cr_valid ? 'i' . <SID>InsertCR(1) . "\<Esc>zv" : "\<CR>zv"
 imap <CR> <Plug>InsertCR
 inoremap \<CR> \<CR>
