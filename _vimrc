@@ -142,6 +142,9 @@ nnoremap <silent> ' `
 xnoremap <silent> ' `
 nnoremap <silent> <M-'> '
 xnoremap <silent> <M-'> '
+for s:num in range(1, 10)
+    execute printf('nnoremap <Leader>%d %dgt', s:num % 10, s:num)
+endfor
 " }}}
 
 " {{{ Platform-specific configuration
