@@ -1127,13 +1127,13 @@ class Interact(QtWidgets.QMainWindow):
         self.warnings.update(warnings)
         logger.debug('eval_key y %r ok = %s', yname, ok)
         if ok:
-            y = np.asarray(y) * yscale
+            y = np.asanyarray(y) * yscale
         x, xok, warnings = data.eval_key(xname)
         self.warnings.update(warnings)
         ok = ok and xok
         logger.debug('eval_key x %r ok = %s', xname, ok)
         if ok:
-            x = np.asarray(x) * xscale
+            x = np.asanyarray(x) * xscale
         elif xname == '_':
             x = mpl.cbook.index_of(y)
 
@@ -1305,7 +1305,7 @@ class Interact(QtWidgets.QMainWindow):
         _lines = []
         for line in lines:
             if isinstance(line, mpl.collections.LineCollection):
-                _lines.extend(seg.T for seg in line.get_segments())
+                _lines.extend(seg.T for seg in line.get_segments() if seg.size)
             else:
                 _lines.append(line.get_data())
         for x, y in _lines:
