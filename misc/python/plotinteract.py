@@ -1195,8 +1195,10 @@ class Interact(QtWidgets.QMainWindow):
                 x, y, cdata = map(np.atleast_2d,
                                   map(np.transpose, (x, y, cdata)))
                 for x, y, c in zip(x, y, cdata):
-                    x = np.r_[x[0], (x[1:] + x[:-1]) / 2.0, x[-1]]
-                    y = np.r_[y[0], (y[1:] + y[:-1]) / 2.0, y[-1]]
+                    xmid = (x[1:] + x[:-1]) / 2.0
+                    ymid = (y[1:] + y[:-1]) / 2.0
+                    x = np.append(np.array([x[:-1], xmid, xmid]).T.flat, x[-1])
+                    y = np.append(np.array([y[:-1], ymid, ymid]).T.flat, y[-1])
                     points = np.array([x, y]).T.reshape(-1, 1, 2)
                     segments = np.concatenate(
                         [points[:-1], points[1:]], axis=1)
