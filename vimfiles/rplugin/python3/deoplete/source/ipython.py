@@ -217,6 +217,9 @@ class Source(Base):
             if metadata['data']['text/plain'].endswith('...]'):
                 matches = ast.literal_eval(
                     metadata['data']['text/plain'][:-4] + ']')
+            else:
+                logger.debug('literal_eval ValueError')
+                return []
 
         logger.debug('got %d completions', len(matches))
         for candidate in matches:
