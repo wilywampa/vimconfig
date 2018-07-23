@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSignal
 from collections import OrderedDict
 from cycler import cycler
-from itertools import chain, count, cycle
+from itertools import chain, count, cycle, tee
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as
                                                 FigureCanvas,
@@ -1183,7 +1183,7 @@ class Interact(QtWidgets.QMainWindow):
                 line.set_label(auto)
             self.label_lists[key] = [auto]
 
-        return len(lines)
+        return lines
 
     def lines(self, axes, data, x, y):
         colors = [p.get('color', None) for p in data.props]
@@ -1244,6 +1244,7 @@ class Interact(QtWidgets.QMainWindow):
             if self.margins:
                 ax.margins(self.margins)
 
+        lines = []
         xlabel = []
         ylabel = []
         xlabel2 = []
@@ -1256,7 +1257,7 @@ class Interact(QtWidgets.QMainWindow):
                 axes, x, y = self.axes2, xlabel2, ylabel2
             else:
                 axes, x, y = self.axes, xlabel, ylabel
-            self.plot(axes, d)
+            lines.extend(self.plot(axes, d))
             text = self.get_key(d, d.menu)
             xtext = self.get_key(d, d.xmenu)
             if xtext:
@@ -1270,8 +1271,14 @@ class Interact(QtWidgets.QMainWindow):
         self.axes2.set_xlabel('\n'.join(xlabel2))
         self.axes2.set_ylabel('\n'.join(ylabel2))
 
-        self.axes.set_xlim(self.xlim)
-        self.axes.set_ylim(self.ylim)
+        if self.xlim:
+            self.axes.set_xlim(self.xlim)
+            ylim = self.find_ylim(lines)
+            if ylim and not self.ylim:
+                self.axes.set_ylim(ylim)
+        if self.ylim:
+            self.axes.set_ylim(self.ylim)
+
         self.axes.set_xscale(self.xlogscale)
         self.axes.set_yscale(self.ylogscale)
 
@@ -1291,6 +1298,37 @@ class Interact(QtWidgets.QMainWindow):
 
         self.canvas.draw()
 
+    def find_ylim(self, lines):
+        lower, upper = self.xlim
+        ymin, ymax = np.inf, -np.inf
+        ylim = None
+        _lines = []
+        for line in lines:
+            if isinstance(line, mpl.collections.LineCollection):
+                _lines.extend(seg.T for seg in line.get_segments())
+            else:
+                _lines.append(line.get_data())
+        for x, y in _lines:
+            p0, p1 = tee(zip(x, y))
+            try:
+                next(p1)
+            except StopIteration:
+                continue
+            for (x0, y0), (x1, y1) in zip(p0, p1):
+                if x0 > x1:
+                    (x0, y0), (x1, y1) = (x1, y1), (x0, y0)
+                if not (lower <= x0 <= upper or lower <= x1 <= upper):
+                    continue
+                X = np.array(sorted({lower, x0, x1, upper}))
+                if not X.size:
+                    continue
+                X = X[(X >= lower) & (X <= upper)]
+                Y = np.interp(X, (x0, x1), (y0, y1))
+                if np.isfinite(Y).any():
+                    ylim = ymin, ymax = (min(ymin, np.nanmin(Y)),
+                                         max(ymax, np.nanmax(Y)))
+        return ylim
+
     def draw_warnings(self):
         logger.debug('drawing warnings = %s', self.warnings)
         self.axes.text(0.05, 0.05, '\n'.join(self.warnings),
@@ -1304,9 +1342,9 @@ class Interact(QtWidgets.QMainWindow):
             self.xlim = self.ylim = None
             self.draw()
         elif event.key == 'ctrl+x':
-            self.set_xlim(draw=False)
+            self.set_xlim()
         elif event.key == 'ctrl+y':
-            self.set_ylim(draw=False)
+            self.set_ylim()
         elif event.key == 'ctrl+l':
             self.draw()
         self.xlogscale = self.axes.get_xscale()
