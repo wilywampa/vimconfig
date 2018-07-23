@@ -617,6 +617,8 @@ class DataObj(object):
     def eval_key(self, text, cache=collections.OrderedDict()):
         if text in self.obj:
             return self.obj[text], True, []
+        elif text == '_':
+            return None, False, []
 
         cache_key = text
         try:
@@ -727,8 +729,11 @@ class DataObj(object):
                 self.norm = np.nanmin(self.cdata), np.nanmax(self.cdata)
             if not isinstance(self.norm, mpl.colors.Normalize):
                 self.norm = mpl.colors.Normalize(*self.norm)
-            self.cmap = mpl.cm.get_cmap(
-                self.kwargs.get('cmap', mpl.rcParams['image.cmap']))
+            try:
+                self.cmap = mpl.cm.get_cmap(
+                    self.kwargs.get('cmap', mpl.rcParams['image.cmap']))
+            except Exception:
+                self.cmap = mpl.cm.jet
 
     def process_props(self):
         logger.debug('processing props: %s', self.props)
@@ -1118,22 +1123,25 @@ class Interact(QtWidgets.QMainWindow):
         xname = self.get_key(data, data.xmenu)
         yname = self.get_key(data, data.menu)
 
-        value, ok, warnings = data.eval_key(xname)
+        y, ok, warnings = data.eval_key(yname)
+        self.warnings.update(warnings)
+        logger.debug('eval_key y %r ok = %s', yname, ok)
+        if ok:
+            y = np.asarray(y) * yscale
+        x, xok, warnings = data.eval_key(xname)
+        self.warnings.update(warnings)
+        ok = ok and xok
         logger.debug('eval_key x %r ok = %s', xname, ok)
         if ok:
-            x = np.asarray(value) * xscale
-            y, ok, warnings = data.eval_key(yname)
-            logger.debug('eval_key y %r ok = %s', yname, ok)
-            if ok:
-                y = np.asarray(y) * yscale
-        if not ok:
-            self.warnings.update(warnings)
+            x = np.asarray(x) * xscale
+        elif xname == '_':
+            x = mpl.cbook.index_of(y)
 
-        if ok and x.shape[0] in y.shape:
+        if ok and x is not None and x.shape[0] in y.shape:
             xaxis = y.shape.index(x.shape[0])
             lines = self.lines(axes, data, x, np.rollaxis(y, xaxis))
         else:
-            if ok:
+            if ok and x is not None:
                 self.warnings.add(
                     '{} {} and {} {} have incompatible dimensions'.format(
                         xname, x.shape, yname, y.shape))
@@ -1200,7 +1208,7 @@ class Interact(QtWidgets.QMainWindow):
                     lines.append(line)
                 return lines
             else:
-                lines = axes.plot(y)
+                lines = axes.plot(y) if x is None else axes.plot(x, y)
                 for line, c in zip(lines, cdata):
                     line.set_color(data.cmap(data.norm(c)))
                 return lines
@@ -1268,7 +1276,7 @@ class Interact(QtWidgets.QMainWindow):
         self.axes.set_yscale(self.ylogscale)
 
         for ax in self.axes, self.axes2:
-            ax.set_aspect('equal' if self.axisequal else 'auto', 'box')
+            ax.set_aspect('equal' if self.axisequal else 'auto', 'datalim')
         labels = [', '.join(unique(x)) for x in self.label_lists.values()]
         for i, label in enumerate(labels):
             if self.max_label_len and len(label) > self.max_label_len:
