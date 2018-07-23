@@ -403,17 +403,17 @@ class PropertyEditor(QtWidgets.QTableWidget):
         self.move(0, 0)
 
     def closeEvent(self, event):
-        self.parent.draw()
+        self.parent.draw(keeplims=True)
 
     def hideEvent(self, event):
-        self.parent.draw()
+        self.parent.draw(keeplims=True)
 
     def confirm(self, draw=True):
         cell = self.currentRow(), self.currentColumn()
         self.setCurrentItem(None)
         self.setCurrentCell(*cell)
         if draw:
-            self.parent.draw()
+            self.parent.draw(keeplims=True)
 
     def cycle_editors(self, direction):
         self.confirm(draw=False)
@@ -893,7 +893,7 @@ class DataObj(object):
                     p[key] = value
                 self.parent.props_editor.setItem(
                     row, 1, QtWidgets.QTableWidgetItem(props_repr(value)))
-        self.parent.draw()
+        self.parent.draw(keeplims=True)
 
     def close(self):
         self.parent.props_editor.close()
@@ -1217,9 +1217,11 @@ class Interact(QtWidgets.QMainWindow):
         else:
             return axes.plot(y) if x is None else axes.plot(x, y)
 
-    def draw(self):
-        logger.debug('Interact.draw')
+    def draw(self, keeplims=False):
+        logger.debug('Interact.draw keeplims=%r', keeplims)
         self.mpl_toolbar.home = self.draw
+        if keeplims:
+            limits = self.axes.axis(), self.axes2.axis()
         twin = any(d.twin for d in self.datas)
         self.clear_pickers()
         self.fig.clear()
@@ -1292,6 +1294,10 @@ class Interact(QtWidgets.QMainWindow):
                 labels[i] = label[:self.max_label_len] + '…'
         self.pickers = [picker(ax) for ax in [self.axes, self.axes2]]
 
+        if keeplims:
+            self.axes.axis(limits[0])
+            self.axes2.axis(limits[1])
+
         # Ignore the legend in in tight_layout
         self.fig.tight_layout()
         self.axes.legend(self.handles.values(), labels,
@@ -1348,7 +1354,7 @@ class Interact(QtWidgets.QMainWindow):
         elif event.key == 'ctrl+y':
             self.set_ylim()
         elif event.key == 'ctrl+l':
-            self.draw()
+            self.draw(keeplims=True)
         self.xlogscale = self.axes.get_xscale()
         self.ylogscale = self.axes.get_yscale()
 
