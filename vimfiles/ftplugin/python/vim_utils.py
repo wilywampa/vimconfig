@@ -113,7 +113,7 @@ def PEP8():
         verbose = 0
 
     start = vim.vvars['lnum'] - 1
-    end = vim.vvars['lnum'] + vim.vvars['count'] - 1
+    end = start + vim.vvars['count']
 
     first_non_blank = int(vim.eval('nextnonblank(v:lnum)')) - 1
     last_non_blank = int(vim.eval('prevnonblank(v:lnum + v:count - 1)')) - 1
@@ -124,10 +124,14 @@ def PEP8():
             doc_end.match(vim.current.buffer[last_non_blank])):
         doc_string = True
     else:
-        # Don't remove trailing blank lines except at end of file
-        while (end < len(vim.current.buffer) and
-               re.match('^\s*$', vim.current.buffer[end - 1])):
-            end += 1
+        # Include trailing blanks at end of file
+        if not ''.join(vim.current.buffer[end:]).strip():
+            end = len(vim.current.buffer)
+        else:
+            # Otherwise, ignore trailing blanks
+            while (0 < end < len(vim.current.buffer) and
+                   not vim.current.buffer[end - 1].strip()):
+                end -= 1
 
     lines = vim.current.buffer[start:end]
     if not isinstance(lines[0], unicode):
