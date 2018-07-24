@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 lines=("${(@f):-$(tmux capture-pane -p -J -S -1000)}")
 for line in ${(Oa)lines}; do
-  if [[ $line =~ '^> (/.*\([0-9]+\))| at (/.*:[0-9]+)' ]]; then
+  if [[ $line =~ '> (/.*\([0-9]+\))| at (/.*:[0-9]+)' ]]; then
     # ipdb or cgdb/gdb absolute path match
     exit $(findvim $match)
   elif [[ $line =~ 'at \s*(.*):([0-9]+)$' ]]; then
