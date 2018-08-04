@@ -223,6 +223,7 @@ class Source(Base):
 
         logger.debug('got %d completions', len(matches))
         for candidate in matches:
+            candidate['dup'] = 1
             try:
                 if match:
                     candidate['word'] = candidate['word'].rstrip('(')
