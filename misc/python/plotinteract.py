@@ -53,6 +53,7 @@ else:
     CONTROL_MODIFIER = QtCore.Qt.ControlModifier
 
 KEYWORDS_RE = re.compile(r'\b[a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*\.?')
+EvalResult = collections.namedtuple('EvalResult', 'value ok warnings')
 
 
 def flatten(d, ndim=None, prefix=''):
@@ -616,9 +617,9 @@ class DataObj(object):
 
     def eval_key(self, text, cache=collections.OrderedDict()):
         if text in self.obj:
-            return self.obj[text], True, []
+            return EvalResult(value=self.obj[text], ok=True, warnings=[])
         elif text == '_':
-            return None, False, []
+            return EvalResult(value=None, ok=False, warnings=[])
 
         cache_key = text
         try:
@@ -648,11 +649,11 @@ class DataObj(object):
         except Exception as e:
             warning = 'Error evaluating key: ' + text_type(e)
             try:
-                return (self.obj[text_type(
+                return EvalResult(value=self.obj[text_type(
                     self.menu.itemText(self.menu.currentIndex()))],
-                    False, [warning])
+                    ok=False, warnings=[warning])
             except Exception:
-                return None, False, [warning]
+                return EvalResult(value=None, ok=False, warnings=[warning])
 
         cache[cache_key] = value
         while len(cache) > 100:
@@ -1095,8 +1096,7 @@ class Interact(QtWidgets.QMainWindow):
         model = menu.completer.completionModel()
         for row in range(model.rowCount()):
             key = model.data(model.index(row, 0))
-            _, ok, _ = data.eval_key(key)
-            if ok:
+            if data.eval_key(key).ok:
                 logger.debug('replacing %r with %r', text, key)
                 menu.focusNextChild()
                 menu.lineEdit().setText(key)
