@@ -1307,7 +1307,7 @@ class Interact(QtWidgets.QMainWindow):
         self.canvas.draw()
 
     def find_ylim(self, lines):
-        lower, upper = self.xlim
+        lower, upper = self.axes.get_xlim()
         ymin, ymax = np.inf, -np.inf
         ylim = None
         _lines = []
