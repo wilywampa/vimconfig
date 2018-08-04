@@ -52,6 +52,7 @@ if sys.platform == 'darwin':
 else:
     CONTROL_MODIFIER = QtCore.Qt.ControlModifier
 
+IDENTIFIER_RE = re.compile('^[A-Za-z_][A-Za-z0-9_]*$')
 KEYWORDS_RE = re.compile(r'\b[a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*\.?')
 EvalResult = collections.namedtuple('EvalResult', 'value ok warnings')
 
@@ -627,11 +628,10 @@ class DataObj(object):
         except KeyError:
             pass
 
-        identifier = re.compile('^[A-Za-z_][A-Za-z0-9_]*$')
         keys = set(self.obj)
         replace = {}
         for key, value in self.obj.items():
-            if identifier.match(key) or key not in text:
+            if IDENTIFIER_RE.match(key) or key not in text:
                 continue
             pattern = re.compile(r'\b' + re.escape(key) +
                                  r'(\b|(?=[^A-Za-z0-9_])|$)')
