@@ -1217,7 +1217,7 @@ class Interact(QtWidgets.QMainWindow):
         else:
             return axes.plot(y) if x is None else axes.plot(x, y)
 
-    def draw(self, keeplims=False):
+    def draw(self, *, keeplims=False):
         logger.debug('Interact.draw keeplims=%r', keeplims)
         self.mpl_toolbar.home = self.draw
         if keeplims:
