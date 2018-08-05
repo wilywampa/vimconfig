@@ -125,9 +125,6 @@ class Source(Base):
                 logger.debug('starts with %r', char)
                 start = bracket
                 break
-        else:
-            if len(line) > start and line[start] in splitchars:
-                return -1
 
         stack = []
         while start > 0:
