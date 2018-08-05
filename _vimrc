@@ -2981,8 +2981,8 @@ nmap cr <Plug>Coerce
 " Fugitive maps
 nnoremap gB         :<C-u>Gblame<CR>
 nnoremap gC         :<C-u>Gdiff<CR>
-nnoremap gL         :<C-u>Glog<CR>
-nnoremap g<Leader>L :<C-u>Glog --<CR>
+nnoremap gL         :<C-u>Glog!<CR>
+nnoremap g<Leader>L :<C-u>Glog! --<CR>
 nnoremap gS         :<C-u>Gstatus<CR>
 nnoremap gW         :<C-u>Gwrite<CR>
 " Reload file with absolute path to create fugitive commands
