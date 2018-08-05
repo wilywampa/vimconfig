@@ -71,8 +71,7 @@ def mtimesm(a, b, axisa=0, axisb=0, axisc=0,
                             transposea, transposeb, transposec, **kwargs)
     a, b = _asarray(a, b)
     axisa, axisb = _normalize_indices(a, b, axisa, axisb)
-    n = a.shape[axisa]
-    if not (n == a.shape[axisa + 1] == b.shape[axisb] == b.shape[axisb + 1]):
+    if a.shape[axisa + 1] != b.shape[axisb]:
         raise ValueError(_error(a, b, axisa, axisb))
     transposea = kwargs.get('ta', transposea)
     transposeb = kwargs.get('tb', transposeb)
