@@ -643,9 +643,12 @@ class DataObj(object):
         logger.debug('eval_key after text = %s', text)
 
         try:
-            value = eval(
-                text, {'np': np, 'numpy': np}, collections.ChainMap(
-                    replace, self.obj, CONSTANTS, np.__dict__)), True, []
+            result = EvalResult(
+                value=eval(text, {'np': np, 'numpy': np}, collections.ChainMap(
+                    replace, self.obj, CONSTANTS, np.__dict__)),
+                ok=True, warnings=[])
+            if np.isscalar(result.value):
+                raise ValueError('scalar result')
         except Exception as e:
             warning = 'Error evaluating key: ' + text_type(e)
             try:
@@ -655,10 +658,10 @@ class DataObj(object):
             except Exception:
                 return EvalResult(value=None, ok=False, warnings=[warning])
 
-        cache[cache_key] = value
+        cache[cache_key] = result
         while len(cache) > 100:
             cache.popitem(last=False)
-        return value
+        return result
 
     @property
     def cdata(self):
