@@ -2392,17 +2392,17 @@ nnoremap <silent> ,<Leader>A :<C-u>call <SID>grep('grep/git')<CR>
 nn <silent> "" :<C-u>Denite neoyank -default_action=yank<CR>
 nn <silent> "' :<C-u>Denite register -default_action=yank<CR>
 nn ,<C-a> :<C-u>Denite -no-quit -auto-resize grep<CR>
-nn <silent> <C-n> :<C-u>Denite file_rec<CR>
-nn <silent> <C-h> :<C-u>Denite buffer -sorters=sorter_mru<CR>
-nn <silent> g<C-h> :<C-u>Denite buffer:+ -sorters=sorter_mru<CR>
+nn <silent> <C-n> :<C-u>Denite file_rec -default-action=switch<CR>
+nn <silent> <C-h> :<C-u>Denite buffer -sorters=sorter_mru -default-action=switch<CR>
+nn <silent> g<C-h> :<C-u>Denite buffer:+ -sorters=sorter_mru -default-action=switch<CR>
 nn <silent> <expr> <C-p> ":\<C-u>Denite ".(len(filter(range(1,bufnr('$')),
-    \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." file_mru -unique\<CR>"
+    \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." file_mru -unique -default-action=switch\<CR>"
 nn <silent> <M-P> :<C-u>Denite directory_rec -default-action=cd<CR>
-nn <silent> <C-o> :<C-u>Denite files<CR>
-nn <silent> <M-f> :<C-u>Denite file_rec<CR>
+nn <silent> <C-o> :<C-u>Denite files -default-action=switch<CR>
+nn <silent> <M-f> :<C-u>Denite file_rec -default-action=switch<CR>
 nn <silent> <M-/> :<C-u>Denite line:all:noempty<CR>
 nn <silent> <M-?> :<C-u>Denite line:all:noempty -input=`expand('<lt>cword>')`<CR>
-nn <silent> g<C-p> :<C-u>Denite file_mru<CR>
+nn <silent> g<C-p> :<C-u>Denite file_mru -default-action=switch<CR>
 nn <silent> <M-h> :<C-u>Denite command_history -default-action=execute_and_save<CR>
 nn <silent> <Leader>o :<C-u>Denite outline -split=vertical -direction=topleft<CR>
 nn <silent> ,d :<C-u>Denite -resume<CR>
@@ -2482,6 +2482,7 @@ function! s:DeniteSetup() " {{{
     endfunction
     call s:ni_map('<C-o><C-d>', '<C-o>d',
         \ '<denite:do_action:vsplit>:<C-u>call vimtools#ToggleDiff()<CR>')
+    call s:ni_map('<C-o><C-o>', '<C-o>v', '<denite:do_action:open>')
     call s:ni_map('<C-o><C-v>', '<C-o>v', '<denite:do_action:vsplit>')
     call s:ni_map('<C-o><C-s>', '<C-o>s', '<denite:do_action:split>')
     call s:ni_map('<C-o><C-t>', '<C-o>t', '<denite:do_action:tabopen>')
