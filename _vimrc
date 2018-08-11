@@ -2051,7 +2051,7 @@ func! s:UniteSettings() " {{{
     call s:ni_map('<C-o><C-d>', '<C-o>d', 'vsplit', ':<C-u>call vimtools#ToggleDiff()<CR>')
     call s:ni_map('<C-o><C-v>', '<C-o>v', 'vsplit')
     call s:ni_map('<C-o><C-s>', '<C-o>s', 'split')
-    call s:ni_map('<C-o><C-t>', '<C-o>t', 'tabopen')
+    call s:ni_map('<C-o><C-t>', '<C-o>t', 'tabswitch')
     call s:ni_map('<C-^>',      '<C-^>',  'preview')
 
     nmap <buffer> <expr> <silent> ` stridx(join(b:unite.source_names), 'grep') == -1
@@ -2485,7 +2485,7 @@ function! s:DeniteSetup() " {{{
     call s:ni_map('<C-o><C-o>', '<C-o>v', '<denite:do_action:open>')
     call s:ni_map('<C-o><C-v>', '<C-o>v', '<denite:do_action:vsplit>')
     call s:ni_map('<C-o><C-s>', '<C-o>s', '<denite:do_action:split>')
-    call s:ni_map('<C-o><C-t>', '<C-o>t', '<denite:do_action:tabopen>')
+    call s:ni_map('<C-o><C-t>', '<C-o>t', '<denite:do_action:tabswitch>')
     call s:ni_map('<C-^>',      '<C-^>',  '<denite:do_action:preview>')
     call s:ni_map('<C-g>',      '<C-g>',  'ModifyGrep()', 'noremap expr')
     call s:ni_map('<C-j>',      '<C-j>',  '<denite:move_to_next_line>')
