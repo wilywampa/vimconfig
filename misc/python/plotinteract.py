@@ -495,6 +495,7 @@ class DataObj(object):
         self.label = QtWidgets.QLabel('', parent=self.parent)
         self._labels = getattr(obj, 'labels', kwargs.get('labels', None))
         self.choose_label()
+        self.cache = collections.OrderedDict()
 
         draw = self.parent.draw
 
@@ -616,13 +617,14 @@ class DataObj(object):
         except ValueError:
             return None
 
-    def eval_key(self, text, cache=collections.OrderedDict()):
+    def eval_key(self, text):
         if text in self.obj:
             return EvalResult(value=self.obj[text], ok=True, warnings=[])
         elif text == '_':
             return EvalResult(value=None, ok=False, warnings=[])
 
         cache_key = text
+        cache = self.cache
         try:
             return cache[cache_key]
         except KeyError:
