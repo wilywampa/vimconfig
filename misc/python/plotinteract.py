@@ -1193,25 +1193,26 @@ class Interact(QtWidgets.QMainWindow):
         if data.cdata is not None and not any(colors):
             cdata = data.cdata
             if x is not None and cdata.shape == y.shape:
-                lines = []
                 x, y = np.ma.filled(x, np.nan), np.ma.filled(y, np.nan)
                 x, y, cdata = map(np.atleast_2d,
                                   map(np.transpose, (x, y, cdata)))
-                for x, y, c in zip(x, y, cdata):
-                    xmid = (x[1:] + x[:-1]) / 2.0
-                    ymid = (y[1:] + y[:-1]) / 2.0
-                    x = np.append(np.array([x[:-1], xmid, xmid]).T.flat, x[-1])
-                    y = np.append(np.array([y[:-1], ymid, ymid]).T.flat, y[-1])
-                    points = np.array([x, y]).T.reshape(-1, 1, 2)
-                    segments = np.concatenate(
-                        [points[:-1], points[1:]], axis=1)
-                    line = mpl.collections.LineCollection(
-                        segments, norm=data.norm, cmap=data.cmap)
-                    line.set_array(c)
-                    axes.add_collection(line)
-                    axes.autoscale_view()
-                    lines.append(line)
-                return lines
+
+                def pairs(v):
+                    mid = (v[1:] + v[:-1]) / 2.0
+                    vnew = np.empty((2 * (v.size - 1), 2))
+                    vnew[::2, 0], vnew[::2, 1] = v[:-1], mid
+                    vnew[1::2, 0], vnew[1::2, 1] = mid, v[1:]
+                    return vnew
+
+                segments = np.concatenate([np.stack((pairs(x), pairs(y)), -1)
+                                           for x, y in zip(x, y)])
+                colors = np.concatenate([np.repeat(c, 2)[1:-1] for c in cdata])
+                lines = mpl.collections.LineCollection(
+                    segments, norm=data.norm, cmap=data.cmap)
+                lines.set_array(colors)
+                axes.add_collection(lines)
+                axes.autoscale_view()
+                return lines,
             else:
                 lines = axes.plot(y) if x is None else axes.plot(x, y)
                 for line, c in zip(lines, cdata):

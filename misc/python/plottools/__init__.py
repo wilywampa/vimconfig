@@ -251,20 +251,27 @@ def cdfplot(x, *args, **kwargs):
     return artists
 
 
-def colored_line(x, y, c, norm=None, ax=None, **kwargs):
+def colored_line(x, y, c, norm=None, ax=None, axis=0, **kwargs):
     """Create a LineCollection with segments of `x` and `y` colored by `c`."""
-    x = np.squeeze(x)
-    y = np.squeeze(y)
-    xmid = (x[1:] + x[:-1]) / 2.0
-    ymid = (y[1:] + y[:-1]) / 2.0
-    x = np.append(np.array([x[:-1], xmid, xmid]).T.ravel(), x[-1])
-    y = np.append(np.array([y[:-1], ymid, ymid]).T.ravel(), y[-1])
-    pairs = np.array([x, y]).T
-    segments = np.array([pairs[:-1], pairs[1:]]).swapaxes(0, 1)
+    def pairs(v):
+        mid = (v[1:] + v[:-1]) / 2.0
+        vnew = np.empty((2 * (v.size - 1), 2))
+        vnew[::2, 0], vnew[::2, 1] = v[:-1], mid
+        vnew[1::2, 0], vnew[1::2, 1] = mid, v[1:]
+        return vnew
+
+    segments = []
+    colors = []
+    x, y, c = (np.rollaxis(a, axis) for a in (x, y, c))
+    for i in np.ndindex(*x.shape[1:]):
+        i = (Ellipsis,) + i
+        segments.append(np.stack((pairs(x[i]), pairs(y[i])), axis=-1))
+        colors.append(np.repeat(c[i], 2)[1:-1])
     if norm and not callable(norm):
         norm = plt.Normalize(*norm)
-    lc = mpl.collections.LineCollection(segments, norm=norm, **kwargs)
-    lc.set_array(np.repeat(c, 3)[1:-1])
+    lc = mpl.collections.LineCollection(
+        np.concatenate(segments), norm=norm, **kwargs)
+    lc.set_array(np.concatenate(colors))
     if ax:
         ax.add_collection(lc)
         ax.autoscale_view()
