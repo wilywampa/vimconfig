@@ -9,7 +9,7 @@ function! pylama_ignores#get(buffer) abort " {{{
     catch
         let l:ignore = []
     endtry
-    let l:modelines = filter(getbufline(a:buffer, 1, 50),
+    let l:modelines = filter(getbufline(a:buffer, 1, '$'),
         \ {idx, val -> val =~? s:MODELINE_RE})
     if !empty(l:modelines)
         let l:match = substitute(l:modelines[0], s:MODELINE_RE, '\1', '')
