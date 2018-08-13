@@ -833,6 +833,8 @@ class DataObj(object):
                 QtWidgets.QLineEdit.Normal, str((norm.vmin, norm.vmax)))
             if not ok:
                 return
+            if not text:
+                text = repr((None,) * 2)
             try:
                 self.norm = mpl.colors.Normalize(*ast.literal_eval(text))
             except Exception:
