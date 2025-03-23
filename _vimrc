@@ -2475,70 +2475,117 @@ function! s:DeniteSetup() " {{{
         \ 'highlight_matched_range': 'Type',
         \ 'selected_icon': '✓',
         \ 'smartcase': v:true,
+        \ 'start_filter': v:true,
         \ })
     call denite#custom#action('directory', 'cd', function('s:windo_change_dir'))
     if executable('ag')
         call s:DeniteSetupAg()
     endif
-    function! s:ni_map(key1, key2, action, ...) abort
-        let l:opts = a:0 ? a:1 : ''
-        for l:mode in ['normal', 'insert']
-            for l:key in [a:key1, a:key2]
-                call denite#custom#map(l:mode, l:key, a:action, l:opts)
-            endfor
-        endfor
+
+    function! s:denite_my_settings() abort
+        nnoremap <silent><buffer><expr> <CR>
+            \ denite#do_map('do_action')
+        nnoremap <silent><buffer><expr> d
+            \ denite#do_map('do_action', 'delete')
+        nnoremap <silent><buffer><expr> p
+            \ denite#do_map('do_action', 'preview')
+        nnoremap <silent><buffer><expr> q
+            \ denite#do_map('quit')
+        nnoremap <silent><buffer><expr> i
+            \ denite#do_map('open_filter_buffer')
+        nnoremap <silent><buffer><expr> <Space>
+            \ denite#do_map('toggle_select').'j'
     endfunction
-    call s:ni_map('<C-o><C-d>', '<C-o>d',
-        \ '<denite:do_action:vsplit>:<C-u>call vimtools#ToggleDiff()<CR>')
-    call s:ni_map('<C-o><C-o>', '<C-o>v', '<denite:do_action:open>')
-    call s:ni_map('<C-o><C-v>', '<C-o>v', '<denite:do_action:vsplit>')
-    call s:ni_map('<C-o><C-s>', '<C-o>s', '<denite:do_action:split>')
-    call s:ni_map('<C-o><C-t>', '<C-o>t', '<denite:do_action:tabswitch>')
-    call s:ni_map('<C-^>',      '<C-^>',  '<denite:do_action:preview>')
-    call s:ni_map('<C-g>',      '<C-g>',  'ModifyGrep()', 'noremap expr')
-    call s:ni_map('<C-j>',      '<C-j>',  '<denite:move_to_next_line>')
-    call s:ni_map('<C-k>',      '<C-k>',  '<denite:move_to_previous_line>')
-    call s:ni_map('<C-q>',      '<C-q>',  '<denite:do_action:mydelete>')
-    call s:ni_map('<C-t>',      '<C-t>',  '<denite:do_action:preview>')
-    call s:ni_map('<C-x>',      '<C-x>',  '<denite:quick_move>')
 
-    call denite#custom#map('insert', '<C-@>', '<denite:toggle_select_down>')
-    call denite#custom#map('insert', '<C-Space>', '<denite:toggle_select_down>')
-    call denite#custom#map('insert', '<C-b>', '<denite:print_messages>')
-    call denite#custom#map('insert', '<C-d>', '<denite:quit>')
-    call denite#custom#map('insert', '<C-d>',
-        \ 'ToggleSorter("converter_tail")', 'noremap expr nowait')
-    call denite#custom#map('insert', '<C-e>',
-        \ 'ToggleSorter("converter_abbr_word")', 'noremap expr nowait')
-    call denite#custom#map('insert', '<C-f>',
-        \ 'ToggleSorter("sorter_ftime")', 'noremap expr nowait')
-    call denite#custom#map('insert', '<C-r>$',
-        \ 'fnamemodify(bufname(denite#context#get("bufnr")), ":t")', 'noremap expr')
-    call denite#custom#map('insert', '<C-r>%',
-        \ 'bufname(denite#context#get("bufnr"))', 'noremap expr')
-    call denite#custom#map('insert', '<C-v>', '<denite:paste_from_default_register>')
-    call denite#custom#map('insert', '<C-z>',
-        \ 'ToggleSorter("sorter_reverse")', 'noremap expr nowait')
-    call denite#custom#map('insert', '<Esc>', '<denite:enter_mode:normal>')
-    call denite#custom#map('insert', '.', '\.', 'noremap')
-    call denite#custom#map('insert', '\.', '.', 'noremap')
+    function! s:denite_maps() " {{{
+        function! s:ni_map(key1, key2, action, ...) abort
+            let l:opts = a:0 ? a:1 : ''
+            let l:parts = split(substitute(a:action, '\v^\<denite:(.*)\>$', '\1', ""), ':')
+            let l:action = join(map(copy(l:parts), {i, x -> "'".x."'"}), ', ')
+            for l:mode in ['nnoremap', 'inoremap']
+                for l:key in [a:key1, a:key2]
+                    execute l:mode '<silent><buffer><expr>' l:key 'denite#do_map(' . l:action . ')'
+                endfor
+            endfor
+        endfunction
+        " call s:ni_map('<C-o><C-d>', '<C-o>d',
+        "     \ '<denite:do_action:vsplit>:<C-u>call vimtools#ToggleDiff()<CR>')
+        call s:ni_map('<C-o><C-o>', '<C-o>v', '<denite:do_action:open>')
+        call s:ni_map('<C-o><C-v>', '<C-o>v', '<denite:do_action:vsplit>')
+        call s:ni_map('<C-o><C-s>', '<C-o>s', '<denite:do_action:split>')
+        call s:ni_map('<C-o><C-t>', '<C-o>t', '<denite:do_action:tabswitch>')
+        call s:ni_map('<C-^>',      '<C-^>',  '<denite:do_action:preview>')
+        call s:ni_map('<C-g>',      '<C-g>',  'ModifyGrep()', 'noremap expr')
+        call s:ni_map('<C-j>',      '<C-j>',  '<denite:move_to_next_line>')
+        call s:ni_map('<C-k>',      '<C-k>',  '<denite:move_to_previous_line>')
+        call s:ni_map('<C-q>',      '<C-q>',  '<denite:do_action:mydelete>')
+        call s:ni_map('<C-t>',      '<C-t>',  '<denite:do_action:preview>')
+        call s:ni_map('<C-x>',      '<C-x>',  '<denite:quick_move>')
 
-    call denite#custom#map('normal', '<Bslash>w', '<denite:quit>')
-    call denite#custom#map('normal', '<C-Space>', '<denite:toggle_select_up>')
-    call denite#custom#map('normal', '<C-n>', '<denite:jump_to_next_by:path>')
-    call denite#custom#map('normal', '<C-p>', '<denite:jump_to_previous_by:path>')
-    call denite#custom#map('normal', '<Esc>', '<denite:enter_mode:normal>')
-    call denite#custom#map('normal', '<Up>', '<denite:wincmd:p>')
-    call denite#custom#map('normal', 'M', '<denite:move_to_middle>')
-    call denite#custom#map('normal', 'S', '<denite:change_line>')
-    call denite#custom#map('normal', 'ZZ', '<denite:quit>')
-    call denite#custom#map('normal', '`', 'SwitchOrQuit()', 'noremap expr')
-    call denite#custom#map('normal', 'gj', '<denite:jump_to_next_source>')
-    call denite#custom#map('normal', 'gk', '<denite:jump_to_previous_source>')
-    call denite#custom#map('normal', 'm', '<denite:toggle_select_down>')
-    call denite#custom#map('normal', 'yy', '<denite:do_action:yank>')
-    call denite#custom#map('normal', 'zj', '<denite:jump_to_next_by:path>')
-    call denite#custom#map('normal', 'zk', '<denite:jump_to_previous_by:path>')
+        if &filetype ==? 'denite-filter'
+            function! s:esc(action)
+                return substitute(denite#do_map(a:action), '^'."\<C-o>", '', 'i')
+            endfunction
+            imap <silent><buffer><expr> <CR>
+                \ "<Plug>(denite_filter_update)" . <SID>esc('do_action')
+            imap <silent><buffer> <Esc> <Plug>(denite_filter_update)
+            imap <silent><buffer><expr> <C-@>
+                \ "<Plug>(denite_filter_update)" .
+                \ <SID>esc('toggle_select') . 'j' . <SID>esc('open_filter_buffer')
+            imap <silent><buffer><expr> <C-Space>
+                \ "<Plug>(denite_filter_update)" .
+                \ <SID>esc('toggle_select') . 'j' . <SID>esc('open_filter_buffer')
+            imap <silent><buffer><expr> <C-j>
+                \ "<Plug>(denite_filter_update)" . 'j' . <SID>esc('open_filter_buffer')
+            imap <silent><buffer><expr> <C-k>
+                \ "<Plug>(denite_filter_update)" . 'k' . <SID>esc('open_filter_buffer')
+        endif
+
+        return
+
+        call denite#custom#map('insert', '<C-@>', '<denite:toggle_select_down>')
+        call denite#custom#map('insert', '<C-Space>', '<denite:toggle_select_down>')
+        call denite#custom#map('insert', '<C-b>', '<denite:print_messages>')
+        call denite#custom#map('insert', '<C-d>', '<denite:quit>')
+        call denite#custom#map('insert', '<C-d>',
+            \ 'ToggleSorter("converter_tail")', 'noremap expr nowait')
+        call denite#custom#map('insert', '<C-e>',
+            \ 'ToggleSorter("converter_abbr_word")', 'noremap expr nowait')
+        call denite#custom#map('insert', '<C-f>',
+            \ 'ToggleSorter("sorter_ftime")', 'noremap expr nowait')
+        call denite#custom#map('insert', '<C-r>$',
+            \ 'fnamemodify(bufname(denite#context#get("bufnr")), ":t")', 'noremap expr')
+        call denite#custom#map('insert', '<C-r>%',
+            \ 'bufname(denite#context#get("bufnr"))', 'noremap expr')
+        call denite#custom#map('insert', '<C-v>', '<denite:paste_from_default_register>')
+        call denite#custom#map('insert', '<C-z>',
+            \ 'ToggleSorter("sorter_reverse")', 'noremap expr nowait')
+        call denite#custom#map('insert', '<Esc>', '<denite:enter_mode:normal>')
+        call denite#custom#map('insert', '.', '\.', 'noremap')
+        call denite#custom#map('insert', '\.', '.', 'noremap')
+
+        call denite#custom#map('normal', '<Bslash>w', '<denite:quit>')
+        call denite#custom#map('normal', '<C-Space>', '<denite:toggle_select_up>')
+        call denite#custom#map('normal', '<C-n>', '<denite:jump_to_next_by:path>')
+        call denite#custom#map('normal', '<C-p>', '<denite:jump_to_previous_by:path>')
+        call denite#custom#map('normal', '<Esc>', '<denite:enter_mode:normal>')
+        call denite#custom#map('normal', '<Up>', '<denite:wincmd:p>')
+        call denite#custom#map('normal', 'M', '<denite:move_to_middle>')
+        call denite#custom#map('normal', 'S', '<denite:change_line>')
+        call denite#custom#map('normal', 'ZZ', '<denite:quit>')
+        call denite#custom#map('normal', '`', 'SwitchOrQuit()', 'noremap expr')
+        call denite#custom#map('normal', 'gj', '<denite:jump_to_next_source>')
+        call denite#custom#map('normal', 'gk', '<denite:jump_to_previous_source>')
+        call denite#custom#map('normal', 'm', '<denite:toggle_select_down>')
+        call denite#custom#map('normal', 'yy', '<denite:do_action:yank>')
+        call denite#custom#map('normal', 'zj', '<denite:jump_to_next_by:path>')
+        call denite#custom#map('normal', 'zk', '<denite:jump_to_previous_by:path>')
+    endfunction " }}}
+    augroup VimrcDeniteAutocmds
+        autocmd!
+        autocmd FileType denite,denite-filter call s:denite_my_settings()
+        autocmd FileType denite,denite-filter call s:denite_maps()
+    augroup END
 
     call denite#custom#source('_', 'matchers', ['matcher_regexp'])
     call denite#custom#source('_', 'sorters', [])
