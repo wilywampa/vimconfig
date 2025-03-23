@@ -1772,7 +1772,10 @@ autocmd VimrcAutocmds CursorMovedI,InsertLeave c,cpp
 let g:commentary_map_backslash=0
 
 " {{{ Completion settings
-if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
+function! s:blacklisted(name) abort " {{{
+    return $VIMBLACKLIST =~? '\v(,|^)'.a:name.'(,|$)'
+endfunction " }}}
+if has('nvim') && !s:readonly && !s:blacklisted('deoplete')
     call add(g:pathogen_disabled, 'supertab')
 
     " deoplete settings {{{
@@ -1828,7 +1831,7 @@ if has('nvim') && !s:readonly && $VIMBLACKLIST !=? 'deoplete'
     inoremap <silent> <C-^> <C-y>
     " }}}
 
-elseif $VIMBLACKLIST !~? 'neocomplete'
+elseif !s:blacklisted('neocomplete')
     call add(g:pathogen_disabled, 'supertab')
     call add(g:pathogen_disabled, 'deoplete')
 
