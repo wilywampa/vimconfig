@@ -1,4 +1,4 @@
-backend : qt5agg
+backend : qtagg
 axes.grid : True
 legend.loc : best
 legend.fontsize : small
@@ -7,6 +7,7 @@ figure.autolayout : True
 figure.max_open_warning : 100
 figure.facecolor : white
 figure.figsize : 10, 6.25
+figure.dpi : 150
 axes.formatter.useoffset : False
 axes.prop_cycle : cycler(linestyle=('-', '--', '-.', ':')) * cycler(color=['0072bd', 'd95319', 'edb120', '7e2f8e', '77ac30', '4dbeee', 'a2142f'])
 grid.linestyle : --
