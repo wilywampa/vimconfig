@@ -3245,7 +3245,7 @@ Plug 'vim-scripts/CSApprox', {'for': 'fugitiveblame'}
 Plug 'airblade/vim-gitgutter'
 Plug 'tmux-plugins/vim-tmux', {'dir': '$VIMCONFIG/vimfiles/bundle/vim-tmux'}
 Plug 'vim-utils/vim-man'
-Plug '$VIMCONFIG/vimfiles/bundle/AnsiEsc', {'on': 'AnsiEsc'}
+Plug 'powerman/vim-plugin-AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
 if has('nvim')
