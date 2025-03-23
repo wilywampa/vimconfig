@@ -55,7 +55,6 @@ set keywordprg=:help            " Use Vim help instead of man to look up keyword
 set splitright                  " Vertical splits open on the right
 set fileformats=unix,dos        " Always prefer unix format
 sil! set fileformat=unix
-set csqf=s-,c-,d-,i-,t-,e-      " Use quickfix list for cscope results
 set foldopen+=jump              " Jumps open folds
 set clipboard=unnamed           " Yank to system clipboard
 sil! set clipboard+=unnamedplus
