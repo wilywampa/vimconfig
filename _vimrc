@@ -3200,7 +3200,7 @@ Plug 'wilywampa/neomru.vim'
 Plug 'wilywampa/neosnippet.vim'
 Plug 'Shougo/neosnippet-snippets'
 Plug 'wilywampa/patchreview-vim', {'on': ['DiffReview', 'PatchReview']}
-Plug 'wilywampa/python-mode', {'branch': 'develop'}
+Plug 'python-mode/python-mode'
 Plug 'wilywampa/vim-repeat'
 Plug 'wilywampa/vim-scriptease'
 Plug 'xolox/vim-shell'
