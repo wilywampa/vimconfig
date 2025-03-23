@@ -2161,7 +2161,6 @@ xn <silent> ,h :<C-u>call SaveRegs()<CR>gvy:call unite#start([['history/ipython'
     \ 'input': @@, 'split': 0, 'auto_resize': 0, 'max_multi_lines': 100})<CR>
     \ <Esc>:call RestoreRegs()<CR>i
 nn <silent> <Leader>vi :<C-u>Unite vimuxindex<CR>
-nn <silent> g/ :<C-u>Unite line:buffers -input=\v<CR>
 nn <silent> <Leader>w :cclose<bar>Windo lclose<bar>pclose<bar>silent! UniteClose<CR>
 nn <silent> [u :<C-u><C-r>=v:count1<CR>UnitePrevious<CR>
 nn <silent> ]u :<C-u><C-r>=v:count1<CR>UniteNext<CR>
