@@ -2407,7 +2407,7 @@ nn <silent> <expr> <C-p> ":\<C-u>Denite ".(len(filter(range(1,bufnr('$')),
     \ 'buflisted(v:val)')) > 1 ? "buffer" : "")." file_mru -unique -default-action=switch\<CR>"
 nn <silent> <M-P> :<C-u>Denite directory_rec -default-action=cd<CR>
 nn <silent> <C-o> :<C-u>Denite files -default-action=switch<CR>
-nn <silent> <M-f> :<C-u>Denite file_rec -default-action=switch<CR>
+nn <silent> <M-f> :<C-u>Denite file/rec -default-action=switch<CR>
 nn <silent> <M-/> :<C-u>Denite line:all:noempty<CR>
 nn <silent> <M-?> :<C-u>Denite line:all:noempty -input=`expand('<lt>cword>')`<CR>
 nn <silent> g<C-p> :<C-u>Denite file_mru -default-action=switch<CR>
