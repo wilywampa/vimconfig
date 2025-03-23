@@ -3038,7 +3038,7 @@ nmap cr <Plug>Coerce
 nnoremap <Leader>gc :<C-u>Git commit<CR>
 nnoremap gB         :<C-u>Git blame<CR>
 nnoremap gC         :<C-u>Gdiffsplit<CR>
-nnoremap gL         :<C-u>Git log --oneline<CR>
+nnoremap gL         :<C-u>Git log --oneline %<CR>
 nnoremap gS         :<C-u>Git<CR>
 nnoremap gW         :<C-u>Gwrite<CR>
 " Reload file with absolute path to create fugitive commands
