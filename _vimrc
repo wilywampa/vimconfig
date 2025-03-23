@@ -1566,6 +1566,9 @@ augroup VimrcAutocmds " {{{
     autocmd InsertEnter * let s:pwinid += 1 | call setwinvar(winnr('#'), 'pwin', s:pwinid)
     autocmd InsertLeave * if winnr('$') > 2 && getwinvar(winnr('#'), 'pwin') != s:pwinid |
         \ silent! call s:RestorePrevWin() | endif
+
+    " Lua settings
+    autocmd FileType lua setlocal shiftwidth=2
 augroup END " }}}
 
 " Restore previous windo after leaving insert mode
