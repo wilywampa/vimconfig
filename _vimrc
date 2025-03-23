@@ -1781,15 +1781,13 @@ if has('nvim') && !s:readonly && !s:blacklisted('deoplete')
     " deoplete settings {{{
     let g:deoplete#enable_at_startup = 1
     let g:deoplete#sources#clang#sort_algo = 'alphabetical'
-    let g:deoplete#enable_smart_case = 1
-    let g:deoplete#max_list = 200
     let g:tmuxcomplete#trigger = ''
-    if !exists('g:deoplete#keyword_patterns')
-        let g:deoplete#keyword_patterns = {}
+    if !exists('g:deoplete_keyword_patterns')
+        let g:deoplete_keyword_patterns = {}
     endif
-    let g:deoplete#keyword_patterns._ = '\k\w*'
-    let g:deoplete#keyword_patterns['default'] = '\k\w*'
-    let g:deoplete#keyword_patterns.matlab =
+    let g:deoplete_keyword_patterns._ = '\k\w*'
+    let g:deoplete_keyword_patterns['default'] = '\k\w*'
+    let g:deoplete_keyword_patterns.matlab =
         \ '\k\w*(?:(?:\.(?:(?:''?)?\w*(?:'')?)?)+|{\d+}(?:\.(?:(?:''?)?\w*(?:'')?)?)+|{\d*\}?)?'
     function! s:StartManualComplete(dir)
         " Indent if only whitespace behind cursor
@@ -1826,6 +1824,11 @@ if has('nvim') && !s:readonly && !s:blacklisted('deoplete')
             \ pumvisible() ? "\<C-p>" : deoplete#manual_complete()
         autocmd VimrcAutocmds CmdwinEnter : let b:deoplete_sources =
             \ ['vim', 'file', 'words', 'syntax', 'buffer']
+        autocmd VimEnter * call deoplete#custom#option({
+            \ 'keyword_patterns': g:deoplete_keyword_patterns,
+            \ 'enable_smart_case': 1,
+            \ 'max_list': 200,
+            \ })
     augroup END
     inoremap <silent> <expr> <C-x><C-x> deoplete#manual_complete()
     inoremap <silent> <C-^> <C-y>
