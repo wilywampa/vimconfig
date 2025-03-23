@@ -2980,11 +2980,10 @@ vmap <C-x> <Plug>VisualDecrement
 nmap cr <Plug>Coerce
 
 " Fugitive maps
-nnoremap gB         :<C-u>Gblame<CR>
-nnoremap gC         :<C-u>Gdiff<CR>
-nnoremap gL         :<C-u>Glog!<CR>
-nnoremap g<Leader>L :<C-u>Glog! --<CR>
-nnoremap gS         :<C-u>Gstatus<CR>
+nnoremap gB         :<C-u>Git blame<CR>
+nnoremap gC         :<C-u>Gdiffsplit<CR>
+nnoremap gL         :<C-u>Git log --oneline<CR>
+nnoremap gS         :<C-u>Git<CR>
 nnoremap gW         :<C-u>Gwrite<CR>
 " Reload file with absolute path to create fugitive commands
 nnoremap <Leader>L :<C-u>execute 'file '.fnameescape(resolve(expand('%:p')))<bar>
@@ -3132,7 +3131,7 @@ Plug 'wilywampa/vim-easy-align', {'on': '<Plug>(LiveEasyAlign)'}
 Plug 'wilywampa/vim-eunuch'
 Plug 'tommcdo/vim-exchange'
 Plug 'wilywampa/vim-fswitch', {'on': ['FSHere', 'FSSplitBelow', 'FSSplitRight']}
-Plug 'wilywampa/vim-fugitive'
+Plug 'tpope/vim-fugitive'
 Plug 'wilywampa/gitv', {'on': 'Gitv'}
 Plug 'wilywampa/vim-gtfo'
 Plug 'wilywampa/vim-indent-guides', {'on': '<Plug>IndentGuidesToggle'}
