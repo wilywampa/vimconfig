@@ -3207,7 +3207,6 @@ Plug 'xolox/vim-shell'
 Plug 'wilywampa/vim-sleuth'
 Plug 'wilywampa/vim-sneak'
 Plug 'wilywampa/vim-colors-solarized', {'dir': '$VIMCONFIG/vimfiles/bundle/solarized'}
-Plug 'ervandew/supertab'
 Plug 'wilywampa/vim-surround'
 Plug 'scrooloose/syntastic', {'on': ['SyntasticInfo', 'SyntasticCheck']}
 Plug 'wellle/targets.vim'
@@ -3215,7 +3214,6 @@ Plug 'wilywampa/tmux-complete.vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'wilywampa/vim-unimpaired'
 Plug 'wilywampa/unite.vim'
-Plug 'Shougo/unite-outline'
 Plug 'wilywampa/vcscommand.vim', {'on': ['Diff', 'Log']}
 Plug 'wilywampa/vimfiler.vim'
 Plug 'wilywampa/vimproc.vim', {'do': 'make'.(has('win32unix') ? ' -f make_cygwin.mak' : '')}
@@ -3232,7 +3230,6 @@ Plug 'kana/vim-textobj-function'
 Plug 'wilywampa/vim-textobj-function-clang'
 Plug 'wilywampa/haskellmode-vim'
 Plug 'eagletmt/ghcmod-vim'
-Plug 'eagletmt/neco-ghc'
 Plug 'Shougo/neco-vim', {'dir': '$VIMCONFIG/vimfiles/bundle/neco-vim'}
 Plug 'Shougo/neco-syntax'
 Plug 'Shougo/neoyank.vim'
