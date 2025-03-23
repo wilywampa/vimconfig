@@ -547,8 +547,9 @@ cmap <C-b> <Home>
 " Fix @: in visual mode when there is a modifier before the range
 vnoremap <expr> @ @: =~ "\\V'<,'>" ? "\<Esc>@" : "@"
 
-" Synonym for q:
+" Synonym for q: and q/
 nn g: q:
+nn g/ q/
 
 " Use <C-n>/<C-p> instead of arrows for command line history
 cm <C-p> <Up>
