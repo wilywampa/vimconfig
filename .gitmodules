@@ -1,30 +1,6 @@
-[submodule "vimfiles/bundle/DirDiff"]
-	path = vimfiles/bundle/DirDiff
-	url = https://github.com/vim-scripts/DirDiff.vim.git
-	branch = master
-[submodule "vimfiles/bundle/FastFold"]
-	path = vimfiles/bundle/FastFold
-	url = https://github.com/Konfekt/FastFold.git
-	branch = master
 [submodule "vimfiles/bundle/LaTeX-Box"]
 	path = vimfiles/bundle/LaTeX-Box
 	url = https://github.com/LaTeX-Box-Team/LaTeX-Box.git
-	branch = master
-[submodule "vimfiles/bundle/OmniCppComplete"]
-	path = vimfiles/bundle/OmniCppComplete
-	url = https://github.com/vim-scripts/OmniCppComplete.git
-	branch = master
-[submodule "vimfiles/bundle/abolish"]
-	path = vimfiles/bundle/abolish
-	url = https://github.com/tpope/vim-abolish.git
-	branch = master
-[submodule "vimfiles/bundle/ack"]
-	path = vimfiles/bundle/ack
-	url = https://github.com/mileszs/ack.vim.git
-	branch = master
-[submodule "vimfiles/bundle/clang_complete"]
-	path = vimfiles/bundle/clang_complete
-	url = https://github.com/wilywampa/clang_complete.git
 	branch = master
 [submodule "vimfiles/bundle/commentary"]
 	path = vimfiles/bundle/commentary
@@ -182,10 +158,6 @@
 	path = vimfiles/bundle/visual-increment
 	url = https://github.com/triglav/vim-visual-increment.git
 	branch = master
-[submodule "vimfiles/bundle/CountJump"]
-	path = vimfiles/bundle/CountJump
-	url = https://github.com/wilywampa/CountJump.git
-	branch = master
 [submodule "misc/fzf"]
 	path = misc/fzf
 	url = https://github.com/wilywampa/fzf.git
@@ -222,9 +194,6 @@
 [submodule "vimfiles/bundle/unite-outline"]
 	path = vimfiles/bundle/unite-outline
 	url = https://github.com/Shougo/unite-outline.git
-[submodule "vimfiles/bundle/CSApprox"]
-	path = vimfiles/bundle/CSApprox
-	url = https://git::@github.com/vim-scripts/CSApprox.git
 [submodule "vimfiles/bundle/neco-vim"]
 	path = vimfiles/bundle/neco-vim
 	url = https://github.com/Shougo/neco-vim.git
@@ -291,9 +260,6 @@
 [submodule "vimfiles/bundle/deoplete-clang2"]
 	path = vimfiles/bundle/deoplete-clang2
 	url = https://github.com/tweekmonster/deoplete-clang2.git
-[submodule "vimfiles/bundle/ale"]
-	path = vimfiles/bundle/ale
-	url = https://github.com/w0rp/ale.git
 [submodule "vimfiles/bundle/denite-extra"]
 	path = vimfiles/bundle/denite-extra
 	url = https://github.com/chemzqm/denite-extra.git
