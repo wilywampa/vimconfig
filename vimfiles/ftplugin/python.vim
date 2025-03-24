@@ -91,10 +91,6 @@ nnoremap <silent> <buffer> g<M-b> :<C-u>call <SID>ipdb_commands()<CR>
 " Enable omni completion
 setlocal omnifunc=pythoncomplete#Complete
 
-inoremap <expr> <buffer> @
-    \ getline('.')[:col('.')-1] =~ '^\s*$' ? '@' :
-    \ (getline('.')[:col('.')-1] =~# 'lambda\s*$' ? repeat('<BS>', 7) . '@' : 'lambda ')
-
 let s:errorformat  = '%+GTraceback%.%#,'
 let s:errorformat .= '%E  File "%f"\, line %l\,%m%\C,'
 let s:errorformat .= '%E  File "%f"\, line %l%\C,'
