@@ -2,50 +2,15 @@
 	path = vimfiles/bundle/LaTeX-Box
 	url = https://github.com/LaTeX-Box-Team/LaTeX-Box.git
 	branch = master
-[submodule "vimfiles/bundle/gitv"]
-	path = vimfiles/bundle/gitv
-	url = https://github.com/wilywampa/gitv.git
-	branch = master
-[submodule "vimfiles/bundle/neosnippet-snippets"]
-	path = vimfiles/bundle/neosnippet-snippets
-	url = https://github.com/Shougo/neosnippet-snippets.git
-	branch = master
-[submodule "vimfiles/bundle/python-mode"]
-	path = vimfiles/bundle/python-mode
-	url = https://github.com/wilywampa/python-mode.git
-	branch = patch2
-[submodule "vimfiles/bundle/syntastic"]
-	path = vimfiles/bundle/syntastic
-	url = https://github.com/scrooloose/syntastic.git
-	branch = master
-[submodule "vimfiles/bundle/vimux"]
-	path = vimfiles/bundle/vimux
-	url = https://github.com/wilywampa/vimux.git
-	branch = master
 [submodule "misc/fzf"]
 	path = misc/fzf
 	url = https://github.com/wilywampa/fzf.git
-[submodule "vimfiles/bundle/unite-haskellimport"]
-	path = vimfiles/bundle/unite-haskellimport
-	url = https://github.com/ujihisa/unite-haskellimport.git
-[submodule "vimfiles/bundle/neco-vim"]
-	path = vimfiles/bundle/neco-vim
-	url = https://github.com/Shougo/neco-vim.git
-[submodule "vimfiles/bundle/neco-syntax"]
-	path = vimfiles/bundle/neco-syntax
-	url = https://github.com/Shougo/neco-syntax.git
 [submodule "misc/python/neovim-remote"]
 	path = misc/python/neovim-remote
 	url = https://github.com/mhinz/neovim-remote.git
-[submodule "vimfiles/bundle/libclang-python3"]
-	path = vimfiles/bundle/libclang-python3
-	url = https://github.com/zchee/libclang-python3.git
 [submodule "vimfiles/bundle/neomake"]
 	path = vimfiles/bundle/neomake
 	url = https://github.com/neomake/neomake.git
-[submodule "vimfiles/bundle/vim-tmux"]
-	path = vimfiles/bundle/vim-tmux
-	url = https://github.com/tmux-plugins/vim-tmux.git
 [submodule "vimfiles/bundle/vim-man"]
 	path = vimfiles/bundle/vim-man
 	url = https://github.com/vim-utils/vim-man.git
