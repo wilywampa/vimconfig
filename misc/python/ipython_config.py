@@ -215,12 +215,6 @@ def _install():
     ip.display_formatter.formatters[
         'text/plain'] = HighlightTextFormatter(config=ip.config)
 
-    import ipython_autocd
-    ipython_autocd.register()
-
-    import lambda_filter
-    lambda_filter.register()
-
     @magic.register_line_magic
     def run_cython(args):
         """Run a Cython file using %%cython magic."""
