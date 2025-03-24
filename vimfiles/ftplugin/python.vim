@@ -92,8 +92,8 @@ nnoremap <silent> <buffer> g<M-b> :<C-u>call <SID>ipdb_commands()<CR>
 setlocal omnifunc=pythoncomplete#Complete
 
 let s:errorformat  = '%+GTraceback%.%#,'
-let s:errorformat .= '%E  File "%f"\, line %l\,%m%\C,'
-let s:errorformat .= '%E  File "%f"\, line %l%\C,'
+let s:errorformat .= '%E  File %f:%l%\C,'
+let s:errorformat .= '%E  File %f:%l %m%\C,'
 let s:errorformat .= '%C%p^,'
 let s:errorformat .= '%+C    %.%#,'
 let s:errorformat .= '%+C  %.%#,'
