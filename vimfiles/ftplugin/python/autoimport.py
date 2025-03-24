@@ -360,9 +360,10 @@ def check_exists(miss):
     if exists:
         return int(exists)
     try:
-        spec = importlib.machinery.PathFinder().find_spec(miss)
+        spec = importlib.util.find_spec(miss)
         name = spec.origin
-        assert os.path.basename(name) in os.listdir(os.path.dirname(name))
+        if name != 'built-in':
+            assert os.path.basename(name) in os.listdir(os.path.dirname(name))
         vim.command('let module_cache["%s"] = 1' % miss)
         return True
     except (AssertionError, AttributeError, ImportError):
