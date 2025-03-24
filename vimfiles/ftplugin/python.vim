@@ -222,7 +222,7 @@ endpython
   function! s:IPyPrintVar()
     call SaveRegs()
     normal! gvy
-    let g:ipy_input = @"
+    let g:ipy_input = UncommentMagics(@")
     call RestoreRegs()
     call IPyRunSilent(g:ipy_input)
   endfunction
