@@ -46,7 +46,8 @@ imap     <silent> <buffer> <F5> <Esc><F5>
 nnoremap <silent> <buffer> K :<C-u>execute "!pydoc " . expand("<cword>")<CR>
 nnoremap <silent> <buffer> <S-F5> :up<CR>:!python %<CR>
 imap     <silent> <buffer> <S-F5> <Esc><S-F5>
-nnoremap <silent> <buffer> ,pl :<C-u>PymodeLint<CR>
+nnoremap <silent> <buffer> ,pf :<C-u>lua vim.diagnostic.open_float()<CR>
+nnoremap <silent> <buffer> ,pl :<C-u>lua vim.diagnostic.setloclist()<CR>
 nnoremap <silent> <buffer> ,pm :<C-u>call FixMagicSyntax()<CR>
 nnoremap <silent> <buffer> ,pi :<C-u>call FixImports()<CR>
 nnoremap <silent> <buffer> ,ii v0:<C-u>call pymode#motion#select('^\s*\(class\<bar>def\)\s', 0)<CR>:<C-u>call <SID>FixImportsInDef()<CR>
