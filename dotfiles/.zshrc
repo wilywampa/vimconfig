@@ -873,8 +873,8 @@ tmux-prev() { tmux prev >& /dev/null }
 zle -N tmux-prev; vibindkey '^[[27;6;9~' tmux-prev
 
 typeset -TUgx VIMBLACKLIST vimblacklist ,
-vimblacklist=(vimshell tmux-complete jedi clang_complete textobj-clang \
-    textobj-function-clang libclang haskellmode ghcmod neco-ghc haskell)
+vimblacklist=(vimshell tmux-complete jedi clang_complete haskellmode ghcmod \
+    neco-ghc haskell deoplete neocomplete)
 
 vim-blacklist-add() {
     for i in "$@"; do
@@ -1084,7 +1084,6 @@ export FPATH
 export EDITOR=vim
 export DATEFMT='%a %d%b%Y %T'
 export VIMSERVER=${VIMSERVER:-VIM}
-export NVIM_LISTEN_ADDRESS=${NVIM_LISTEN_ADDRESS:-"$HOME"/NVIM}
 export TAR_OPTIONS='-k'
 export INPUTRC=$HOME/.inputrc
 _vim_maps=(
@@ -1372,7 +1371,7 @@ SPROMPT="Correct $fg[red]%R$reset_color to $fg[green]%r$reset_color? (Yes, No, A
 
 # Update prompt after TMOUT seconds and after hitting enter
 TMOUT=10
-TRAPALRM() { [[ -z $BUFFER ]] && zle reset-prompt }
+TRAPALRM() { [[ -z $BUFFER ]] && [[ -z $WIDGET ]] && zle reset-prompt }
 
 # vared setup
 zle -N _set-bar-cursor
