@@ -44,9 +44,10 @@ class IPythonLexer(RegexLexer):
         (r"(<)([a-zA-Z_.]*)( object )(at )",
          bygroups(Operator, Name.Class, Keyword, Text)),
     ]
-    index = next(i for i, item in enumerate(
-        tokens['root']) if 'and' in item[0])
-    tokens['root'][index:index] = extra_tokens
+    key = next(k for k, v in tokens.items()
+               if any('and' in item[0] for item in v))
+    index = next(i for i, item in enumerate(tokens[key]) if 'and' in item[0])
+    tokens[key][index:index] = extra_tokens
 
     # Highlight IPython magics
     Percent = Name.Decorator
@@ -137,7 +138,7 @@ class IPythonLexer(RegexLexer):
                                  Name.Builtin.Pseudo)
     tokens['name'] = [
         (r'(@)([\w.]+)', bygroups(Name.Decorator, Name.Function)),
-        (Python3Lexer.uni_name if six.PY3 else '[a-zA-Z_]\w*', Name),
+        (Python3Lexer.uni_name if six.PY3 else r'[a-zA-Z_]\w*', Name),
     ]
 
 
