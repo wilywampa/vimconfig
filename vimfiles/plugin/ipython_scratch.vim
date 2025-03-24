@@ -171,6 +171,7 @@ function! s:IPyScratchBuffer()
   inoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   xnoremap <buffer> <silent> <F5> <Esc>:<C-u>call <SID>IPyRunScratchBuffer()<CR>
   nnoremap <buffer> <silent> <CR>   vip:<C-u>call IPyEval(3)<CR>
+  nnoremap <buffer> <silent> ZZ        :<C-u>Save<CR><C-w>q
   nnoremap          <silent> ,ps       :<C-u>call <SID>IPyScratchBuffer()<CR>
   command!          -buffer Backup  call s:BackupScratchBuffer()
   command!          -buffer Save    call s:BackupScratchBuffer()
