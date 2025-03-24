@@ -582,11 +582,11 @@ function! FixImports()
     while 1
       PymodePython code_check()
       Python2or3 << EOF
-messages = set([(m['lnum'], m['text']) for m in
+messages = set([(m['lnum'], m['text'], m['number']) for m in
                 vim.eval('copy(g:PymodeLocList.current().loclist())')])
-missing = sorted([m.split("'")[1] for _, m in messages if 'E0602' in m])
-redefined = sorted([m.split("'")[1] for _, m in messages if 'W0404' in m])
-unused = sorted([m.split("'")[1] for _, m in messages if 'W0611' in m])
+missing = sorted([m.split("'")[1] for _, m, n in messages if n == 'E0602'])
+redefined = sorted([m.split("'")[1] for _, m, n in messages if n == 'W0404'])
+unused = sorted([m.split("'")[1] for _, m, n in messages if n == 'W0611'])
 EOF
       if l:count > 10 || (l:count > 0 &&
           \ s:pyeval('redefined') == redefined &&

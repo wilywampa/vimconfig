@@ -1,5 +1,5 @@
 import ast
-import imp
+import importlib
 import io
 import itertools
 import os
@@ -84,7 +84,7 @@ for node in ast.iter_child_nodes(root):
             blank = next(
                 (i for i, l in enumerate(
                     vim.current.buffer[end:], end)
-                    if re.match('^\s*(#.*)?$', l))) + 1
+                    if re.match(r'^\s*(#.*)?$', l))) + 1
         except StopIteration:
             blank = len(vim.current.buffer)
     start = start or first or first_from
@@ -109,12 +109,12 @@ if int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
             break
     end += add if found else 0
 
-messages = [(m['lnum'], m['text']) for m in vim.eval('messages')]
-unused = {int(k): v.split("'")[1].split()[-1] for k, v in messages
-          if start <= int(k) <= end and 'W0611' in v}
-missing = [m.split("'")[1] for _, m in messages if 'E0602' in m]
-redefined = {int(k): v.split("'")[1] for k, v in messages
-             if start <= int(k) <= end and 'W0404' in v}
+messages = [(m['lnum'], m['text'], m['number']) for m in vim.eval('messages')]
+unused = {int(k): v.split("'")[1].split()[-1] for k, v, n in messages
+          if start <= int(k) <= end and n == 'W0611'}
+missing = [m.split("'")[1] for _, m, n in messages if n == 'E0602']
+redefined = {int(k): v.split("'")[1] for k, v, n in messages
+             if start <= int(k) <= end and n == 'W0404'}
 
 aliases = dict(
     cf='concurrent.futures',
@@ -142,7 +142,7 @@ aliases = dict(
 
 froms = {
     'IPython': ['get_ipython', 'parallel'],
-    'IPython.core.display': ['display'],
+    'IPython.core.display_functions': ['display'],
     'IPython.external.path': ['path'],
     'IPython.lib.pretty': ['pretty'],
     'IPython.parallel': ['Client', 'Reference', 'interactive'],
@@ -191,6 +191,7 @@ froms = {
         'ylabel', 'ylim', 'yscale', 'yticks'],
     'mpl_toolkits': ['basemap', 'mplot3d'],
     'mpl_toolkits.mplot3d': ['Axes3D'],
+    'munch': ['Munch', 'munchify', 'unmunchify'],
     'numpy': [
         'absolute', 'allclose', 'alltrue', 'arange', 'arccos', 'arccosh',
         'arcsin', 'arcsinh', 'arctan', 'arctan2', 'arctanh', 'argmax',
@@ -300,6 +301,7 @@ froms_as = dict(
     atan2=('numpy', 'arctan2'),
     atanh=('numpy', 'arctanh'),
     deg=('numpy', 'rad2deg'),
+    idx=('pandas', 'IndexSlice'),
     marray=('numpy.ma', 'masked_array'),
     rad=('numpy', 'deg2rad'),
 )
@@ -358,10 +360,9 @@ def check_exists(miss):
     if exists:
         return int(exists)
     try:
-        file_obj, file_path, _ = imp.find_module(miss)
-        if file_obj:
-            name = file_path or file_obj.name
-            assert os.path.basename(name) in os.listdir(os.path.dirname(name))
+        spec = importlib.machinery.PathFinder().find_spec(miss)
+        name = spec.origin
+        assert os.path.basename(name) in os.listdir(os.path.dirname(name))
         vim.command('let module_cache["%s"] = 1' % miss)
         return True
     except (AssertionError, AttributeError, ImportError):
@@ -480,7 +481,7 @@ if not_found and int(vim.eval('getbufvar("%", "ipython_user_ns", 0)')):
          for name in sorted(not_found)])
 
 buf = vim.current.buffer
-lines = [l for ls in lines for l in ls]
+lines = [line for ls in lines for line in ls]
 first = buf[0]
 shebang = [first] if first.startswith('#!') else []
 if unused or missing or redefined:
