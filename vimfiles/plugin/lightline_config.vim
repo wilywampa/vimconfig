@@ -68,9 +68,9 @@ let g:lightline.subseparator = {
 
 function! LightLineInfo() abort
   return '%#StatusFlag#%{LightLineFlags()}'.
-      \  '%#LightLineMiddle_active#%<%{LightLineFile()}'.
+      \  '%#LightlineMiddle_active#%<%{LightLineFile()}'.
       \  '%#StatusModified#%{LightLineFileModified()}'.
-      \  '%#LightLineMiddle_active#%{&modifiable?"":"[-]"}'.
+      \  '%#LightlineMiddle_active#%{&modifiable?"":"[-]"}'.
       \  '%#StatusFlag#%{&readonly?"  '.g:airline_symbols.readonly.'":""}'
 endfunction
 
