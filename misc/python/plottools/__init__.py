@@ -1,4 +1,5 @@
 from __future__ import division, print_function
+import logging
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,9 +12,13 @@ from plottools.indexing import (ArrayBunch, array_bunchify, azip,
                                 index_all, map_dict, product_items,
                                 shift, unmask, where_first, where_last)
 
+logger = logging.getLogger(__name__)
+
 
 def fg(fig=None):
     """Raise figure to foreground."""
+    if not plt.get_fignums():
+        return
     plt.figure((fig or plt.gcf()).number)
     if plt.get_backend()[0:2].lower() == 'qt':
         plt.get_current_fig_manager().window.hide()
@@ -50,7 +55,7 @@ def _snap(**kwargs):
 def _fmt(x=None, y=None, label=None, **kwargs):
     event = kwargs['event']
     output = [label] if label and not label.startswith('_') else []
-    output.append("{x:.6g}\n{y:.6g}\n{i}".format(x=x, y=y, i=event.ind))
+    output.append("{x:.6g}\n{y:.6g}\n[{i}]".format(x=x, y=y, i=event.ind[0]))
     kwargs['arrowprops'] = dict(shrinkB=0)
     return "\n".join(output)
 
@@ -61,13 +66,6 @@ def cursor(artists=None, axes=None, **kwargs):
     defaults = dict(formatter=_fmt, props_override=_snap, draggable=True)
     defaults.update(kwargs)
     return mpldatacursor.datacursor(artists=artists, axes=axes, **defaults)
-
-
-def picker(fig=None, **kwargs):
-    """Add mplpicker to a figure."""
-    from mplpicker import picker
-    plt.figure((fig or plt.gcf()).number)
-    return [picker(ax, **kwargs) for ax in plt.gcf().get_axes()]
 
 
 def unique_legend(*axes, **kwargs):
@@ -102,11 +100,14 @@ def cl():
     plt.close('all')
 
 
-def savepdf(filename, **kwargs):
+def savepdf(filename, interleave_n=1, **kwargs):
     """Save all open figures to a PDF file."""
     from matplotlib.backends.backend_pdf import PdfPages
+    from more_itertools import divide, interleave
     with PdfPages(filename) as pp:
-        [pp.savefig(plt.figure(n), **kwargs) for n in plt.get_fignums()]
+        for i in interleave(*divide(interleave_n, plt.get_fignums())):
+            pp.savefig(plt.figure(i), **kwargs)
+    logger.info('saved to %s', filename)
 
 
 def savesvg(basename, **kwargs):
@@ -151,23 +152,30 @@ def savehtml(file_or_name, html_attrs=None, header=None, footer=None,
             save(fid)
 
 
-def varinfo(var):
+def varinfo(var, max_seq_length=20, max_lines=None):
     """Pretty print information about a variable."""
+    import io
     import numpy
-    from IPython import get_ipython
+    import pandas
+    from IPython.core.getipython import get_ipython
     from IPython.lib.pretty import pretty
     from highlighter import highlight
     ip = get_ipython()
     if ip:
         print(ip.inspector._get_info(var)['text/plain'])
     try:
-        s = pretty(var, max_seq_length=20)
-    except TypeError:
-        s = pretty(var)
-    lines = s.splitlines()
-    if len(lines) > 20:
-        s = '\n'.join(lines[:10] + ['...'] + lines[-10:])
-    print(highlight(s).strip())
+        try:
+            s = pretty(var, max_seq_length=max_seq_length)
+        except TypeError:
+            s = pretty(var)
+        lines = s.splitlines()
+        max_lines = max_lines or max_seq_length
+        if len(lines) > max_lines:
+            s = '\n'.join(lines[:max_lines // 2] + ['...'] +
+                          lines[-max_lines // 2:])
+        print(highlight(s).strip())
+    except Exception:
+        pass
     print(type(var))
     if isinstance(var, numpy.ndarray):
         print(var.shape, var.dtype)
@@ -177,6 +185,14 @@ def varinfo(var):
             numpy.nanmean(var), numpy.nanstd(var)))
     elif isinstance(var, (dict, list, tuple, set)):
         print('n = %d' % len(var))
+    elif isinstance(var, pandas.DataFrame):
+        buf = io.StringIO()
+        var.info(buf=buf)
+        print(buf.getvalue())
+        print(var.dtypes)
+        print(var.shape)
+    elif isinstance(var, pandas.Series):
+        print(var.shape, var.dtype)
 
 
 def pad(array, length, filler=float('nan')):
@@ -442,7 +458,7 @@ class _dict2obj(dict):
         else:
             if isinstance(value, dict):
                 value = self.__class__(value)
-        super(dict2obj, self).__setattr__(name, value)
+        super(_dict2obj, self).__setattr__(name, value)
         self[name] = value
 
 
@@ -487,7 +503,6 @@ __all__ = [
     'minmax',
     'nanminmax',
     'pad',
-    'picker',
     'product_items',
     'quat2dcm',
     'r2d',
