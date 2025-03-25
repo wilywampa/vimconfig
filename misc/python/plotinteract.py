@@ -2,9 +2,11 @@
 from __future__ import division, print_function
 import ast
 import collections
+import collections.abc
 import copy
 import logging
 import matplotlib as mpl
+import matplotlib.colors as mpl_colors
 import numpy as np
 import re
 import sys
@@ -19,7 +21,6 @@ from matplotlib.backends.backend_qt5agg import (FigureCanvasQTAgg as
                                                 NavigationToolbar2QT
                                                 as NavigationToolbar)
 from matplotlib.figure import Figure
-from mplpicker import picker
 from six import string_types, text_type
 logger = logging.getLogger('plotinteract')
 
@@ -65,7 +66,7 @@ def flatten(d, ndim=None, prefix=''):
     out = {}
     for key, value in d.items():
         key = (prefix + '.' if prefix else '') + key
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, collections.abc.Mapping):
             out.update(flatten(value, ndim=ndim, prefix=key))
         else:
             out[key] = value
@@ -724,7 +725,7 @@ class DataObj(object):
             self.kwargs.pop(k, None)
 
         for p in self.props:
-            if mpl.colors._is_nth_color(p.get('color', None)):
+            if mpl_colors._is_nth_color(p.get('color', None)):
                 p['color'] = nth_color_value(p['color'])
 
     def process_cdata(self):
@@ -733,11 +734,11 @@ class DataObj(object):
             self.norm = self.kwargs.get('norm', None)
             if not self.norm:
                 self.norm = np.nanmin(self.cdata), np.nanmax(self.cdata)
-            if not isinstance(self.norm, mpl.colors.Normalize):
-                self.norm = mpl.colors.Normalize(*self.norm)
+            if not isinstance(self.norm, mpl_colors.Normalize):
+                self.norm = mpl_colors.Normalize(*self.norm)
             try:
-                self.cmap = mpl.cm.get_cmap(
-                    self.kwargs.get('cmap', mpl.rcParams['image.cmap']))
+                self.cmap = mpl.colormaps[
+                    self.kwargs.get('cmap', mpl.rcParams['image.cmap'])]
             except Exception:
                 self.cmap = mpl.cm.jet
 
@@ -747,7 +748,7 @@ class DataObj(object):
             self.props = self.props.copy()
             if self.props:
                 keys, values = zip(*self.props.items())
-                if all(isinstance(vs, collections.Sized)
+                if all(isinstance(vs, collections.abc.Sized)
                        for vs in values) and all(len(vs) == len(values[0])
                                                  for vs in values):
                     self.props = [{} for v in values[0]]
@@ -826,8 +827,8 @@ class DataObj(object):
             self.props[0].pop('color', None)
             norm = getattr(self, 'norm', (np.nanmin(self.cdata),
                                           np.nanmax(self.cdata)))
-            if not isinstance(norm, mpl.colors.Normalize):
-                norm = mpl.colors.Normalize(*norm)
+            if not isinstance(norm, mpl_colors.Normalize):
+                norm = mpl_colors.Normalize(*norm)
             text, ok = QtWidgets.QInputDialog.getText(
                 self.parent, 'Set color limits', 'Color limits:',
                 QtWidgets.QLineEdit.Normal, str((norm.vmin, norm.vmax)))
@@ -836,19 +837,19 @@ class DataObj(object):
             if not text:
                 text = repr((None,) * 2)
             try:
-                self.norm = mpl.colors.Normalize(*ast.literal_eval(text))
+                self.norm = mpl_colors.Normalize(*ast.literal_eval(text))
             except Exception:
                 self.norm = norm
 
-            cmap = mpl.cm.get_cmap(
-                getattr(self, 'cmap', mpl.rcParams['image.cmap']))
+            cmap = mpl.colormaps[
+                getattr(self, 'cmap', mpl.rcParams['image.cmap'])]
             text, ok = QtWidgets.QInputDialog.getText(
                 self.parent, 'Set colormap', 'Colormap:',
                 QtWidgets.QLineEdit.Normal, cmap.name)
             if not ok:
                 return
             try:
-                self.cmap = mpl.cm.get_cmap(text)
+                self.cmap = mpl.colormaps[text]
             except Exception:
                 self.cmap = cmap
         finally:
@@ -889,7 +890,7 @@ class DataObj(object):
                 value = ast.literal_eval(text_type(value.text()))
             except (SyntaxError, ValueError):
                 value = text_type(value.text())
-            if key == 'color' and mpl.colors._is_nth_color(value):
+            if key == 'color' and mpl_colors._is_nth_color(value):
                 value = nth_color_value(value)
             if all(key in p and p[key] == value for p in self.props):
                 return
@@ -959,7 +960,6 @@ class Interact(QtWidgets.QMainWindow):
         self.margins = 0
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.frame)
-        self.pickers = None
 
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.addWidget(self.mpl_toolbar)
@@ -1119,11 +1119,6 @@ class Interact(QtWidgets.QMainWindow):
         axes.clear()
         axes._tight, axes._xmargin, axes._ymargin = tight, xmargin, ymargin
 
-    def clear_pickers(self):
-        if self.pickers:
-            [p.disable() for p in self.pickers]
-            self.pickers = None
-
     def plot(self, axes, data):
         xscale = self.get_scale(data.xscale_box, data.xscale_compl)
         yscale = self.get_scale(data.scale_box, data.scale_compl)
@@ -1231,7 +1226,6 @@ class Interact(QtWidgets.QMainWindow):
         if keeplims:
             limits = self.axes.axis(), self.axes2.axis()
         twin = any(d.twin for d in self.datas)
-        self.clear_pickers()
         self.fig.clear()
         self.axes = self.fig.add_subplot(111)
 
@@ -1300,7 +1294,6 @@ class Interact(QtWidgets.QMainWindow):
         for i, label in enumerate(labels):
             if self.max_label_len and len(label) > self.max_label_len:
                 labels[i] = label[:self.max_label_len] + '…'
-        self.pickers = [picker(ax) for ax in [self.axes, self.axes2]]
 
         if keeplims:
             self.axes.axis(limits[0])
@@ -1310,7 +1303,7 @@ class Interact(QtWidgets.QMainWindow):
         self.fig.tight_layout()
         self.axes.legend(self.handles.values(), labels,
                          ncol=1 + len(labels) // 10,
-                         handlelength=1.5).draggable(True)
+                         handlelength=1.5).set_draggable(True)
 
         self.canvas.draw()
 

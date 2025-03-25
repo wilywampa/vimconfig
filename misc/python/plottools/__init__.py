@@ -21,12 +21,18 @@ def fg(fig=None):
         return
     plt.figure((fig or plt.gcf()).number)
     if plt.get_backend()[0:2].lower() == 'qt':
-        plt.get_current_fig_manager().window.hide()
-        plt.get_current_fig_manager().window.show()
-        plt.get_current_fig_manager().window.activateWindow()
-        plt.get_current_fig_manager().window.raise_()
+        from matplotlib.backends.backend_qt import FigureManagerQT
+        mgr = plt.get_current_fig_manager()
+        assert isinstance(mgr, FigureManagerQT)
+        mgr.window.hide()
+        mgr.window.show()
+        mgr.window.activateWindow()
+        mgr.window.raise_()
     elif plt.get_backend()[0:2].lower() == 'wx':
-        plt.get_current_fig_manager().window.Raise()
+        from matplotlib.backends.backend_wx import FigureManagerWx
+        mgr = plt.get_current_fig_manager()
+        assert isinstance(mgr, FigureManagerWx)
+        mgr.window.Raise()
 
 
 def _snap(**kwargs):
