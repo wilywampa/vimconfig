@@ -247,7 +247,8 @@ if __name__ == '__main__':
         term = open(sys.argv[1], 'wb+', buffering=0)
         sys.stdout = term
     else:
-        msg_id = send('import os as _os; _tty = _os.ttyname(1)', silent=True,
+        msg_id = send('import os as _os, sys as _sys; '
+                      '_tty = _os.ttyname(_sys.stdout.fileno())', silent=True,
                       user_expressions=dict(_tty='_tty'))
         while True:
             try:
