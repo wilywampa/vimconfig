@@ -105,4 +105,6 @@ syntax match  pythonMagicInit "\%(^\s*\)\@<=##\%(\s\|$\)" conceal contained cont
 syntax match  pythonMagicPct  "%%\%(cython\)\@=" contained containedin=cythonMagic display
 syntax match  pythonMagicName "\%(%%\)\@<=cython" contained containedin=cythonMagic display
 
+syntax keyword pythonBuiltinFunc breakpoint
+
 " vim: set sw=2:
