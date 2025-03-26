@@ -22,13 +22,6 @@ keyword = re.compile('[A-Za-z0-9_]')
 opening = re.compile('^(.*\[)[A-Za-z_''".]')
 splitchars = frozenset('= \r\n*()@-:')
 
-request = '''
-try:
-    _completions = completion_metadata(get_ipython())
-except Exception:
-    pass
-'''
-
 
 def parses(code):
     try:
@@ -84,7 +77,7 @@ class Source(Base):
             r'^\s*@\w*$|'
             r'^\s*from\s+[\w\.]*(?:\s+import\s+(?:\w*(?:,\s*)?)*)?|'
             r'^\s*import\s+(?:[\w\.]*(?:,\s*)?)*')
-        self._client = IPythonClient(vim)
+        self._client = IPythonClient(vim, debug=logger.debug)
         self._kernel_file = None
 
     @_log
@@ -196,8 +189,22 @@ class Source(Base):
         if not reply or reply.get('msg_type', '') != 'complete_reply':
             logger.debug('bad complete response')
             return []
+        content = reply['content']
 
         # Send the completion metadata request
+        request = f'''
+try:
+    _completion_args = (
+        get_ipython(),
+        {content['matches']!r},
+        {base!r},
+        {content['cursor_start']!r},
+        {content['cursor_end']!r},
+    )
+    _completions = completion_metadata(*_completion_args)
+except Exception:
+    pass
+'''
         reply = client.waitfor(client.kc.execute(
             request, silent=True,
             user_expressions={'_completions': '_completions'}))
@@ -206,6 +213,7 @@ class Source(Base):
             return []
 
         # Try to read the metadata
+        matches = content['matches']
         try:
             metadata = reply['content']['user_expressions']['_completions']
             matches = ast.literal_eval(metadata['data']['text/plain'])
