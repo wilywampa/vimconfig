@@ -17,14 +17,14 @@ except NameError:
 
 def get_ipython_file():
     proc = subprocess.Popen(['ps', '-u', getuser(), '-o', 'args'],
-                            stdout=subprocess.PIPE)
-    procs, err = proc.communicate()
+                            stdout=subprocess.PIPE, env={})
+    procs, _ = proc.communicate()
     procs = procs.decode('utf-8')
 
     for proc in procs.splitlines():
         if '-console' in proc or 'ipykernel' in proc:
             for arg in proc.split():
-                if re.match('^(.*/)?kernel-[0-9]+\.json$', arg):
+                if re.match(r'^(.*/)?kernel-[0-9]+\.json$', arg):
                     if os.path.exists(arg):
                         vim.vars['ipython_connected'] = 1
                         vim.vars['deoplete#ipython_kernel'] = arg
@@ -92,8 +92,8 @@ def select_docstring():
         vim.command('call cursor(%d, 0)' % end)
 
 
-doc_start = re.compile('^\s*[ur]?("""|' + (3 * "'") + ').*')
-doc_end = re.compile('.*("""|' + (3 * "'") + ')' + '\s*$')
+doc_start = re.compile(r'^\s*[ur]?("""|' + (3 * "'") + ').*')
+doc_end = re.compile(r'.*("""|' + (3 * "'") + ')' + r'\s*$')
 
 
 def PEP8():
@@ -111,6 +111,7 @@ def PEP8():
         recursive = False
         select = vim.vars.get('pymode_lint_select', ())
         verbose = 0
+        hang_closing = True
 
     start = vim.vvars['lnum'] - 1
     end = start + vim.vvars['count']
