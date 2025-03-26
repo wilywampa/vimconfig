@@ -102,8 +102,7 @@ abbr        assert Line
 
 snippet     fax
 abbr        plt.subplots()
-        ${1:f}, ${2:ax} = plt.subplots()
-	$2.${0}
+        f, ax = plt.subplots()
 
 snippet     future
 abbr        from __future__ ...
@@ -128,3 +127,8 @@ snippet     plot
 snippet     map
 abbr        [{f(x)} for x in {iterable}]
 	[${3:x} for ${1:x} in ${2:iterable}]
+
+snippet     rd
+abbr        with ResultsDict() as rs: rs.add()
+	with ResultsDict(${1:#:common args}) as rs:
+	    rs.add(${2:#:args})
