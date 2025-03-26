@@ -71,8 +71,8 @@ from numpy import (arccos as acos, arccosh as acosh, arcsin as asin,
 from numpy.ma import (getdata, getmaskarray, masked, masked_all,
                       masked_array as marray)
 from subprocess import PIPE, Popen, call, check_output
-from __builtin__ import abs, all, any, max, min, round, sum  # python2
-from builtins    import abs, all, any, max, min, round, sum  # python3
+from __builtin__ import abs, all, any, divmod, max, min, round, sum  # python2
+from builtins    import abs, all, any, divmod, max, min, round, sum  # python3
 """
 
 
@@ -80,7 +80,10 @@ def _marray_pprint(a, p, cycle):
     """Print mask as 'False' if mask is all False."""
     import re
     from numpy.ma.mrecords import MaskedRecords
-    _print_templates = ma.core._print_templates
+    try:
+        _print_templates = ma.core._print_templates
+    except AttributeError:
+        _print_templates = ma.core._legacy_print_templates
     try:
         n = len(a.shape)
         if len(a.dtype) > 1:
@@ -207,7 +210,7 @@ def fields_dict(slist, type=SList):
 def _install():
     import io
     import numpy as np
-    from IPython import get_ipython
+    from IPython.core.getipython import get_ipython
     from IPython.core import magic
     from highlighter import HighlightTextFormatter
     ip = get_ipython()
@@ -245,12 +248,12 @@ def _install():
         """Separate values with a comma in array2string."""
         return np.array2string(a, max_line_width,
                                precision, suppress_small,
-                               separator=', ', prefix="", style=str)\
+                               separator=', ', prefix="")\
             .replace('..., ', '..., ' if PY3 else 'Ellipsis, ')
 
-    np.set_string_function(arraystr, repr=False)
-    if not PY3:
-        np.set_string_function(arraystr)
+    # np.set_string_function(arraystr, repr=False)
+    # if not PY3:
+    #     np.set_string_function(arraystr)
     np.ma.masked_print_option.set_display("masked")
 
 
@@ -274,13 +277,17 @@ def configure(c):
     except ImportError:
         pass
     else:
-        if "solarizedlight" in pygments.styles.get_all_styles():
-            c.IPythonWidget.syntax_style = "solarizedlight"
+        if "solarized-light" in pygments.styles.get_all_styles():
+            c.IPythonWidget.syntax_style = "solarized-light"
 
     from IPython.lib.pretty import _set_pprinter_factory
+    try:
+        set_printer = _set_pprinter_factory('set({', '})', set)
+    except TypeError:
+        set_printer = _set_pprinter_factory('set({', '})')
     c.PlainTextFormatter.type_printers.update({
         ma.core.MaskedArray: _marray_pprint,
-        set: _set_pprinter_factory('set({', '})', set),
+        set: set_printer,
     })
 
     def add(item):
