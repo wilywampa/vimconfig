@@ -5,8 +5,7 @@ from jupyter_client import KernelManager, find_connection_file
 from queue import Empty
 
 logger = logging.getLogger(__name__)
-error, debug, info, warn = (
-    logger.error, logger.debug, logger.info, logger.warn,)
+
 if 'NVIM_IPY_DEBUG_FILE' in os.environ:
     logfile = os.environ['NVIM_IPY_DEBUG_FILE'].strip()
     handler = logging.FileHandler(logfile, 'w')
@@ -17,7 +16,6 @@ if 'NVIM_IPY_DEBUG_FILE' in os.environ:
 
 class RedirectingKernelManager(KernelManager):
     def _launch_kernel(self, cmd, **b):
-        debug('_launch_kernel')
         # stdout is used to communicate with nvim, redirect it somewhere else
         self._null = open("/dev/null", "wb", 0)
         b['stdout'] = self._null.fileno()
@@ -27,16 +25,17 @@ class RedirectingKernelManager(KernelManager):
 
 class IPythonClient(object):
 
-    def __init__(self, vim):
+    def __init__(self, vim, debug=logger.debug):
         self.has_connection = False
         self.pending_shell_msgs = {}
         self.km = None
         self.kc = None
         self.vim = vim
         self.timeout = float(self.vim.vars.get('ipython_timeout', 1))
+        self._debug = debug
 
     def connect(self, connection_file=None):
-        debug('connect')
+        self._debug('connect')
         self.has_connection = False
         self.km = RedirectingKernelManager(
             client_class='jupyter_client.blocking.BlockingKernelClient')
@@ -58,15 +57,23 @@ class IPythonClient(object):
         self.kc.shell_channel.call_handlers = self.on_shell_msg
         self.kc.hb_channel.call_handlers = self.on_hb_msg
         self.kc.start_channels()
-        if self.waitfor(self.kc.kernel_info()):
+        self.kc.kernel_info()
+        try:
+            self.kc.shell_channel.get_msg(
+                # block=True,
+                timeout=self.timeout,
+            )
+        except (Empty, RuntimeError):
+            self.has_connection = False
+        else:
             self.has_connection = True
 
     def handle(self, msg_id, handler):
-        debug('handle')
+        self._debug('handle')
         self.pending_shell_msgs[msg_id] = handler
 
     def waitfor(self, msg_id, timeout=None):
-        debug('waitfor')
+        self._debug('waitfor')
         timeout = timeout or self.timeout
         while 1:
             try:
@@ -80,23 +87,23 @@ class IPythonClient(object):
                 return reply
 
     def ignore(self, msg_id):
-        debug('ignore')
+        self._debug('ignore')
         self.handle(msg_id, None)
 
     def on_shell_msg(self, m):
-        debug('on_shell_msg')
+        self._debug('on_shell_msg')
         msg_id = m['parent_header']['msg_id']
         try:
             handler = self.pending_shell_msgs.pop(msg_id)
         except KeyError:
-            debug('unexpected shell msg: %r', m)
+            self._debug('unexpected shell msg: %r', m)
             return
         if handler is not None:
             handler(m)
 
     def on_hb_msg(self, time_since):
         """this gets called when heartbeat is lost."""
-        debug('on_hb_msg')
+        self._debug('on_hb_msg')
         if self.has_connection:
             self.vim.err_write('IPython connection lost.\n')
         self.has_connection = False
