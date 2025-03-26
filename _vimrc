@@ -255,8 +255,8 @@ let g:file_dict = {
     \ 'j': '$HOME/.jupyter/jupyter_console_config.py',
     \ 'l': '$HOME/.zshrclocal',
     \ 'M': '$HOME/.minttyrc',
-    \ 'm': '$HOME/.matplotlib/matplotlibrc',
-    \ 'n': '$HOME/.config/nvim/init.vim',
+    \ 'm': '$HOME/.config/matplotlib/matplotlibrc',
+    \ 'n': '$HOME/.config/nvim/init.lua',
     \ 'P': '$HOME/.plugged',
     \ 'p': ['$HOME/.ipython/profile_default/ipython_config.py',
     \       '$VIMCONFIG/misc/python/ipython_config.py'],
@@ -1911,6 +1911,15 @@ elseif !s:blacklisted('neocomplete')
             \  neocomplete#helper#get_cur_text()[-1:] == '.' ? <SID>ResetCompletion() : '')
         " }}}
     endif
+
+elseif !s:blacklisted('nvim-cmp')
+    call add(g:pathogen_disabled, 'deoplete')
+    call add(g:pathogen_disabled, 'neocomplete')
+    call add(g:pathogen_disabled, 'supertab')
+
+    imap <expr> <C-d> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-d>'
+    smap <expr> <C-d> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-d>'
+
 else
     call add(g:pathogen_disabled, 'deoplete')
     call add(g:pathogen_disabled, 'neocomplete')
@@ -3168,7 +3177,7 @@ endif
 let g:nremap['`'] = ''
 
 " Import scripts {{{
-silent! if plug#begin('$VIMCONFIG/vimfiles/bundle')
+silent! if plug#begin('$HOME/.config/plugged')
 if filereadable(expand('$HOME/.plugged'))
     source $HOME/.plugged
 endif
@@ -3206,7 +3215,6 @@ Plug 'wilywampa/vim-scriptease'
 Plug 'xolox/vim-shell'
 Plug 'wilywampa/vim-sleuth'
 Plug 'wilywampa/vim-sneak'
-Plug 'wilywampa/vim-colors-solarized', {'dir': '$VIMCONFIG/vimfiles/bundle/solarized'}
 Plug 'wilywampa/vim-surround'
 Plug 'scrooloose/syntastic', {'on': ['SyntasticInfo', 'SyntasticCheck']}
 Plug 'wellle/targets.vim'
@@ -3245,15 +3253,36 @@ Plug 'vim-utils/vim-man'
 Plug 'powerman/vim-plugin-AnsiEsc', {'on': 'AnsiEsc'}
 Plug '$VIMCONFIG/vimfiles/bundle/matlab'
 Plug '$VIMCONFIG/vimfiles/bundle/matlab-complete'
+Plug 'rose-pine/vim', {'dir': '$VIMCONFIG/vimfiles/bundle/rose-pine'}
 if has('nvim')
     call add(g:pathogen_disabled, 'neocomplete')
-    call add(g:pathogen_disabled, 'libclang')
-    Plug 'Shougo/deoplete.nvim'
-    Plug 'tweekmonster/deoplete-clang2'
-    Plug 'zchee/deoplete-jedi'
-    Plug 'zchee/deoplete-zsh'
+    if !s:blacklisted('nvim-cmp')
+        Plug 'hrsh7th/nvim-cmp'
+        Plug 'hrsh7th/cmp-vsnip'
+        Plug 'hrsh7th/cmp-nvim-lsp'
+        Plug 'hrsh7th/cmp-buffer'
+        Plug 'hrsh7th/cmp-path'
+        Plug 'hrsh7th/cmp-cmdline'
+        Plug 'hrsh7th/cmp-omni'
+        Plug 'onsails/lspkind.nvim'
+        " Plug 'teramako/cmp-cmdline-prompt.nvim'
+    endif
+    Plug 'neovim/nvim-lspconfig'
+    Plug 'hrsh7th/vim-vsnip'
+    Plug 'rafamadriz/friendly-snippets'
     Plug 'zchee/libclang-python3'
     Plug 'w0rp/ale'
+    Plug 'folke/tokyonight.nvim'
+    Plug 'navarasu/onedark.nvim'
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+    Plug 'williamboman/mason.nvim'
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'nvim-telescope/telescope.nvim', {'tag': '0.1.8'}
+    Plug 'nvim-telescope/telescope-fzf-native.nvim', {'do': 'make'}
+    Plug 'maxmx03/solarized.nvim'
+else
+    Plug 'altercation/vim-colors-solarized'
 endif
 call plug#end()
 endif " }}}
@@ -3288,9 +3317,11 @@ endfunction
 silent! TextobjLineDefaultKeyMappings!
 
 " Solarized settings
-if mobileSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
-if !exists('colors_name') || colors_name != 'solarized'
-    set background=dark
-    sil! colorscheme solarized
+if !has('nvim')
+    if mobileSSH || $SOLARIZED != 1 | let g:solarized_termcolors=256 | endif
+    if !exists('colors_name') || colors_name != 'solarized'
+        set background=dark
+        sil! colorscheme solarized
+    endif
 endif
 " }}} vim: fdm=marker fdl=1 tw=100:
